@@ -75,7 +75,13 @@ export function StudioHomeView() {
               </p>
             ) : (
               <p className="text-foreground-secondary mt-1 text-sm">
-                Create a channel on tahti.live to unlock Music and Go Live.
+                <Link
+                  to="/studio/setup-channel"
+                  className="text-foreground underline-offset-2 hover:underline"
+                >
+                  Create your channel
+                </Link>{' '}
+                to unlock Music and Go Live.
               </p>
             )}
           </div>
@@ -101,9 +107,15 @@ export function StudioHomeView() {
 
             <Group title="Music">
               <CardGrid>
+                <Link to="/studio/shows">
+                  <Card title="Shows" subtitle="Episodes & slots" />
+                </Link>
+                <Link to="/studio/playlists">
+                  <Card title="Playlists" subtitle="Public & collab" />
+                </Link>
                 <Link to="/studio/archive">
                   <Card
-                    title="Music"
+                    title="Library"
                     subtitle={
                       counts.archive
                         ? `${counts.archive} items`
@@ -116,7 +128,7 @@ export function StudioHomeView() {
                 </Link>
                 <Link to="/studio/collections">
                   <Card
-                    title="Albums & playlists"
+                    title="Albums"
                     subtitle={
                       counts.collections
                         ? `${counts.collections} collections`
@@ -126,7 +138,7 @@ export function StudioHomeView() {
                 </Link>
                 <Link to="/studio/releases">
                   <Card
-                    title="Smart links"
+                    title="Releases"
                     subtitle={
                       counts.releases
                         ? `${counts.releases} releases`

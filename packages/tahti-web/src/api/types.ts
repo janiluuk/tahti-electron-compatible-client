@@ -73,6 +73,8 @@ export type ArchiveItem = {
   createdAt?: string;
   /** Origin provider when imported (soundcloud, bandcamp, …). */
   sourceProvider?: string | null;
+  /** Present when API serializes Stage pins (profile always; channel items may omit). */
+  pinnedAt?: string | null;
 };
 
 export type PublicProfileArtist = {
@@ -94,6 +96,9 @@ export type PublicProfileTrack = {
   bannerUrl?: string | null;
   playUrl?: string | null;
   releaseSlug?: string | null;
+  /** Stage pin — GET /api/v1/u/:username/profile */
+  pinned?: boolean;
+  pinnedAt?: string | null;
 };
 
 export type PublicProfileRelease = {
@@ -104,6 +109,8 @@ export type PublicProfileRelease = {
   smartLinkSlug?: string | null;
   releaseDate?: string | null;
   description?: string | null;
+  pinned?: boolean;
+  pinnedAt?: string | null;
   tracks?: Array<{
     position: number;
     title: string;

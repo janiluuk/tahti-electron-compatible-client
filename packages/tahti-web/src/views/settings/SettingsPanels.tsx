@@ -561,15 +561,10 @@ function ArtistPanel() {
                     </Button>
                   </a>
                 )}
-                <a
-                  href="https://tahti.live/dashboard/settings/media"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <Button size="sm" variant="text">
-                    Full media builder
-                  </Button>
-                </a>
+                <SettingsHint>
+                  Gallery images and bio above are the in-app press kit. ZIP
+                  downloads still use the API path on tahti.live.
+                </SettingsHint>
               </div>
             </div>
           ),
@@ -928,15 +923,10 @@ function BroadcastPanel() {
                   ))}
                 </ul>
               )}
-              <a
-                href="https://tahti.live/dashboard/settings/moderators"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Button size="sm" variant="text">
-                  Manage on production
-                </Button>
-              </a>
+              <SettingsHint>
+                Invite and permission edits stay in-app once the moderator
+                manage API is wired; the list above is live.
+              </SettingsHint>
             </div>
           ),
         },

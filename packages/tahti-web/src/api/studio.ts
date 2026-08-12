@@ -68,6 +68,7 @@ const mockArchiveStore: StudioArchiveItem[] = [
     genre: 'ambient',
     contentType: 'DJ_MIX',
     isPublic: true,
+    pinnedAt: '2026-07-15T12:00:00.000Z',
     createdAt: new Date().toISOString(),
   },
   {
@@ -163,17 +164,30 @@ export async function patchStudioArchiveItem(
 > {
   if (forceMock()) {
     const idx = mockArchiveStore.findIndex((a) => a.id === id);
+    const { pinned, ...rest } = patch;
     if (idx >= 0) {
-      mockArchiveStore[idx] = {
+      const next: StudioArchiveItem = {
         ...mockArchiveStore[idx]!,
-        ...patch,
+        ...rest,
         title: patch.title ?? mockArchiveStore[idx]!.title,
       };
+      if (pinned !== undefined) {
+        next.pinnedAt = pinned ? new Date().toISOString() : null;
+      }
+      mockArchiveStore[idx] = next;
       return { ok: true, data: mockArchiveStore[idx]! };
     }
     return {
       ok: true,
-      data: { id, title: patch.title ?? 'Untitled', status: 'READY', ...patch },
+      data: {
+        id,
+        title: patch.title ?? 'Untitled',
+        status: 'READY',
+        ...rest,
+        ...(pinned !== undefined
+          ? { pinnedAt: pinned ? new Date().toISOString() : null }
+          : {}),
+      },
     };
   }
   try {

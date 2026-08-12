@@ -154,6 +154,7 @@ export function mockArchiveItems(slug: string): ArchiveItem[] {
       audioUrl: DEMO_MP3,
       genre: 'ambient',
       createdAt: '2026-07-01T20:00:00.000Z',
+      pinnedAt: '2026-07-15T12:00:00.000Z',
     },
     {
       id: `${slug}-archive-2`,
@@ -219,6 +220,8 @@ export function mockProfile(username: string): PublicProfile {
       bannerUrl: a.bannerUrl,
       playUrl: a.audioUrl,
       releaseSlug: `${username}-first-light`,
+      pinned: Boolean(a.pinnedAt),
+      pinnedAt: a.pinnedAt ?? null,
     })),
     fanTiers: [{ id: 'tier-1', name: 'Supporter', amountCents: 500 }],
     collections: [

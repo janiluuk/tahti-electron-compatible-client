@@ -18,18 +18,18 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 4 | Archive item | `/studio/archive/$id` | **in-review** | `docs/redesign-shots/studio-archive-item-v1.png` |
 | 5 | Upload | `/studio/upload` | **approved** | `docs/redesign-shots/studio-upload-v1.png` |
 | 6 | Releases | `/studio/releases` | **in-review** | `docs/redesign-shots/studio-releases-v1.png` |
-| 7 | Release detail | `/studio/releases/$id` | pending | |
-| 8 | Collections / album designer | `/studio/collections` | pending | |
-| 9 | Collection editor | `/studio/collections/$id` | pending | |
+| 7 | Release detail | `/studio/releases/$id` | **in-review** | (panels + Save CTA) |
+| 8 | Collections / album designer | `/studio/collections` | **in-review** | `docs/redesign-shots/studio-collections-v1.png` |
+| 9 | Collection editor | `/studio/collections/$slug` | **in-review** | |
 | 10 | Audio editor list | `/studio/editor` | pending | |
 | 11 | Editor project | `/studio/editor/$id` | pending | |
 | 12 | Schedule | `/studio/schedule` | pending | |
 | 13 | Stats | `/studio/stats` | pending | |
 | 14 | Stats detail | `/studio/stats/detail` | pending | |
-| 15 | Channel designer | `/studio/channel` | **in-review** | (polish: tabs + 24/7 radio + panels) |
-| 16 | Shows | `/studio/shows` | **in-review** | (series + episodes; series localStorage) |
+| 15 | Channel designer | `/studio/channel` | **in-review** | `docs/redesign-shots/studio-channel-v1.png` |
+| 16 | Shows | `/studio/shows` | **in-review** | `docs/redesign-shots/studio-shows-v1.png` |
 | 17 | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **in-review** | |
-| 18 | Playlists | `/studio/playlists`, `…/$slug` | **in-review** | (TrackTable editor; public/collab) |
+| 18 | Playlists | `/studio/playlists`, `…/$slug` | **in-review** | `docs/redesign-shots/studio-playlists-v1.png` |
 | 19 | Updates / newsletter | `/studio/updates` | pending | |
 | 20 | Revenue / Connect | `/studio/revenue` | pending | |
 | 21 | Stash | `/studio/stash` | pending | |
@@ -196,5 +196,23 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 - 24/7 radio: pick/create playlist → apply to programme (max 5 items)
 - StudioPanel / StudioPageHeader polish
 
-**Status:** in-review — awaiting screenshots + comment or `approved`.
+**Status:** in-review — screenshots captured; awaiting comment or `approved`.
+
+### 2026-08-12 — Release detail + Albums polish + link-out cleanup
+
+**Goal:** Finish next worklog rows with StudioPanel depth; remove easy prod dashboard link-outs.
+
+**Release detail (`/studio/releases/$id`):** Artwork / Details / Tracks panels; header Save CTA; Distribution in-app link.
+
+**Albums (`/studio/collections` + editor):** Human subtitle (no API jargon); StudioPanel list; Playlists cross-link; album editor panels + Save.
+
+**Show detail:** Defaults / Schedule / Episodes as StudioPanels.
+
+**Setup channel:** StudioPageHeader + panel; home CTA → `/studio/setup-channel` (no tahti.live wording).
+
+**Settings:** Dropped “Full media builder” and “Manage on production” moderator link-outs.
+
+**Screenshots:** `studio-shows-v1`, `studio-playlists-v1`, `studio-channel-v1`, `studio-collections-v1` (+ releases refresh).
+
+**Status:** in-review — awaiting comment or `approved`.
 

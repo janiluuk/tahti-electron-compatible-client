@@ -8,6 +8,7 @@ import {
   deleteStudioArchiveItem,
   fetchEditorSource,
   fetchStudioArchive,
+  patchStudioArchiveItem,
 } from '../../api/studio';
 import type { StudioArchiveItem } from '../../api/studio-types';
 import { AddToMusicActions } from '../../components/AddToMusicActions';
@@ -15,6 +16,13 @@ import { AddToPlaylistButton } from '../../components/AddToPlaylistButton';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import {
+  countPinnedTracks,
+  isPinned,
+  MAX_PINNED_TRACKS,
+  pinBlockedMessage,
+  sortPinnedFirst,
+} from '../../lib/pinnedTracks';
 import { usePlayerStore } from '../../stores/playerStore';
 
 export function StudioArchiveView() {
@@ -24,6 +32,7 @@ export function StudioArchiveView() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [openMoreId, setOpenMoreId] = useState<string | null>(null);
+  const [pinMessage, setPinMessage] = useState<string | null>(null);
   const play = usePlayerStore((s) => s.play);
 
   const reload = () => {
@@ -41,16 +50,18 @@ export function StudioArchiveView() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) {
-      return items;
-    }
-    return items.filter(
-      (i) =>
-        i.title.toLowerCase().includes(q) ||
-        (i.genre?.toLowerCase().includes(q) ?? false) ||
-        i.status.toLowerCase().includes(q),
-    );
+    const base = !q
+      ? items
+      : items.filter(
+          (i) =>
+            i.title.toLowerCase().includes(q) ||
+            (i.genre?.toLowerCase().includes(q) ?? false) ||
+            i.status.toLowerCase().includes(q),
+        );
+    return sortPinnedFirst(base);
   }, [items, query]);
+
+  const pinnedCount = countPinnedTracks(items);
 
   const playItem = async (id: string, title: string) => {
     setBusyId(id);
@@ -66,24 +77,57 @@ export function StudioArchiveView() {
     setBusyId(null);
   };
 
+  const togglePin = async (item: StudioArchiveItem) => {
+    const next = !isPinned(item);
+    setPinMessage(null);
+    if (next) {
+      const blocked = pinBlockedMessage(pinnedCount);
+      if (blocked) {
+        setPinMessage(blocked);
+        return;
+      }
+    }
+    setBusyId(item.id);
+    const result = await patchStudioArchiveItem(item.id, { pinned: next });
+    setBusyId(null);
+    if (!result.ok) {
+      setPinMessage(result.error);
+      return;
+    }
+    setItems((prev) =>
+      prev.map((row) => (row.id === item.id ? result.data : row)),
+    );
+  };
+
   return (
     <StudioGate>
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/archive" />
         <StudioPageHeader
           title="Library"
-          subtitle={`Your archive — play, edit metadata, or open the audio editor.${meta?.source === 'mock' ? ' (demo data)' : ''}`}
+          subtitle={`Your archive — play, pin up to ${MAX_PINNED_TRACKS} tracks to your public page, or open the editor.${meta?.source === 'mock' ? ' (demo data)' : ''}`}
           action={<AddToMusicActions onUploaded={reload} />}
         />
 
         <StudioPanel>
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search…"
-            className="border-border bg-background focus:border-primary mb-4 max-w-md rounded-md border px-3 py-2 text-sm outline-none"
-          />
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search…"
+              className="border-border bg-background focus:border-primary max-w-md flex-1 rounded-md border px-3 py-2 text-sm outline-none"
+            />
+            <span className="text-foreground-secondary text-xs">
+              Pinned {pinnedCount}/{MAX_PINNED_TRACKS}
+            </span>
+          </div>
+
+          {pinMessage && (
+            <p className="text-foreground-secondary mb-3 text-sm" role="status">
+              {pinMessage}
+            </p>
+          )}
 
           {loading ? (
             <p className="text-foreground-secondary text-sm">Loading…</p>
@@ -111,6 +155,7 @@ export function StudioArchiveView() {
                     </Link>
                     <p className="text-foreground-secondary text-xs">
                       {item.status}
+                      {isPinned(item) ? ' · Pinned' : ''}
                       {item.durationSec != null
                         ? `, ${Math.round(item.durationSec / 60)} min`
                         : ''}
@@ -145,6 +190,19 @@ export function StudioArchiveView() {
                   </button>
                   {openMoreId === item.id && (
                     <div className="flex w-full flex-wrap gap-2 pt-1">
+                      <Button
+                        size="sm"
+                        variant="text"
+                        disabled={busyId === item.id}
+                        title={
+                          !isPinned(item) && pinnedCount >= MAX_PINNED_TRACKS
+                            ? (pinBlockedMessage(pinnedCount) ?? undefined)
+                            : undefined
+                        }
+                        onClick={() => void togglePin(item)}
+                      >
+                        {isPinned(item) ? 'Unpin from page' : 'Pin to page'}
+                      </Button>
                       <Link
                         to="/studio/archive/$id/editor"
                         params={{ id: item.id }}

@@ -18,6 +18,7 @@ import {
 import { uploadArchiveFile } from '../../api/studio';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { EpisodeSourceIcon, episodeStatusLabel } from './StudioShowsView';
 
 export function StudioShowDetailView({ id }: { id: string }) {
@@ -176,72 +177,66 @@ export function StudioShowDetailView({ id }: { id: string }) {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/shows" />
         <Link
           to="/studio/shows"
-          className="text-foreground-secondary text-xs hover:underline"
+          className="text-foreground-secondary -mt-2 text-xs hover:underline"
         >
           ← Shows
         </Link>
 
         {!show ? (
-          <p className="text-foreground-secondary text-sm">Show not found.</p>
+          <StudioPanel>
+            <p className="text-foreground-secondary text-sm">Show not found.</p>
+          </StudioPanel>
         ) : (
           <>
-            <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-foreground-secondary text-xs tracking-wide uppercase">
-                  Show
-                </p>
-                <h1 className="font-display text-3xl font-extrabold tracking-tight">
-                  {show.title}
-                </h1>
-                <p className="text-foreground-secondary mt-1 text-sm">
-                  Next episode #{show.nextEpisodeNumber}
-                  {`, ${show.intervalHours}h intervals`}
-                </p>
-              </div>
-              <Button size="sm" onClick={() => setCreateOpen(true)}>
-                New episode
-              </Button>
-            </header>
+            <StudioPageHeader
+              title={show.title}
+              subtitle={`Next episode #${show.nextEpisodeNumber}, ${show.intervalHours}h intervals`}
+              action={
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
+                  New episode
+                </Button>
+              }
+            />
 
-            <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
-              <h2 className="font-display text-lg font-bold">Show defaults</h2>
-              <p className="text-foreground-secondary text-xs">
-                New episodes copy description, cover, and get the next episode
-                number automatically.
-              </p>
-              <Input
-                label="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Description
-                </span>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  className="border-border bg-background rounded-md border px-3 py-2"
+            <StudioPanel
+              title="Show defaults"
+              description="New episodes copy description, cover, and get the next episode number automatically."
+            >
+              <div className="flex flex-col gap-3">
+                <Input
+                  label="Title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                 />
-              </label>
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={savingMeta}
-                onClick={() => void saveMeta()}
-              >
-                {savingMeta ? 'Saving…' : 'Save defaults'}
-              </Button>
-            </section>
+                <label className="flex flex-col gap-1 text-sm">
+                  <span className="text-foreground-secondary text-xs uppercase">
+                    Description
+                  </span>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    className="border-border bg-background rounded-md border px-3 py-2"
+                  />
+                </label>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={savingMeta}
+                  onClick={() => void saveMeta()}
+                >
+                  {savingMeta ? 'Saving…' : 'Save defaults'}
+                </Button>
+              </div>
+            </StudioPanel>
 
-            <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="font-display text-lg font-bold">Schedule</h2>
+            <StudioPanel
+              title="Schedule"
+              action={
                 <Button
                   size="sm"
                   variant="secondary"
@@ -250,7 +245,8 @@ export function StudioShowDetailView({ id }: { id: string }) {
                 >
                   Book next {show.intervalHours}h slot
                 </Button>
-              </div>
+              }
+            >
               {nextSlotHint ? (
                 <p className="text-sm">
                   Next slot:{' '}
@@ -263,7 +259,7 @@ export function StudioShowDetailView({ id }: { id: string }) {
                   No upcoming slots — book an interval for this show.
                 </p>
               )}
-              <div className="flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <Link to="/studio/go-live">
                   <Button size="sm" variant="text">
                     <MicIcon size={14} aria-hidden className="mr-1" />
@@ -271,21 +267,20 @@ export function StudioShowDetailView({ id }: { id: string }) {
                   </Button>
                 </Link>
               </div>
-            </section>
+            </StudioPanel>
 
-            <section className="flex flex-col gap-3">
-              <h2 className="font-display text-lg font-bold">Episodes</h2>
+            <StudioPanel title="Episodes">
               {episodes.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
                   No episodes yet. Create one — episode #{nextEpisodeNumber} is
                   ready.
                 </p>
               ) : (
-                <ul className="border-border divide-border divide-y rounded-lg border">
+                <ul className="divide-border divide-y">
                   {episodes.map((ep) => (
                     <li
                       key={ep.id}
-                      className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm"
+                      className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
                     >
                       <span className="text-foreground-secondary w-10 text-xs tabular-nums">
                         #{ep.episodeNumber}
@@ -318,7 +313,7 @@ export function StudioShowDetailView({ id }: { id: string }) {
                   ))}
                 </ul>
               )}
-            </section>
+            </StudioPanel>
 
             <Dialog.Root
               isOpen={createOpen}

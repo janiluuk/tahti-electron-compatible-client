@@ -4,12 +4,19 @@ import { useEffect, useState } from 'react';
 import { Button, Input } from '@nuclearplayer/ui';
 
 import {
+  fetchStudioArchive,
   fetchStudioArchiveItem,
   patchStudioArchiveItem,
 } from '../../api/studio';
 import type { StudioArchiveItem } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import {
+  countPinnedTracks,
+  isPinned,
+  MAX_PINNED_TRACKS,
+  pinBlockedMessage,
+} from '../../lib/pinnedTracks';
 
 export function StudioArchiveItemView({ id }: { id: string }) {
   const [item, setItem] = useState<StudioArchiveItem | null>(null);
@@ -19,6 +26,8 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const [isPublic, setIsPublic] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [pinBusy, setPinBusy] = useState(false);
+  const [pinnedCount, setPinnedCount] = useState(0);
   const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
@@ -28,6 +37,9 @@ export function StudioArchiveItemView({ id }: { id: string }) {
       setDescription(res.data.description ?? '');
       setGenre(res.data.genre ?? '');
       setIsPublic(res.data.isPublic !== false);
+    });
+    void fetchStudioArchive().then((res) => {
+      setPinnedCount(countPinnedTracks(res.data));
     });
   }, [id]);
 
@@ -49,11 +61,38 @@ export function StudioArchiveItemView({ id }: { id: string }) {
     setMessage('Saved.');
   };
 
+  const togglePin = async () => {
+    if (!item) {
+      return;
+    }
+    const next = !isPinned(item);
+    setMessage(null);
+    if (next) {
+      const blocked = pinBlockedMessage(pinnedCount);
+      if (blocked) {
+        setMessage(blocked);
+        return;
+      }
+    }
+    setPinBusy(true);
+    const result = await patchStudioArchiveItem(id, { pinned: next });
+    setPinBusy(false);
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setItem(result.data);
+    setPinnedCount((c) => (next ? c + 1 : Math.max(0, c - 1)));
+    setMessage(next ? 'Pinned to your public page.' : 'Unpinned.');
+  };
+
   const visibility = item
     ? item.isPublic === false
       ? 'Private'
       : 'Public'
     : '';
+  const pinned = item ? isPinned(item) : false;
+  const pinBlocked = !pinned && pinnedCount >= MAX_PINNED_TRACKS;
 
   return (
     <StudioGate>
@@ -78,16 +117,42 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                   Edit title, description, and visibility.
                   <span className="ml-2 text-xs tracking-wide uppercase opacity-70">
                     {item.status}, {visibility}
+                    {pinned ? ', Pinned' : ''}
                   </span>
                 </p>
               </div>
-              <Button
-                disabled={saving || !title.trim()}
-                onClick={() => void save()}
-              >
-                {saving ? 'Saving…' : 'Save'}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={pinBusy || pinBlocked}
+                  title={
+                    pinBlocked
+                      ? (pinBlockedMessage(pinnedCount) ?? undefined)
+                      : undefined
+                  }
+                  onClick={() => void togglePin()}
+                >
+                  {pinBusy
+                    ? '…'
+                    : pinned
+                      ? 'Unpin from page'
+                      : `Pin to page (${pinnedCount}/${MAX_PINNED_TRACKS})`}
+                </Button>
+                <Button
+                  disabled={saving || !title.trim()}
+                  onClick={() => void save()}
+                >
+                  {saving ? 'Saving…' : 'Save'}
+                </Button>
+              </div>
             </header>
+
+            {pinBlocked && (
+              <p className="text-foreground-secondary text-sm" role="status">
+                {pinBlockedMessage(pinnedCount)}
+              </p>
+            )}
 
             <div className="flex flex-col gap-4">
               <Input

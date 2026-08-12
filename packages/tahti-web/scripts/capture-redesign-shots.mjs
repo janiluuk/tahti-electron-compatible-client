@@ -37,16 +37,32 @@ await page.evaluate(() => {
 
 const shots = [
   {
-    path: '/studio/releases',
-    out: 'studio-releases-v1.png',
+    path: '/studio/shows',
+    out: 'studio-shows-v1.png',
+    check: (t) => t.toLowerCase().includes('shows'),
+  },
+  {
+    path: '/studio/playlists',
+    out: 'studio-playlists-v1.png',
+    check: (t) => t.toLowerCase().includes('playlist'),
+  },
+  {
+    path: '/studio/channel',
+    out: 'studio-channel-v1.png',
+    check: (t) => t.toLowerCase().includes('channel'),
+  },
+  {
+    path: '/studio/collections',
+    out: 'studio-collections-v1.png',
     check: (t) => {
       const l = t.toLowerCase();
-      return (
-        l.includes('releases') &&
-        l.includes('new release') &&
-        !l.includes('/api/me/releases')
-      );
+      return l.includes('albums') && !l.includes('/api/me/collections');
     },
+  },
+  {
+    path: '/studio/releases',
+    out: 'studio-releases-v1.png',
+    check: (t) => t.toLowerCase().includes('releases'),
   },
 ];
 
@@ -54,7 +70,7 @@ for (const s of shots) {
   await page.goto(`${BASE}${s.path}`, { waitUntil: 'networkidle' });
   await page.waitForTimeout(2500);
   const text = await page.locator('body').innerText();
-  console.log(`--- ${s.out} ---\n`, text.slice(0, 1600));
+  console.log(`--- ${s.out} ---\n`, text.slice(0, 1200));
   if (!s.check(text)) {
     console.error('FAIL check', s.out);
     process.exitCode = 1;

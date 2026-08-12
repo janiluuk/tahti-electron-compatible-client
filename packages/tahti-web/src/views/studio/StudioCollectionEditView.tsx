@@ -18,6 +18,7 @@ import type {
 } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 const STYLE_OPTIONS = [
   'ALBUM',
@@ -122,20 +123,22 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-4xl flex-col gap-6">
+      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/collections" />
         <Link
           to="/studio/collections"
-          className="text-foreground-secondary text-xs hover:underline"
+          className="text-foreground-secondary -mt-2 text-xs hover:underline"
         >
-          ← Collections
+          ← Albums
         </Link>
         {!col ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
+          <StudioPanel>
+            <p className="text-foreground-secondary text-sm">Loading…</p>
+          </StudioPanel>
         ) : (
           <>
-            <header className="flex flex-col gap-4 sm:flex-row sm:items-end">
-              <div className="border-border bg-background-secondary relative h-44 w-44 shrink-0 overflow-hidden rounded-xl border">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+              <div className="border-border bg-background relative h-44 w-44 shrink-0 overflow-hidden rounded-xl border shadow-sm">
                 {coverUrl ? (
                   <img
                     src={coverUrl}
@@ -148,19 +151,21 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                   </div>
                 )}
               </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <p className="text-foreground-secondary text-xs tracking-wide uppercase">
-                  {isAlbumLike ? 'Album designer' : 'Collection designer'}
-                </p>
-                <h1 className="font-display text-3xl font-extrabold tracking-tight">
-                  {name || col.name}
-                </h1>
-                <p className="text-foreground-secondary text-xs">
-                  /{col.slug}
-                  {style ? ` — ${style}` : ''}
-                  {isPublic ? '' : ' — private'}
-                </p>
-                <label className="text-foreground-secondary text-xs">
+              <div className="min-w-0 flex-1">
+                <StudioPageHeader
+                  title={name || col.name}
+                  subtitle={`/${col.slug}${style ? `, ${style}` : ''}${isPublic ? '' : ', private'}`}
+                  action={
+                    <Button
+                      size="sm"
+                      disabled={saving}
+                      onClick={() => void saveMeta()}
+                    >
+                      {saving ? 'Saving…' : 'Save'}
+                    </Button>
+                  }
+                />
+                <label className="text-foreground-secondary mt-2 block text-xs">
                   Cover image
                   <input
                     type="file"
@@ -184,84 +189,72 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                   />
                 </label>
               </div>
-            </header>
+            </div>
 
-            <section className="border-border grid gap-4 rounded-xl border p-4 sm:grid-cols-2">
-              <Input
-                label="Title"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Style
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {STYLE_OPTIONS.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      className={`rounded-full border px-3 py-1 text-xs ${
-                        style === s
-                          ? 'border-primary bg-primary/15 text-primary'
-                          : 'border-border text-foreground-secondary'
-                      }`}
-                      onClick={() => setStyle(s)}
-                    >
-                      {s.replace(/_/g, ' ')}
-                    </button>
-                  ))}
-                </div>
-              </label>
-              <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-                <span className="text-foreground-secondary text-xs uppercase">
-                  Description
-                </span>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
+            <StudioPanel title="Details">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="Title"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                />
-                Public on profile
-              </label>
-              <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                <Button
-                  size="sm"
-                  disabled={saving}
-                  onClick={() => void saveMeta()}
-                >
-                  {saving ? 'Saving…' : 'Save details'}
-                </Button>
+                <label className="flex flex-col gap-1 text-sm">
+                  <span className="text-foreground-secondary text-xs uppercase">
+                    Style
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {STYLE_OPTIONS.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        className={`rounded-md border px-3 py-1 text-xs ${
+                          style === s
+                            ? 'border-primary bg-primary/15 text-primary'
+                            : 'border-border text-foreground-secondary'
+                        }`}
+                        onClick={() => setStyle(s)}
+                      >
+                        {s.replace(/_/g, ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </label>
+                <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+                  <span className="text-foreground-secondary text-xs uppercase">
+                    Description
+                  </span>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
+                  />
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={isPublic}
+                    onChange={(e) => setIsPublic(e.target.checked)}
+                  />
+                  Public on profile
+                </label>
               </div>
-            </section>
+            </StudioPanel>
 
-            <section className="flex flex-col gap-3">
-              <div className="flex items-end justify-between gap-2">
-                <h2 className="font-display text-lg font-bold">
-                  {isAlbumLike ? 'Tracklist' : 'Items'}
-                </h2>
-                <p className="text-foreground-secondary text-xs">
-                  {items.length} track{items.length === 1 ? '' : 's'}
-                </p>
-              </div>
-              <ul className="border-border divide-border divide-y rounded-lg border">
+            <StudioPanel
+              title={isAlbumLike ? 'Tracklist' : 'Items'}
+              description={`${items.length} track${items.length === 1 ? '' : 's'}`}
+            >
+              <ul className="divide-border divide-y">
                 {items.length === 0 && (
-                  <li className="text-foreground-secondary px-4 py-3 text-sm">
+                  <li className="text-foreground-secondary py-3 text-sm">
                     No tracks yet — add archive items below.
                   </li>
                 )}
                 {items.map((item, idx) => (
                   <li
                     key={item.id}
-                    className="flex flex-wrap items-center gap-2 px-4 py-2 text-sm"
+                    className="flex flex-wrap items-center gap-2 py-2 text-sm first:pt-0 last:pb-0"
                   >
                     <span className="text-foreground-secondary w-6 tabular-nums">
                       {idx + 1}.
@@ -303,7 +296,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                 ))}
               </ul>
 
-              <div className="flex flex-wrap items-end gap-2">
+              <div className="mt-4 flex flex-wrap items-end gap-2">
                 <label className="flex min-w-[200px] flex-1 flex-col gap-1 text-sm">
                   <span className="text-foreground-secondary text-xs uppercase">
                     Add archive track
@@ -337,7 +330,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                   Add to {isAlbumLike ? 'album' : 'collection'}
                 </Button>
               </div>
-            </section>
+            </StudioPanel>
 
             {message && (
               <p className="text-foreground-secondary text-sm">{message}</p>

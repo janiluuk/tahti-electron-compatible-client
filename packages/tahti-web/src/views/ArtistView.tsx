@@ -16,6 +16,7 @@ import {
 } from '../components/ArtistGalleryPanel';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { isPinned } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 
 type Tab = 'music' | 'releases' | 'collections' | 'gallery' | 'design';
@@ -95,19 +96,27 @@ export function ArtistView({ username }: { username: string }) {
     }
   }, [tab, hasGallery]);
 
-  const playables = useMemo(() => {
+  const { pinnedPlayables, catalogPlayables } = useMemo(() => {
     if (!profile) {
-      return [];
+      return { pinnedPlayables: [], catalogPlayables: [] };
     }
-    return profile.tracks
-      .map((t) =>
-        profileTrackToPlayable(
-          t,
-          profile.artist.displayName,
-          profile.channel?.slug,
-        ),
-      )
-      .filter((p): p is TahtiPlayable => Boolean(p));
+    const artist = profile.artist.displayName;
+    const slug = profile.channel?.slug;
+    const pinnedTracks = [...profile.tracks]
+      .filter((t) => isPinned(t))
+      .sort((a, b) => (b.pinnedAt ?? '').localeCompare(a.pinnedAt ?? ''));
+    const pinnedIds = new Set(pinnedTracks.map((t) => t.id));
+    const toPlayable = (t: PublicProfile['tracks'][number]) =>
+      profileTrackToPlayable(t, artist, slug);
+    return {
+      pinnedPlayables: pinnedTracks
+        .map(toPlayable)
+        .filter((p): p is TahtiPlayable => Boolean(p)),
+      catalogPlayables: profile.tracks
+        .filter((t) => !pinnedIds.has(t.id))
+        .map(toPlayable)
+        .filter((p): p is TahtiPlayable => Boolean(p)),
+    };
   }, [profile]);
 
   if (loading) {
@@ -249,11 +258,43 @@ export function ArtistView({ username }: { username: string }) {
       </div>
 
       {tab === 'music' && (
-        <section className="flex flex-col gap-3">
-          <PlayableTrackTable
-            items={playables}
-            emptyMessage="No playable tracks on this profile."
-          />
+        <section className="flex flex-col gap-6">
+          {pinnedPlayables.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="text-sm font-semibold tracking-wide uppercase">
+                  Pinned
+                </h2>
+                {isOwner && (
+                  <Link
+                    to="/studio/archive"
+                    className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+                  >
+                    Manage pins in Studio
+                  </Link>
+                )}
+              </div>
+              <PlayableTrackTable
+                items={pinnedPlayables}
+                emptyMessage="No pinned tracks."
+              />
+            </div>
+          )}
+          <div className="flex flex-col gap-3">
+            {pinnedPlayables.length > 0 && (
+              <h2 className="text-sm font-semibold tracking-wide uppercase">
+                Catalog
+              </h2>
+            )}
+            <PlayableTrackTable
+              items={catalogPlayables}
+              emptyMessage={
+                pinnedPlayables.length > 0
+                  ? 'No other tracks on this profile.'
+                  : 'No playable tracks on this profile.'
+              }
+            />
+          </div>
         </section>
       )}
 

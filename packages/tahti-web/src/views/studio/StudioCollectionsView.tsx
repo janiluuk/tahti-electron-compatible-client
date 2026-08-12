@@ -10,7 +10,6 @@ import { useEffect, useState, type ReactNode } from 'react';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
-import type { FetchMeta } from '../../api/client';
 import {
   createStudioCollection,
   fetchStudioCollections,
@@ -18,6 +17,7 @@ import {
 import type { StudioCollection } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 const CREATE_STYLES = [
   { id: 'ALBUM', label: 'Album', icon: <Disc3Icon size={18} aria-hidden /> },
@@ -38,7 +38,6 @@ type CreateStyle = (typeof CREATE_STYLES)[number]['id'];
 
 export function StudioCollectionsView() {
   const [rows, setRows] = useState<StudioCollection[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [name, setName] = useState('');
@@ -49,7 +48,6 @@ export function StudioCollectionsView() {
   const reload = () => {
     void fetchStudioCollections().then((res) => {
       setRows(res.data);
-      setMeta(res.meta);
       setLoading(false);
     });
   };
@@ -88,31 +86,33 @@ export function StudioCollectionsView() {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/collections" />
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Collections
-            </h1>
-            <p className="text-foreground-secondary mt-1 text-sm">
-              Album designer + playlists via <code>/api/me/collections</code>
-              {meta ? ` (${meta.source})` : ''}.
-            </p>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => {
-              setMsg(null);
-              setCreateOpen(true);
-            }}
-            aria-label="New album or playlist"
-            title="New album / playlist"
-          >
-            <PlusIcon size={16} aria-hidden className="mr-1.5" />
-            New
-          </Button>
-        </header>
+        <StudioPageHeader
+          title="Albums"
+          subtitle="Design albums and compilations. For playlists with visibility and collab, use Playlists."
+          action={
+            <div className="flex flex-wrap gap-2">
+              <Link to="/studio/playlists">
+                <Button size="sm" variant="secondary">
+                  Playlists
+                </Button>
+              </Link>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setMsg(null);
+                  setCreateOpen(true);
+                }}
+                aria-label="New album"
+                title="New album"
+              >
+                <PlusIcon size={16} aria-hidden className="mr-1.5" />
+                New
+              </Button>
+            </div>
+          }
+        />
 
         {msg && <p className="text-sm">{msg}</p>}
 
@@ -161,58 +161,65 @@ export function StudioCollectionsView() {
           </form>
         </Dialog.Root>
 
-        {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
-        ) : rows.length === 0 ? (
-          <div className="border-border flex flex-col items-center gap-3 rounded-lg border px-4 py-8 text-center">
-            <p className="text-foreground-secondary text-sm">
-              No collections yet — create an album or playlist.
-            </p>
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <PlusIcon size={16} aria-hidden className="mr-1.5" />
-              New collection
-            </Button>
-          </div>
-        ) : (
-          <ul className="border-border divide-border divide-y rounded-lg border">
-            {rows.map((c) => (
-              <li
-                key={c.slug}
-                className="flex items-center gap-3 px-4 py-3 text-sm"
-              >
-                {c.coverUrl ? (
-                  <img
-                    src={c.coverUrl}
-                    alt=""
-                    className="border-border h-12 w-12 rounded border object-cover"
-                  />
-                ) : (
-                  <div className="border-border bg-background-secondary h-12 w-12 rounded border" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium">{c.name}</p>
-                  <p className="text-foreground-secondary text-xs">
-                    /{c.slug}
-                    {c.style ? ` — ${c.style}` : ''}
-                    {typeof c.itemCount === 'number'
-                      ? `, ${c.itemCount} items`
-                      : c.items
-                        ? `, ${c.items.length} items`
-                        : ''}
-                    {c.isPublic === false ? ', private' : ''}
-                  </p>
-                </div>
-                <Link to="/studio/collections/$slug" params={{ slug: c.slug }}>
-                  <Button size="sm">
-                    {c.style === 'ALBUM' || c.style === 'EP'
-                      ? 'Design album'
-                      : 'Edit'}
-                  </Button>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
+        <StudioPanel>
+          {loading ? (
+            <p className="text-foreground-secondary text-sm">Loading…</p>
+          ) : rows.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-4 text-center">
+              <p className="text-foreground-secondary text-sm">
+                No albums yet — create one to design a tracklist.
+              </p>
+              <Button size="sm" onClick={() => setCreateOpen(true)}>
+                <PlusIcon size={16} aria-hidden className="mr-1.5" />
+                New album
+              </Button>
+            </div>
+          ) : (
+            <ul className="divide-border divide-y">
+              {rows.map((c) => (
+                <li
+                  key={c.slug}
+                  className="flex items-center gap-3 py-3 text-sm first:pt-0 last:pb-0"
+                >
+                  {c.coverUrl ? (
+                    <img
+                      src={c.coverUrl}
+                      alt=""
+                      className="border-border h-12 w-12 rounded-lg border object-cover shadow-sm"
+                    />
+                  ) : (
+                    <div className="border-border bg-background flex h-12 w-12 items-center justify-center rounded-lg border">
+                      <Disc3Icon size={18} className="opacity-40" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{c.name}</p>
+                    <p className="text-foreground-secondary text-xs">
+                      /{c.slug}
+                      {c.style ? `, ${c.style}` : ''}
+                      {typeof c.itemCount === 'number'
+                        ? `, ${c.itemCount} items`
+                        : c.items
+                          ? `, ${c.items.length} items`
+                          : ''}
+                      {c.isPublic === false ? ', private' : ''}
+                    </p>
+                  </div>
+                  <Link
+                    to="/studio/collections/$slug"
+                    params={{ slug: c.slug }}
+                  >
+                    <Button size="sm">
+                      {c.style === 'ALBUM' || c.style === 'EP'
+                        ? 'Design'
+                        : 'Edit'}
+                    </Button>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </StudioPanel>
       </div>
     </StudioGate>
   );
