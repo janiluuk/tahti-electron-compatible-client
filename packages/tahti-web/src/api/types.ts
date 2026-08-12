@@ -51,6 +51,16 @@ export type RadioNowPlaying = {
   };
 };
 
+/** GET /api/v1/radio/recently-played — track history on Tahti Radio. */
+export type RadioRecentlyPlayedItem = {
+  id: string;
+  title: string;
+  artistName: string;
+  artistUsername: string | null;
+  artworkUrl: string | null;
+  playedAt: string;
+};
+
 /** Public archive row from GET /api/channels/:slug/items */
 export type ArchiveItem = {
   id: string;
@@ -414,4 +424,21 @@ export type GovernanceMotion = {
   yourChoice?: string | null;
   commentCount?: number;
   tally?: { YES: number; NO: number; ABSTAIN: number };
+};
+
+export type AnnouncementType =
+  | 'feature'
+  | 'fix'
+  | 'improvement'
+  | 'maintenance'
+  | 'announcement';
+
+/** GET /api/v1/announcements — platform news published from the admin panel. */
+export type Announcement = {
+  id: string;
+  title: string;
+  body: string;
+  type: AnnouncementType;
+  publishedAt: string;
+  link?: string | null;
 };

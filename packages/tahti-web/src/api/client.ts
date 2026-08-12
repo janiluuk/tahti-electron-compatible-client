@@ -2,6 +2,7 @@ import {
   archiveItemToPlayable,
   channelToPlayable,
   DEMO_MP3,
+  mockAnnouncements,
   mockArchiveItems,
   mockChannel,
   mockChatAccess,
@@ -11,12 +12,14 @@ import {
   mockFanTiers,
   mockProfile,
   mockRadio,
+  mockRadioRecentlyPlayed,
   mockSmartLink,
   mockTransparencyGrants,
   mockTransparencyLedger,
   mockTransparencyYtd,
   mockVenues,
   radioToPlayable,
+  TAHTI_RADIO_SLUG,
 } from './mock';
 import {
   buildMockLoginUser,
@@ -38,6 +41,7 @@ import {
   type FetchMeta,
 } from './mode';
 import type {
+  Announcement,
   ArchiveItem,
   AuthUser,
   ChannelDirectoryResponse,
@@ -56,6 +60,7 @@ import type {
   PublicCollection,
   PublicProfile,
   RadioNowPlaying,
+  RadioRecentlyPlayedItem,
   ReleaseEmbedView,
   SmartLinkView,
   TahtiPlayable,
@@ -66,6 +71,7 @@ import type {
 } from './types';
 
 export type { FetchMeta };
+export { TAHTI_RADIO_SLUG };
 
 const forceMock = isForceMock;
 
@@ -236,6 +242,35 @@ export async function fetchRadio(): Promise<{
   }
 }
 
+/** Always-on Tahti Radio station (`/api/channels/tahti-radio`) — primary `/radio` feed. */
+export async function fetchRadioStation(): Promise<{
+  data: PublicChannel;
+  meta: FetchMeta;
+  playable: TahtiPlayable | null;
+}> {
+  return fetchChannel(TAHTI_RADIO_SLUG);
+}
+
+export async function fetchRadioRecentlyPlayed(): Promise<{
+  data: RadioRecentlyPlayedItem[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockRadioRecentlyPlayed(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<RadioRecentlyPlayedItem[]>(
+      '/api/v1/radio/recently-played',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return withMockFallback(err, mockRadioRecentlyPlayed, () => []);
+  }
+}
+
 export async function fetchProfile(username: string): Promise<{
   data: PublicProfile;
   meta: FetchMeta;
@@ -320,6 +355,55 @@ export async function fetchVenues(): Promise<{
     return { data, meta: { source: 'api' } };
   } catch (err) {
     return withMockFallback(err, mockVenues, () => []);
+  }
+}
+
+export type RegisterVenueInput = {
+  slug: string;
+  name: string;
+  address: string;
+  city: string;
+  countryCode?: string;
+  capacity?: number;
+  description?: string;
+};
+
+export async function registerVenue(
+  input: RegisterVenueInput,
+): Promise<{ ok: true; slug: string } | { ok: false; error: string }> {
+  if (forceMock()) {
+    if (!getMockSessionUser()) {
+      return { ok: false, error: 'Log in first (mock) to register a venue.' };
+    }
+    if (input.slug.length < 2) {
+      return { ok: false, error: 'Slug too short' };
+    }
+    if (input.slug === 'taken') {
+      return { ok: false, error: 'Slug already taken' };
+    }
+    return { ok: true, slug: input.slug };
+  }
+  try {
+    const { data } = await requestJson<{ slug: string }>('/api/v1/venues', {
+      method: 'POST',
+      body: JSON.stringify({
+        slug: input.slug,
+        name: input.name,
+        address: input.address,
+        city: input.city,
+        countryCode: input.countryCode || 'FI',
+        ...(input.capacity != null && Number.isFinite(input.capacity)
+          ? { capacity: input.capacity }
+          : {}),
+        ...(input.description ? { description: input.description } : {}),
+      }),
+    });
+    return { ok: true, slug: data.slug ?? input.slug };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Registration failed',
+    };
   }
 }
 
@@ -1190,6 +1274,54 @@ export async function fetchMembership(): Promise<{
   }
 }
 
+export async function startMembershipCheckout(opts?: {
+  successPath?: string;
+  cancelPath?: string;
+}): Promise<
+  | { ok: true; checkoutUrl: string }
+  | { ok: true; activated: true; memberNumber?: number }
+  | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return {
+      ok: true,
+      activated: true,
+      memberNumber: 99,
+    };
+  }
+  try {
+    const { data } = await requestJson<{
+      checkoutUrl?: string | null;
+      activated?: boolean;
+      memberNumber?: number;
+      error?: string;
+    }>('/api/me/membership/checkout', {
+      method: 'POST',
+      body: JSON.stringify({
+        successPath:
+          opts?.successPath ?? '/settings/account?membership=success',
+        cancelPath: opts?.cancelPath ?? '/signup/payment?membership=canceled',
+      }),
+    });
+    if (data.checkoutUrl) {
+      return { ok: true, checkoutUrl: data.checkoutUrl };
+    }
+    if (data.activated) {
+      return {
+        ok: true,
+        activated: true,
+        memberNumber: data.memberNumber,
+      };
+    }
+    return { ok: false, error: data.error ?? 'Checkout did not return a URL' };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Checkout failed',
+    };
+  }
+}
+
 export async function fetchMySubscriptions(): Promise<{
   data: FanSubscriptionRow[];
   meta: FetchMeta;
@@ -1364,6 +1496,24 @@ export async function postMotionComment(
       ok: false,
       error: err instanceof Error ? err.message : 'Comment failed',
     };
+  }
+}
+
+export async function fetchAnnouncements(): Promise<{
+  data: Announcement[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockAnnouncements(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<Announcement[]>('/api/v1/announcements');
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return withMockFallback(err, mockAnnouncements, () => []);
   }
 }
 

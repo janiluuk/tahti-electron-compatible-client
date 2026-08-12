@@ -7,6 +7,7 @@ import {
   PlugIcon,
   RadioIcon,
   SettingsIcon,
+  SparklesIcon,
 } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -75,6 +76,13 @@ export function AppShell() {
               Login
             </Link>
           )}
+          <Link
+            to="/whats-new"
+            className="text-foreground-secondary hover:text-foreground flex items-center gap-1 underline-offset-2 hover:underline"
+          >
+            <SparklesIcon size={14} />
+            What&apos;s new
+          </Link>
           <a
             href="https://tahti.live"
             className="text-foreground-secondary hover:text-foreground underline-offset-2 hover:underline"

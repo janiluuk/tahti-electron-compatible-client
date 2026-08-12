@@ -9,6 +9,7 @@ import {
 import type { IntegrationId } from './api/sources';
 import { SOURCE_DEFS } from './api/sources';
 import { AppShell } from './components/AppShell';
+import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
 import { ChatView } from './views/ChatView';
@@ -28,6 +29,7 @@ import { LoginView } from './views/LoginView';
 import { MoreView } from './views/MoreView';
 import { RadioView } from './views/RadioView';
 import { SettingsView } from './views/settings/SettingsView';
+import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
 import { SourcesView } from './views/SourcesView';
 import { StatusView } from './views/StatusView';
@@ -45,14 +47,18 @@ import { StudioReleaseDetailView } from './views/studio/StudioReleaseDetailView'
 import { StudioReleasesView } from './views/studio/StudioReleasesView';
 import { StudioRevenueView } from './views/studio/StudioRevenueView';
 import { StudioScheduleView } from './views/studio/StudioScheduleView';
+import { StudioSetupChannelView } from './views/studio/StudioSetupChannelView';
 import { StudioStashView } from './views/studio/StudioStashView';
+import { StudioStatsDetailView } from './views/studio/StudioStatsDetailView';
 import { StudioStatsView } from './views/studio/StudioStatsView';
 import { StudioUpdatesView } from './views/studio/StudioUpdatesView';
 import { StudioUploadView } from './views/studio/StudioUploadView';
 import { SubscribeView } from './views/SubscribeView';
 import { TransparencyView } from './views/TransparencyView';
+import { VenueRegisterView } from './views/VenueRegisterView';
 import { VenuesView } from './views/VenuesView';
 import { VerifyView } from './views/VerifyView';
+import { WhatsNewView } from './views/WhatsNewView';
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -163,10 +169,22 @@ const venuesRoute = createRoute({
   component: VenuesView,
 });
 
+const venuesRegisterRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/venues/register',
+  component: VenueRegisterView,
+});
+
 const moreRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/more',
   component: MoreView,
+});
+
+const whatsNewRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/whats-new',
+  component: WhatsNewView,
 });
 
 const channelRoute = createRoute({
@@ -257,6 +275,12 @@ const joinRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/join',
   component: JoinView,
+});
+
+const signupPaymentRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/signup/payment',
+  component: SignupPaymentView,
 });
 
 const verifyRoute = createRoute({
@@ -423,6 +447,18 @@ const studioStatsRoute = createRoute({
   component: StudioStatsView,
 });
 
+const studioStatsDetailRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/stats/detail',
+  component: StudioStatsDetailView,
+});
+
+const studioSetupChannelRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/setup-channel',
+  component: StudioSetupChannelView,
+});
+
 const studioChannelRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/channel',
@@ -479,9 +515,61 @@ const embedUserColRoute = createRoute({
   },
 });
 
+/** Production path aliases — tahti.live URLs keep working on the Nuclear SPA. */
+const listenAliasRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/listen',
+  beforeLoad: () => {
+    throw redirect({ to: '/' });
+  },
+});
+
+const prodChannelAliasRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/c/$slug',
+  beforeLoad: ({ params }) => {
+    throw redirect({
+      to: '/channel/$slug',
+      params: { slug: params.slug },
+    });
+  },
+});
+
+const prodSubscribeAliasRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/u/$username/subscribe',
+  beforeLoad: ({ params }) => {
+    throw redirect({
+      to: '/subscribe/$username',
+      params: { username: params.username },
+    });
+  },
+});
+
+const dashboardIndexAliasRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/dashboard',
+  beforeLoad: () => {
+    throw redirect({ href: '/studio' });
+  },
+});
+
+const dashboardSplatAliasRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/dashboard/$',
+  beforeLoad: ({ params }) => {
+    const splat =
+      typeof params._splat === 'string'
+        ? params._splat
+        : String((params as { _splat?: string })._splat ?? '');
+    throw redirect({ href: resolveDashboardRedirect(splat) });
+  },
+});
+
 const routeTree = rootRoute.addChildren([
   appLayoutRoute.addChildren([
     listenRoute,
+    listenAliasRoute,
     radioRoute,
     themesRoute,
     settingsRoute,
@@ -495,10 +583,14 @@ const routeTree = rootRoute.addChildren([
     sourcesRoute,
     sourcesTabRoute,
     venuesRoute,
+    venuesRegisterRoute,
     moreRoute,
+    whatsNewRoute,
     channelRoute,
+    prodChannelAliasRoute,
     artistRoute,
     collectionRoute,
+    prodSubscribeAliasRoute,
     smartLinkRoute,
     chatIndexRoute,
     chatSlugRoute,
@@ -507,6 +599,7 @@ const routeTree = rootRoute.addChildren([
     helpRoute,
     helpSlugRoute,
     joinRoute,
+    signupPaymentRoute,
     verifyRoute,
     loginRoute,
     accountRoute,
@@ -517,6 +610,7 @@ const routeTree = rootRoute.addChildren([
     privacyRoute,
     agplRoute,
     studioRoute,
+    studioSetupChannelRoute,
     studioGoLiveRoute,
     studioArchiveRoute,
     studioArchiveItemRoute,
@@ -531,9 +625,12 @@ const routeTree = rootRoute.addChildren([
     studioStashRoute,
     studioScheduleRoute,
     studioStatsRoute,
+    studioStatsDetailRoute,
     studioChannelRoute,
     studioUpdatesRoute,
     studioRevenueRoute,
+    dashboardIndexAliasRoute,
+    dashboardSplatAliasRoute,
   ]),
   embedChannelRoute,
   embedReleaseRoute,

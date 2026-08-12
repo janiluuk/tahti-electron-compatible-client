@@ -1,4 +1,5 @@
 import type {
+  Announcement,
   ArchiveItem,
   AuthUser,
   ChannelDirectoryResponse,
@@ -9,6 +10,7 @@ import type {
   PublicCollection,
   PublicProfile,
   RadioNowPlaying,
+  RadioRecentlyPlayedItem,
   SmartLinkView,
   TahtiPlayable,
   TransparencyGrantReport,
@@ -16,6 +18,9 @@ import type {
   TransparencyYtd,
   VenueDirectoryItem,
 } from './types';
+
+/** Always-on station slug — matches production `TAHTI_RADIO_SLUG`. */
+export const TAHTI_RADIO_SLUG = 'tahti-radio';
 
 /** Public HLS fixture so the player works without a live Tahti stack. */
 export const DEMO_HLS =
@@ -40,7 +45,7 @@ const MOCK_DIRECTORY: ChannelDirectoryResponse = {
       genres: ['electronic'],
     },
     {
-      slug: 'tahti-radio',
+      slug: TAHTI_RADIO_SLUG,
       displayName: 'Tahti Radio',
       avatarUrl: null,
       genres: ['radio'],
@@ -59,13 +64,13 @@ export function mockChannel(slug: string): PublicChannel {
     avatarUrl: null,
     genres: [],
   };
-  const isRadio = slug === 'tahti-radio';
+  const isRadio = slug === TAHTI_RADIO_SLUG;
   return {
     slug: item.slug,
     state: 'LIVE',
     hlsUrl: DEMO_HLS,
     chatEnabled: true,
-    visualPreset: 'AURORA',
+    visualPreset: isRadio ? 'REACTIVE_GRID' : 'AURORA',
     colorSchemeJson: JSON.stringify({
       accent: '#22D3EE',
       highlight: '#A78BFA',
@@ -84,19 +89,20 @@ export function mockChannel(slug: string): PublicChannel {
       username: item.slug,
       displayName: item.displayName,
       bio: isRadio
-        ? 'Org meta-stream of live Tahti channels (mock).'
+        ? '24/7 community radio — always on while we grow the member meta-stream. Tune in and chat with listeners worldwide.'
         : 'Mock channel for the Nuclear × Tahti listen POC.',
       avatarUrl: item.avatarUrl,
     },
     nowPlaying: {
-      title: isRadio ? 'Tahti Radio (mock)' : 'Live set (mock HLS)',
-      artistName: item.displayName,
-      artistUsername: item.slug,
+      title: isRadio ? 'Aurora Drift (mock rotation)' : 'Live set (mock HLS)',
+      artistName: isRadio ? 'Northern Lights' : item.displayName,
+      artistUsername: isRadio ? 'northern-lights' : item.slug,
       artworkUrl: null,
     },
   };
 }
 
+/** Member-relay snapshot (GET /api/v1/radio) — distinct from the always-on station. */
 export function mockRadio(): RadioNowPlaying {
   return {
     live: true,
@@ -108,6 +114,36 @@ export function mockRadio(): RadioNowPlaying {
       artworkUrl: null,
     },
   };
+}
+
+export function mockRadioRecentlyPlayed(): RadioRecentlyPlayedItem[] {
+  const now = Date.now();
+  return [
+    {
+      id: 'mock-rp-1',
+      title: 'Aurora Drift',
+      artistName: 'Northern Lights',
+      artistUsername: 'northern-lights',
+      artworkUrl: null,
+      playedAt: new Date(now - 3 * 60_000).toISOString(),
+    },
+    {
+      id: 'mock-rp-2',
+      title: 'Midnight Broadcast',
+      artistName: 'Screenshot Demo',
+      artistUsername: 'screenshot-demo',
+      artworkUrl: null,
+      playedAt: new Date(now - 18 * 60_000).toISOString(),
+    },
+    {
+      id: 'mock-rp-3',
+      title: 'CC0 Selects Cut',
+      artistName: 'Tahti Selects',
+      artistUsername: null,
+      artworkUrl: null,
+      playedAt: new Date(now - 42 * 60_000).toISOString(),
+    },
+  ];
 }
 
 export function mockArchiveItems(slug: string): ArchiveItem[] {
@@ -312,9 +348,10 @@ export function channelToPlayable(
   if (!channel.hlsUrl) {
     return null;
   }
+  const isRadio = channel.slug === TAHTI_RADIO_SLUG;
   return {
-    id: `live:${channel.slug}`,
-    kind: channel.slug === 'tahti-radio' ? 'radio' : 'live',
+    id: isRadio ? `radio:${channel.slug}` : `live:${channel.slug}`,
+    kind: isRadio ? 'radio' : 'live',
     title: channel.nowPlaying?.title ?? `${channel.user.displayName} LIVE`,
     artist: channel.nowPlaying?.artistName ?? channel.user.displayName,
     coverUrl:
@@ -497,6 +534,33 @@ export function mockTransparencyLedger(): TransparencyLedgerEntry[] {
       category: 'COST_INFRASTRUCTURE',
       amountCents: '-15000',
       createdAt: '2026-07-02T10:00:00.000Z',
+    },
+  ];
+}
+
+export function mockAnnouncements(): Announcement[] {
+  return [
+    {
+      id: '3',
+      title: 'Fan subscriptions now support tiers',
+      body: 'Artists can define multiple fan subscription tiers with custom perks and pricing.',
+      type: 'feature',
+      publishedAt: '2026-08-05T09:00:00.000Z',
+    },
+    {
+      id: '2',
+      title: 'Fixed HLS stalls on channel reconnect',
+      body: 'Live channels now recover cleanly after a network drop instead of freezing on the last frame.',
+      type: 'fix',
+      publishedAt: '2026-07-22T14:30:00.000Z',
+    },
+    {
+      id: '1',
+      title: 'Welcome to Tahti',
+      body: 'Search, playlists, radio, and artist studio tools are live in beta. Send feedback from Settings.',
+      type: 'announcement',
+      publishedAt: '2026-07-01T08:00:00.000Z',
+      link: 'https://tahti.live/about',
     },
   ];
 }
