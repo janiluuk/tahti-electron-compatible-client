@@ -17,7 +17,7 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 3 | Music / Archive | `/studio/archive` | **approved** | `docs/redesign-shots/studio-archive-v1.png` |
 | 4 | Archive item | `/studio/archive/$id` | **in-review** | `docs/redesign-shots/studio-archive-item-v1.png` |
 | 5 | Upload | `/studio/upload` | **approved** | `docs/redesign-shots/studio-upload-v1.png` |
-| 6 | Releases | `/studio/releases` | pending | |
+| 6 | Releases | `/studio/releases` | **in-review** | `docs/redesign-shots/studio-releases-v1.png` |
 | 7 | Release detail | `/studio/releases/$id` | pending | |
 | 8 | Collections / album designer | `/studio/collections` | pending | |
 | 9 | Collection editor | `/studio/collections/$id` | pending | |
@@ -153,3 +153,20 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 **Screenshot:** `docs/redesign-shots/studio-archive-item-v1.png`
 
 **Status:** in-review — awaiting comment or `approved`.
+
+### 2026-08-12 — Page 6 Releases v1 (`in-review`)
+
+**Goal:** Catalog list with one primary action; create form collapsed.
+
+**Changes:**
+
+- Human subtitle (no API path jargon)
+- Header **New release** CTA; create form opens on demand
+- Empty state with New release CTA
+- Row: Edit primary; public link / distribution under **More**
+- Dropped always-visible Distribution button in the header
+
+**Screenshot:** `docs/redesign-shots/studio-releases-v1.png`
+
+**Status:** in-review — awaiting comment or `approved`.
+

@@ -37,15 +37,14 @@ await page.evaluate(() => {
 
 const shots = [
   {
-    path: '/studio/archive/arch-mock-1',
-    out: 'studio-archive-item-v1.png',
+    path: '/studio/releases',
+    out: 'studio-releases-v1.png',
     check: (t) => {
       const l = t.toLowerCase();
       return (
-        l.includes('edit title') &&
-        l.includes('save') &&
-        l.includes('more tools') &&
-        !l.includes('multipart')
+        l.includes('releases') &&
+        l.includes('new release') &&
+        !l.includes('/api/me/releases')
       );
     },
   },
