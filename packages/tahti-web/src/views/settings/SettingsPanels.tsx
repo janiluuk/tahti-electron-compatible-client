@@ -10,7 +10,6 @@ import {
   Lock,
   Mic,
   Paintbrush,
-  Palette,
   Radio as RadioIcon,
   Share2,
   Shield,
@@ -1270,74 +1269,61 @@ function ThemesPanel() {
   const { themes, themeId, dark, setTheme, setDark } = useThemeStore();
 
   return (
-    <Tabs
-      items={[
-        {
-          id: 'mode',
-          label: tabLabel(SunMoon, 'Mode'),
-          content: (
-            <div className="flex flex-col gap-4">
-              <SettingsHint>
-                Dark / light for the Nuclear chrome (this app).
-              </SettingsHint>
-              <div className="flex items-center gap-3">
-                <Button
-                  size="sm"
-                  variant={dark ? undefined : 'text'}
-                  onClick={() => setDark(true)}
-                >
-                  Dark
-                </Button>
-                <Button
-                  size="sm"
-                  variant={!dark ? undefined : 'text'}
-                  onClick={() => setDark(false)}
-                >
-                  Light
-                </Button>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
+        <SettingsHint>
+          Nuclear chrome palettes (`data-theme-id`) plus dark / light mode.
+        </SettingsHint>
+        <div className="flex items-center gap-3">
+          <Button
+            size="sm"
+            variant={dark ? undefined : 'text'}
+            onClick={() => setDark(true)}
+          >
+            <SunMoon size={14} />
+            Dark
+          </Button>
+          <Button
+            size="sm"
+            variant={!dark ? undefined : 'text'}
+            onClick={() => setDark(false)}
+          >
+            Light
+          </Button>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {themes.map((theme) => {
+          const active = theme.id === themeId;
+          return (
+            <button
+              key={theme.id}
+              type="button"
+              onClick={() => setTheme(theme.id)}
+              className={
+                active
+                  ? 'border-border bg-primary rounded-lg border p-4 text-left'
+                  : 'border-border bg-background hover:bg-background-secondary rounded-lg border p-4 text-left'
+              }
+            >
+              <div className="mb-3 flex gap-2">
+                {theme.palette.map((color) => (
+                  <span
+                    key={color}
+                    className="border-border size-8 rounded-md border"
+                    style={{ background: color }}
+                  />
+                ))}
               </div>
-            </div>
-          ),
-        },
-        {
-          id: 'palette',
-          label: tabLabel(Palette, 'Themes'),
-          content: (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {themes.map((theme) => {
-                const active = theme.id === themeId;
-                return (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    onClick={() => setTheme(theme.id)}
-                    className={
-                      active
-                        ? 'border-border bg-primary rounded-lg border p-4 text-left'
-                        : 'border-border bg-background hover:bg-background-secondary rounded-lg border p-4 text-left'
-                    }
-                  >
-                    <div className="mb-3 flex gap-2">
-                      {theme.palette.map((color) => (
-                        <span
-                          key={color}
-                          className="border-border size-8 rounded-md border"
-                          style={{ background: color }}
-                        />
-                      ))}
-                    </div>
-                    <div className="font-bold">{theme.name}</div>
-                    <div className="text-foreground-secondary text-xs">
-                      {theme.id}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          ),
-        },
-      ]}
-    />
+              <div className="font-bold">{theme.name}</div>
+              <div className="text-foreground-secondary text-xs">
+                {theme.id}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

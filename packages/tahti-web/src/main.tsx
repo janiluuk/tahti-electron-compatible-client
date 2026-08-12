@@ -9,7 +9,12 @@ import '@nuclearplayer/ui';
 import { router } from './router';
 import { useThemeStore } from './stores/themeStore';
 
-useThemeStore.getState().init();
+import './styles.css';
+
+const boot = Promise.resolve(useThemeStore.persist.rehydrate()).then(() => {
+  useThemeStore.getState().init();
+});
+void boot;
 
 const el = document.getElementById('root');
 if (!el) {

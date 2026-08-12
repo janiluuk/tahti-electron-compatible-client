@@ -12,6 +12,10 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "sideEffects": [
+    "**/*.css",
+    "*.css"
+  ],
   "files": [
     "src"
   ],

@@ -9,6 +9,8 @@
 @source '../player';
 @source '../ui';
 @source '../storybook';
+@source '../tahti-web';
+@source '../themes';
 
 @theme {
   --color-background: var(--background);
