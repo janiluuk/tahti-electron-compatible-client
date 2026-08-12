@@ -4,6 +4,10 @@ Tahti Nuclear Player is built on [nukeop/nuclear](https://github.com/nukeop/nucl
 
 It is **not** the upstream Nuclear project. Do not open Nuclear PRs from this tree without cherry-picking onto a clean upstream branch.
 
+## Product in one paragraph
+
+**Tahti** is a Finnish nonprofit broadcasting platform for independent artists (live channels, archive, fan subscriptions). This fork adds `@nuclearplayer/tahti-web` — a Nuclear-UI listen + studio SPA that already runs on **beta.tahti.live** against the production API, intended to replace the Next.js `apps/web` client after cutover ([`packages/tahti-web/CUTOVER.md`](./packages/tahti-web/CUTOVER.md)).
+
 ## Remotes
 
 | Remote | URL | Role |
@@ -20,12 +24,15 @@ git rebase upstream/master   # or merge
 
 ## Tahti package
 
-- **`packages/tahti-web`** — listen/studio POC on Nuclear UI → public Tahti API
+- **`packages/tahti-web`** — listen/studio client on Nuclear UI → public Tahti API
 - Dev: `pnpm dev:tahti` (Node 22+)
 - Offline: `VITE_FORCE_MOCK=1 pnpm dev:tahti`
 - Deploy beta: `pnpm deploy:tahti-beta` → vimage `:15180` / `beta.tahti.live`
-- Docs: `packages/tahti-web/MOCKS.md`, `packages/tahti-web/deploy/README.md`
+- Docs: package [`README.md`](./packages/tahti-web/README.md), [`FEATURES.md`](./packages/tahti-web/FEATURES.md), [`MOCKS.md`](./packages/tahti-web/MOCKS.md), [`deploy/README.md`](./packages/tahti-web/deploy/README.md)
+- Screenshots: [`packages/tahti-web/docs/redesign-shots/`](./packages/tahti-web/docs/redesign-shots/)
 - Local planning (gitignored): `tahti-fit/`
+
+Public API reference: [`https://api.tahti.live/api`](https://api.tahti.live/api).
 
 ## Detached from `/home/jani/workspace/nuclear`
 

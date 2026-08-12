@@ -56,7 +56,8 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 - [ ] Stats detail page (beyond summary)
 - [ ] Sources OAuth silent-mock demock polish
 - [x] Venue register
-- [x] Membership purchase + TOTP manage
+- [ ] Membership purchase (`/signup/payment`) — still missing vs prod
+- [x] TOTP at login (manage/settings depth still thin)
 - [x] Distribution (catalog + Revelator + Spotify profile)
 - [ ] Listener-only dashboard, radio slots depth, moderate
 - [ ] Multitrack timeline editing, press-kit / invites polish
