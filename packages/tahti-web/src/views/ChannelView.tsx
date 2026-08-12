@@ -34,6 +34,7 @@ import {
   type ChannelPageItem,
   type ChannelPageItemType,
 } from '../lib/channelPageLayout';
+import { isPinned } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -115,13 +116,22 @@ export function ChannelView({ slug }: { slug: string }) {
     };
   }, [slug, setChatContext, editing, lookTick]);
 
-  const playables: TahtiPlayable[] = useMemo(
-    () =>
-      archive
-        .map((item) => archiveItemToPlayable(item, slug))
+  const { pinnedPlayables, catalogPlayables } = useMemo(() => {
+    const pinnedItems = [...archive]
+      .filter((item) => isPinned(item))
+      .sort((a, b) => (b.pinnedAt ?? '').localeCompare(a.pinnedAt ?? ''));
+    const pinnedIds = new Set(pinnedItems.map((i) => i.id));
+    const toPlayable = (item: ArchiveItem) => archiveItemToPlayable(item, slug);
+    return {
+      pinnedPlayables: pinnedItems
+        .map(toPlayable)
         .filter((p): p is TahtiPlayable => Boolean(p)),
-    [archive, slug],
-  );
+      catalogPlayables: archive
+        .filter((item) => !pinnedIds.has(item.id))
+        .map(toPlayable)
+        .filter((p): p is TahtiPlayable => Boolean(p)),
+    };
+  }, [archive, slug]);
 
   if (loading) {
     return (
@@ -335,7 +345,7 @@ export function ChannelView({ slug }: { slug: string }) {
         );
       case 'archive':
         return (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-6">
             <div className="flex items-baseline justify-between gap-3">
               <h2 className="text-xl font-bold tracking-tight">Archive</h2>
               {archiveMeta && (
@@ -345,10 +355,32 @@ export function ChannelView({ slug }: { slug: string }) {
                 </span>
               )}
             </div>
-            <PlayableTrackTable
-              items={playables}
-              emptyMessage="No public archive items for this channel yet."
-            />
+            {pinnedPlayables.length > 0 && (
+              <div className="flex flex-col gap-3">
+                <h3 className="text-sm font-semibold tracking-wide uppercase">
+                  Pinned
+                </h3>
+                <PlayableTrackTable
+                  items={pinnedPlayables}
+                  emptyMessage="No pinned tracks."
+                />
+              </div>
+            )}
+            <div className="flex flex-col gap-3">
+              {pinnedPlayables.length > 0 && (
+                <h3 className="text-sm font-semibold tracking-wide uppercase">
+                  Catalog
+                </h3>
+              )}
+              <PlayableTrackTable
+                items={catalogPlayables}
+                emptyMessage={
+                  pinnedPlayables.length > 0
+                    ? 'No other public archive items.'
+                    : 'No public archive items for this channel yet.'
+                }
+              />
+            </div>
           </section>
         );
       case 'chat':
