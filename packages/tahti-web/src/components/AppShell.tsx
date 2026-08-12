@@ -4,7 +4,6 @@ import {
   LayoutDashboardIcon,
   LibraryIcon,
   MapIcon,
-  MessageCircleIcon,
   RadioIcon,
   SettingsIcon,
 } from 'lucide-react';
@@ -147,11 +146,6 @@ export function AppShell() {
                   />
                 </div>
                 <div className="mt-auto flex flex-col gap-1 p-1">
-                  <SidebarNavigationItem
-                    icon={<MessageCircleIcon size={16} />}
-                    label="Chat"
-                    onClick={toggleRight}
-                  />
                   <SidebarNavigationItem
                     icon={<SettingsIcon size={16} />}
                     label="Settings"

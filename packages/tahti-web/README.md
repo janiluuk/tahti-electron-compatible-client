@@ -43,7 +43,7 @@ It is not a second backend. Auth, HLS, Stripe fan-subs, DMs, and studio mutation
 
 *Playlists.*
 
-Full set: [`docs/redesign-shots/`](./docs/redesign-shots/). Captures for docs can use mock Vite; beta is democked against production.
+Full set: [`docs/redesign-shots/`](./docs/redesign-shots/). **Prod → Nuclear screen matrix** (anonymous → admin): [`docs/SCREEN-ATLAS.md`](./docs/SCREEN-ATLAS.md). Captures: `node scripts/capture-atlas-shots.mjs` against mock Vite.
 
 ## Run
 
