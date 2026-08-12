@@ -36,6 +36,15 @@ export const PORT_STATUS_LABEL: Record<PortStatus, string> = {
 /** Priority backlog from TAHTI-PORT-CHECKLIST.md (unchecked = still open). */
 export const PORT_BACKLOG: PortInventoryItem[] = [
   {
+    id: 'mobile-chrome',
+    surface: 'Mobile listen chrome',
+    route: '/',
+    status: 'partial',
+    detail:
+      'Phone shell: bottom nav, drawers, compact player, icon play/queue with hint captions. Keep polishing studio forms on narrow screens.',
+    section: 'backlog',
+  },
+  {
     id: 'chat-hardening',
     surface: 'Channel chat hardening',
     route: '/channel/$slug',
