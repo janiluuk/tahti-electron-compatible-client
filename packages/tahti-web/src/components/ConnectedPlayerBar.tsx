@@ -1,7 +1,9 @@
 import { formatArtistNames } from '@nuclearplayer/model';
 import { PlayerBar } from '@nuclearplayer/ui';
 
+import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
+import { AddToPlaylistButton } from './AddToPlaylistButton';
 
 export function ConnectedPlayerBar() {
   const queue = usePlayerStore((s) => s.queue);
@@ -41,15 +43,27 @@ export function ConnectedPlayerBar() {
       ? formatArtistNames(current.track.artists)
       : 'Pick a channel to listen');
   const artist = provider ? `${artistBase}, ${provider}` : artistBase;
+  const archiveItemId = archiveItemIdFromPlayableId(playable?.id ?? currentId);
 
   return (
     <PlayerBar
       left={
-        <PlayerBar.NowPlaying
-          title={title}
-          artist={artist}
-          coverUrl={playable?.coverUrl ?? current?.track.artwork?.items[0]?.url}
-        />
+        <div className="flex min-w-0 items-center gap-2">
+          <PlayerBar.NowPlaying
+            title={title}
+            artist={artist}
+            coverUrl={
+              playable?.coverUrl ?? current?.track.artwork?.items[0]?.url
+            }
+          />
+          {archiveItemId && playable && (
+            <AddToPlaylistButton
+              archiveItemId={archiveItemId}
+              trackTitle={playable.title}
+              variant="secondary"
+            />
+          )}
+        </div>
       }
       center={
         <div className="flex w-full max-w-xl flex-col items-center gap-1">

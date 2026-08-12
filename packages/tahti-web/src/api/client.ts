@@ -29,6 +29,14 @@ import {
   mockUnfollow,
   setMockSessionUser,
 } from './mock-session';
+import {
+  allowMockFallback,
+  apiErrorMeta,
+  failMeta,
+  isForceMock,
+  withMockFallback,
+  type FetchMeta,
+} from './mode';
 import type {
   ArchiveItem,
   AuthUser,
@@ -57,7 +65,9 @@ import type {
   VenueDirectoryItem,
 } from './types';
 
-const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+export type { FetchMeta };
+
+const forceMock = isForceMock;
 
 /** Browser calls go through Vite proxy → Tahti API (avoids CORS). */
 const apiBase = () => {
@@ -66,15 +76,6 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
-
-export type FetchMeta = { source: 'api' | 'mock'; reason?: string };
-
-function failMeta(err: unknown): FetchMeta {
-  return {
-    source: 'mock',
-    reason: err instanceof Error ? err.message : 'fetch failed',
-  };
-}
 
 async function requestJson<T>(
   path: string,
@@ -129,7 +130,7 @@ export async function fetchDirectory(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockDirectory(), meta: failMeta(err) };
+    return withMockFallback(err, mockDirectory, () => ({ items: [] }));
   }
 }
 
@@ -152,8 +153,11 @@ export async function fetchChannel(slug: string): Promise<{
     );
     return { data, meta: { source: 'api' }, playable: channelToPlayable(data) };
   } catch (err) {
-    const data = mockChannel(slug);
-    return { data, meta: failMeta(err), playable: channelToPlayable(data) };
+    if (allowMockFallback()) {
+      const data = mockChannel(slug);
+      return { data, meta: failMeta(err), playable: channelToPlayable(data) };
+    }
+    throw err instanceof Error ? err : new Error('Channel fetch failed');
   }
 }
 
@@ -173,7 +177,11 @@ export async function fetchChannelArchive(slug: string): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockArchiveItems(slug), meta: failMeta(err) };
+    return withMockFallback(
+      err,
+      () => mockArchiveItems(slug),
+      () => [],
+    );
   }
 }
 
@@ -216,8 +224,15 @@ export async function fetchRadio(): Promise<{
     }
     return { data, meta: { source: 'api' }, playable: radioToPlayable(data) };
   } catch (err) {
-    const data = mockRadio();
-    return { data, meta: failMeta(err), playable: radioToPlayable(data) };
+    if (allowMockFallback()) {
+      const data = mockRadio();
+      return { data, meta: failMeta(err), playable: radioToPlayable(data) };
+    }
+    return {
+      data: { live: false, channel: null },
+      meta: apiErrorMeta(err),
+      playable: null,
+    };
   }
 }
 
@@ -237,7 +252,10 @@ export async function fetchProfile(username: string): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockProfile(username), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockProfile(username), meta: failMeta(err) };
+    }
+    throw err instanceof Error ? err : new Error('Profile fetch failed');
   }
 }
 
@@ -257,7 +275,10 @@ export async function fetchCollection(slug: string): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockCollection(slug), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockCollection(slug), meta: failMeta(err) };
+    }
+    throw err instanceof Error ? err : new Error('Collection fetch failed');
   }
 }
 
@@ -277,7 +298,10 @@ export async function fetchSmartLink(smartLinkSlug: string): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockSmartLink(smartLinkSlug), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockSmartLink(smartLinkSlug), meta: failMeta(err) };
+    }
+    throw err instanceof Error ? err : new Error('Smart link fetch failed');
   }
 }
 
@@ -295,7 +319,7 @@ export async function fetchVenues(): Promise<{
     const data = await getJson<VenueDirectoryItem[]>('/api/v1/venues');
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockVenues(), meta: failMeta(err) };
+    return withMockFallback(err, mockVenues, () => []);
   }
 }
 
@@ -315,7 +339,13 @@ export async function fetchChatAccess(slug: string): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockChatAccess(), meta: failMeta(err) };
+    return withMockFallback(err, mockChatAccess, () => ({
+      fanChatEnabled: false,
+      isSupporter: false,
+      canJoinFanChat: false,
+      subscribersOnly: false,
+      canPostInChat: false,
+    }));
   }
 }
 
@@ -339,7 +369,11 @@ export async function fetchChatHistory(slug: string): Promise<{
     }));
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockChatHistory(slug), meta: failMeta(err) };
+    return withMockFallback(
+      err,
+      () => mockChatHistory(slug),
+      () => [],
+    );
   }
 }
 
@@ -409,7 +443,7 @@ export async function fetchAuthMe(): Promise<{
     if (message.includes('401') || message.includes('Unauthorized')) {
       return { data: null, meta: { source: 'api' } };
     }
-    return { data: null, meta: failMeta(err) };
+    return { data: null, meta: apiErrorMeta(err) };
   }
 }
 
@@ -581,7 +615,21 @@ export async function fetchFanTiers(username: string): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockFanTiers(username), meta: failMeta(err) };
+    return withMockFallback(
+      err,
+      () => mockFanTiers(username),
+      () => ({
+        artist: {
+          id: '',
+          displayName: username,
+          username,
+          bio: null,
+          avatarUrl: null,
+        },
+        tiers: [],
+        paymentsReady: false,
+      }),
+    );
   }
 }
 
@@ -647,7 +695,10 @@ export async function fetchTransparencyYtd(): Promise<{
     const data = await getJson<TransparencyYtd>('/api/v1/transparency/ytd');
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockTransparencyYtd(), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockTransparencyYtd(), meta: failMeta(err) };
+    }
+    throw err instanceof Error ? err : new Error('Transparency YTD failed');
   }
 }
 
@@ -668,7 +719,10 @@ export async function fetchTransparencyGrants(year?: number): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockTransparencyGrants(y), meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockTransparencyGrants(y), meta: failMeta(err) };
+    }
+    throw err instanceof Error ? err : new Error('Transparency grants failed');
   }
 }
 
@@ -688,7 +742,7 @@ export async function fetchTransparencyLedger(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: mockTransparencyLedger(), meta: failMeta(err) };
+    return withMockFallback(err, mockTransparencyLedger, () => []);
   }
 }
 
@@ -710,7 +764,7 @@ export async function fetchFollowing(username: string): Promise<{
     );
     return { data: data.users ?? [], meta: { source: 'api' } };
   } catch (err) {
-    return { data: [], meta: failMeta(err) };
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 
@@ -801,6 +855,9 @@ export async function fetchEmbedChannel(slug: string): Promise<{
       : null;
     return { data, meta: { source: 'api' }, playable };
   } catch (err) {
+    if (!allowMockFallback()) {
+      throw err instanceof Error ? err : new Error('Embed channel failed');
+    }
     const ch = mockChannel(slug);
     return {
       data: {
@@ -892,6 +949,9 @@ export async function fetchEmbedRelease(id: string): Promise<{
     }
     return { data, meta: { source: 'api' }, playables };
   } catch (err) {
+    if (!allowMockFallback()) {
+      throw err instanceof Error ? err : new Error('Embed release failed');
+    }
     const data: ReleaseEmbedView = {
       id,
       title: 'Mock release',
@@ -995,6 +1055,9 @@ export async function fetchEmbedCollection(slug: string): Promise<{
     }
     return { data, meta: { source: 'api' }, playables };
   } catch (err) {
+    if (!allowMockFallback()) {
+      throw err instanceof Error ? err : new Error('Embed collection failed');
+    }
     const col = mockCollection(slug);
     return {
       data: {
@@ -1046,7 +1109,7 @@ export async function postListenEvent(
     );
     return { recorded: Boolean(data.recorded), meta: { source: 'api' } };
   } catch (err) {
-    return { recorded: false, meta: failMeta(err) };
+    return { recorded: false, meta: apiErrorMeta(err) };
   }
 }
 
@@ -1095,7 +1158,7 @@ export async function fetchPlatformStatus(): Promise<{
           checks: {},
           ts: new Date().toISOString(),
         },
-        meta: failMeta(err),
+        meta: apiErrorMeta(err),
       };
     }
   }
@@ -1123,7 +1186,7 @@ export async function fetchMembership(): Promise<{
     const data = await getJson<MembershipStatus>('/api/me/membership');
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: null, meta: failMeta(err) };
+    return { data: null, meta: apiErrorMeta(err) };
   }
 }
 
@@ -1141,7 +1204,7 @@ export async function fetchMySubscriptions(): Promise<{
     const data = await getJson<FanSubscriptionRow[]>('/api/me/subscriptions');
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: [], meta: failMeta(err) };
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 
@@ -1211,7 +1274,7 @@ export async function fetchGovernanceMotions(): Promise<{
       message.includes('401') ||
       message.includes('403') ||
       /member/i.test(message);
-    return { data: [], meta: failMeta(err), forbidden };
+    return { data: [], meta: apiErrorMeta(err), forbidden };
   }
 }
 
@@ -1269,7 +1332,7 @@ export async function fetchMotionComments(id: string): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: [], meta: failMeta(err) };
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 

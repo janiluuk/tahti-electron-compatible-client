@@ -1,5 +1,6 @@
 import type { FetchMeta } from './client';
 import { DEMO_MP3 } from './mock';
+import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 import type {
   EditList,
   EditorDraft,
@@ -14,7 +15,7 @@ import type {
 } from './studio-types';
 import { createDefaultEditList } from './studio-types';
 
-const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+const forceMock = isForceMock;
 
 const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
@@ -22,13 +23,6 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
-
-function failMeta(err: unknown): FetchMeta {
-  return {
-    source: 'mock',
-    reason: err instanceof Error ? err.message : 'fetch failed',
-  };
-}
 
 async function requestJson<T>(
   path: string,
@@ -127,7 +121,10 @@ export async function fetchStudioArchive(): Promise<{
     const { data } = await requestJson<StudioArchiveItem[]>('/api/me/archive');
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: [...mockArchiveStore], meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: [...mockArchiveStore], meta: failMeta(err) };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 
@@ -149,9 +146,12 @@ export async function fetchStudioArchiveItem(id: string): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    const item =
-      mockArchiveStore.find((a) => a.id === id) ?? mockArchiveStore[0]!;
-    return { data: { ...item, id }, meta: failMeta(err) };
+    if (allowMockFallback()) {
+      const item =
+        mockArchiveStore.find((a) => a.id === id) ?? mockArchiveStore[0]!;
+      return { data: { ...item, id }, meta: failMeta(err) };
+    }
+    throw err instanceof Error ? err : new Error('Archive item fetch failed');
   }
 }
 
@@ -236,7 +236,7 @@ export async function fetchEditorSource(archiveItemId: string): Promise<{
   } catch (err) {
     return {
       data: { url: DEMO_MP3, durationSec: 180, title: 'Fallback demo audio' },
-      meta: failMeta(err),
+      meta: apiErrorMeta(err),
     };
   }
 }
@@ -285,7 +285,7 @@ export async function fetchStudioReleases(): Promise<{
   } catch (err) {
     return {
       data: { page: 1, limit: 100, total: 0, releases: [] },
-      meta: failMeta(err),
+      meta: apiErrorMeta(err),
     };
   }
 }
@@ -433,7 +433,7 @@ export async function fetchArchiveStems(archiveItemId: string): Promise<{
     );
     return { data: data.jobs ?? [], meta: { source: 'api' } };
   } catch (err) {
-    return { data: [], meta: failMeta(err) };
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 
@@ -484,7 +484,7 @@ export async function fetchStudioCollections(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: [], meta: failMeta(err) };
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 
@@ -516,7 +516,7 @@ export async function fetchStudioCollection(slug: string): Promise<{
   } catch (err) {
     return {
       data: { slug, name: slug, items: [] },
-      meta: failMeta(err),
+      meta: apiErrorMeta(err),
     };
   }
 }
@@ -583,6 +583,137 @@ export async function removeStudioCollectionItem(
     return {
       ok: false,
       error: err instanceof Error ? err.message : 'Remove failed',
+    };
+  }
+}
+
+export async function createStudioCollection(input: {
+  name: string;
+  style?: string;
+  description?: string;
+  isPublic?: boolean;
+}): Promise<
+  { ok: true; data: StudioCollection } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    const slug =
+      input.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 48) || `mix-${Date.now()}`;
+    return {
+      ok: true,
+      data: {
+        slug,
+        name: input.name,
+        description: input.description ?? null,
+        style: input.style ?? 'PLAYLIST',
+        isPublic: input.isPublic ?? true,
+        items: [],
+        itemCount: 0,
+      },
+    };
+  }
+  try {
+    const { data } = await requestJson<StudioCollection>(
+      '/api/me/collections',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: input.name,
+          style: input.style ?? 'PLAYLIST',
+          description: input.description,
+          isPublic: input.isPublic ?? true,
+        }),
+      },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Create failed',
+    };
+  }
+}
+
+export async function patchStudioCollection(
+  slug: string,
+  patch: {
+    name?: string;
+    description?: string | null;
+    style?: string;
+    isPublic?: boolean;
+  },
+): Promise<
+  { ok: true; data: StudioCollection } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return {
+      ok: true,
+      data: {
+        slug,
+        name: patch.name ?? slug,
+        description: patch.description ?? null,
+        style: patch.style ?? 'ALBUM',
+        isPublic: patch.isPublic ?? true,
+        items: [],
+      },
+    };
+  }
+  try {
+    const { data } = await requestJson<StudioCollection>(
+      `/api/me/collections/${encodeURIComponent(slug)}`,
+      { method: 'PATCH', body: JSON.stringify(patch) },
+    );
+    return { ok: true, data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Save failed',
+    };
+  }
+}
+
+export async function uploadCollectionCover(
+  slug: string,
+  file: File,
+): Promise<{ ok: true; coverUrl: string } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const url = URL.createObjectURL(file);
+    return { ok: true, coverUrl: url };
+  }
+  try {
+    const { data: prep } = await requestJson<{
+      uploadKey: string;
+      uploadUrl: string;
+    }>(`/api/me/collections/${encodeURIComponent(slug)}/cover/prepare`, {
+      method: 'POST',
+      body: JSON.stringify({
+        filename: file.name,
+        contentType: file.type || 'image/jpeg',
+      }),
+    });
+    const put = await fetch(prep.uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type || 'image/jpeg' },
+    });
+    if (!put.ok) {
+      throw new Error(`Cover PUT failed (${put.status})`);
+    }
+    const { data: done } = await requestJson<{ url?: string | null }>(
+      `/api/me/collections/${encodeURIComponent(slug)}/cover/complete`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ uploadKey: prep.uploadKey }),
+      },
+    );
+    return { ok: true, coverUrl: done.url ?? '' };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Cover upload failed',
     };
   }
 }
@@ -672,7 +803,10 @@ export async function fetchEditorProjects(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: [...mockProjects], meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: [...mockProjects], meta: failMeta(err) };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 
@@ -733,7 +867,7 @@ export async function fetchEditorProject(id: string): Promise<{
   } catch (err) {
     return {
       data: { id, title: 'Unavailable', updatedAt: new Date().toISOString() },
-      meta: failMeta(err),
+      meta: apiErrorMeta(err),
     };
   }
 }
@@ -773,7 +907,7 @@ export async function fetchEditorDraft(archiveItemId: string): Promise<{
       updatedAt: null,
       editorPeaks: mockPeaks(180),
     };
-    return { data: draft, meta: failMeta(err) };
+    return { data: draft, meta: apiErrorMeta(err) };
   }
 }
 

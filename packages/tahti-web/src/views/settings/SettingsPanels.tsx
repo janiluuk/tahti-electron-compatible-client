@@ -58,6 +58,7 @@ import {
 } from '../../api/studio-extras';
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
+import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
@@ -856,6 +857,10 @@ function MoneyPanel() {
 
   return (
     <>
+      <SectionShell title="Fan tiers (artist)">
+        <FanTiersEditor />
+      </SectionShell>
+
       <SectionShell title="Fan subs (artist)">
         {!connect ? (
           <SettingsHint>Loading…</SettingsHint>

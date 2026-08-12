@@ -99,6 +99,7 @@ export function StudioGoLiveView() {
   const [newProvider, setNewProvider] = useState('TWITCH');
   const [newKey, setNewKey] = useState('');
   const [newLabel, setNewLabel] = useState('');
+  const [autoAdvanced, setAutoAdvanced] = useState(false);
 
   const slug = user?.channel?.slug ?? '';
   const isMock = import.meta.env.VITE_FORCE_MOCK === '1';
@@ -128,6 +129,13 @@ export function StudioGoLiveView() {
     setUsage(u.data);
     setTargets(t.data);
     setMetaSource(s.meta.source);
+    if (!s.data && s.meta.source === 'api' && s.meta.reason) {
+      setMsg(
+        `Stream settings: ${s.meta.reason} — log in as an artist with a channel.`,
+      );
+    } else if (s.data) {
+      setMsg(null);
+    }
     if (isMock) {
       setChannelState(getMockChannelState());
     }
@@ -169,6 +177,16 @@ export function StudioGoLiveView() {
       setPanel('live');
     }
   }, [channelState]);
+
+  useEffect(() => {
+    if (autoAdvanced || panel !== 'connect') {
+      return;
+    }
+    if (signal?.connected) {
+      setAutoAdvanced(true);
+      setMsg('Encoder signal detected — continue to Go Live when ready.');
+    }
+  }, [signal?.connected, panel, autoAdvanced]);
 
   const isLive = channelState === 'LIVE';
   const isPreview = channelState === 'PREVIEW';
@@ -228,11 +246,11 @@ export function StudioGoLiveView() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Go Live
+              Broadcast wizard
             </h1>
             <p className="text-foreground-secondary mt-1 text-sm">
-              Copy ingest keys, start OBS or Icecast, confirm signal, go live.
-              Source: {metaSource}.
+              Three steps: connect your encoder, go live, then optionally
+              multistream. Source: {metaSource}.
             </p>
           </div>
           <span
@@ -249,31 +267,77 @@ export function StudioGoLiveView() {
           </p>
         )}
 
-        <nav className="flex flex-wrap gap-2">
+        <ol className="border-border grid gap-2 rounded-xl border p-3 sm:grid-cols-3">
           {(
             [
-              { id: 'connect' as const, label: '1. Connect' },
-              { id: 'live' as const, label: '2. Live' },
-              { id: 'multistream' as const, label: 'Multistream' },
+              {
+                id: 'connect' as const,
+                step: 1,
+                label: 'Connect',
+                hint: 'Ingest keys + signal',
+              },
+              {
+                id: 'live' as const,
+                step: 2,
+                label: 'Go live',
+                hint: 'Publish the channel',
+              },
+              {
+                id: 'multistream' as const,
+                step: 3,
+                label: 'Multistream',
+                hint: 'Optional mirrors',
+              },
             ] as const
-          ).map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setPanel(t.id)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-                panel === t.id
-                  ? 'bg-primary text-foreground'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </nav>
+          ).map((t) => {
+            const active = panel === t.id;
+            const done =
+              (t.id === 'connect' && signalOk) ||
+              (t.id === 'live' && isLive) ||
+              (t.id === 'multistream' && targets.some((x) => x.enabled));
+            return (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (t.id === 'live' && !settings) {
+                      setMsg(
+                        'Load stream settings first (step 1) before going live.',
+                      );
+                      setPanel('connect');
+                      return;
+                    }
+                    setPanel(t.id);
+                  }}
+                  className={`flex w-full flex-col rounded-lg border px-3 py-2 text-left ${
+                    active
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:border-primary/40'
+                  }`}
+                >
+                  <span className="text-foreground-secondary text-[10px] tracking-wide uppercase">
+                    Step {t.step}
+                    {done ? ' · done' : ''}
+                  </span>
+                  <span className="text-sm font-semibold">{t.label}</span>
+                  <span className="text-foreground-secondary text-xs">
+                    {t.hint}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
 
         {msg && (
-          <p className="border-border bg-background-secondary rounded-lg border px-3 py-2 text-sm">
+          <p
+            className={`rounded-lg border px-3 py-2 text-sm ${
+              /fail|error|could not|503|401|403/i.test(msg)
+                ? 'border-red-500/40 bg-red-500/10 text-red-100'
+                : 'border-border bg-background-secondary'
+            }`}
+            role="status"
+          >
             {msg}
           </p>
         )}
@@ -347,6 +411,12 @@ export function StudioGoLiveView() {
               </section>
             )}
 
+            <ul className="text-foreground-secondary space-y-1 text-xs">
+              <li>{settings ? '✓' : '○'} Stream settings loaded</li>
+              <li>{signalOk ? '✓' : '○'} Encoder signal</li>
+              <li>{!usage?.blocked ? '✓' : '○'} Weekly live quota available</li>
+            </ul>
+
             <div className="border-border flex flex-wrap items-center gap-3 rounded-lg border p-4">
               <div className="flex-1">
                 <div className="text-sm font-medium">
@@ -373,10 +443,25 @@ export function StudioGoLiveView() {
               )}
               <Button
                 size="sm"
-                onClick={() => setPanel('live')}
-                disabled={!signalOk && !isLive}
+                onClick={() => {
+                  if (!settings) {
+                    setMsg(
+                      'Stream settings missing — log in as an artist with a channel.',
+                    );
+                    return;
+                  }
+                  if (!signalOk && !isLive) {
+                    setMsg(
+                      'No encoder signal yet. Start OBS/Icecast, or use Simulate signal in mock mode.',
+                    );
+                    return;
+                  }
+                  setMsg(null);
+                  setPanel('live');
+                }}
+                disabled={!settings}
               >
-                Continue to Live
+                Next: Go live →
               </Button>
             </div>
           </div>
@@ -457,6 +542,19 @@ export function StudioGoLiveView() {
               or Sources → From broadcast. Multistream destinations are optional
               — configure them before or during a show.
             </p>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setPanel('connect')}
+              >
+                ← Back
+              </Button>
+              <Button size="sm" onClick={() => setPanel('multistream')}>
+                Next: Multistream →
+              </Button>
+            </div>
           </div>
         )}
 
@@ -581,6 +679,24 @@ export function StudioGoLiveView() {
                 </Button>
               </div>
             </section>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setPanel('live')}
+              >
+                ← Back to live
+              </Button>
+              {isLive && (
+                <p className="text-foreground-secondary self-center text-xs">
+                  Wizard complete — you’re on air
+                  {targets.some((x) => x.enabled)
+                    ? ' with multistream destinations.'
+                    : '.'}
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>

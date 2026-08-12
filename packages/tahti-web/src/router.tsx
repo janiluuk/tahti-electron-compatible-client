@@ -52,6 +52,7 @@ import { StudioUploadView } from './views/studio/StudioUploadView';
 import { SubscribeView } from './views/SubscribeView';
 import { TransparencyView } from './views/TransparencyView';
 import { VenuesView } from './views/VenuesView';
+import { VerifyView } from './views/VerifyView';
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -253,6 +254,12 @@ const joinRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/join',
   component: JoinView,
+});
+
+const verifyRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/verify',
+  component: VerifyView,
 });
 
 const loginRoute = createRoute({
@@ -497,6 +504,7 @@ const routeTree = rootRoute.addChildren([
     helpRoute,
     helpSlugRoute,
     joinRoute,
+    verifyRoute,
     loginRoute,
     accountRoute,
     statusRoute,

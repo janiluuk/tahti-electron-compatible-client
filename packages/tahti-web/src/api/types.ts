@@ -22,6 +22,15 @@ export type PublicChannel = {
   hlsUrl: string | null;
   /** When false, channel chat is off — right rail Chat tab disabled. */
   chatEnabled?: boolean;
+  visualPreset?: string | null;
+  colorSchemeJson?: string | null;
+  colorScheme?: {
+    accent?: string;
+    highlight?: string;
+    background?: string;
+    foreground?: string;
+    muted?: string;
+  } | null;
   user: {
     username: string;
     displayName: string;

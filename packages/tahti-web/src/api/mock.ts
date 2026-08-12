@@ -65,6 +65,21 @@ export function mockChannel(slug: string): PublicChannel {
     state: 'LIVE',
     hlsUrl: DEMO_HLS,
     chatEnabled: true,
+    visualPreset: 'AURORA',
+    colorSchemeJson: JSON.stringify({
+      accent: '#22D3EE',
+      highlight: '#A78BFA',
+      background: '#0B1220',
+      foreground: '#F8FAFC',
+      muted: '#64748B',
+    }),
+    colorScheme: {
+      accent: '#22D3EE',
+      highlight: '#A78BFA',
+      background: '#0B1220',
+      foreground: '#F8FAFC',
+      muted: '#64748B',
+    },
     user: {
       username: item.slug,
       displayName: item.displayName,

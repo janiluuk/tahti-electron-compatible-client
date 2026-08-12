@@ -27,6 +27,9 @@ type PlayerState = {
   repeatMode: RepeatMode;
   /** Set by UI; AudioEngine applies to the media element then clears. */
   seekTarget: number | null;
+  /** Shared Web Audio analyser for channel visualizers (set by AudioEngine). */
+  analyser: AnalyserNode | null;
+  setAnalyser: (analyser: AnalyserNode | null) => void;
   play: (item: TahtiPlayable, opts?: { enqueueRest?: TahtiPlayable[] }) => void;
   enqueue: (item: TahtiPlayable) => void;
   playQueueIndex: (id: string) => void;
@@ -108,6 +111,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   shuffle: false,
   repeatMode: 'off',
   seekTarget: null,
+  analyser: null,
+
+  setAnalyser: (analyser) => set({ analyser }),
 
   play: (item, opts) => {
     const head = toQueueItem(item);

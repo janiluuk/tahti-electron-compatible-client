@@ -11,6 +11,7 @@ import {
   type FetchMeta,
 } from '../api/client';
 import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
+import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { useLayoutStore } from '../stores/layoutStore';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -229,28 +230,45 @@ export function ChannelView({ slug }: { slug: string }) {
 
       {tab === 'live' && (
         <section className="flex flex-col gap-3">
-          {channel.nowPlaying && (
-            <div className="border-border bg-background rounded-lg border p-4">
-              <div className="text-foreground-secondary text-xs uppercase">
-                Now playing
-              </div>
-              <div className="text-foreground mt-1 font-bold">
-                {channel.nowPlaying.title}
-              </div>
-              <div className="text-foreground-secondary text-sm">
-                {channel.nowPlaying.artistName}
-              </div>
+          <div className="border-border relative aspect-[16/9] w-full overflow-hidden rounded-xl border">
+            <ChannelVisualizer
+              className="absolute inset-0 h-full w-full"
+              preset={channel.visualPreset ?? 'AURORA'}
+              colorScheme={channel.colorScheme}
+              colorSchemeJson={channel.colorSchemeJson}
+              artworkUrl={
+                channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl
+              }
+            />
+            <div className="absolute inset-x-0 bottom-0 z-[1] bg-gradient-to-t from-black/70 to-transparent p-4">
+              {channel.nowPlaying ? (
+                <>
+                  <div className="text-[10px] tracking-wide text-white/70 uppercase">
+                    Now playing
+                  </div>
+                  <div className="mt-0.5 font-bold text-white">
+                    {channel.nowPlaying.title}
+                  </div>
+                  <div className="text-sm text-white/80">
+                    {channel.nowPlaying.artistName}
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-white/80">
+                  {live
+                    ? 'Stream is live — hit Play live to drive the visualizer.'
+                    : 'Offline — visualizer idles until you play archive or live.'}
+                </p>
+              )}
+              <p className="mt-1 text-[10px] text-white/50">
+                Preset: {(channel.visualPreset ?? 'AURORA').replace(/_/g, ' ')}
+              </p>
             </div>
-          )}
+          </div>
           {!live && (
             <p className="text-foreground-secondary text-sm">
               Channel is not live right now. Check Archive for past sets, or
               open Chat in the right rail.
-            </p>
-          )}
-          {live && (
-            <p className="text-foreground-secondary text-sm">
-              Stream is live — use Play live above to listen in the player bar.
             </p>
           )}
         </section>

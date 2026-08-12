@@ -80,7 +80,9 @@ export function JoinView() {
             clearError();
             void register({ email, password, username, displayName })
               .then((msg) => {
-                setMessage(msg);
+                setMessage(
+                  `${msg} Check your email, then open /verify (or paste the token below).`,
+                );
                 if (import.meta.env.VITE_FORCE_MOCK === '1') {
                   void navigate({ to: '/login' });
                 }
@@ -94,6 +96,15 @@ export function JoinView() {
 
       <div className="border-border flex flex-col gap-3 border-t pt-4">
         <h2 className="font-display text-lg font-bold">Verify email</h2>
+        <p className="text-foreground-secondary text-sm">
+          Prefer the dedicated page?{' '}
+          <Link to="/verify" className="underline-offset-2 hover:underline">
+            Open /verify
+          </Link>
+          {tokenFromUrl()
+            ? ' (token detected in URL — paste below or open /verify).'
+            : '.'}
+        </p>
         <Input
           label="Verification token"
           value={verifyToken}

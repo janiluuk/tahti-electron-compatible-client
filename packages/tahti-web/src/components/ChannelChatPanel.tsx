@@ -26,8 +26,11 @@ function centrifugoWsUrl(): string | null {
   if (fromEnv) {
     return fromEnv;
   }
-  // Default local Centrifugo; connection failure falls back to REST/mock send.
-  return 'ws://localhost:8000/connection/websocket';
+  // Dev: local Centrifugo. Prod/beta builds: public chat host.
+  if (import.meta.env.DEV) {
+    return 'ws://localhost:8000/connection/websocket';
+  }
+  return 'wss://chat.tahti.live/connection/websocket';
 }
 
 type Props = {
@@ -96,7 +99,9 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
         }
         setMessages(hist.data);
         setMeta(hist.meta);
-        if (hist.meta.source === 'mock') {
+        // Only force mock send mode for offline demo — API-down fallback
+        // must not block Centrifugo when a real token is available.
+        if (forceMock()) {
           setMode('mock');
         } else {
           setMode('rest');

@@ -34,11 +34,16 @@ SSH target defaults to `vimage` (root@192.168.2.100). Override with `DEPLOY_HOST
 
 Production CORS already allows `*.tahti.live`.
 
-## Nginx Proxy Manager
+## Nginx Proxy Manager (Pi4)
 
-1. DNS: `beta.tahti.live` → same public IP as other `*.tahti.live` hosts.
-2. Proxy Host:
-   - Domain: `beta.tahti.live`
-   - Forward: `http://192.168.2.100:15180`
-   - SSL: Let's Encrypt, force HTTPS
-   - Websockets: on
+Configured as Proxy Host **#61**:
+
+| Field | Value |
+|-------|--------|
+| Domain | `beta.tahti.live` |
+| Forward | `http://192.168.2.100:15180` (vimage `tahti-beta-web`) |
+| SSL | `*.tahti.live` (npm-162), force HTTPS |
+
+DNS already aliases `beta.tahti.live` with `tahti.live`. Do **not** forward to pi4 `:15180` — that was the old local copy.
+
+Ops note in the Tahti repo: `ops/beta-tahti-live.md`.

@@ -1,14 +1,16 @@
 import { Link } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, Input } from '@nuclearplayer/ui';
 
 import {
   addStudioCollectionItem,
   fetchStudioArchive,
   fetchStudioCollection,
+  patchStudioCollection,
   removeStudioCollectionItem,
   reorderStudioCollectionItems,
+  uploadCollectionCover,
 } from '../../api/studio';
 import type {
   StudioArchiveItem,
@@ -17,17 +19,49 @@ import type {
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 
+const STYLE_OPTIONS = [
+  'ALBUM',
+  'EP',
+  'SINGLE',
+  'PLAYLIST',
+  'COMPILATION',
+  'DJ_SET_SERIES',
+  'LIVE_ARCHIVE',
+  'MIX_SERIES',
+] as const;
+
+function formatDuration(sec: number | null | undefined): string {
+  if (sec == null || !Number.isFinite(sec)) {
+    return '';
+  }
+  const s = Math.max(0, Math.floor(sec));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2, '0')}`;
+}
+
 export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [col, setCol] = useState<StudioCollection | null>(null);
   const [archive, setArchive] = useState<StudioArchiveItem[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [addId, setAddId] = useState('');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [style, setStyle] = useState('ALBUM');
+  const [isPublic, setIsPublic] = useState(true);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const reload = () => {
     void Promise.all([fetchStudioCollection(slug), fetchStudioArchive()]).then(
       ([c, a]) => {
         setCol(c.data);
         setArchive(a.data);
+        setName(c.data.name);
+        setDescription(c.data.description ?? '');
+        setStyle(c.data.style ?? 'ALBUM');
+        setIsPublic(c.data.isPublic !== false);
+        setCoverUrl(c.data.coverUrl ?? null);
       },
     );
   };
@@ -37,6 +71,10 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   }, [slug]);
 
   const items = col?.items ?? [];
+  const isAlbumLike = useMemo(
+    () => ['ALBUM', 'EP', 'SINGLE', 'COMPILATION'].includes(style),
+    [style],
+  );
 
   const move = async (index: number, dir: -1 | 1) => {
     const next = [...items];
@@ -52,12 +90,39 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
       slug,
       next.map((i) => i.id),
     );
-    setMessage(result.ok ? 'Reordered.' : result.error);
+    setMessage(result.ok ? 'Tracklist reordered.' : result.error);
+  };
+
+  const saveMeta = async () => {
+    setSaving(true);
+    setMessage(null);
+    const result = await patchStudioCollection(slug, {
+      name: name.trim() || slug,
+      description: description.trim() || null,
+      style,
+      isPublic,
+    });
+    setSaving(false);
+    if (!result.ok) {
+      setMessage(result.error);
+      return;
+    }
+    setCol((c) =>
+      c
+        ? {
+            ...c,
+            ...result.data,
+            items: c.items,
+            coverUrl: coverUrl ?? result.data.coverUrl,
+          }
+        : result.data,
+    );
+    setMessage('Album details saved.');
   };
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="mx-auto flex max-w-4xl flex-col gap-6">
         <StudioNav current="/studio/collections" />
         <Link
           to="/studio/collections"
@@ -69,96 +134,211 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
           <p className="text-foreground-secondary text-sm">Loading…</p>
         ) : (
           <>
-            <div>
-              <h1 className="font-display text-3xl font-extrabold tracking-tight">
-                {col.name}
-              </h1>
-              <p className="text-foreground-secondary text-xs">
-                Editor lite — add / reorder / remove via
-                /api/me/collections/:slug/*
-              </p>
-            </div>
-
-            <ul className="border-border divide-border divide-y rounded-lg border">
-              {items.length === 0 && (
-                <li className="text-foreground-secondary px-4 py-3 text-sm">
-                  No items yet.
-                </li>
-              )}
-              {items.map((item, idx) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-center gap-2 px-4 py-2 text-sm"
-                >
-                  <span className="text-foreground-secondary w-6">
-                    {idx + 1}.
-                  </span>
-                  <span className="min-w-0 flex-1 truncate">
-                    {item.archiveItem?.title ?? item.release?.title ?? item.id}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() => void move(idx, -1)}
-                  >
-                    Up
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() => void move(idx, 1)}
-                  >
-                    Down
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() => {
-                      void removeStudioCollectionItem(slug, item.id).then(() =>
-                        reload(),
-                      );
+            <header className="flex flex-col gap-4 sm:flex-row sm:items-end">
+              <div className="border-border bg-background-secondary relative h-44 w-44 shrink-0 overflow-hidden rounded-xl border">
+                {coverUrl ? (
+                  <img
+                    src={coverUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="text-foreground-secondary flex h-full items-center justify-center p-4 text-center text-xs">
+                    {isAlbumLike ? 'Album cover' : 'Cover art'}
+                  </div>
+                )}
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <p className="text-foreground-secondary text-xs tracking-wide uppercase">
+                  {isAlbumLike ? 'Album designer' : 'Collection designer'}
+                </p>
+                <h1 className="font-display text-3xl font-extrabold tracking-tight">
+                  {name || col.name}
+                </h1>
+                <p className="text-foreground-secondary text-xs">
+                  /{col.slug}
+                  {style ? ` — ${style}` : ''}
+                  {isPublic ? '' : ' — private'}
+                </p>
+                <label className="text-foreground-secondary text-xs">
+                  Cover image
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="mt-1 block w-full text-sm"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) {
+                        return;
+                      }
+                      void uploadCollectionCover(slug, file).then((r) => {
+                        if (!r.ok) {
+                          setMessage(r.error);
+                          return;
+                        }
+                        setCoverUrl(r.coverUrl);
+                        setCol((c) => (c ? { ...c, coverUrl: r.coverUrl } : c));
+                        setMessage('Cover uploaded.');
+                      });
                     }}
-                  >
-                    Remove
-                  </Button>
-                </li>
-              ))}
-            </ul>
+                  />
+                </label>
+              </div>
+            </header>
 
-            <div className="flex flex-wrap items-end gap-2">
-              <label className="flex min-w-[200px] flex-1 flex-col gap-1 text-sm">
+            <section className="border-border grid gap-4 rounded-xl border p-4 sm:grid-cols-2">
+              <Input
+                label="Title"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <label className="flex flex-col gap-1 text-sm">
                 <span className="text-foreground-secondary text-xs uppercase">
-                  Add archive item
+                  Style
                 </span>
-                <select
-                  value={addId}
-                  onChange={(e) => setAddId(e.target.value)}
-                  className="border-border bg-background rounded-md border px-3 py-2"
-                >
-                  <option value="">Select…</option>
-                  {archive.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.title}
-                    </option>
+                <div className="flex flex-wrap gap-2">
+                  {STYLE_OPTIONS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`rounded-full border px-3 py-1 text-xs ${
+                        style === s
+                          ? 'border-primary bg-primary/15 text-primary'
+                          : 'border-border text-foreground-secondary'
+                      }`}
+                      onClick={() => setStyle(s)}
+                    >
+                      {s.replace(/_/g, ' ')}
+                    </button>
                   ))}
-                </select>
+                </div>
               </label>
-              <Button
-                size="sm"
-                disabled={!addId}
-                onClick={() => {
-                  void addStudioCollectionItem(slug, addId).then((r) => {
-                    setMessage(r.ok ? 'Added.' : r.error);
-                    if (r.ok) {
-                      setAddId('');
-                      reload();
-                    }
-                  });
-                }}
-              >
-                Add
-              </Button>
-            </div>
+              <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+                <span className="text-foreground-secondary text-xs uppercase">
+                  Description
+                </span>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={isPublic}
+                  onChange={(e) => setIsPublic(e.target.checked)}
+                />
+                Public on profile
+              </label>
+              <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                <Button
+                  size="sm"
+                  disabled={saving}
+                  onClick={() => void saveMeta()}
+                >
+                  {saving ? 'Saving…' : 'Save details'}
+                </Button>
+              </div>
+            </section>
+
+            <section className="flex flex-col gap-3">
+              <div className="flex items-end justify-between gap-2">
+                <h2 className="font-display text-lg font-bold">
+                  {isAlbumLike ? 'Tracklist' : 'Items'}
+                </h2>
+                <p className="text-foreground-secondary text-xs">
+                  {items.length} track{items.length === 1 ? '' : 's'}
+                </p>
+              </div>
+              <ul className="border-border divide-border divide-y rounded-lg border">
+                {items.length === 0 && (
+                  <li className="text-foreground-secondary px-4 py-3 text-sm">
+                    No tracks yet — add archive items below.
+                  </li>
+                )}
+                {items.map((item, idx) => (
+                  <li
+                    key={item.id}
+                    className="flex flex-wrap items-center gap-2 px-4 py-2 text-sm"
+                  >
+                    <span className="text-foreground-secondary w-6 tabular-nums">
+                      {idx + 1}.
+                    </span>
+                    <span className="min-w-0 flex-1 truncate font-medium">
+                      {item.archiveItem?.title ??
+                        item.release?.title ??
+                        item.id}
+                    </span>
+                    <span className="text-foreground-secondary text-xs tabular-nums">
+                      {formatDuration(item.archiveItem?.durationSec)}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="text"
+                      onClick={() => void move(idx, -1)}
+                    >
+                      Up
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="text"
+                      onClick={() => void move(idx, 1)}
+                    >
+                      Down
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="text"
+                      onClick={() => {
+                        void removeStudioCollectionItem(slug, item.id).then(
+                          () => reload(),
+                        );
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex flex-wrap items-end gap-2">
+                <label className="flex min-w-[200px] flex-1 flex-col gap-1 text-sm">
+                  <span className="text-foreground-secondary text-xs uppercase">
+                    Add archive track
+                  </span>
+                  <select
+                    value={addId}
+                    onChange={(e) => setAddId(e.target.value)}
+                    className="border-border bg-background rounded-md border px-3 py-2"
+                  >
+                    <option value="">Select…</option>
+                    {archive.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <Button
+                  size="sm"
+                  disabled={!addId}
+                  onClick={() => {
+                    void addStudioCollectionItem(slug, addId).then((r) => {
+                      setMessage(r.ok ? 'Track added.' : r.error);
+                      if (r.ok) {
+                        setAddId('');
+                        reload();
+                      }
+                    });
+                  }}
+                >
+                  Add to {isAlbumLike ? 'album' : 'collection'}
+                </Button>
+              </div>
+            </section>
+
             {message && (
               <p className="text-foreground-secondary text-sm">{message}</p>
             )}

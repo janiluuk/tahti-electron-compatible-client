@@ -53,6 +53,8 @@ export function StudioRevenueView() {
           </h1>
           <p className="text-foreground-secondary mt-1 text-sm">
             Fan-sub Connect status + cooperative grant share. Source: {source}.
+            Offline demo uses <code>VITE_FORCE_MOCK=1</code>; live opens Stripe
+            onboard/portal URLs.
           </p>
         </div>
 

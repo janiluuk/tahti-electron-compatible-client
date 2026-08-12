@@ -1,6 +1,7 @@
 import type { FetchMeta } from './client';
+import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 
-const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+const forceMock = isForceMock;
 
 const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
@@ -8,13 +9,6 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
-
-function failMeta(err: unknown): FetchMeta {
-  return {
-    source: 'mock',
-    reason: err instanceof Error ? err.message : 'fetch failed',
-  };
-}
 
 async function requestJson<T>(
   path: string,
@@ -140,24 +134,31 @@ export async function fetchConversations(): Promise<{
     );
     return { data: Array.isArray(data) ? data : [], meta: { source: 'api' } };
   } catch (err) {
-    return { data: [], meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: [...mockConversations], meta: failMeta(err) };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
   }
+}
+
+function mockConversationDetail(id: string): ConversationDetail | null {
+  const summary = mockConversations.find((c) => c.id === id);
+  if (!summary) {
+    return null;
+  }
+  return {
+    id,
+    otherUser: summary.otherUser,
+    messages: [...(mockThreads.get(id) ?? [])],
+  };
 }
 
 export async function fetchConversation(
   id: string,
 ): Promise<{ data: ConversationDetail | null; meta: FetchMeta }> {
   if (forceMock()) {
-    const summary = mockConversations.find((c) => c.id === id);
-    if (!summary) {
-      return { data: null, meta: { source: 'mock' } };
-    }
     return {
-      data: {
-        id,
-        otherUser: summary.otherUser,
-        messages: [...(mockThreads.get(id) ?? [])],
-      },
+      data: mockConversationDetail(id),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
@@ -167,7 +168,10 @@ export async function fetchConversation(
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: null, meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockConversationDetail(id), meta: failMeta(err) };
+    }
+    return { data: null, meta: apiErrorMeta(err) };
   }
 }
 
@@ -286,6 +290,20 @@ export async function searchUsers(q: string): Promise<{
     >(`/api/users/search?q=${encodeURIComponent(q)}`);
     return { data: Array.isArray(data) ? data : [], meta: { source: 'api' } };
   } catch (err) {
-    return { data: [], meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return {
+        data: q
+          ? [
+              {
+                username: 'listener',
+                displayName: 'Listener One',
+                avatarUrl: null,
+              },
+            ]
+          : [],
+        meta: failMeta(err),
+      };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }

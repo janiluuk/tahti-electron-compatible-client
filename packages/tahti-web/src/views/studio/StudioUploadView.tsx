@@ -44,9 +44,9 @@ export function StudioUploadView() {
             Upload
           </h1>
           <p className="text-foreground-secondary mt-1 text-sm">
-            Flow: <code>POST /api/uploads/prepare</code> → PUT to MinIO →{' '}
-            <code>POST /api/uploads/complete</code>. Mock mode skips network and
-            invents a READY item.
+            Live: <code>POST /api/uploads/prepare</code> → PUT to storage →{' '}
+            <code>POST /api/uploads/complete</code>. Requires artist session.
+            Offline demo (<code>VITE_FORCE_MOCK=1</code>) invents a READY item.
           </p>
         </div>
         <Input

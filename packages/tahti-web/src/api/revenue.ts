@@ -3,8 +3,9 @@ import {
   getMockConnectStatus,
   mockCompleteConnectOnboard,
 } from './mock-session';
+import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 
-const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+const forceMock = isForceMock;
 
 const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
@@ -12,13 +13,6 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
-
-function failMeta(err: unknown): FetchMeta {
-  return {
-    source: 'mock',
-    reason: err instanceof Error ? err.message : 'fetch failed',
-  };
-}
 
 async function requestJson<T>(
   path: string,
@@ -78,6 +72,34 @@ export type GrantEstimate = {
   fanSubEuros?: number;
 };
 
+const emptyConnect = (): FanConnectStatus => ({
+  stripeConfigured: false,
+  accountId: null,
+  chargesEnabled: false,
+  detailsSubmitted: false,
+  paymentsReady: false,
+});
+
+const mockGrants = (): GrantRow[] => [
+  {
+    forYear: 2025,
+    units: 12,
+    amountCents: '45000',
+    state: 'PAID',
+    paidAt: '2026-01-15T00:00:00.000Z',
+  },
+];
+
+const mockEstimate = (): GrantEstimate => ({
+  year: new Date().getFullYear(),
+  estimateCents: 12000,
+  units: 8,
+  eligible: true,
+  freeDownloads: 40,
+  paidDownloads: 12,
+  fanSubEuros: 35,
+});
+
 export async function fetchFanConnectStatus(): Promise<{
   data: FanConnectStatus;
   meta: FetchMeta;
@@ -94,16 +116,10 @@ export async function fetchFanConnectStatus(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return {
-      data: {
-        stripeConfigured: false,
-        accountId: null,
-        chargesEnabled: false,
-        detailsSubmitted: false,
-        paymentsReady: false,
-      },
-      meta: failMeta(err),
-    };
+    if (allowMockFallback()) {
+      return { data: getMockConnectStatus(), meta: failMeta(err) };
+    }
+    return { data: emptyConnect(), meta: apiErrorMeta(err) };
   }
 }
 
@@ -176,15 +192,7 @@ export async function fetchMyGrants(): Promise<{
 }> {
   if (forceMock()) {
     return {
-      data: [
-        {
-          forYear: 2025,
-          units: 12,
-          amountCents: '45000',
-          state: 'PAID',
-          paidAt: '2026-01-15T00:00:00.000Z',
-        },
-      ],
+      data: mockGrants(),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
@@ -192,7 +200,10 @@ export async function fetchMyGrants(): Promise<{
     const { data } = await requestJson<GrantRow[]>('/api/me/grants');
     return { data: Array.isArray(data) ? data : [], meta: { source: 'api' } };
   } catch (err) {
-    return { data: [], meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockGrants(), meta: failMeta(err) };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 
@@ -202,15 +213,7 @@ export async function fetchGrantEstimate(): Promise<{
 }> {
   if (forceMock()) {
     return {
-      data: {
-        year: new Date().getFullYear(),
-        estimateCents: 12000,
-        units: 8,
-        eligible: true,
-        freeDownloads: 40,
-        paidDownloads: 12,
-        fanSubEuros: 35,
-      },
+      data: mockEstimate(),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
@@ -220,6 +223,9 @@ export async function fetchGrantEstimate(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: null, meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: mockEstimate(), meta: failMeta(err) };
+    }
+    return { data: null, meta: apiErrorMeta(err) };
   }
 }

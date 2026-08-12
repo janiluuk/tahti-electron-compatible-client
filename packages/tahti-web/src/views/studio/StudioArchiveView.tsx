@@ -10,6 +10,7 @@ import {
   fetchStudioArchive,
 } from '../../api/studio';
 import type { StudioArchiveItem } from '../../api/studio-types';
+import { AddToPlaylistButton } from '../../components/AddToPlaylistButton';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { usePlayerStore } from '../../stores/playerStore';
@@ -139,6 +140,10 @@ export function StudioArchiveView() {
                 >
                   Play
                 </Button>
+                <AddToPlaylistButton
+                  archiveItemId={item.id}
+                  trackTitle={item.title}
+                />
                 <Link to="/studio/archive/$id/editor" params={{ id: item.id }}>
                   <Button size="sm" variant="secondary">
                     Edit audio

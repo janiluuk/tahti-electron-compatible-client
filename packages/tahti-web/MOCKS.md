@@ -23,6 +23,10 @@ Offline demo state lives in [`src/api/mock-session.ts`](src/api/mock-session.ts)
 - `demo@tahti.live` → username `demo`, Studio ready
 - TOTP: email containing `+totp` or password `totp-demo`, then code `000000` or `123456`
 
+## Live vs mock (demock)
+
+Production / beta builds (`import.meta.env.PROD`) **do not** fall back to fixtures when the API fails — see `src/api/mode.ts`. Use `FEATURES.md` for the port + demock checklist.
+
 ## Still thin / next mock polish
 
 - [ ] Chat: persist mock sends into shared history store (reload-safe)

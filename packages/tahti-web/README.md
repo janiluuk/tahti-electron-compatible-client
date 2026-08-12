@@ -11,7 +11,11 @@ pnpm --filter @nuclearplayer/tahti-web dev
 VITE_FORCE_MOCK=1 pnpm --filter @nuclearplayer/tahti-web dev
 ```
 
-Open http://localhost:5180 — mock login: `demo@tahti.live` / any password. See [`MOCKS.md`](MOCKS.md).
+Open http://localhost:5180 — mock login: `demo@tahti.live` / any password.
+
+- Port checklist (prod → POC): [`FEATURES.md`](FEATURES.md)
+- Offline mocks: [`MOCKS.md`](MOCKS.md)
+
 
 ## IA (sparse sidebar)
 
@@ -28,13 +32,13 @@ Account · Artist · Channel & design · Broadcast · Money · Notifications · 
 
 ## Deploy (beta.tahti.live)
 
-Builds against the public API (`/tahti-api` → `api.tahti.live`) and publishes on vimage `:15180`:
+Builds against the public API (`/tahti-api` → `api.tahti.live`) and publishes on Pi4 `:15180` (NPM → `192.168.2.6:15180`):
 
 ```bash
 pnpm deploy:tahti-beta
 ```
 
-See [`deploy/README.md`](deploy/README.md).
+See [`tahti-fit/BETA-DEPLOY.md`](../../tahti-fit/BETA-DEPLOY.md) (live) and [`deploy/README.md`](deploy/README.md) (vimage alternate).
 
 ## Docs
 

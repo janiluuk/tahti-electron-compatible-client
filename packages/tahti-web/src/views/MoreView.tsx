@@ -1,5 +1,8 @@
 import { Link } from '@tanstack/react-router';
 
+import { FlowGallery } from '../components/FlowGallery';
+import { ScreenAtlas } from '../components/ScreenAtlas';
+
 type Status = 'live' | 'stub' | 'studio' | 'admin';
 
 type FeatureRow = {
@@ -346,15 +349,17 @@ const QUICK_LINKS: Array<{
 
 export function MoreView() {
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6">
+    <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <div>
         <h1 className="font-display text-3xl font-extrabold tracking-tight">
           Tahti map
         </h1>
         <p className="text-foreground-secondary mt-1 max-w-2xl text-sm">
           Every major Tahti public / studio surface mapped into this Nuclear
-          listen client — live, stubbed, or explicitly out of scope. Secondary
-          surfaces live here so the left rail stays sparse.
+          listen client — live, stubbed, or explicitly out of scope. The screen
+          atlas below pairs each major view with a thumbnail so you can see what
+          is what. Full port checklist:{' '}
+          <code className="text-foreground">FEATURES.md</code>.
         </p>
       </div>
 
@@ -370,6 +375,10 @@ export function MoreView() {
           </Link>
         ))}
       </nav>
+
+      <ScreenAtlas />
+
+      <FlowGallery />
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse text-left text-sm">

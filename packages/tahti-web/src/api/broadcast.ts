@@ -1,8 +1,9 @@
 import type { FetchMeta } from './client';
 import { DEMO_MP3 } from './mock';
+import { allowMockFallback, apiErrorMeta, failMeta, isForceMock } from './mode';
 import type { TahtiPlayable } from './types';
 
-const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+const forceMock = isForceMock;
 
 const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
@@ -10,13 +11,6 @@ const apiBase = () => {
   }
   return '/tahti-api';
 };
-
-function failMeta(err: unknown): FetchMeta {
-  return {
-    source: 'mock',
-    reason: err instanceof Error ? err.message : 'fetch failed',
-  };
-}
 
 async function requestJson<T>(
   path: string,
@@ -149,7 +143,10 @@ export async function fetchStreamSettings(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: null, meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: MOCK_SETTINGS, meta: failMeta(err) };
+    }
+    return { data: null, meta: apiErrorMeta(err) };
   }
 }
 
@@ -181,7 +178,7 @@ export async function fetchSignalStatus(): Promise<{
         bitrateKbps: null,
         listeners: null,
       },
-      meta: failMeta(err),
+      meta: apiErrorMeta(err),
     };
   }
 }
@@ -210,7 +207,21 @@ export async function fetchBroadcastUsage(): Promise<{
     );
     return { data, meta: { source: 'api' } };
   } catch (err) {
-    return { data: null, meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return {
+        data: {
+          unlimited: false,
+          secondsUsed: 12 * 60,
+          secondsRemaining: 48 * 60,
+          weeklyCapSeconds: 60 * 60,
+          warningLevel: 'none',
+          atCap: false,
+          blocked: false,
+        },
+        meta: failMeta(err),
+      };
+    }
+    return { data: null, meta: apiErrorMeta(err) };
   }
 }
 
@@ -273,7 +284,10 @@ export async function fetchRtmpTargets(): Promise<{
     const { data } = await requestJson<RtmpTarget[]>('/api/me/rtmp-targets');
     return { data: Array.isArray(data) ? data : [], meta: { source: 'api' } };
   } catch (err) {
-    return { data: [], meta: failMeta(err) };
+    if (allowMockFallback()) {
+      return { data: [...mockTargets], meta: failMeta(err) };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
   }
 }
 

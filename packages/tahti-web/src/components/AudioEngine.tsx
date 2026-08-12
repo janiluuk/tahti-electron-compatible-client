@@ -14,6 +14,9 @@ export function AudioEngine() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hlsRef = useRef<Hls | null>(null);
   const listenReportedRef = useRef<Set<string>>(new Set());
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
 
   const currentId = usePlayerStore((s) => s.currentId);
   const queue = usePlayerStore((s) => s.queue);
@@ -26,6 +29,7 @@ export function AudioEngine() {
   const setProgress = usePlayerStore((s) => s.setProgress);
   const clearSeekTarget = usePlayerStore((s) => s.clearSeekTarget);
   const next = usePlayerStore((s) => s.next);
+  const setAnalyser = usePlayerStore((s) => s.setAnalyser);
 
   const current = queue.find((q) => q.id === currentId) ?? null;
   const playable = current ? playableFromQueueItem(current) : null;
@@ -38,6 +42,54 @@ export function AudioEngine() {
     audio.volume = volume;
     audio.muted = muted;
   }, [volume, muted]);
+
+  // Shared AnalyserNode for channel WebGL / bar visualizers.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+    const ensureGraph = () => {
+      try {
+        if (!audioCtxRef.current) {
+          const Ctx =
+            window.AudioContext ||
+            (window as unknown as { webkitAudioContext?: typeof AudioContext })
+              .webkitAudioContext;
+          if (!Ctx) {
+            return;
+          }
+          audioCtxRef.current = new Ctx();
+        }
+        const ctx = audioCtxRef.current;
+        if (ctx.state === 'suspended') {
+          void ctx.resume().catch(() => undefined);
+        }
+        if (!sourceRef.current) {
+          sourceRef.current = ctx.createMediaElementSource(audio);
+        }
+        if (!analyserRef.current) {
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 256;
+          analyser.smoothingTimeConstant = 0.75;
+          sourceRef.current.connect(analyser);
+          analyser.connect(ctx.destination);
+          analyserRef.current = analyser;
+          setAnalyser(analyser);
+        }
+      } catch {
+        // createMediaElementSource can only run once per element — ignore races.
+      }
+    };
+    const onPlay = () => ensureGraph();
+    audio.addEventListener('play', onPlay);
+    if (!audio.paused) {
+      ensureGraph();
+    }
+    return () => {
+      audio.removeEventListener('play', onPlay);
+    };
+  }, [setAnalyser]);
 
   useEffect(() => {
     const audio = audioRef.current;
