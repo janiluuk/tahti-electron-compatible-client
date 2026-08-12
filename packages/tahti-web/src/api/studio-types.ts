@@ -64,6 +64,9 @@ export type StudioRelease = {
   smartLinkTargets?: Record<string, string> | null;
   tracks?: StudioReleaseTrack[];
   _count?: { tracks: number };
+  upc?: string | null;
+  revelatorId?: string | null;
+  revelatorStatus?: string | null;
 };
 
 export type StudioReleaseList = {
@@ -168,6 +171,43 @@ export type EditorSource = {
   title: string;
   sourceKey?: string;
   sourceFileSizeBytes?: number;
+};
+
+/** GET /api/me/releases/:id/revelator — M7 DSP submission status. */
+export type RevelatorReleaseStatus = {
+  revelatorId: string | null;
+  revelatorStatus: string | null;
+  title: string;
+};
+
+/** GET /api/me/releases/:id/revelator/billing — distribution fee status. */
+export type RevelatorBillingStatus = {
+  paid: boolean;
+  feeCents: number;
+  waived: boolean;
+  studioIncludedRemaining: number | null;
+  distributionPaidAt: string | null;
+};
+
+export type RevelatorCheckoutResponse =
+  | { checkoutUrl: string; sessionId: string }
+  | { paid: true; feeCents: number; waived: boolean };
+
+export type RevelatorSubmitAccepted = {
+  releaseId: string;
+  revelatorStatus: 'pending';
+};
+
+export type RevelatorRoyaltyReportRow = {
+  id: string;
+  releaseId: string;
+  releaseTitle: string;
+  periodStart: string;
+  periodEnd: string;
+  amountCents: number;
+  currency: string;
+  streams: number | null;
+  syncedAt: string;
 };
 
 export function createDefaultEditList(sourceDuration: number): EditList {

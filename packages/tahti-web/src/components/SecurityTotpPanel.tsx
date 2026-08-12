@@ -1,0 +1,217 @@
+import { useEffect, useState } from 'react';
+
+import { Button, Input, SectionShell } from '@nuclearplayer/ui';
+
+import {
+  confirmTotp,
+  disableTotp,
+  fetchTotpStatus,
+  setupTotp,
+} from '../api/security';
+
+function formatSecret(secret: string): string {
+  return secret.replace(/(.{4})/g, '$1 ').trim();
+}
+
+export function SecurityTotpPanel() {
+  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [setup, setSetup] = useState<{
+    secret: string;
+    otpauthUri: string;
+  } | null>(null);
+  const [confirmCode, setConfirmCode] = useState('');
+  const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
+  const [disabling, setDisabling] = useState(false);
+  const [disablePassword, setDisablePassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const [source, setSource] = useState('…');
+
+  useEffect(() => {
+    void fetchTotpStatus().then((r) => {
+      setEnabled(r.data.enabled);
+      setSource(r.meta.source);
+    });
+  }, []);
+
+  if (enabled === null) {
+    return (
+      <SectionShell title="Two-factor authentication">
+        <p className="text-foreground-secondary text-sm">Loading…</p>
+      </SectionShell>
+    );
+  }
+
+  return (
+    <SectionShell title="Two-factor authentication">
+      <div className="flex flex-col gap-4">
+        <p className="text-foreground-secondary text-xs">
+          Source: {source}. Same flow as production Settings → Account.
+        </p>
+        <p className="text-sm">
+          Status:{' '}
+          <span className="font-medium">
+            {enabled ? 'Enabled' : 'Disabled'}
+          </span>
+        </p>
+
+        {backupCodes && (
+          <div className="border-border rounded-lg border px-3 py-2">
+            <p className="text-sm font-medium">Save these backup codes</p>
+            <p className="text-foreground-secondary mt-1 text-xs">
+              Shown once. Store them somewhere safe.
+            </p>
+            <ul className="mt-2 grid grid-cols-2 gap-1 font-mono text-xs">
+              {backupCodes.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="mt-2"
+              onClick={() => setBackupCodes(null)}
+            >
+              Done
+            </Button>
+          </div>
+        )}
+
+        {!enabled && !setup && (
+          <Button
+            size="sm"
+            disabled={pending}
+            onClick={() => {
+              setPending(true);
+              setError(null);
+              void setupTotp().then((res) => {
+                setPending(false);
+                if (!res.ok) {
+                  setError(res.error);
+                  return;
+                }
+                setSetup({ secret: res.secret, otpauthUri: res.otpauthUri });
+              });
+            }}
+          >
+            {pending ? 'Starting…' : 'Enable 2FA'}
+          </Button>
+        )}
+
+        {setup && (
+          <div className="flex flex-col gap-3">
+            <p className="text-foreground-secondary text-xs">
+              Add this secret in your authenticator app, then enter a 6-digit
+              code.
+            </p>
+            <code className="border-border bg-background rounded border px-2 py-1 text-xs break-all">
+              {formatSecret(setup.secret)}
+            </code>
+            <a
+              href={setup.otpauthUri}
+              className="text-xs underline-offset-2 hover:underline"
+            >
+              Open otpauth link
+            </a>
+            <Input
+              label="Confirmation code"
+              value={confirmCode}
+              onChange={(e) => setConfirmCode(e.target.value)}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+            />
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                disabled={pending || confirmCode.trim().length < 6}
+                onClick={() => {
+                  setPending(true);
+                  setError(null);
+                  void confirmTotp(confirmCode).then((res) => {
+                    setPending(false);
+                    if (!res.ok) {
+                      setError(res.error);
+                      return;
+                    }
+                    setBackupCodes(res.backupCodes);
+                    setSetup(null);
+                    setConfirmCode('');
+                    setEnabled(true);
+                  });
+                }}
+              >
+                Confirm
+              </Button>
+              <Button
+                size="sm"
+                variant="text"
+                onClick={() => {
+                  setSetup(null);
+                  setConfirmCode('');
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {enabled && !disabling && (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setDisabling(true)}
+          >
+            Disable 2FA
+          </Button>
+        )}
+
+        {enabled && disabling && (
+          <div className="flex flex-col gap-2">
+            <Input
+              label="Current password"
+              variant="password"
+              value={disablePassword}
+              onChange={(e) => setDisablePassword(e.target.value)}
+              autoComplete="current-password"
+            />
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                disabled={pending || !disablePassword}
+                onClick={() => {
+                  setPending(true);
+                  setError(null);
+                  void disableTotp(disablePassword).then((res) => {
+                    setPending(false);
+                    if (!res.ok) {
+                      setError(res.error);
+                      return;
+                    }
+                    setEnabled(false);
+                    setDisabling(false);
+                    setDisablePassword('');
+                  });
+                }}
+              >
+                Confirm disable
+              </Button>
+              <Button
+                size="sm"
+                variant="text"
+                onClick={() => {
+                  setDisabling(false);
+                  setDisablePassword('');
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {error && <p className="text-sm text-red-400">{error}</p>}
+      </div>
+    </SectionShell>
+  );
+}

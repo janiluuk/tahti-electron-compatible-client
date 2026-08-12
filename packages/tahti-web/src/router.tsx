@@ -38,6 +38,7 @@ import { StudioArchiveView } from './views/studio/StudioArchiveView';
 import { StudioChannelView } from './views/studio/StudioChannelView';
 import { StudioCollectionEditView } from './views/studio/StudioCollectionEditView';
 import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
+import { StudioDistributionView } from './views/studio/StudioDistributionView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
 import { StudioEditorProjectView } from './views/studio/StudioEditorProjectView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
@@ -58,7 +59,6 @@ import { TransparencyView } from './views/TransparencyView';
 import { VenueRegisterView } from './views/VenueRegisterView';
 import { VenuesView } from './views/VenuesView';
 import { VerifyView } from './views/VerifyView';
-import { WhatsNewView } from './views/WhatsNewView';
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -184,7 +184,12 @@ const moreRoute = createRoute({
 const whatsNewRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/whats-new',
-  component: WhatsNewView,
+  beforeLoad: () => {
+    throw redirect({
+      to: '/settings/$section',
+      params: { section: 'whats-new' },
+    });
+  },
 });
 
 const channelRoute = createRoute({
@@ -477,6 +482,12 @@ const studioRevenueRoute = createRoute({
   component: StudioRevenueView,
 });
 
+const studioDistributionRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/distribution',
+  component: StudioDistributionView,
+});
+
 const embedChannelRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/embed/c/$slug',
@@ -629,6 +640,7 @@ const routeTree = rootRoute.addChildren([
     studioChannelRoute,
     studioUpdatesRoute,
     studioRevenueRoute,
+    studioDistributionRoute,
     dashboardIndexAliasRoute,
     dashboardSplatAliasRoute,
   ]),

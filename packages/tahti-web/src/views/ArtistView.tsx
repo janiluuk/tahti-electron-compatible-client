@@ -3,13 +3,22 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Card, CardGrid } from '@nuclearplayer/ui';
 
+import {
+  fetchMyPressKitImages,
+  fetchPublicPressKitImages,
+  type PublicPressKitImage,
+} from '../api/artist-settings';
 import { fetchProfile, type FetchMeta } from '../api/client';
 import type { PublicProfile, TahtiPlayable } from '../api/types';
+import {
+  ArtistGalleryAddIcon,
+  ArtistGalleryPanel,
+} from '../components/ArtistGalleryPanel';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { useAuthStore } from '../stores/authStore';
 
-type Tab = 'music' | 'releases' | 'collections' | 'design';
+type Tab = 'music' | 'releases' | 'collections' | 'gallery' | 'design';
 
 function profileTrackToPlayable(
   track: PublicProfile['tracks'][number],
@@ -38,8 +47,11 @@ export function ArtistView({ username }: { username: string }) {
   const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('music');
+  const [galleryImages, setGalleryImages] = useState<PublicPressKitImage[]>([]);
+  const [galleryLoaded, setGalleryLoaded] = useState(false);
 
   const isOwner = Boolean(me && me.username === username);
+  const hasGallery = galleryImages.length > 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +68,32 @@ export function ArtistView({ username }: { username: string }) {
       cancelled = true;
     };
   }, [username]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setGalleryLoaded(false);
+    const load = isOwner
+      ? fetchMyPressKitImages().then((res) =>
+          res.data.map(({ id, imageUrl, title }) => ({ id, imageUrl, title })),
+        )
+      : fetchPublicPressKitImages(username).then((res) => res.data);
+    void load.then((images) => {
+      if (cancelled) {
+        return;
+      }
+      setGalleryImages(images);
+      setGalleryLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [username, isOwner]);
+
+  useEffect(() => {
+    if (tab === 'gallery' && !hasGallery) {
+      setTab('music');
+    }
+  }, [tab, hasGallery]);
 
   const playables = useMemo(() => {
     if (!profile) {
@@ -86,6 +124,7 @@ export function ArtistView({ username }: { username: string }) {
     { id: 'music', label: 'Music' },
     { id: 'releases', label: 'Releases' },
     { id: 'collections', label: 'Collections' },
+    ...(hasGallery ? [{ id: 'gallery' as const, label: 'Gallery' }] : []),
     ...(isOwner ? [{ id: 'design' as const, label: 'Design' }] : []),
   ];
 
@@ -176,22 +215,38 @@ export function ArtistView({ username }: { username: string }) {
         </p>
       )}
 
-      <nav className="border-border flex flex-wrap gap-2 border-b pb-3">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
-              tab === t.id
-                ? 'bg-primary text-foreground'
-                : 'border-border text-foreground-secondary hover:text-foreground border'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </nav>
+      <div className="border-border flex flex-wrap items-center gap-2 border-b pb-3">
+        <nav
+          className="flex flex-wrap gap-2"
+          role="tablist"
+          aria-label="Profile sections"
+        >
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => setTab(t.id)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
+                tab === t.id
+                  ? 'bg-primary text-foreground'
+                  : 'border-border text-foreground-secondary hover:text-foreground border'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+        {isOwner && galleryLoaded && !hasGallery ? (
+          <ArtistGalleryAddIcon
+            onCreated={(images) => {
+              setGalleryImages(images);
+              setTab('gallery');
+            }}
+          />
+        ) : null}
+      </div>
 
       {tab === 'music' && (
         <section className="flex flex-col gap-3">
@@ -268,6 +323,19 @@ export function ArtistView({ username }: { username: string }) {
             </ul>
           )}
         </section>
+      )}
+
+      {tab === 'gallery' && hasGallery && (
+        <ArtistGalleryPanel
+          images={galleryImages}
+          isOwner={isOwner}
+          onChange={(next) => {
+            setGalleryImages(next);
+            if (next.length === 0) {
+              setTab('music');
+            }
+          }}
+        />
       )}
 
       {tab === 'design' && isOwner && (

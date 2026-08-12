@@ -30,8 +30,8 @@ export function StudioUploadView() {
     setItemId(result.itemId);
     setMessage(
       result.meta.source === 'mock'
-        ? 'Mock upload complete — item stored in local mock archive.'
-        : 'Upload complete — transcode may still be PENDING.',
+        ? 'Upload complete (demo).'
+        : 'Upload complete — processing may take a minute.',
     );
   };
 
@@ -44,9 +44,7 @@ export function StudioUploadView() {
             Upload
           </h1>
           <p className="text-foreground-secondary mt-1 text-sm">
-            Live: <code>POST /api/uploads/prepare</code> → PUT to storage →{' '}
-            <code>POST /api/uploads/complete</code>. Requires artist session.
-            Offline demo (<code>VITE_FORCE_MOCK=1</code>) invents a READY item.
+            Add a track to your Music archive. MP3, WAV, FLAC, or AIFF.
           </p>
         </div>
         <Input
@@ -65,6 +63,11 @@ export function StudioUploadView() {
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             className="text-sm"
           />
+          {file && (
+            <span className="text-foreground-secondary text-xs">
+              {file.name}
+            </span>
+          )}
         </label>
         {message && (
           <p className="text-foreground-secondary text-sm">{message}</p>
@@ -74,16 +77,16 @@ export function StudioUploadView() {
             {busy ? 'Uploading…' : 'Upload'}
           </Button>
           {itemId && (
-            <>
-              <Link to="/studio/archive/$id" params={{ id: itemId }}>
-                <Button variant="secondary">Open metadata</Button>
-              </Link>
-              <Link to="/studio/archive/$id/editor" params={{ id: itemId }}>
-                <Button variant="text">Open editor</Button>
-              </Link>
-            </>
+            <Link to="/studio/archive/$id" params={{ id: itemId }}>
+              <Button variant="secondary">Open in Music</Button>
+            </Link>
           )}
         </div>
+        <p className="text-foreground-secondary text-xs">
+          <Link to="/studio/archive" className="hover:underline">
+            ← Back to Music
+          </Link>
+        </p>
       </div>
     </StudioGate>
   );

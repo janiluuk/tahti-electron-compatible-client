@@ -5,6 +5,7 @@ import {
   Paintbrush,
   Palette,
   Radio,
+  Sparkles,
   User,
   UserCircle2,
   Wallet,
@@ -18,7 +19,8 @@ export type SettingsSectionId =
   | 'money'
   | 'notifications'
   | 'themes'
-  | 'connections';
+  | 'connections'
+  | 'whats-new';
 
 export type SettingsNavItem = {
   id: SettingsSectionId;
@@ -75,6 +77,12 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     label: 'Connections',
     description: 'Social + import sources',
     Icon: Link2,
+  },
+  {
+    id: 'whats-new',
+    label: "What's new",
+    description: 'Product announcements',
+    Icon: Sparkles,
   },
 ];
 

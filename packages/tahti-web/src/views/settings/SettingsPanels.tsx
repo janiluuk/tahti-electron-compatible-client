@@ -37,7 +37,11 @@ import {
   updateChannelSlug,
   verifyCustomDomain,
 } from '../../api/channel-design';
-import { fetchMembership, fetchMySubscriptions } from '../../api/client';
+import {
+  fetchMembership,
+  fetchMySubscriptions,
+  startMembershipCheckout,
+} from '../../api/client';
 import {
   fetchFanConnectPortal,
   fetchFanConnectStatus,
@@ -59,8 +63,10 @@ import {
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
+import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
+import { WhatsNewPanel } from '../WhatsNewView';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
 import type { SettingsSectionId } from './settingsNav';
 
@@ -94,9 +100,59 @@ export function SettingsSectionBody({
       return <ThemesPanel />;
     case 'connections':
       return <ConnectionsPanel />;
+    case 'whats-new':
+      return (
+        <SectionShell title="What's new">
+          <WhatsNewPanel />
+        </SectionShell>
+      );
     default:
       return null;
   }
+}
+
+function MembershipCheckoutButton({
+  onActivated,
+}: {
+  onActivated?: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Button
+        size="sm"
+        disabled={busy}
+        onClick={() => {
+          setBusy(true);
+          setMsg(null);
+          void startMembershipCheckout().then((res) => {
+            setBusy(false);
+            if (!res.ok) {
+              setMsg(res.error);
+              return;
+            }
+            if ('checkoutUrl' in res && res.checkoutUrl) {
+              window.location.assign(res.checkoutUrl);
+              return;
+            }
+            if ('activated' in res && res.activated) {
+              setMsg(
+                res.memberNumber != null
+                  ? `Membership activated — member #${res.memberNumber}.`
+                  : 'Membership activated.',
+              );
+              onActivated?.();
+            }
+          });
+        }}
+      >
+        {busy ? 'Starting…' : 'Pay €40 / year'}
+      </Button>
+      {msg && <p className="text-xs">{msg}</p>}
+    </div>
+  );
 }
 
 function AccountPanel() {
@@ -141,18 +197,11 @@ function AccountPanel() {
             <Button size="sm" variant="text" onClick={() => void logout()}>
               Log out
             </Button>
-            <a
-              href="https://tahti.live/dashboard/settings/account"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button size="sm" variant="secondary">
-                Security on production
-              </Button>
-            </a>
           </div>
         </div>
       </SectionShell>
+
+      <SecurityTotpPanel />
 
       <SectionShell title="Membership">
         <div className="flex flex-col gap-4">
@@ -186,6 +235,22 @@ function AccountPanel() {
                   label="Renewal"
                   value={new Date(membership.renewalDueAt).toLocaleDateString()}
                 />
+              )}
+              {!membership.isMember && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-foreground-secondary text-xs">
+                    Tahti ry membership is €40/year — cooperative vote, FLAC,
+                    and stash.
+                  </p>
+                  <MembershipCheckoutButton
+                    onActivated={() => {
+                      void fetchMembership().then((r) => {
+                        setMembership(r.data);
+                        setSource(r.meta.source);
+                      });
+                    }}
+                  />
+                </div>
               )}
             </div>
           )}

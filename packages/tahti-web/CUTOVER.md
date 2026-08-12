@@ -44,7 +44,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [ ] **Decision:** monorepo placement (A: move into `tahti/apps/web` or `apps/listen`; B: keep building from `tahti-nuclear` and only swap the Docker image). See §4.
 - [ ] **Decision:** admin host after cutover (`admin.tahti.live` Next remnant vs board-only link-out to frozen Next vs rewrite later).
 - [ ] **Decision:** marketing / apply / for-artists — stay on `website/` + redirects, or port minimal pages into SPA.
-- [ ] **Route compatibility layer** — permanent redirects or dual routes for `/c/*` ↔ `/channel/*`, `/dashboard/*` ↔ `/studio/*`, subscribe paths, `/listen` → `/`.
+- [x] **Route compatibility layer** — permanent redirects or dual routes for `/c/*` ↔ `/channel/*`, `/dashboard/*` ↔ `/studio/*`, subscribe paths, `/listen` → `/`.
 - [ ] **API `APP_URL` + Stripe/OAuth return URLs** aligned to new paths (or aliases that match current API strings).
 - [ ] **Same-origin API proxy** on production web edge (parity with beta `nginx.conf` `/tahti-api` + `/api`), Centrifugo WS still `wss://chat.tahti.live`.
 - [ ] **Parity P0 features** from FEATURES.md: membership purchase (`/signup/payment`), password/security, setup-channel (no link-out), venue register (if still product-required). Sources OAuth demock polish is marked done on beta — still verify callback returns land on SPA (not prod dashboard link-outs) before cutover.
@@ -119,13 +119,13 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 
 **Partial / missing (must classify P0 vs defer):**
 
-- [ ] Venue register
+- [x] Venue register
 - [ ] Membership purchase (`/signup/payment`)
 - [ ] Password / security settings
 - [ ] Listener-only dashboard
 - [ ] Distribution / radio slots / moderate
-- [ ] Setup-channel (currently link-out / StudioGate)
-- [ ] Sources OAuth silent-mock polish
+- [x] Setup-channel (in-app `/studio/setup-channel` + `/api/me/channel/provision`)
+- [x] Sources OAuth silent-mock polish
 - [ ] Full Three.js visualizer preset set
 - [ ] Multitrack timeline + press-kit polish
 - [ ] Help depth / support form
@@ -137,10 +137,12 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 |------|-----|--------------|
 | `/` marketing or listen | `/` listen hub | [ ] Redirect matrix with `website/` |
 | `/listen` | `/` | [ ] Alias `/listen` |
-| `/c/:slug` | `/channel/$slug` | [ ] **P0** dual route or 301 |
-| `/dashboard/*` | `/studio/*` | [ ] **P0** aliases + email/Stripe paths |
-| `/u/:user/subscribe` | `/subscribe/$username` | [ ] **P0** alias (API success URLs use prod form) |
-| `/dashboard/messages` | `/library/messages` | [ ] Alias |
+| `/c/:slug` | `/channel/$slug` | [x] **P0** redirect alias |
+| `/dashboard/*` | `/studio/*` | [x] **P0** aliases (`prodPathRedirects`) |
+| `/u/:user/subscribe` | `/subscribe/$username` | [x] **P0** alias |
+| `/dashboard/messages` | `/library/messages` | [x] Alias |
+| `/listen` | `/` | [x] Alias |
+| `/dashboard/setup-channel` | `/studio/setup-channel` | [x] In-app provision |
 | `/signup/*` | — | [ ] Port or keep Next island |
 | `/admin/*` | — | [ ] Host decision |
 | `/apply` | — | [ ] website or port |

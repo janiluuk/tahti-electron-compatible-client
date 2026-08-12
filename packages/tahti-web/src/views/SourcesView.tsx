@@ -1,7 +1,8 @@
 import { Link, useNavigate } from '@tanstack/react-router';
+import { PlayIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Badge, Button, Card, CardGrid } from '@nuclearplayer/ui';
+import { Badge, Button, Card, CardGrid, MediaArtwork } from '@nuclearplayer/ui';
 
 import {
   connectIntegrationMock,
@@ -354,35 +355,39 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                       key={t.id}
                       className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
                     >
-                      <span className="text-sm">{t.title}</span>
-                      <div className="flex gap-2">
-                        <Button
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <MediaArtwork
                           size="sm"
-                          variant="secondary"
-                          onClick={() => play(playableFromSoundcloud(t))}
-                        >
-                          Preview
-                        </Button>
-                        <Button
-                          size="sm"
-                          disabled={busy}
-                          onClick={() => {
-                            setBusy(true);
-                            void importSoundcloudTracks([
-                              { trackId: t.id, title: t.title },
-                            ]).then((r) => {
-                              setBusy(false);
-                              setNote(
-                                r.ok
-                                  ? `Queued import (${r.count}). Check Studio → Music.`
-                                  : r.error,
-                              );
-                            });
-                          }}
-                        >
-                          Import
-                        </Button>
+                          src={t.artworkUrl}
+                          alt={t.title}
+                          imageReveal={false}
+                          onPlay={() => play(playableFromSoundcloud(t))}
+                          playLabel="Preview"
+                          onQueue={() => enqueue(playableFromSoundcloud(t))}
+                          queueLabel="Queue"
+                          className="border-border shrink-0 rounded border"
+                        />
+                        <span className="truncate text-sm">{t.title}</span>
                       </div>
+                      <Button
+                        size="sm"
+                        disabled={busy}
+                        onClick={() => {
+                          setBusy(true);
+                          void importSoundcloudTracks([
+                            { trackId: t.id, title: t.title },
+                          ]).then((r) => {
+                            setBusy(false);
+                            setNote(
+                              r.ok
+                                ? `Queued import (${r.count}). Check Studio → Music.`
+                                : r.error,
+                            );
+                          });
+                        }}
+                      >
+                        Import
+                      </Button>
                     </li>
                   ))}
                 </ul>
@@ -414,29 +419,26 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                 {spotifyHits.map((t) => (
                   <li
                     key={t.id}
-                    className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
+                    className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
                   >
-                    <div>
-                      <div className="text-sm font-medium">{t.name}</div>
-                      <div className="text-foreground-secondary text-xs">
+                    <MediaArtwork
+                      size="sm"
+                      src={t.artworkUrl}
+                      alt={t.name}
+                      imageReveal={false}
+                      onPlay={() => play(playableFromSpotify(t))}
+                      playLabel="Preview"
+                      onQueue={() => enqueue(playableFromSpotify(t))}
+                      queueLabel="Queue"
+                      className="border-border shrink-0 rounded border"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">
+                        {t.name}
+                      </div>
+                      <div className="text-foreground-secondary truncate text-xs">
                         {t.artists?.join(', ')}
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => play(playableFromSpotify(t))}
-                      >
-                        Preview
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="text"
-                        onClick={() => enqueue(playableFromSpotify(t))}
-                      >
-                        Queue
-                      </Button>
                     </div>
                   </li>
                 ))}
@@ -460,8 +462,10 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                     >
                       <span>{f.filename}</span>
                       <Button
-                        size="sm"
+                        size="icon-sm"
                         variant="secondary"
+                        title="Play"
+                        aria-label="Play"
                         onClick={() => {
                           void fetchStashDownload(f.id).then((r) => {
                             if (r.data?.url) {
@@ -478,7 +482,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                           });
                         }}
                       >
-                        Play
+                        <PlayIcon size={16} className="fill-current" />
                       </Button>
                     </li>
                   ))}

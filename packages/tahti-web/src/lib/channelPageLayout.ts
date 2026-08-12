@@ -37,7 +37,7 @@ export const CHANNEL_PAGE_ITEM_META: Record<
   },
   chat: {
     label: 'Chat',
-    hint: 'Public live chat',
+    hint: 'Right-rail chat (no in-page panel)',
   },
   about: {
     label: 'About',
@@ -116,14 +116,14 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
     id: 'stage',
     name: 'Stage / Live',
     description:
-      'Hero-forward live layout with chat and subscribe beside the stage.',
+      'Hero-forward live layout; chat opens in the right rail beside the stage.',
     items: [
       item('hero', true),
       item('actions', true),
-      item('chat', true),
       item('subscribe', true),
       item('archive', true),
       item('about', true),
+      item('chat', false),
       item('textOverlay', false),
       item('links', false),
     ],
@@ -143,15 +143,15 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
     id: 'full',
     name: 'Archive-first',
     description:
-      'Catalog up front, then stage and the rest of the blocks visible.',
+      'Catalog up front, then stage and the rest of the blocks visible. Chat stays in the right rail.',
     items: [
       item('archive', true),
       item('hero', true),
       item('actions', true),
       item('about', true),
-      item('chat', true),
       item('subscribe', true),
       item('links', true),
+      item('chat', false),
       item('textOverlay', false),
     ],
     look: {
@@ -180,10 +180,12 @@ export function defaultChannelPageLayout(): ChannelPageItem[] {
     item('actions', true),
     item('textOverlay', false),
     item('archive', true),
-    item('chat', true),
     item('about', true),
     item('links', false),
     item('subscribe', true),
+    // Chat is the Nuclear right rail — keep the layout slot hidden so it
+    // never double-renders an in-page panel alongside the rail.
+    item('chat', false),
   ];
 }
 

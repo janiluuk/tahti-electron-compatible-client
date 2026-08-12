@@ -21,6 +21,7 @@ export function StudioArchiveView() {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [openMoreId, setOpenMoreId] = useState<string | null>(null);
   const play = usePlayerStore((s) => s.play);
 
   const reload = () => {
@@ -73,47 +74,42 @@ export function StudioArchiveView() {
               Music
             </h1>
             <p className="text-foreground-secondary mt-1 text-sm">
-              Archive items from <code>GET /api/me/archive</code>
-              {meta ? ` (${meta.source})` : ''}.
+              Your archive — play, edit metadata, or open the audio editor.
+              {meta?.source === 'mock' ? ' (demo data)' : ''}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link to="/studio/upload">
-              <Button size="sm">Upload</Button>
-            </Link>
-            <Link to="/sources">
-              <Button size="sm" variant="secondary">
-                Sources
-              </Button>
-            </Link>
-            <Link to="/studio/editor">
-              <Button size="sm" variant="text">
-                Editor projects
-              </Button>
-            </Link>
-          </div>
+          <Link to="/studio/upload">
+            <Button size="sm">Upload</Button>
+          </Link>
         </div>
 
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Filter title, genre, status…"
+          placeholder="Search…"
           className="border-border bg-background focus:border-primary max-w-md rounded-md border px-3 py-2 text-sm outline-none"
         />
 
         {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading archive…</p>
+          <p className="text-foreground-secondary text-sm">Loading…</p>
         ) : filtered.length === 0 ? (
-          <p className="text-foreground-secondary text-sm">
-            No archive items yet.
-          </p>
+          <div className="border-border flex flex-col gap-3 rounded-lg border px-4 py-8 text-center">
+            <p className="text-foreground-secondary text-sm">
+              No tracks yet. Upload audio to get started.
+            </p>
+            <div>
+              <Link to="/studio/upload">
+                <Button size="sm">Upload</Button>
+              </Link>
+            </div>
+          </div>
         ) : (
           <ul className="border-border divide-border divide-y rounded-lg border">
             {filtered.map((item) => (
               <li
                 key={item.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm"
+                className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm"
               >
                 <div className="min-w-0 flex-1">
                   <Link
@@ -134,38 +130,55 @@ export function StudioArchiveView() {
                 </div>
                 <Button
                   size="sm"
-                  variant="text"
                   disabled={busyId === item.id}
                   onClick={() => void playItem(item.id, item.title)}
                 >
                   Play
                 </Button>
-                <AddToPlaylistButton
-                  archiveItemId={item.id}
-                  trackTitle={item.title}
-                />
-                <Link to="/studio/archive/$id/editor" params={{ id: item.id }}>
-                  <Button size="sm" variant="secondary">
-                    Edit audio
-                  </Button>
-                </Link>
                 <Link to="/studio/archive/$id" params={{ id: item.id }}>
-                  <Button size="sm" variant="text">
-                    Meta
+                  <Button size="sm" variant="secondary">
+                    Edit
                   </Button>
                 </Link>
-                <Button
-                  size="sm"
-                  variant="text"
-                  onClick={() => {
-                    if (!confirm(`Delete “${item.title}”?`)) {
-                      return;
-                    }
-                    void deleteStudioArchiveItem(item.id).then(() => reload());
-                  }}
+                <button
+                  type="button"
+                  className="text-foreground-secondary hover:text-foreground px-2 text-xs"
+                  onClick={() =>
+                    setOpenMoreId((id) => (id === item.id ? null : item.id))
+                  }
                 >
-                  Delete
-                </Button>
+                  {openMoreId === item.id ? 'Less' : 'More'}
+                </button>
+                {openMoreId === item.id && (
+                  <div className="flex w-full flex-wrap gap-2 pt-1">
+                    <AddToPlaylistButton
+                      archiveItemId={item.id}
+                      trackTitle={item.title}
+                    />
+                    <Link
+                      to="/studio/archive/$id/editor"
+                      params={{ id: item.id }}
+                    >
+                      <Button size="sm" variant="text">
+                        Audio editor
+                      </Button>
+                    </Link>
+                    <Button
+                      size="sm"
+                      variant="text"
+                      onClick={() => {
+                        if (!confirm(`Delete “${item.title}”?`)) {
+                          return;
+                        }
+                        void deleteStudioArchiveItem(item.id).then(() =>
+                          reload(),
+                        );
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

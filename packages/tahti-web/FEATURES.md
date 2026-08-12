@@ -55,7 +55,8 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 - [ ] Stash upload UI (preview/play only today)
 - [ ] Stats detail page (beyond summary)
 - [ ] Sources OAuth silent-mock demock polish
-- [ ] Venue register, membership purchase, password/security
+- [x] Venue register
+- [ ] Membership purchase, password/security
 - [ ] Listener-only dashboard, distribution / radio slots / moderate
 - [ ] Multitrack timeline editing, press-kit / invites polish
 - [ ] Production cutover for `apps/web`
@@ -75,7 +76,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Collection | `/u/:user/c/:slug` | `/u/$username/c/$slug` | `live-api` | |
 | Smart link | `/r/:slug` | `/r/$slug` | `live-api` | |
 | Venues list | `/venues` | `/venues` | `partial` | list only |
-| Venue register | `/venues/register` | — | `missing` | |
+| Venue register | `/venues/register` | `/venues/register` | `live-api` | `POST /api/v1/venues`; board verifies |
 | Transparency | `/transparency` | `/transparency` | `live-api` | |
 | Help | `/help/*` | `/help` | `mock-ok` | static copy |
 | Legal / about | `/about`… | same | `partial` | POC + prod links |
@@ -114,7 +115,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Feature | Prod | POC | Status | Notes |
 |---------|------|-----|--------|-------|
 | Studio home | `/dashboard` | `/studio` | `live-api` | |
-| Setup channel | `/dashboard/setup-channel` | StudioGate | `link-out` | |
+| Setup channel | `/dashboard/setup-channel` | `/studio/setup-channel` | `live-api` | `POST /api/me/channel/provision`; prod path aliases redirect |
 | Go Live | `/dashboard/broadcast` | `/studio/go-live` | `live-api` | broadcast wizard steps; simulator only under FORCE_MOCK |
 | Multistream RTMP | broadcast | go-live tab | `live-api` | |
 | Archive / Music | `/dashboard/archive` | `/studio/archive` | `live-api` | |

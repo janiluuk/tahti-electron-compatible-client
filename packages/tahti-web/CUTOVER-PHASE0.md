@@ -31,7 +31,7 @@ Implementation may be sequenced after P0/P1; product approach is locked. Stub ad
 | 1 | Monorepo placement | Move `tahti-web` into `tahti` monorepo as `apps/listen` (or `apps/nuclear-web`); keep `tahti-nuclear` as upstream sync fork short-term | Proposed |
 | 2 | Admin host | Keep board `/admin/*` on Next initially **or** port into Nuclear admin shell later; cutover listen/studio first | Proposed |
 | 3 | Marketing `website/` | Stay separate static site (already off-limits to agents by default) | Proposed |
-| 4 | Route aliases | Serve prod paths via redirects/aliases: `/c/:slug`→`/channel/:slug`, `/dashboard`→`/studio`, `/u/:user/subscribe`→`/subscribe/:user` | Proposed |
+| 4 | Route aliases | Serve prod paths via redirects: `/c/:slug`→`/channel/:slug`, `/dashboard/*`→studio map, `/u/:user/subscribe`→`/subscribe/:user`, `/listen`→`/` — **implemented on beta** | Approved (implemented) |
 | 5 | Brand chrome | Tahti product brand + Nuclear UI components (not “Nuclear Player” wordmark in prod) | Proposed |
 | 6 | SSR/SEO | Vite SPA + CDN prerender or critical route SSR later; accept SPA for cutover v1 with meta tags | Proposed |
 | 7 | `beta.tahti.live` after cutover | Keep as canary/preview for 1–2 releases, then redirect to `tahti.live` | Proposed |

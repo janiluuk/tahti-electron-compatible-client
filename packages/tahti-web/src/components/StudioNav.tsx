@@ -1,12 +1,17 @@
+import { useState } from 'react';
+
 import { InPageNav } from './InPageNav';
 
-const LINKS = [
+const PRIMARY = [
   { to: '/studio', label: 'Overview' },
   { to: '/studio/go-live', label: 'Go Live' },
-  { to: '/studio/archive', label: 'Archive' },
-  { to: '/studio/releases', label: 'Releases' },
-  { to: '/studio/collections', label: 'Collections' },
+  { to: '/studio/archive', label: 'Music' },
   { to: '/studio/upload', label: 'Upload' },
+  { to: '/studio/collections', label: 'Albums' },
+] as const;
+
+const MORE = [
+  { to: '/studio/releases', label: 'Releases' },
   { to: '/studio/editor', label: 'Editor' },
   { to: '/studio/schedule', label: 'Schedule' },
   { to: '/studio/stats', label: 'Stats' },
@@ -14,20 +19,53 @@ const LINKS = [
   { to: '/studio/channel', label: 'Channel' },
   { to: '/studio/updates', label: 'Updates' },
   { to: '/studio/stash', label: 'Stash' },
+  { to: '/studio/setup-channel', label: 'Setup' },
 ] as const;
 
-export function StudioNav({ current }: { current?: string }) {
+function isActive(current: string | undefined, to: string) {
   return (
-    <InPageNav
-      aria-label="Studio"
-      items={LINKS.map((link) => ({
-        id: link.to,
-        label: link.label,
-        to: link.to,
-        active:
-          current === link.to ||
-          (link.to !== '/studio' && Boolean(current?.startsWith(link.to))),
-      }))}
-    />
+    current === to || (to !== '/studio' && Boolean(current?.startsWith(to)))
+  );
+}
+
+export function StudioNav({ current }: { current?: string }) {
+  const [moreOpen, setMoreOpen] = useState(() =>
+    MORE.some((l) => isActive(current, l.to)),
+  );
+
+  return (
+    <div className="flex flex-col gap-2">
+      <InPageNav
+        aria-label="Studio"
+        items={PRIMARY.map((link) => ({
+          id: link.to,
+          label: link.label,
+          to: link.to,
+          active: isActive(current, link.to),
+        }))}
+      />
+      <div>
+        <button
+          type="button"
+          className="text-foreground-secondary hover:text-foreground text-xs tracking-wide uppercase"
+          onClick={() => setMoreOpen((v) => !v)}
+        >
+          {moreOpen ? 'Hide more' : 'More studio tools'}
+        </button>
+        {moreOpen && (
+          <div className="mt-2">
+            <InPageNav
+              aria-label="More studio"
+              items={MORE.map((link) => ({
+                id: link.to,
+                label: link.label,
+                to: link.to,
+                active: isActive(current, link.to),
+              }))}
+            />
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

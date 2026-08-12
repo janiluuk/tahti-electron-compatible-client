@@ -44,13 +44,9 @@ export function StudioGate({ children, requireChannel = true }: Props) {
         description={`Signed in as @${user.username}, but this account has no channel yet.`}
         action={
           <div className="flex flex-wrap justify-center gap-2">
-            <a
-              href="https://tahti.live/dashboard/setup-channel"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button size="sm">Open setup on tahti.live</Button>
-            </a>
+            <Link to="/studio/setup-channel">
+              <Button size="sm">Create channel</Button>
+            </Link>
             <Link to="/studio">
               <Button size="sm" variant="secondary">
                 Studio overview

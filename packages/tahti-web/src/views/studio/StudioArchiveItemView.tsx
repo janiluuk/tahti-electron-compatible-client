@@ -19,7 +19,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
   const [isPublic, setIsPublic] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [source, setSource] = useState('');
 
   useEffect(() => {
     void fetchStudioArchiveItem(id).then((res) => {
@@ -28,7 +27,6 @@ export function StudioArchiveItemView({ id }: { id: string }) {
       setDescription(res.data.description ?? '');
       setGenre(res.data.genre ?? '');
       setIsPublic(res.data.isPublic !== false);
-      setSource(res.meta.source);
     });
   }, [id]);
 
@@ -68,9 +66,9 @@ export function StudioArchiveItemView({ id }: { id: string }) {
               <h1 className="font-display text-3xl font-extrabold tracking-tight">
                 {item.title}
               </h1>
-              <p className="text-foreground-secondary mt-1 text-xs">
-                {item.status} — metadata via PATCH /api/me/archive/:id ({source}
-                )
+              <p className="text-foreground-secondary mt-1 text-sm">
+                {item.status}
+                {item.isPublic === false ? ' · private' : ' · public'}
               </p>
             </div>
             <Input
@@ -110,10 +108,10 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                 disabled={saving || !title.trim()}
                 onClick={() => void save()}
               >
-                {saving ? 'Saving…' : 'Save metadata'}
+                {saving ? 'Saving…' : 'Save'}
               </Button>
               <Link to="/studio/archive/$id/editor" params={{ id }}>
-                <Button variant="secondary">Open audio editor</Button>
+                <Button variant="secondary">Audio editor</Button>
               </Link>
             </div>
           </>

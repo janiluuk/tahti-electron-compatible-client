@@ -13,10 +13,10 @@ Workflow rules: one page at a time; do not advance until user approves.
 | # | Page | Route | Status | Shot |
 |---|------|-------|--------|------|
 | 1 | Studio home | `/studio` | **approved** | `docs/redesign-shots/studio-home-v1.png` |
-| 2 | Go Live wizard | `/studio/go-live` | **in-review** | `docs/redesign-shots/studio-go-live-v1.png` |
-| 3 | Music / Archive | `/studio/archive` | pending | |
+| 2 | Go Live wizard | `/studio/go-live` | **approved** | `docs/redesign-shots/studio-go-live-v1.png` |
+| 3 | Music / Archive | `/studio/archive` | **in-review** | `docs/redesign-shots/studio-archive-v1.png` |
 | 4 | Archive item | `/studio/archive/$id` | pending | |
-| 5 | Upload | `/studio/upload` | pending | |
+| 5 | Upload | `/studio/upload` | **in-review** | `docs/redesign-shots/studio-upload-v1.png` |
 | 6 | Releases | `/studio/releases` | pending | |
 | 7 | Release detail | `/studio/releases/$id` | pending | |
 | 8 | Collections / album designer | `/studio/collections` | pending | |
@@ -103,4 +103,36 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 
 **Screenshot:** `docs/redesign-shots/studio-go-live-v1.png`
 
-**Awaiting:** user comment or `approved`.
+**Status:** approved (user: continue worklog).
+
+### 2026-08-12 — Page 3 Music archive v1 (`in-review`)
+
+**Goal:** Catalog list with one primary action; secondary row actions hidden.
+
+**Changes:**
+
+- Header: title + single **Upload** CTA (dropped Sources / Editor clutter)
+- Empty state with Upload CTA
+- Row: Play + Edit primary; playlist / audio editor / delete under **More**
+- Removed API jargon from subtitle
+- Shared **StudioNav** slimmed: primary 5 pills + collapsed “More studio tools”
+
+**Screenshot:** `docs/redesign-shots/studio-archive-v1.png` (captured mock Vite + Playwright)
+
+**Status:** in-review — awaiting comment or `approved`.
+
+### 2026-08-12 — Page 5 Upload v1 (`in-review`)
+
+**Goal:** One job — pick file, upload.
+
+**Changes:**
+
+- Human subtitle (no prepare/PUT/complete jargon)
+- Filename hint after pick; success → Open in Music only
+- Link back to Music
+
+**Screenshot:** `docs/redesign-shots/studio-upload-v1.png` (captured mock Vite + Playwright)
+
+**Status:** in-review — awaiting comment or `approved` (pages 3 + 5 together).
+
+**Shared note:** StudioNav slim (primary 5 + collapsed “More studio tools”) ships with these pages; review on both shots.

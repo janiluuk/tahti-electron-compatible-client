@@ -1,10 +1,23 @@
 import { Link, useNavigate } from '@tanstack/react-router';
+import { PlayIcon, RadioIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Card, CardGrid, FilterChips, Input } from '@nuclearplayer/ui';
+import {
+  Box,
+  Button,
+  Card,
+  CardGrid,
+  FilterChips,
+  Input,
+} from '@nuclearplayer/ui';
 
-import { fetchChannel, fetchDirectory, type FetchMeta } from '../api/client';
-import type { ChannelDirectoryItem } from '../api/types';
+import {
+  fetchChannel,
+  fetchDirectory,
+  fetchRadioStation,
+  type FetchMeta,
+} from '../api/client';
+import type { ChannelDirectoryItem, PublicChannel } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { useAuthStore } from '../stores/authStore';
@@ -14,6 +27,7 @@ import { usePlayerStore } from '../stores/playerStore';
 export function ListenView() {
   const navigate = useNavigate();
   const [items, setItems] = useState<ChannelDirectoryItem[]>([]);
+  const [radio, setRadio] = useState<PublicChannel | null>(null);
   const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
@@ -27,12 +41,16 @@ export function ListenView() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    void fetchDirectory().then((res) => {
+    void Promise.all([
+      fetchDirectory(),
+      fetchRadioStation().catch(() => null),
+    ]).then(([dir, station]) => {
       if (cancelled) {
         return;
       }
-      setItems(res.data.items);
-      setMeta(res.meta);
+      setItems(dir.data.items);
+      setMeta(dir.meta);
+      setRadio(station?.data ?? null);
       setLoading(false);
     });
     return () => {
@@ -116,6 +134,55 @@ export function ListenView() {
           ) : undefined
         }
       />
+
+      {radio ? (
+        <Box
+          variant="secondary"
+          className="flex flex-wrap items-center justify-between gap-3"
+        >
+          <div className="flex min-w-0 items-start gap-3">
+            <RadioIcon
+              size={20}
+              className="text-foreground-secondary mt-0.5 shrink-0"
+            />
+            <div className="min-w-0">
+              <div className="text-sm font-bold tracking-tight">
+                Tahti Radio
+              </div>
+              <p className="text-foreground-secondary text-xs">
+                {radio.hlsUrl
+                  ? (radio.nowPlaying?.title ?? '24/7 community stream')
+                  : 'Temporarily offline'}
+                {radio.nowPlaying?.artistName
+                  ? ` · ${radio.nowPlaying.artistName}`
+                  : ''}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              size="icon-sm"
+              disabled={!radio.hlsUrl}
+              title="Play Radio"
+              aria-label="Play Radio"
+              onClick={() => {
+                void fetchRadioStation().then(({ playable }) => {
+                  if (playable) {
+                    play(playable);
+                  }
+                });
+              }}
+            >
+              <PlayIcon size={16} className="fill-current" />
+            </Button>
+            <Link to="/radio">
+              <Button size="sm" variant="secondary">
+                Open radio
+              </Button>
+            </Link>
+          </div>
+        </Box>
+      ) : null}
 
       <Input
         label="Search"

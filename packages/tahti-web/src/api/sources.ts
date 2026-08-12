@@ -388,6 +388,69 @@ export async function fetchStashDownload(id: string): Promise<{
   }
 }
 
+export async function uploadStashFile(
+  file: File,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true, id: `mock-stash-${Date.now()}` };
+  }
+  try {
+    const { data: prep } = await requestJson<{
+      objectKey: string;
+      uploadUrl: string;
+    }>('/api/me/stash/prepare', {
+      method: 'POST',
+      body: JSON.stringify({
+        filename: file.name,
+        contentType: file.type || 'application/octet-stream',
+        sizeBytes: file.size,
+      }),
+    });
+    const put = await fetch(prep.uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type || 'application/octet-stream' },
+      body: file,
+    });
+    if (!put.ok) {
+      return { ok: false, error: `Upload PUT failed (${put.status})` };
+    }
+    const { data } = await requestJson<{ id: string }>('/api/me/stash', {
+      method: 'POST',
+      body: JSON.stringify({
+        objectKey: prep.objectKey,
+        filename: file.name,
+        contentType: file.type || 'application/octet-stream',
+        sizeBytes: file.size,
+      }),
+    });
+    return { ok: true, id: data.id };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Upload failed',
+    };
+  }
+}
+
+export async function deleteStashFile(
+  id: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    return { ok: true };
+  }
+  try {
+    await requestJson<void>(`/api/me/stash/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Delete failed',
+    };
+  }
+}
+
 export function playableFromSpotify(t: SpotifySearchTrack): TahtiPlayable {
   return {
     id: `spotify:${t.id}`,

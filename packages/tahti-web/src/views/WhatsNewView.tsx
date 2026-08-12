@@ -98,7 +98,8 @@ function TimelineEntry({
 
 const INITIAL_COUNT = 5;
 
-export function WhatsNewView() {
+/** Announcements timeline — embeddable under Settings. */
+export function WhatsNewPanel() {
   const [entries, setEntries] = useState<Announcement[]>([]);
   const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -124,40 +125,47 @@ export function WhatsNewView() {
   const hiddenCount = entries.length - INITIAL_COUNT;
 
   return (
+    <div className="flex w-full flex-col">
+      <p className="text-foreground-secondary mb-4 text-sm">
+        Announcements published from the Tahti admin panel.
+        {meta?.source === 'mock' && ' (showing offline sample data)'}
+      </p>
+
+      {loading && <p className="text-foreground-secondary text-sm">Loading…</p>}
+
+      {!loading && entries.length === 0 && (
+        <p className="text-foreground-secondary text-sm">
+          No announcements yet.
+        </p>
+      )}
+
+      {visibleEntries.map((entry, index) => (
+        <TimelineEntry
+          key={entry.id}
+          entry={entry}
+          isFirst={index === 0}
+          isLast={index === visibleEntries.length - 1}
+        />
+      ))}
+
+      {!showAll && hiddenCount > 0 && (
+        <button
+          type="button"
+          className="hover:text-foreground cursor-pointer py-4 text-sm transition-colors"
+          onClick={() => setShowAll(true)}
+        >
+          Show {hiddenCount} more
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function WhatsNewView() {
+  return (
     <ViewShell title="What's New" classes={{ scrollableArea: 'px-4' }}>
       <div className="mx-auto flex w-full max-w-2xl flex-col pr-4 pl-2">
-        <p className="text-foreground-secondary -mt-2 mb-4 text-sm">
-          Announcements published from the Tahti admin panel.
-          {meta?.source === 'mock' && ' (showing offline sample data)'}
-        </p>
-
-        {loading && (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
-        )}
-
-        {!loading && entries.length === 0 && (
-          <p className="text-foreground-secondary text-sm">
-            No announcements yet.
-          </p>
-        )}
-
-        {visibleEntries.map((entry, index) => (
-          <TimelineEntry
-            key={entry.id}
-            entry={entry}
-            isFirst={index === 0}
-            isLast={index === visibleEntries.length - 1}
-          />
-        ))}
-
-        {!showAll && hiddenCount > 0 && (
-          <button
-            className="hover:text-foreground cursor-pointer py-4 text-sm transition-colors"
-            onClick={() => setShowAll(true)}
-          >
-            Show {hiddenCount} more
-          </button>
-        )}
+        <WhatsNewPanel />
       </div>
     </ViewShell>
   );

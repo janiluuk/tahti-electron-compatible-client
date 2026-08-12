@@ -36,14 +36,21 @@ export function StudioReleasesView() {
     <StudioGate>
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <StudioNav current="/studio/releases" />
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            Releases
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Smart-link releases from <code>GET /api/me/releases</code>
-            {meta ? ` (${meta.source})` : ''}.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h1 className="font-display text-3xl font-extrabold tracking-tight">
+              Releases
+            </h1>
+            <p className="text-foreground-secondary mt-1 text-sm">
+              Smart-link releases from <code>GET /api/me/releases</code>
+              {meta ? ` (${meta.source})` : ''}.
+            </p>
+          </div>
+          <Link to="/studio/distribution">
+            <Button size="sm" variant="secondary">
+              Distribution
+            </Button>
+          </Link>
         </div>
 
         <section className="border-border flex flex-col gap-3 rounded-xl border p-4">

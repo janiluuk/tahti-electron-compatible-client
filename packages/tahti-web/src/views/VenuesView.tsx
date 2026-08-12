@@ -31,8 +31,14 @@ export function VenuesView() {
           Venues
         </h1>
         <p className="text-foreground-secondary mt-1 text-sm">
-          Verified venue directory from Tahti. Broadcast calendar / register
-          stay on production for now.
+          Verified venue directory from Tahti.{' '}
+          <Link
+            to="/venues/register"
+            className="underline-offset-2 hover:underline"
+          >
+            Register a venue
+          </Link>{' '}
+          for board review.
         </p>
         {meta && (
           <p className="text-foreground-secondary mt-2 text-xs">

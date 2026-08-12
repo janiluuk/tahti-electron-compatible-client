@@ -75,7 +75,7 @@ export const useLayoutStore = create<LayoutState>()(
         }
         if (enabled && autoOpen && prev.chatAutoOpenedFor !== slug) {
           next.rightRailMode = 'chat';
-          next.rightCollapsed = false;
+          // Keep persisted collapse preference; only mark auto-open once.
           next.chatAutoOpenedFor = slug;
         }
         set(next);
@@ -106,11 +106,14 @@ export const useLayoutStore = create<LayoutState>()(
     {
       name: 'tahti-web-layout',
       partialize: (s) => ({
+        leftCollapsed: s.leftCollapsed,
+        rightCollapsed: s.rightCollapsed,
         rightRailMode: s.rightRailMode,
         rightWidth: s.rightWidth,
         leftWidth: s.leftWidth,
         chatSlug: s.chatSlug,
         chatEnabled: s.chatEnabled,
+        chatAutoOpenedFor: s.chatAutoOpenedFor,
       }),
     },
   ),

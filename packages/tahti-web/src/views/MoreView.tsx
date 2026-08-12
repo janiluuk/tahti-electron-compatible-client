@@ -1,7 +1,10 @@
 import { Link } from '@tanstack/react-router';
 
+import { Badge } from '@nuclearplayer/ui';
+
 import { FlowGallery } from '../components/FlowGallery';
-import { ScreenAtlas } from '../components/ScreenAtlas';
+import { ParityBadges, ScreenAtlas } from '../components/ScreenAtlas';
+import type { MapParity } from '../content/mapScreens';
 
 type Status = 'live' | 'stub' | 'studio' | 'admin';
 
@@ -12,6 +15,23 @@ type FeatureRow = {
   status: Status;
   notes?: string;
 };
+
+function isAbsentSurface(value: string): boolean {
+  const v = value.trim();
+  return v === '' || v === '—' || v === '-';
+}
+
+function featureParity(row: FeatureRow): MapParity {
+  const noTahti = isAbsentSurface(row.tahti);
+  const noNuclear = isAbsentSurface(row.nuclear);
+  if (noTahti && !noNuclear) {
+    return 'nuclear-only';
+  }
+  if (!noTahti && noNuclear) {
+    return 'tahti-only';
+  }
+  return 'both';
+}
 
 const STATUS_LABEL: Record<Status, string> = {
   live: 'Live in POC',
@@ -47,7 +67,7 @@ const FEATURES: FeatureRow[] = [
     tahti: '/radio',
     nuclear: '/radio',
     status: 'live',
-    notes: 'GET /api/v1/radio',
+    notes: 'GET /api/channels/tahti-radio + /api/v1/radio/recently-played',
   },
   {
     feature: 'Artist profile',
@@ -347,7 +367,98 @@ const QUICK_LINKS: Array<{
   { to: '/chat', label: 'Chat' },
 ];
 
+function FeatureCompareCard({ row }: { row: FeatureRow }) {
+  const parity = featureParity(row);
+  const tahtiAbsent = isAbsentSurface(row.tahti);
+  const nuclearAbsent = isAbsentSurface(row.nuclear);
+
+  return (
+    <article
+      className={`border-border bg-background-secondary/40 overflow-hidden rounded-xl border ${
+        parity !== 'both' ? 'ring-accent-yellow/40 ring-1 ring-offset-0' : ''
+      }`}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-2 p-3 pb-2">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h3 className="text-sm font-semibold">{row.feature}</h3>
+          <span
+            className={`inline-flex w-fit rounded px-2 py-0.5 text-xs font-medium ${statusClass(row.status)}`}
+          >
+            {STATUS_LABEL[row.status]}
+          </span>
+        </div>
+        <ParityBadges parity={parity} />
+      </div>
+      <div className="border-border grid border-t sm:grid-cols-2">
+        <div
+          className={`border-border flex min-w-0 flex-col gap-1 border-b p-3 sm:border-r sm:border-b-0 ${
+            tahtiAbsent ? 'bg-background-secondary/80' : ''
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-semibold tracking-wide uppercase">
+              Tahti
+              <span className="text-foreground-secondary ml-1 font-normal normal-case">
+                app.tahti.live
+              </span>
+            </span>
+            {tahtiAbsent ? (
+              <Badge variant="pill" color="cyan">
+                Nuclear only
+              </Badge>
+            ) : null}
+          </div>
+          <p
+            className={`font-mono text-xs break-all ${
+              tahtiAbsent
+                ? 'text-foreground-secondary italic'
+                : 'text-foreground-secondary'
+            }`}
+          >
+            {tahtiAbsent ? 'No equivalent' : row.tahti}
+          </p>
+        </div>
+        <div
+          className={`flex min-w-0 flex-col gap-1 p-3 ${
+            nuclearAbsent ? 'bg-background-secondary/80' : ''
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-semibold tracking-wide uppercase">
+              Nuclear
+              <span className="text-foreground-secondary ml-1 font-normal normal-case">
+                this client
+              </span>
+            </span>
+            {nuclearAbsent ? (
+              <Badge variant="pill" color="orange">
+                Tahti only
+              </Badge>
+            ) : null}
+          </div>
+          <p
+            className={`font-mono text-xs break-all ${
+              nuclearAbsent
+                ? 'text-foreground-secondary italic'
+                : 'text-foreground'
+            }`}
+          >
+            {nuclearAbsent ? 'No equivalent' : row.nuclear}
+          </p>
+        </div>
+      </div>
+      {row.notes ? (
+        <p className="text-foreground-secondary border-border border-t px-3 py-2 text-xs">
+          {row.notes}
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
 export function MoreView() {
+  const gapCount = FEATURES.filter((r) => featureParity(r) !== 'both').length;
+
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
       <div>
@@ -356,8 +467,9 @@ export function MoreView() {
         </h1>
         <p className="text-foreground-secondary mt-1 max-w-2xl text-sm">
           Concrete flow cases for production Tahti vs this Nuclear beta client —
-          Old | New screenshots, mermaid journeys, and the feature matrix. Full
-          port checklist: <code className="text-foreground">FEATURES.md</code>.
+          side-by-side screenshots, mermaid journeys, and the feature matrix.
+          Full port checklist:{' '}
+          <code className="text-foreground">FEATURES.md</code>.
         </p>
         <nav className="mt-3 flex flex-wrap gap-2 text-xs">
           <a
@@ -396,6 +508,12 @@ export function MoreView() {
           >
             Flows
           </a>
+          <a
+            href="#feature-matrix"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Features
+          </a>
         </nav>
       </div>
 
@@ -416,43 +534,35 @@ export function MoreView() {
 
       <FlowGallery />
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse text-left text-sm">
-          <thead>
-            <tr className="border-border text-foreground-secondary border-b text-xs uppercase">
-              <th className="py-2 pr-3 font-medium">Feature</th>
-              <th className="py-2 pr-3 font-medium">Tahti</th>
-              <th className="py-2 pr-3 font-medium">Nuclear POC</th>
-              <th className="py-2 pr-3 font-medium">Status</th>
-              <th className="py-2 font-medium">Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {FEATURES.map((row) => (
-              <tr
-                key={row.feature}
-                className="border-border border-b align-top"
-              >
-                <td className="py-3 pr-3 font-medium">{row.feature}</td>
-                <td className="text-foreground-secondary py-3 pr-3 font-mono text-xs">
-                  {row.tahti}
-                </td>
-                <td className="py-3 pr-3 font-mono text-xs">{row.nuclear}</td>
-                <td className="py-3 pr-3">
-                  <span
-                    className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${statusClass(row.status)}`}
-                  >
-                    {STATUS_LABEL[row.status]}
-                  </span>
-                </td>
-                <td className="text-foreground-secondary py-3 text-xs">
-                  {row.notes ?? ''}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <section
+        id="feature-matrix"
+        className="flex flex-col gap-3"
+        aria-labelledby="feature-matrix-heading"
+      >
+        <div>
+          <h2
+            id="feature-matrix-heading"
+            className="font-display text-2xl font-extrabold tracking-tight"
+          >
+            Feature matrix
+          </h2>
+          <p className="text-foreground-secondary mt-1 max-w-3xl text-sm">
+            Same inventory as before — each row is Tahti | Nuclear side by side.
+            Rows that exist on only one surface show a parity-gap badge.
+          </p>
+          <p className="text-foreground-secondary mt-1 text-xs tracking-wide uppercase">
+            {FEATURES.length} features · {gapCount} parity gap
+            {gapCount === 1 ? '' : 's'}
+          </p>
+        </div>
+        <ul className="flex flex-col gap-3">
+          {FEATURES.map((row) => (
+            <li key={row.feature}>
+              <FeatureCompareCard row={row} />
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <p className="text-foreground-secondary text-xs">
         Production site:{' '}

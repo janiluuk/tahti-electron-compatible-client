@@ -12,7 +12,6 @@ import {
   type FetchMeta,
 } from '../api/client';
 import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
-import { ChannelChatPanel } from '../components/ChannelChatPanel';
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelLayersMenu } from '../components/ChannelLayersMenu';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
@@ -290,42 +289,48 @@ export function ChannelView({ slug }: { slug: string }) {
         return (
           <div className="flex flex-wrap items-start gap-3">
             <MediaIconActions
-              actions={playQueueFavoriteActions({
-                onPlay: () => {
-                  void fetchChannel(slug).then(({ playable }) => {
-                    if (playable) {
-                      play(playable);
-                    }
-                  });
-                },
-                onQueue: () => {
-                  void fetchChannel(slug).then(({ playable }) => {
-                    if (playable) {
-                      enqueue(playable);
-                    }
-                  });
-                },
-                onFavorite: () =>
-                  toggleFavoriteChannel({
-                    slug,
-                    displayName: channel.user.displayName,
-                    avatarUrl: channel.user.avatarUrl,
-                  }),
-                favorited,
-                playDisabled: !channel.hlsUrl,
-                queueDisabled: !channel.hlsUrl,
-                playLabel: live ? 'Play live' : 'Play stream',
-                queueLabel: 'Queue',
-              })}
+              actions={[
+                ...playQueueFavoriteActions({
+                  onPlay: () => {
+                    void fetchChannel(slug).then(({ playable }) => {
+                      if (playable) {
+                        play(playable);
+                      }
+                    });
+                  },
+                  onQueue: () => {
+                    void fetchChannel(slug).then(({ playable }) => {
+                      if (playable) {
+                        enqueue(playable);
+                      }
+                    });
+                  },
+                  onFavorite: () =>
+                    toggleFavoriteChannel({
+                      slug,
+                      displayName: channel.user.displayName,
+                      avatarUrl: channel.user.avatarUrl,
+                    }),
+                  favorited,
+                  playDisabled: !channel.hlsUrl,
+                  queueDisabled: !channel.hlsUrl,
+                  playLabel: live ? 'Play live' : 'Play stream',
+                  queueLabel: 'Queue',
+                }),
+                ...(chatOn
+                  ? [
+                      {
+                        id: 'chat',
+                        label: 'Chat',
+                        icon: <MessageCircle size={16} />,
+                        onClick: openChat,
+                        variant: 'text' as const,
+                        title: 'Open chat in sidebar',
+                      },
+                    ]
+                  : []),
+              ]}
             />
-            {chatOn && !subtle && (
-              <Button size="sm" variant="secondary" onClick={openChat}>
-                <span className="inline-flex items-center gap-1.5">
-                  <MessageCircle size={14} />
-                  Open chat
-                </span>
-              </Button>
-            )}
           </div>
         );
       case 'archive':
@@ -347,27 +352,32 @@ export function ChannelView({ slug }: { slug: string }) {
           </section>
         );
       case 'chat':
+        // Chat lives in the Nuclear right rail only — never embed a second panel.
         return (
-          <section className="flex max-w-xl flex-col gap-3">
-            {chatOn ? (
-              <>
-                <ChannelChatPanel slug={slug} />
-                <p className="text-foreground-secondary text-xs">
-                  Full page:{' '}
-                  <Link
-                    to="/chat/$slug"
-                    params={{ slug }}
-                    className="underline-offset-2 hover:underline"
-                  >
-                    /chat/{slug}
-                  </Link>
-                </p>
-              </>
-            ) : (
-              <p className="text-foreground-secondary text-sm">
-                Chat is disabled for this channel.
+          <section className="border-border flex max-w-xl items-center gap-3 rounded-lg border border-dashed px-4 py-3">
+            <MessageCircle
+              size={18}
+              className="text-foreground-secondary shrink-0 opacity-70"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-bold tracking-tight">Live chat</div>
+              <p className="text-foreground-secondary text-xs">
+                {chatOn
+                  ? 'Shown in the right sidebar Chat tab — not duplicated on this page.'
+                  : 'Chat is disabled for this channel.'}
               </p>
-            )}
+            </div>
+            {chatOn ? (
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                onClick={openChat}
+                title="Open chat in sidebar"
+                aria-label="Open chat in sidebar"
+              >
+                <MessageCircle size={16} />
+              </Button>
+            ) : null}
           </section>
         );
       case 'about':
@@ -417,7 +427,11 @@ export function ChannelView({ slug }: { slug: string }) {
     }
   };
 
-  const visibleItems = editing ? layout : layout.filter((item) => item.visible);
+  // Chat is the right rail — never show an in-page chat block in view mode
+  // (even if an older saved layout still has chat visible).
+  const visibleItems = editing
+    ? layout
+    : layout.filter((item) => item.visible && item.type !== 'chat');
 
   const pageBody = (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
