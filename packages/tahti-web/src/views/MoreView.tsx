@@ -4,6 +4,7 @@ import { Badge, Button } from '@nuclearplayer/ui';
 
 import { FlowGallery } from '../components/FlowGallery';
 import { MapCommentForm } from '../components/MapCommentForm';
+import { PortInventoryPanel } from '../components/PortInventoryPanel';
 import { ParityBadges, ScreenAtlas } from '../components/ScreenAtlas';
 import type { MapParity } from '../content/mapScreens';
 import { useMapNotesStore } from '../stores/mapNotesStore';
@@ -611,6 +612,8 @@ export function MoreView() {
       <ScreenAtlas />
 
       <FlowGallery />
+
+      <PortInventoryPanel />
 
       <SavedMapComments />
 
