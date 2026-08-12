@@ -120,13 +120,31 @@ export function StudioChannelView() {
         </nav>
 
         {tab === 'design' && user && (
-          <ChannelDesigner
-            displayName={displayName || user.displayName}
-            username={user.username}
-            channelSlug={channel?.slug}
-            avatarUrl={user.avatarUrl}
-            bio={bio || profile?.bio}
-          />
+          <div className="flex flex-col gap-4">
+            {channel?.slug ? (
+              <div className="border-border flex flex-col gap-2 rounded-lg border px-4 py-3">
+                <p className="text-sm">
+                  Design the channel on the live page — drag layers, hide/add
+                  blocks from the side menu, and tune Look there.
+                </p>
+                <Link
+                  to="/channel/$slug"
+                  params={{ slug: channel.slug }}
+                  search={{ edit: '1' }}
+                  className="text-sm font-medium underline-offset-2 hover:underline"
+                >
+                  Open channel design editor →
+                </Link>
+              </div>
+            ) : null}
+            <ChannelDesigner
+              displayName={displayName || user.displayName}
+              username={user.username}
+              channelSlug={channel?.slug}
+              avatarUrl={user.avatarUrl}
+              bio={bio || profile?.bio}
+            />
+          </div>
         )}
 
         {tab === 'profile' && (

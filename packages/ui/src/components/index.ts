@@ -7,6 +7,7 @@ export * from './CardsRow';
 export * from './CopyButton';
 export * from './Dialog';
 export * from './FavoriteButton';
+export * from './MediaArtwork';
 export * from './CardGrid';
 export * from './EmptyState';
 export * from './FilterChips';

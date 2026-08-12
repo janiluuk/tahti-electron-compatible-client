@@ -88,7 +88,6 @@ export function StudioGoLiveView() {
   const [signal, setSignal] = useState<SignalStatus | null>(null);
   const [usage, setUsage] = useState<BroadcastUsage | null>(null);
   const [targets, setTargets] = useState<RtmpTarget[]>([]);
-  const [metaSource, setMetaSource] = useState('…');
   const [channelState, setChannelState] = useState(
     user?.channel?.state ?? 'OFFLINE',
   );
@@ -100,6 +99,7 @@ export function StudioGoLiveView() {
   const [newKey, setNewKey] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [autoAdvanced, setAutoAdvanced] = useState(false);
+  const [showAddDest, setShowAddDest] = useState(false);
 
   const slug = user?.channel?.slug ?? '';
   const isMock = import.meta.env.VITE_FORCE_MOCK === '1';
@@ -128,7 +128,6 @@ export function StudioGoLiveView() {
     setSettings(s.data);
     setUsage(u.data);
     setTargets(t.data);
-    setMetaSource(s.meta.source);
     if (!s.data && s.meta.source === 'api' && s.meta.reason) {
       setMsg(
         `Stream settings: ${s.meta.reason} — log in as an artist with a channel.`,
@@ -246,11 +245,11 @@ export function StudioGoLiveView() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Broadcast wizard
+              Go Live
             </h1>
             <p className="text-foreground-secondary mt-1 text-sm">
-              Three steps: connect your encoder, go live, then optionally
-              multistream. Source: {metaSource}.
+              Connect your encoder, publish, then optionally mirror to other
+              platforms.
             </p>
           </div>
           <span
@@ -260,34 +259,12 @@ export function StudioGoLiveView() {
           </span>
         </div>
 
-        {usage && (
-          <p className="text-foreground-secondary text-xs">
-            Weekly live time: {formatUsageMinutes(usage)}
-            {usage.blocked ? ' — at cap' : ''}
-          </p>
-        )}
-
-        <ol className="border-border grid gap-2 rounded-xl border p-3 sm:grid-cols-3">
+        <ol className="flex flex-wrap gap-2">
           {(
             [
-              {
-                id: 'connect' as const,
-                step: 1,
-                label: 'Connect',
-                hint: 'Ingest keys + signal',
-              },
-              {
-                id: 'live' as const,
-                step: 2,
-                label: 'Go live',
-                hint: 'Publish the channel',
-              },
-              {
-                id: 'multistream' as const,
-                step: 3,
-                label: 'Multistream',
-                hint: 'Optional mirrors',
-              },
+              { id: 'connect' as const, step: 1, label: 'Connect' },
+              { id: 'live' as const, step: 2, label: 'Live' },
+              { id: 'multistream' as const, step: 3, label: 'Multistream' },
             ] as const
           ).map((t) => {
             const active = panel === t.id;
@@ -309,20 +286,14 @@ export function StudioGoLiveView() {
                     }
                     setPanel(t.id);
                   }}
-                  className={`flex w-full flex-col rounded-lg border px-3 py-2 text-left ${
+                  className={`rounded-full border px-3 py-1.5 text-sm ${
                     active
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border hover:border-primary/40'
+                      ? 'border-primary bg-primary/15 font-semibold'
+                      : 'border-border text-foreground-secondary hover:border-primary/40'
                   }`}
                 >
-                  <span className="text-foreground-secondary text-[10px] tracking-wide uppercase">
-                    Step {t.step}
-                    {done ? ' · done' : ''}
-                  </span>
-                  <span className="text-sm font-semibold">{t.label}</span>
-                  <span className="text-foreground-secondary text-xs">
-                    {t.hint}
-                  </span>
+                  <span className="opacity-60">{t.step}</span> {t.label}
+                  {done ? ' ✓' : ''}
                 </button>
               </li>
             );
@@ -411,11 +382,23 @@ export function StudioGoLiveView() {
               </section>
             )}
 
-            <ul className="text-foreground-secondary space-y-1 text-xs">
-              <li>{settings ? '✓' : '○'} Stream settings loaded</li>
-              <li>{signalOk ? '✓' : '○'} Encoder signal</li>
-              <li>{!usage?.blocked ? '✓' : '○'} Weekly live quota available</li>
-            </ul>
+            <div className="text-foreground-secondary flex flex-wrap gap-2 text-xs">
+              <span
+                className={`rounded-full border px-2 py-0.5 ${settings ? 'border-primary/40' : 'border-border'}`}
+              >
+                {settings ? '✓' : '○'} Settings
+              </span>
+              <span
+                className={`rounded-full border px-2 py-0.5 ${signalOk ? 'border-primary/40' : 'border-border'}`}
+              >
+                {signalOk ? '✓' : '○'} Signal
+              </span>
+              <span
+                className={`rounded-full border px-2 py-0.5 ${!usage?.blocked ? 'border-primary/40' : 'border-border'}`}
+              >
+                {!usage?.blocked ? '✓' : '○'} Quota
+              </span>
+            </div>
 
             <div className="border-border flex flex-wrap items-center gap-3 rounded-lg border p-4">
               <div className="flex-1">
@@ -538,9 +521,8 @@ export function StudioGoLiveView() {
                 className="underline-offset-2 hover:underline"
               >
                 Music
-              </Link>{' '}
-              or Sources → From broadcast. Multistream destinations are optional
-              — configure them before or during a show.
+              </Link>
+              .
             </p>
 
             <div className="flex flex-wrap gap-2">
@@ -549,10 +531,14 @@ export function StudioGoLiveView() {
                 variant="secondary"
                 onClick={() => setPanel('connect')}
               >
-                ← Back
+                ← Connect
               </Button>
-              <Button size="sm" onClick={() => setPanel('multistream')}>
-                Next: Multistream →
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setPanel('multistream')}
+              >
+                Multistream (optional)
               </Button>
             </div>
           </div>
@@ -561,8 +547,7 @@ export function StudioGoLiveView() {
         {panel === 'multistream' && (
           <div className="flex flex-col gap-4">
             <p className="text-foreground-secondary text-sm">
-              Mirror this Tahti show to YouTube, Twitch, and others. Paste each
-              platform’s stream key — not a Tahti API key.
+              Optional — mirror this show to YouTube, Twitch, and others.
             </p>
 
             {targets.length === 0 ? (
@@ -614,71 +599,88 @@ export function StudioGoLiveView() {
               </ul>
             )}
 
-            <section className="border-border rounded-xl border p-4">
-              <h2 className="font-display text-lg font-bold">
+            {!showAddDest ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setShowAddDest(true)}
+              >
                 Add destination
-              </h2>
-              <p className="text-foreground-secondary text-xs">
-                Secondary step — not required to go live
-              </p>
-              <div className="mt-3 flex flex-col gap-2">
-                <label className="text-foreground-secondary text-xs uppercase">
-                  Provider
-                  <select
-                    className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
-                    value={newProvider}
-                    onChange={(e) => setNewProvider(e.target.value)}
-                  >
-                    {['YOUTUBE', 'TWITCH', 'KICK', 'FACEBOOK', 'CUSTOM'].map(
-                      (p) => (
-                        <option key={p} value={p}>
-                          {p}
-                        </option>
-                      ),
-                    )}
-                  </select>
-                </label>
-                <label className="text-foreground-secondary text-xs uppercase">
-                  Stream key
-                  <input
-                    className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
-                    value={newKey}
-                    onChange={(e) => setNewKey(e.target.value)}
-                    placeholder="Paste platform stream key"
-                  />
-                </label>
-                <label className="text-foreground-secondary text-xs uppercase">
-                  Label (optional)
-                  <input
-                    className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
-                    value={newLabel}
-                    onChange={(e) => setNewLabel(e.target.value)}
-                  />
-                </label>
-                <Button
-                  size="sm"
-                  disabled={!newKey.trim()}
-                  onClick={() => {
-                    void createRtmpTarget({
-                      provider: newProvider,
-                      streamKey: newKey.trim(),
-                      label: newLabel.trim() || undefined,
-                      enabled: true,
-                    }).then((r) => {
-                      if (!r.ok) {
-                        setMsg(r.error);
-                      } else {
-                        setNewKey('');
-                        setNewLabel('');
-                        void reload();
-                      }
-                    });
-                  }}
-                >
+              </Button>
+            ) : (
+              <section className="border-border rounded-xl border p-4">
+                <h2 className="font-display text-lg font-bold">
                   Add destination
-                </Button>
-              </div>
-            </section>
+                </h2>
+                <div className="mt-3 flex flex-col gap-2">
+                  <label className="text-foreground-secondary text-xs uppercase">
+                    Provider
+                    <select
+                      className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
+                      value={newProvider}
+                      onChange={(e) => setNewProvider(e.target.value)}
+                    >
+                      {['YOUTUBE', 'TWITCH', 'KICK', 'FACEBOOK', 'CUSTOM'].map(
+                        (p) => (
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
+                        ),
+                      )}
+                    </select>
+                  </label>
+                  <label className="text-foreground-secondary text-xs uppercase">
+                    Stream key
+                    <input
+                      className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
+                      value={newKey}
+                      onChange={(e) => setNewKey(e.target.value)}
+                      placeholder="Paste platform stream key"
+                    />
+                  </label>
+                  <label className="text-foreground-secondary text-xs uppercase">
+                    Label (optional)
+                    <input
+                      className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
+                      value={newLabel}
+                      onChange={(e) => setNewLabel(e.target.value)}
+                    />
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      disabled={!newKey.trim()}
+                      onClick={() => {
+                        void createRtmpTarget({
+                          provider: newProvider,
+                          streamKey: newKey.trim(),
+                          label: newLabel.trim() || undefined,
+                          enabled: true,
+                        }).then((r) => {
+                          if (!r.ok) {
+                            setMsg(r.error);
+                          } else {
+                            setNewKey('');
+                            setNewLabel('');
+                            setShowAddDest(false);
+                            void reload();
+                          }
+                        });
+                      }}
+                    >
+                      Save destination
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="text"
+                      onClick={() => setShowAddDest(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </section>
+            )}
 
             <div className="flex flex-wrap gap-2">
               <Button
@@ -686,18 +688,17 @@ export function StudioGoLiveView() {
                 variant="secondary"
                 onClick={() => setPanel('live')}
               >
-                ← Back to live
+                ← Live
               </Button>
-              {isLive && (
-                <p className="text-foreground-secondary self-center text-xs">
-                  Wizard complete — you’re on air
-                  {targets.some((x) => x.enabled)
-                    ? ' with multistream destinations.'
-                    : '.'}
-                </p>
-              )}
             </div>
           </div>
+        )}
+
+        {usage && (
+          <p className="text-foreground-secondary text-xs opacity-70">
+            Weekly live time: {formatUsageMinutes(usage)}
+            {usage.blocked ? ' — at cap' : ''}
+          </p>
         )}
       </div>
     </StudioGate>

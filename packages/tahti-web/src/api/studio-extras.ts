@@ -302,6 +302,83 @@ export async function fetchStatsTopCountries(): Promise<{
   }
 }
 
+export type StatsPlaysRange = '7' | '30' | 'all';
+
+export type StatsPlaysDay = {
+  date: string;
+  plays: number;
+};
+
+export type StatsPlaysCountry = {
+  countryCode: string;
+  displayName: string;
+  count: number;
+};
+
+export type StatsPlays = {
+  totalPlays: number;
+  totalDownloads: number;
+  totalSmartLinkClicks?: number;
+  daily: StatsPlaysDay[];
+  downloadCountries?: StatsPlaysCountry[];
+};
+
+export async function fetchStatsPlays(range: StatsPlaysRange = '30'): Promise<{
+  data: StatsPlays;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    const days = range === '7' ? 7 : range === '30' ? 30 : 14;
+    const daily: StatsPlaysDay[] = Array.from({ length: days }, (_, i) => {
+      const d = new Date();
+      d.setUTCDate(d.getUTCDate() - (days - 1 - i));
+      return {
+        date: d.toISOString().slice(0, 10),
+        plays: 20 + ((i * 17) % 80),
+      };
+    });
+    return {
+      data: {
+        totalPlays: daily.reduce((s, x) => s + x.plays, 0),
+        totalDownloads: 120,
+        totalSmartLinkClicks: 45,
+        daily,
+        downloadCountries: [
+          { countryCode: 'FI', displayName: 'Finland', count: 80 },
+          { countryCode: 'DE', displayName: 'Germany', count: 25 },
+        ],
+      },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const q = range === 'all' ? 'all' : range;
+    const { data } = await requestJson<StatsPlays>(
+      `/api/me/stats/plays?range=${q}`,
+    );
+    return {
+      data: {
+        totalPlays: data.totalPlays ?? 0,
+        totalDownloads: data.totalDownloads ?? 0,
+        totalSmartLinkClicks: data.totalSmartLinkClicks,
+        daily: data.daily ?? [],
+        downloadCountries: data.downloadCountries,
+      },
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return {
+      data: {
+        totalPlays: 0,
+        totalDownloads: 0,
+        daily: [],
+        downloadCountries: [],
+      },
+      meta: failMeta(err),
+    };
+  }
+}
+
 // ── Profile / channel settings lite ─────────────────────────────────────────
 
 export type ProfileFields = {

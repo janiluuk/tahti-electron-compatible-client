@@ -108,7 +108,17 @@ export function ArtistView({ username }: { username: string }) {
               @{artist.username}
             </p>
           </div>
-          {isOwner && (
+          {isOwner && channel?.slug ? (
+            <Link
+              to="/channel/$slug"
+              params={{ slug: channel.slug }}
+              search={{ edit: '1' }}
+            >
+              <Button size="sm" variant="secondary">
+                Edit design
+              </Button>
+            </Link>
+          ) : isOwner ? (
             <Button
               size="sm"
               variant="secondary"
@@ -116,7 +126,7 @@ export function ArtistView({ username }: { username: string }) {
             >
               Edit look
             </Button>
-          )}
+          ) : null}
         </div>
         {artist.bio && (
           <p className="text-foreground mt-2 max-w-2xl text-sm whitespace-pre-wrap">
@@ -261,14 +271,30 @@ export function ArtistView({ username }: { username: string }) {
       )}
 
       {tab === 'design' && isOwner && (
-        <ChannelDesigner
-          displayName={artist.displayName}
-          username={artist.username}
-          channelSlug={channel?.slug}
-          avatarUrl={artist.avatarUrl}
-          bio={artist.bio}
-          compact
-        />
+        <div className="flex flex-col gap-3">
+          {channel?.slug ? (
+            <p className="text-foreground-secondary text-sm">
+              Full layout editing (layers, hide/add, drag) lives on the{' '}
+              <Link
+                to="/channel/$slug"
+                params={{ slug: channel.slug }}
+                search={{ edit: '1' }}
+                className="underline-offset-2 hover:underline"
+              >
+                channel page
+              </Link>
+              . Quick look controls below.
+            </p>
+          ) : null}
+          <ChannelDesigner
+            displayName={artist.displayName}
+            username={artist.username}
+            channelSlug={channel?.slug}
+            avatarUrl={artist.avatarUrl}
+            bio={artist.bio}
+            compact
+          />
+        </div>
       )}
     </div>
   );

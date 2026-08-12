@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { cn } from '../../utils';
 import { Button } from '../Button';
 import { FavoriteButton } from '../FavoriteButton';
+import { MediaArtwork } from '../MediaArtwork';
 import type { HistoryRowProps } from './types';
 
 export const HistoryRow: FC<HistoryRowProps> = ({
@@ -49,19 +50,23 @@ export const HistoryRow: FC<HistoryRowProps> = ({
         classes?.thumbnail,
       )}
     >
-      {artworkUrl ? (
-        <img
-          src={artworkUrl}
-          alt={title}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <Music
-          size={20}
-          absoluteStrokeWidth
-          className="text-foreground opacity-20"
-        />
-      )}
+      <MediaArtwork
+        size="sm"
+        src={artworkUrl}
+        alt={title}
+        imageReveal={false}
+        onPlay={onPlayNow}
+        playLabel="Play"
+        onQueue={onAddToQueue}
+        queueLabel={labels.addToQueue}
+        placeholder={
+          <Music
+            size={16}
+            absoluteStrokeWidth
+            className="text-foreground opacity-20"
+          />
+        }
+      />
     </div>
 
     <div
@@ -91,7 +96,7 @@ export const HistoryRow: FC<HistoryRowProps> = ({
             data-testid="history-row-add-to-queue"
             size="icon-sm"
             variant="text"
-            className="opacity-0 transition-none group-hover:opacity-100"
+            className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
             aria-label={labels.addToQueue}
             onClick={(e) => {
               e.stopPropagation();

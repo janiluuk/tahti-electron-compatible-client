@@ -123,7 +123,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Releases / collections | `/dashboard/releases`… | `/studio/releases`… | `live-api` | album designer on collections |
 | Schedule / programme | schedule | `/studio/schedule` | `live-api` | |
 | Stats | `/dashboard/stats` | `/studio/stats` | `partial` | no detail page |
-| Channel design | channel/edit | `/studio/channel` | `live-api` | |
+| Channel design | channel/edit | `/channel/$slug?edit=1` + `/studio/channel` | `partial` | Inline Edit design: presets, layers drag/hide/add; layout localStorage; look via API |
 | Updates / newsletter | posts | `/studio/updates` | `live-api` | |
 | Revenue / Connect | revenue | `/studio/revenue` | `live-api` | demock wave 4; onboard/portal redirect to Stripe |
 | Stash | `/dashboard/stash` | `/studio/stash` | `partial` | |

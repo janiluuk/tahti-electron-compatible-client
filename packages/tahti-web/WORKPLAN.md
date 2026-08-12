@@ -8,6 +8,7 @@
 - [x] Go Live, catalog, upload, schedule, stats
 - [x] Profile-integrated channel designer (owner Design tab)
 - [x] Studio Channel design / profile / domain
+- [x] **Inline channel page design** — `/channel/$slug?edit=1`: presets, side Layers (hide/add), drag reorder; layout localStorage; Look via API
 - [x] Editor EQ/comp/limiter + markers + stems
 - [x] Newsletter send, DMs, releases, revenue, governance
 - [x] **Offline mock session** — auth `/me`, follow set, fan subscribe activate, Sources Connect, Stripe Connect in-app ([MOCKS.md](MOCKS.md))

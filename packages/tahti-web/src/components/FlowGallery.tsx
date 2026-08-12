@@ -50,15 +50,18 @@ export function FlowGallery() {
   }
 
   return (
-    <section className="border-border flex flex-col gap-4 rounded-xl border p-4">
+    <section
+      id="flow-gallery"
+      className="border-border flex flex-col gap-4 rounded-xl border p-4"
+    >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold tracking-tight">
             Flow gallery
           </h2>
           <p className="text-foreground-secondary mt-1 max-w-xl text-sm">
-            Mermaid journeys from the flows pack — browse here while we talk
-            through current Tahti vs planned Nuclear shell.
+            Mermaid journeys aligned with the atlas cases — anonymous, auth,
+            listener, artist, and edge gates. Toggle Current vs Planned.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

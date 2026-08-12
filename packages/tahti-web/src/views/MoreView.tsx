@@ -355,12 +355,48 @@ export function MoreView() {
           Tahti map
         </h1>
         <p className="text-foreground-secondary mt-1 max-w-2xl text-sm">
-          Every major Tahti public / studio surface mapped into this Nuclear
-          listen client — live, stubbed, or explicitly out of scope. The screen
-          atlas below pairs each major view with a thumbnail so you can see what
-          is what. Full port checklist:{' '}
-          <code className="text-foreground">FEATURES.md</code>.
+          Concrete flow cases for production Tahti vs this Nuclear beta client —
+          Old | New screenshots, mermaid journeys, and the feature matrix. Full
+          port checklist: <code className="text-foreground">FEATURES.md</code>.
         </p>
+        <nav className="mt-3 flex flex-wrap gap-2 text-xs">
+          <a
+            href="#cases-anonymous"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Anonymous
+          </a>
+          <a
+            href="#cases-auth"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Auth
+          </a>
+          <a
+            href="#cases-listener"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Listener
+          </a>
+          <a
+            href="#cases-artist"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Artist
+          </a>
+          <a
+            href="#cases-edge"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Edge
+          </a>
+          <a
+            href="#flow-gallery"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Flows
+          </a>
+        </nav>
       </div>
 
       <nav className="flex flex-wrap gap-2">

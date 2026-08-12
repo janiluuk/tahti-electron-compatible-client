@@ -1,5 +1,4 @@
-import { Link } from '@tanstack/react-router';
-import { HeartIcon } from 'lucide-react';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Card, CardGrid, FilterChips, Input } from '@nuclearplayer/ui';
@@ -13,6 +12,7 @@ import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
 export function ListenView() {
+  const navigate = useNavigate();
   const [items, setItems] = useState<ChannelDirectoryItem[]>([]);
   const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -145,44 +145,36 @@ export function ListenView() {
           {filtered.map((ch) => {
             const favorited = isFavoriteChannel(ch.slug);
             return (
-              <div key={ch.slug} className="flex flex-col gap-2">
-                <Link to="/channel/$slug" params={{ slug: ch.slug }}>
-                  <Card
-                    title={ch.displayName}
-                    subtitle={ch.genres.slice(0, 2).join(', ') || ch.slug}
-                    src={ch.avatarUrl ?? undefined}
-                  />
-                </Link>
-                <div className="flex flex-wrap gap-2 px-1">
-                  <Button size="sm" onClick={() => void playNow(ch.slug)}>
-                    Play
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() => void add(ch.slug)}
+              <Card
+                key={ch.slug}
+                title={
+                  <Link
+                    to="/channel/$slug"
+                    params={{ slug: ch.slug }}
+                    className="hover:underline"
                   >
-                    Queue
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() =>
-                      toggleFavoriteChannel({
-                        slug: ch.slug,
-                        displayName: ch.displayName,
-                        avatarUrl: ch.avatarUrl,
-                      })
-                    }
-                    aria-label={favorited ? 'Remove favorite' : 'Add favorite'}
-                  >
-                    <HeartIcon
-                      size={14}
-                      className={favorited ? 'fill-current' : undefined}
-                    />
-                  </Button>
-                </div>
-              </div>
+                    {ch.displayName}
+                  </Link>
+                }
+                subtitle={ch.genres.slice(0, 2).join(', ') || ch.slug}
+                src={ch.avatarUrl ?? undefined}
+                onPlay={() => void playNow(ch.slug)}
+                onQueue={() => void add(ch.slug)}
+                onFavorite={() =>
+                  toggleFavoriteChannel({
+                    slug: ch.slug,
+                    displayName: ch.displayName,
+                    avatarUrl: ch.avatarUrl,
+                  })
+                }
+                favorited={favorited}
+                onClick={() => {
+                  void navigate({
+                    to: '/channel/$slug',
+                    params: { slug: ch.slug },
+                  });
+                }}
+              />
             );
           })}
         </CardGrid>

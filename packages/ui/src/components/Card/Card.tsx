@@ -3,17 +3,27 @@ import { FC, ReactNode } from 'react';
 
 import { cn } from '../../utils';
 import { Box } from '../Box';
-import { Button } from '../Button';
-import { ImageReveal } from '../ImageReveal';
+import { MediaArtwork } from '../MediaArtwork';
 
 type CardProps = {
   src?: string;
   image?: ReactNode;
-  title?: string;
-  subtitle?: string;
+  title?: ReactNode;
+  subtitle?: ReactNode;
   className?: string;
   onClick?: () => void;
   imageReveal?: boolean;
+  /** Centered play overlay on the cover. */
+  onPlay?: () => void;
+  playLabel?: string;
+  playDisabled?: boolean;
+  /** Queue overlay on the cover. */
+  onQueue?: () => void;
+  queueLabel?: string;
+  queueDisabled?: boolean;
+  /** Favorite overlay on the cover. */
+  onFavorite?: () => void;
+  favorited?: boolean;
 };
 
 export const Card: FC<CardProps> = ({
@@ -24,55 +34,89 @@ export const Card: FC<CardProps> = ({
   className,
   onClick,
   imageReveal = true,
-}) => (
-  <Button
-    data-testid="card"
-    size="flexible"
-    className={cn(
-      'flex w-42 flex-col items-stretch gap-2 p-2 text-left',
-      className,
-    )}
-    onClick={onClick}
-  >
-    <Box
-      variant="primary"
-      shadow="none"
-      className="relative aspect-square w-full items-center justify-center overflow-hidden p-0"
-    >
-      {image ?? (
-        <ImageReveal
-          enabled={imageReveal}
-          src={src}
-          alt={title}
-          className="absolute inset-0"
-          imgClassName="h-full w-full object-cover"
-          placeholder={
-            <CassetteTape
-              size={96}
-              absoluteStrokeWidth
-              className="opacity-20"
-            />
-          }
-        />
-      )}
-    </Box>
+  onPlay,
+  playLabel,
+  playDisabled,
+  onQueue,
+  queueLabel,
+  queueDisabled,
+  onFavorite,
+  favorited,
+}) => {
+  const hasOverlays = Boolean(onPlay || onQueue || onFavorite);
 
-    {(title || subtitle) && (
-      <div className="min-w-0">
-        {title && (
-          <div
-            data-testid="card-title"
-            className="text-foreground truncate text-sm font-bold"
-          >
-            {title}
-          </div>
+  return (
+    <div
+      data-testid="card"
+      role={onClick && !hasOverlays ? 'button' : undefined}
+      tabIndex={onClick && !hasOverlays ? 0 : undefined}
+      className={cn(
+        'text-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all',
+        onClick &&
+          !hasOverlays &&
+          'hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none',
+        className,
+      )}
+      onClick={hasOverlays ? undefined : onClick}
+      onKeyDown={
+        onClick && !hasOverlays
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
+    >
+      <Box
+        variant="primary"
+        shadow="none"
+        className="relative aspect-square w-full items-center justify-center overflow-hidden p-0"
+      >
+        {image ?? (
+          <MediaArtwork
+            size="fill"
+            src={src}
+            alt={typeof title === 'string' ? title : undefined}
+            imageReveal={imageReveal}
+            onPlay={onPlay}
+            playLabel={playLabel}
+            playDisabled={playDisabled}
+            onQueue={onQueue}
+            queueLabel={queueLabel}
+            queueDisabled={queueDisabled}
+            onFavorite={onFavorite}
+            favorited={favorited}
+            onArtworkClick={hasOverlays ? onClick : undefined}
+            placeholder={
+              <CassetteTape
+                size={96}
+                absoluteStrokeWidth
+                className="opacity-20"
+              />
+            }
+          />
         )}
-        {subtitle && (
-          <div className="text-foreground truncate text-xs opacity-60">
-            {subtitle}
-          </div>
-        )}
-      </div>
-    )}
-  </Button>
-);
+      </Box>
+
+      {(title || subtitle) && (
+        <div className="min-w-0">
+          {title && (
+            <div
+              data-testid="card-title"
+              className="text-foreground truncate text-sm font-bold"
+            >
+              {title}
+            </div>
+          )}
+          {subtitle && (
+            <div className="text-foreground truncate text-xs opacity-60">
+              {subtitle}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

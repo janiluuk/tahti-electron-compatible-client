@@ -172,6 +172,9 @@ const moreRoute = createRoute({
 const channelRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/channel/$slug',
+  validateSearch: (search: Record<string, unknown>): { edit?: string } => ({
+    edit: typeof search.edit === 'string' ? search.edit : undefined,
+  }),
   component: function ChannelRoute() {
     const { slug } = channelRoute.useParams();
     return <ChannelView slug={slug} />;

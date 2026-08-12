@@ -3,7 +3,6 @@ import {
   GaugeIcon,
   LayoutDashboardIcon,
   LibraryIcon,
-  ListMusicIcon,
   MapIcon,
   PlugIcon,
   RadioIcon,
@@ -111,7 +110,7 @@ export function AppShell() {
               <SidebarNavigationItem
                 to="/library"
                 icon={<LibraryIcon size={16} />}
-                label="Library"
+                label="My Library"
               />
               <SidebarNavigationItem
                 to="/studio"
@@ -134,11 +133,6 @@ export function AppShell() {
                 label="Settings"
               />
             </div>
-            <SidebarNavigationItem
-              icon={<ListMusicIcon size={16} />}
-              label="Queue / Chat"
-              onClick={toggleRight}
-            />
           </SidebarNavigation>
         </PlayerWorkspace.LeftSidebar>
 

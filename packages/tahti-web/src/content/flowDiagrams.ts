@@ -146,6 +146,100 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     mermaid:
       'flowchart TB\n  subgraph p1["Part 1 · Anonymous"]\n    L[Listen] --> C[Channel]\n    C --> PB[Player bar]\n    C --> RR[Right · Queue / Chat]\n  end\n  subgraph p2["Part 2 · Member"]\n    A[Auth] --> Lib[Library]\n    A --> Gov[Governance]\n    A --> Set[Settings]\n  end\n  subgraph p3["Part 3 · Artist"]\n    St[Studio tabs] --> GL[Go Live]\n    St --> Cat[Catalog · Editor]\n    Src[Sources tiles] --> Cat\n    Prof[Profile Design] --> St\n  end\n  p1 --> p2\n  p2 --> p3\n',
   },
+  {
+    id: 'current-cases-anonymous',
+    pack: 'current',
+    source: 'cases-anonymous.md',
+    title: 'Cases — anonymous listen',
+    blurb:
+      'Home, radio online, channel live vs offline, chat join, profile, subscribe gate, smart link, embed.',
+    mermaid:
+      'flowchart TD\n  H["/listen Home"] --> R["/radio online"]\n  H --> C["/c/:slug"]\n  R --> C\n  C --> Live{Live?}\n  Live -->|Yes| L[HLS live + LIVE badge]\n  Live -->|No| A[Archive / rotation VOD]\n  L --> Chat[Chat join anonymous handle]\n  A --> Chat\n  H --> P["/u/:username"]\n  P --> Sub["/u/:user/subscribe gate"]\n  Sub --> Auth["/join or /login"]\n  Smart["/r/:slug"] --> P\n  Emb["/embed/c/:slug"] -.-> C\n',
+  },
+  {
+    id: 'current-cases-auth',
+    pack: 'current',
+    source: 'cases-auth.md',
+    title: 'Cases — auth',
+    blurb: 'Join, verify token, login, optional TOTP.',
+    mermaid:
+      'flowchart LR\n  J["/join"] --> V["/verify token"]\n  V --> LI["/login"]\n  LI --> TOTP{TOTP enabled?}\n  TOTP -->|Yes| Code[Enter TOTP]\n  TOTP -->|No| Sess[Session cookie]\n  Code --> Sess\n  Sess --> Next["?next= or /dashboard"]\n',
+  },
+  {
+    id: 'current-cases-listener',
+    pack: 'current',
+    source: 'cases-listener.md',
+    title: 'Cases — listener / member',
+    blurb: 'Library, fan checkout, DMs, governance vote vs forbidden.',
+    mermaid:
+      'flowchart TD\n  Login --> Dash["/dashboard"]\n  Dash --> Lib[Follows / history]\n  Dash --> Sub["Subscribe → Stripe"]\n  Dash --> DM["/dashboard/messages"]\n  Dash --> Mem{€40 member?}\n  Mem -->|Yes| Gov["/governance vote"]\n  Mem -->|No| Gate[Governance forbidden / upsell]\n',
+  },
+  {
+    id: 'current-cases-artist',
+    pack: 'current',
+    source: 'cases-artist.md',
+    title: 'Cases — artist studio',
+    blurb:
+      'Home, go-live steps, upload, stash, collections, stats, sources, revenue, channel design.',
+    mermaid:
+      'flowchart TD\n  Dash["/dashboard"] --> Setup{Has channel?}\n  Setup -->|No| SC[Setup channel wizard]\n  Setup -->|Yes| Home[Studio home]\n  Home --> GL["Broadcast: keys → signal → go live"]\n  Home --> Up[Upload prepare PUT complete]\n  Home --> Arch[Archive / Music]\n  Home --> Stash[Stash private]\n  Home --> Coll[Collections designer]\n  Home --> Stats[Stats + detail]\n  Home --> Src[Sources OAuth import]\n  Home --> Rev[Revenue Connect]\n  Home --> Design[Channel design]\n',
+  },
+  {
+    id: 'current-cases-edge',
+    pack: 'current',
+    source: 'cases-edge.md',
+    title: 'Cases — edge / gates',
+    blurb: 'Payments not ready, studio logged out, radio offline badge.',
+    mermaid:
+      'flowchart TD\n  Pay[Revenue / subscribe] --> Conn{Connect ready?}\n  Conn -->|No| Block[Payments not ready]\n  Conn -->|Yes| Stripe[Checkout / payouts]\n  Studio["/dashboard"] --> Auth{Logged in?}\n  Auth -->|No| Login["/login"]\n  Radio["/radio"] --> On{Icecast up?}\n  On -->|No| Badge[Offline badge]\n  On -->|Yes| HLS[Play stream]\n',
+  },
+  {
+    id: 'planned-cases-anonymous',
+    pack: 'planned',
+    source: 'cases-anonymous.md',
+    title: 'Cases — anonymous listen',
+    blurb:
+      'Nuclear: Listen hub, radio HLS, channel live vs archive, chat tab, subscribe, embed.',
+    mermaid:
+      'flowchart TD\n  L["/ Listen"] --> R["/radio always-on HLS"]\n  L --> C["/channel/:slug"]\n  R --> C\n  C --> Live{Live?}\n  Live -->|Yes| PB[Player bar live]\n  Live -->|No| Arch[Archive library + seek]\n  C --> Rail[Right rail Queue / Chat]\n  Rail --> Join[Chat join handle]\n  L --> U["/u/:username"]\n  U --> Sub["/subscribe/:user gate"]\n  Smart["/r/:slug"] --> U\n  Emb["/embed/*"] -.-> C\n',
+  },
+  {
+    id: 'planned-cases-auth',
+    pack: 'planned',
+    source: 'cases-auth.md',
+    title: 'Cases — auth',
+    blurb: 'Join, verify, login, TOTP on beta host cookie.',
+    mermaid:
+      'flowchart LR\n  J["/join"] --> V["/verify"]\n  V --> LI["/login"]\n  LI --> TOTP{TOTP?}\n  TOTP -->|Yes| Code[TOTP step]\n  TOTP -->|No| Cookie["tahti_session on beta host"]\n  Code --> Cookie\n  Cookie --> L["/ Listen"]\n',
+  },
+  {
+    id: 'planned-cases-listener',
+    pack: 'planned',
+    source: 'cases-listener.md',
+    title: 'Cases — listener / member',
+    blurb: 'Library tabs, subscribe checkout, DMs, governance member vs gated.',
+    mermaid:
+      'flowchart TD\n  Auth --> Lib["/library Favorites History"]\n  Auth --> Sub["/subscribe/:artist → Stripe"]\n  Auth --> DM["/library/messages"]\n  Auth --> Mem{Member?}\n  Mem -->|Yes| Gov["/governance vote"]\n  Mem -->|No| Gate[Governance gated]\n',
+  },
+  {
+    id: 'planned-cases-artist',
+    pack: 'planned',
+    source: 'cases-artist.md',
+    title: 'Cases — artist studio',
+    blurb:
+      'Studio tabs: Go Live, upload, stash, collections, stats, sources, revenue, design.',
+    mermaid:
+      'flowchart TD\n  ST["/studio"] --> Gate{Login + channel?}\n  Gate -->|No| LoginOrSetup[Login or setup pending]\n  Gate -->|Yes| Tabs[In-page tabs]\n  Tabs --> GL["Go Live wizard steps"]\n  Tabs --> Up[Upload]\n  Tabs --> Arch[Archive]\n  Tabs --> Stash[Stash]\n  Tabs --> Coll[Collections]\n  Tabs --> Stats[Stats / detail]\n  Tabs --> Rev[Revenue Connect]\n  Tabs --> Ch[Channel design]\n  ST --> Src["/sources OAuth tiles"]\n',
+  },
+  {
+    id: 'planned-cases-edge',
+    pack: 'planned',
+    source: 'cases-edge.md',
+    title: 'Cases — edge / gates',
+    blurb: 'Payments not ready, studio logged out, radio HLS vs offline.',
+    mermaid:
+      'flowchart TD\n  Rev["/studio/revenue"] --> Conn{Connect ready?}\n  Conn -->|No| Block[Payments not ready]\n  ST["/studio"] --> Auth{Logged in?}\n  Auth -->|No| Login["/login"]\n  Radio["/radio"] --> HLS[Player bar HLS when feed exists]\n',
+  },
 ];
 
 export const FLOW_PACKS: {
