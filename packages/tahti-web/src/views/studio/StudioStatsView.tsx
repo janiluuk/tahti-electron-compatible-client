@@ -1,4 +1,8 @@
+import { Link } from '@tanstack/react-router';
+import { ChartLineIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+
+import { Button } from '@nuclearplayer/ui';
 
 import {
   fetchStatsSummary,
@@ -10,12 +14,14 @@ import {
 } from '../../api/studio-extras';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function StudioStatsView() {
   const [summary, setSummary] = useState<StatsSummary | null>(null);
   const [tracks, setTracks] = useState<StatsTopTrack[]>([]);
   const [countries, setCountries] = useState<StatsTopCountry[]>([]);
-  const [source, setSource] = useState('…');
+  const [loading, setLoading] = useState(true);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     void Promise.all([
@@ -26,25 +32,38 @@ export function StudioStatsView() {
       setSummary(s.data);
       setTracks(t.data);
       setCountries(c.data);
-      setSource(s.meta.source);
+      setIsDemo(s.meta.source === 'mock');
+      setLoading(false);
     });
   }, []);
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/stats" />
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            Stats
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Plays / downloads lite from <code>/api/me/stats/*</code>. Source:{' '}
-            {source}. Fan revenue payouts stay on production financial tools.
-          </p>
-        </div>
+        <StudioPageHeader
+          title="Stats"
+          subtitle={`Plays and downloads across your catalog.${isDemo ? ' (demo data)' : ''}`}
+          action={
+            <Link to="/studio/stats/detail">
+              <Button
+                size="sm"
+                variant="secondary"
+                aria-label="Plays detail"
+                title="Plays detail"
+              >
+                <ChartLineIcon size={16} aria-hidden className="mr-1.5" />
+                Detail
+              </Button>
+            </Link>
+          }
+        />
 
-        {summary && (
+        {loading || !summary ? (
+          <StudioPanel>
+            <p className="text-foreground-secondary text-sm">Loading…</p>
+          </StudioPanel>
+        ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {(
               [
@@ -54,61 +73,82 @@ export function StudioStatsView() {
                 ['Downloads total', summary.downloadsTotal],
               ] as const
             ).map(([label, value]) => (
-              <div key={label} className="border-border rounded-xl border p-4">
+              <StudioPanel key={label} className="!p-4 sm:!p-5">
                 <div className="text-foreground-secondary text-xs uppercase">
                   {label}
                 </div>
-                <div className="font-display mt-1 text-2xl font-bold">
+                <div className="font-display mt-1 text-2xl font-bold tracking-tight">
                   {value.toLocaleString()}
                 </div>
-              </div>
+              </StudioPanel>
             ))}
           </div>
         )}
 
-        <section className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-bold">Top tracks</h2>
-          {tracks.length === 0 ? (
+        <StudioPanel title="Top tracks">
+          {loading ? (
+            <p className="text-foreground-secondary text-sm">Loading…</p>
+          ) : tracks.length === 0 ? (
             <p className="text-foreground-secondary text-sm">
               No track stats yet.
             </p>
           ) : (
-            <ul className="flex flex-col gap-1">
+            <ul className="divide-border divide-y">
               {tracks.map((t) => (
                 <li
                   key={t.archiveItemId}
-                  className="border-border flex justify-between gap-2 rounded border px-3 py-2 text-sm"
+                  className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
                 >
-                  <span>{t.title}</span>
-                  <span className="text-foreground-secondary">
-                    {t.plays} plays
+                  <Link
+                    to="/studio/archive/$id"
+                    params={{ id: t.archiveItemId }}
+                    className="min-w-0 truncate font-medium hover:underline"
+                  >
+                    {t.title}
+                  </Link>
+                  <span className="text-foreground-secondary shrink-0 tabular-nums">
+                    {t.plays.toLocaleString()} plays
                   </span>
                 </li>
               ))}
             </ul>
           )}
-        </section>
+        </StudioPanel>
 
-        <section className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-bold">Top countries</h2>
-          {countries.length === 0 ? (
+        <StudioPanel title="Top countries">
+          {loading ? (
+            <p className="text-foreground-secondary text-sm">Loading…</p>
+          ) : countries.length === 0 ? (
             <p className="text-foreground-secondary text-sm">
               No country data yet.
             </p>
           ) : (
-            <ul className="flex flex-col gap-1">
+            <ul className="divide-border divide-y">
               {countries.map((c) => (
                 <li
                   key={c.country}
-                  className="border-border flex justify-between gap-2 rounded border px-3 py-2 text-sm"
+                  className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
                 >
-                  <span>{c.country}</span>
-                  <span className="text-foreground-secondary">{c.count}</span>
+                  <span className="font-medium">{c.country}</span>
+                  <span className="text-foreground-secondary tabular-nums">
+                    {c.count.toLocaleString()}
+                  </span>
                 </li>
               ))}
             </ul>
           )}
-        </section>
+        </StudioPanel>
+
+        <p className="text-foreground-secondary text-xs">
+          Fan payouts live under{' '}
+          <Link
+            to="/studio/revenue"
+            className="underline-offset-2 hover:underline"
+          >
+            Revenue
+          </Link>
+          .
+        </p>
       </div>
     </StudioGate>
   );

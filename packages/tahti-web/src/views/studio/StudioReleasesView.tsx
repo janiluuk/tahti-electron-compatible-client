@@ -2,9 +2,11 @@ import { Link } from '@tanstack/react-router';
 import {
   Disc3Icon,
   DiscAlbumIcon,
+  ExternalLinkIcon,
   LibraryIcon,
   MoreHorizontalIcon,
   PlusIcon,
+  Share2Icon,
 } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
@@ -219,13 +221,23 @@ export function StudioReleasesView() {
                   {openMoreId === r.id && (
                     <div className="flex w-full flex-wrap gap-2 pt-1">
                       <Link to="/r/$slug" params={{ slug: r.smartLinkSlug }}>
-                        <Button size="sm" variant="text">
-                          Public link
+                        <Button
+                          size="icon-sm"
+                          variant="text"
+                          aria-label="Public link"
+                          title="Public link"
+                        >
+                          <ExternalLinkIcon size={16} aria-hidden />
                         </Button>
                       </Link>
                       <Link to="/studio/distribution">
-                        <Button size="sm" variant="text">
-                          Distribution
+                        <Button
+                          size="icon-sm"
+                          variant="text"
+                          aria-label="Distribution"
+                          title="Distribution"
+                        >
+                          <Share2Icon size={16} aria-hidden />
                         </Button>
                       </Link>
                     </div>

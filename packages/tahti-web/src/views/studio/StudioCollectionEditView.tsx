@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { ChevronDownIcon, ChevronUpIcon, Trash2Icon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -268,29 +269,35 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       {formatDuration(item.archiveItem?.durationSec)}
                     </span>
                     <Button
-                      size="sm"
+                      size="icon-sm"
                       variant="text"
+                      aria-label="Move up"
+                      title="Move up"
                       onClick={() => void move(idx, -1)}
                     >
-                      Up
+                      <ChevronUpIcon size={16} aria-hidden />
                     </Button>
                     <Button
-                      size="sm"
+                      size="icon-sm"
                       variant="text"
+                      aria-label="Move down"
+                      title="Move down"
                       onClick={() => void move(idx, 1)}
                     >
-                      Down
+                      <ChevronDownIcon size={16} aria-hidden />
                     </Button>
                     <Button
-                      size="sm"
+                      size="icon-sm"
                       variant="text"
+                      aria-label="Remove track"
+                      title="Remove"
                       onClick={() => {
                         void removeStudioCollectionItem(slug, item.id).then(
                           () => reload(),
                         );
                       }}
                     >
-                      Remove
+                      <Trash2Icon size={16} aria-hidden />
                     </Button>
                   </li>
                 ))}

@@ -1,4 +1,12 @@
 import { Link } from '@tanstack/react-router';
+import {
+  AudioLinesIcon,
+  MoreHorizontalIcon,
+  PinIcon,
+  PinOffIcon,
+  PlayIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
@@ -155,7 +163,7 @@ export function StudioArchiveView() {
                     </Link>
                     <p className="text-foreground-secondary text-xs">
                       {item.status}
-                      {isPinned(item) ? ' · Pinned' : ''}
+                      {isPinned(item) ? ', pinned' : ''}
                       {item.durationSec != null
                         ? `, ${Math.round(item.durationSec / 60)} min`
                         : ''}
@@ -164,11 +172,13 @@ export function StudioArchiveView() {
                     </p>
                   </div>
                   <Button
-                    size="sm"
+                    size="icon-sm"
                     disabled={busyId === item.id}
                     onClick={() => void playItem(item.id, item.title)}
+                    aria-label={`Play ${item.title}`}
+                    title="Play"
                   >
-                    Play
+                    <PlayIcon size={16} aria-hidden />
                   </Button>
                   <Link to="/studio/archive/$id" params={{ id: item.id }}>
                     <Button size="sm" variant="secondary">
@@ -179,41 +189,62 @@ export function StudioArchiveView() {
                     archiveItemId={item.id}
                     trackTitle={item.title}
                   />
-                  <button
-                    type="button"
-                    className="text-foreground-secondary hover:text-foreground px-2 text-xs"
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    aria-label={openMoreId === item.id ? 'Less' : 'More'}
+                    title={openMoreId === item.id ? 'Less' : 'More'}
                     onClick={() =>
                       setOpenMoreId((id) => (id === item.id ? null : item.id))
                     }
                   >
-                    {openMoreId === item.id ? 'Less' : 'More'}
-                  </button>
+                    <MoreHorizontalIcon size={16} aria-hidden />
+                  </Button>
                   {openMoreId === item.id && (
                     <div className="flex w-full flex-wrap gap-2 pt-1">
                       <Button
-                        size="sm"
+                        size="icon-sm"
                         variant="text"
                         disabled={busyId === item.id}
+                        aria-label={
+                          isPinned(item) ? 'Unpin from page' : 'Pin to page'
+                        }
                         title={
                           !isPinned(item) && pinnedCount >= MAX_PINNED_TRACKS
-                            ? (pinBlockedMessage(pinnedCount) ?? undefined)
-                            : undefined
+                            ? (pinBlockedMessage(pinnedCount) ??
+                              (isPinned(item)
+                                ? 'Unpin from page'
+                                : 'Pin to page'))
+                            : isPinned(item)
+                              ? 'Unpin from page'
+                              : 'Pin to page'
                         }
                         onClick={() => void togglePin(item)}
                       >
-                        {isPinned(item) ? 'Unpin from page' : 'Pin to page'}
+                        {isPinned(item) ? (
+                          <PinOffIcon size={16} aria-hidden />
+                        ) : (
+                          <PinIcon size={16} aria-hidden />
+                        )}
                       </Button>
                       <Link
                         to="/studio/archive/$id/editor"
                         params={{ id: item.id }}
                       >
-                        <Button size="sm" variant="text">
-                          Audio editor
+                        <Button
+                          size="icon-sm"
+                          variant="text"
+                          aria-label="Audio editor"
+                          title="Audio editor"
+                        >
+                          <AudioLinesIcon size={16} aria-hidden />
                         </Button>
                       </Link>
                       <Button
-                        size="sm"
+                        size="icon-sm"
                         variant="text"
+                        aria-label={`Delete ${item.title}`}
+                        title="Delete"
                         onClick={() => {
                           if (!confirm(`Delete “${item.title}”?`)) {
                             return;
@@ -223,7 +254,7 @@ export function StudioArchiveView() {
                           );
                         }}
                       >
-                        Delete
+                        <Trash2Icon size={16} aria-hidden />
                       </Button>
                     </div>
                   )}

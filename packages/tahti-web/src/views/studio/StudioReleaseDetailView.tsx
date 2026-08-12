@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { ExternalLinkIcon, Share2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -161,7 +162,7 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
 
             {message && <p className="text-sm">{message}</p>}
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="secondary"
                 onClick={() => {
@@ -180,10 +181,24 @@ export function StudioReleaseDetailView({ id }: { id: string }) {
                 Publish
               </Button>
               <Link to="/r/$slug" params={{ slug: release.smartLinkSlug }}>
-                <Button variant="text">Open smart link</Button>
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  aria-label="Open smart link"
+                  title="Open smart link"
+                >
+                  <ExternalLinkIcon size={16} aria-hidden />
+                </Button>
               </Link>
               <Link to="/studio/distribution">
-                <Button variant="text">Distribution</Button>
+                <Button
+                  size="icon-sm"
+                  variant="text"
+                  aria-label="Distribution"
+                  title="Distribution"
+                >
+                  <Share2Icon size={16} aria-hidden />
+                </Button>
               </Link>
             </div>
           </>

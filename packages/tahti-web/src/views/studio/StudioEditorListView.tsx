@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { AudioLinesIcon, PlusIcon } from 'lucide-react';
+import { AudioLinesIcon, FolderOpenIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Dialog, Input } from '@nuclearplayer/ui';
@@ -16,6 +16,7 @@ import type {
 } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function StudioEditorListView() {
   const [projects, setProjects] = useState<EditorProjectRow[]>([]);
@@ -26,6 +27,7 @@ export function StudioEditorListView() {
   const [archiveItemId, setArchiveItemId] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const reload = () => {
     void Promise.all([fetchEditorProjects(), fetchStudioArchive()]).then(
@@ -33,6 +35,7 @@ export function StudioEditorListView() {
         setProjects(p.data);
         setMeta(p.meta);
         setArchive(a.data);
+        setLoading(false);
       },
     );
   };
@@ -70,36 +73,31 @@ export function StudioEditorListView() {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/editor" />
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Audio editor
-            </h1>
-            <p className="text-foreground-secondary mt-1 text-sm">
-              Multitrack sessions (<code>/api/me/editor/projects</code>) plus
-              the pro archive editor (trim/cut → draft → render). Real vs mock
-              shown per action.
-              {meta ? ` List source: ${meta.source}.` : ''}
-            </p>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => {
-              setMessage(null);
-              setCreateOpen(true);
-            }}
-            aria-label="New session"
-            title="New session"
-          >
-            <PlusIcon size={16} aria-hidden className="mr-1.5" />
-            New
-          </Button>
-        </header>
+        <StudioPageHeader
+          title="Audio editor"
+          subtitle={`Trim and process archive tracks. Sessions keep a linked archive when you seed one.${meta?.source === 'mock' ? ' (demo data)' : ''}`}
+          action={
+            <Button
+              size="sm"
+              onClick={() => {
+                setMessage(null);
+                setCreateOpen(true);
+              }}
+              aria-label="New session"
+              title="New session"
+            >
+              <PlusIcon size={16} aria-hidden className="mr-1.5" />
+              New
+            </Button>
+          }
+        />
 
         {message && (
-          <p className="text-foreground-secondary text-xs">{message}</p>
+          <p className="text-foreground-secondary text-xs" role="status">
+            {message}
+          </p>
         )}
 
         <Dialog.Root isOpen={createOpen} onClose={closeCreate}>
@@ -145,41 +143,49 @@ export function StudioEditorListView() {
               <Dialog.Close>Cancel</Dialog.Close>
               <Button type="submit" disabled={busy}>
                 <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                {busy ? 'Creating…' : 'Create project'}
+                {busy ? 'Creating…' : 'Create'}
               </Button>
             </Dialog.Actions>
           </form>
         </Dialog.Root>
 
-        <section className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-bold">Projects</h2>
-          {projects.length === 0 ? (
-            <div className="border-border flex flex-col items-center gap-3 rounded-lg border px-4 py-8 text-center">
+        <StudioPanel title="Projects">
+          {loading ? (
+            <p className="text-foreground-secondary text-sm">Loading…</p>
+          ) : projects.length === 0 ? (
+            <div className="flex flex-col gap-3 py-4 text-center">
               <p className="text-foreground-secondary text-sm">
                 No editor projects yet.
               </p>
-              <Button size="sm" onClick={() => setCreateOpen(true)}>
-                <PlusIcon size={16} aria-hidden className="mr-1.5" />
-                New session
-              </Button>
+              <div>
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
+                  <PlusIcon size={16} aria-hidden className="mr-1.5" />
+                  New session
+                </Button>
+              </div>
             </div>
           ) : (
-            <ul className="border-border divide-border divide-y rounded-lg border">
+            <ul className="divide-border divide-y">
               {projects.map((p) => (
                 <li
                   key={p.id}
-                  className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm"
+                  className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">{p.title}</p>
                     <p className="text-foreground-secondary text-xs">
                       Updated {new Date(p.updatedAt).toLocaleString()}
-                      {p.archiveItemId ? `, archive ${p.archiveItemId}` : ''}
+                      {p.archiveItemId ? ', linked archive' : ''}
                     </p>
                   </div>
                   <Link to="/studio/editor/$id" params={{ id: p.id }}>
-                    <Button size="sm" variant="secondary">
-                      Open
+                    <Button
+                      size="icon-sm"
+                      variant="secondary"
+                      aria-label={`Open ${p.title}`}
+                      title="Open session"
+                    >
+                      <FolderOpenIcon size={16} aria-hidden />
                     </Button>
                   </Link>
                   {p.archiveItemId && (
@@ -187,32 +193,54 @@ export function StudioEditorListView() {
                       to="/studio/archive/$id/editor"
                       params={{ id: p.archiveItemId }}
                     >
-                      <Button size="sm">Pro editor</Button>
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        aria-label="Pro editor"
+                        title="Pro editor"
+                      >
+                        <AudioLinesIcon size={16} aria-hidden />
+                      </Button>
                     </Link>
                   )}
                 </li>
               ))}
             </ul>
           )}
-        </section>
+        </StudioPanel>
 
-        <section className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-bold">
-            Open archive in pro editor
-          </h2>
-          <ul className="flex flex-wrap gap-2">
-            {archive.slice(0, 8).map((a) => (
-              <li key={a.id}>
-                <Link to="/studio/archive/$id/editor" params={{ id: a.id }}>
-                  <Button size="sm" variant="text">
-                    <AudioLinesIcon size={14} aria-hidden className="mr-1" />
-                    {a.title}
-                  </Button>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <StudioPanel
+          title="Open archive in pro editor"
+          description="Jump straight into trim and render for a library track."
+        >
+          {archive.length === 0 ? (
+            <p className="text-foreground-secondary text-sm">
+              Upload a track in Library first.
+            </p>
+          ) : (
+            <ul className="flex flex-wrap gap-2">
+              {archive.slice(0, 8).map((a) => (
+                <li key={a.id}>
+                  <Link to="/studio/archive/$id/editor" params={{ id: a.id }}>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      aria-label={`Edit ${a.title}`}
+                      title={a.title}
+                    >
+                      <AudioLinesIcon
+                        size={14}
+                        aria-hidden
+                        className="mr-1.5"
+                      />
+                      <span className="max-w-[10rem] truncate">{a.title}</span>
+                    </Button>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </StudioPanel>
       </div>
     </StudioGate>
   );

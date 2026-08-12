@@ -1,3 +1,5 @@
+import { Link } from '@tanstack/react-router';
+import { CalendarClockIcon, RadioIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -12,6 +14,7 @@ import {
 } from '../../api/studio-extras';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 function toLocalInput(iso: string | null): string {
   if (!iso) {
@@ -41,9 +44,9 @@ export function StudioScheduleView() {
   const [programme, setProgramme] = useState<ProgrammeView | null>(null);
   const [when, setWhen] = useState('');
   const [note, setNote] = useState('');
-  const [source, setSource] = useState('…');
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     void Promise.all([fetchChannelSchedule(), fetchProgramme()]).then(
@@ -52,7 +55,7 @@ export function StudioScheduleView() {
         setWhen(toLocalInput(s.data.nextBroadcastAt));
         setNote(s.data.nextBroadcastNote ?? '');
         setProgramme(p.data);
-        setSource(`${s.meta.source}/${p.meta.source}`);
+        setLoading(false);
       },
     );
   }, []);
@@ -99,112 +102,147 @@ export function StudioScheduleView() {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/schedule" />
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            Schedule
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Next broadcast + offline programme (fallback rotation). Source:{' '}
-            {source}.
+        <StudioPageHeader
+          title="Schedule"
+          subtitle="Plan your next broadcast and control what plays when you are offline."
+          action={
+            <Button
+              size="sm"
+              disabled={busy || loading}
+              onClick={() => void saveSchedule()}
+              aria-label="Save schedule"
+              title="Save schedule"
+            >
+              <CalendarClockIcon size={16} aria-hidden className="mr-1.5" />
+              {busy ? 'Saving…' : 'Save'}
+            </Button>
+          }
+        />
+
+        {msg && (
+          <p className="text-foreground-secondary text-sm" role="status">
+            {msg}
           </p>
-        </div>
+        )}
 
-        <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
-          <h2 className="font-display text-lg font-bold">
-            Next planned broadcast
-          </h2>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-foreground-secondary text-xs uppercase">
-              When (local)
-            </span>
-            <input
-              type="datetime-local"
-              value={when}
-              onChange={(e) => setWhen(e.target.value)}
-              className="border-border bg-background rounded-md border px-3 py-2"
+        <StudioPanel
+          title="Next planned broadcast"
+          description="Shown on your channel when the next live session is set."
+        >
+          <div className="flex flex-col gap-3">
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-foreground-secondary text-xs uppercase">
+                When (local time)
+              </span>
+              <input
+                type="datetime-local"
+                value={when}
+                onChange={(e) => setWhen(e.target.value)}
+                className="border-border bg-background rounded-md border px-3 py-2"
+              />
+            </label>
+            <Input
+              label="Note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="e.g. Friday deep set"
             />
-          </label>
-          <Input
-            label="Note"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="e.g. Friday deep set"
-          />
-          <Button size="sm" disabled={busy} onClick={() => void saveSchedule()}>
-            {busy ? 'Saving…' : 'Save schedule'}
-          </Button>
-          {schedule?.nextBroadcastAt && (
-            <p className="text-foreground-secondary text-xs">
-              Stored: {new Date(schedule.nextBroadcastAt).toLocaleString()}
-            </p>
-          )}
-        </section>
+            {schedule?.nextBroadcastAt && (
+              <p className="text-foreground-secondary text-xs">
+                Stored as {new Date(schedule.nextBroadcastAt).toLocaleString()}
+              </p>
+            )}
+          </div>
+        </StudioPanel>
 
-        <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
-          <h2 className="font-display text-lg font-bold">Offline programme</h2>
-          {!programme ? (
+        <StudioPanel
+          title="Offline programme"
+          description="Fallback rotation when you are not live."
+          action={
+            <Link to="/studio/channel">
+              <Button
+                size="icon-sm"
+                variant="text"
+                aria-label="Open channel 24/7 radio"
+                title="24/7 radio playlist"
+              >
+                <RadioIcon size={16} aria-hidden />
+              </Button>
+            </Link>
+          }
+        >
+          {loading || !programme ? (
             <p className="text-foreground-secondary text-sm">Loading…</p>
           ) : (
-            <>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  variant={
-                    programme.fallbackMode === 'shuffle'
-                      ? 'default'
-                      : 'secondary'
-                  }
-                  onClick={() => void setMode('shuffle')}
-                >
-                  Shuffle
-                </Button>
-                <Button
-                  size="sm"
-                  variant={
-                    programme.fallbackMode === 'ordered'
-                      ? 'default'
-                      : 'secondary'
-                  }
-                  onClick={() => void setMode('ordered')}
-                >
-                  Ordered
-                </Button>
+            <div className="flex flex-col gap-4">
+              <div
+                className="border-border flex flex-wrap gap-1 rounded-lg border p-1"
+                role="group"
+                aria-label="Playback mode"
+              >
+                {(
+                  [
+                    ['shuffle', 'Shuffle'] as const,
+                    ['ordered', 'Ordered'] as const,
+                  ] as const
+                ).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => void setMode(mode)}
+                    className={`rounded-md px-3 py-1.5 text-xs font-semibold tracking-wide uppercase ${
+                      programme.fallbackMode === mode
+                        ? 'bg-primary text-foreground'
+                        : 'text-foreground-secondary hover:text-foreground'
+                    }`}
+                    aria-pressed={programme.fallbackMode === mode}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
-              {(
-                [
-                  ['fallbackEnabled', 'Fallback enabled'] as const,
-                  ['fallbackAutoEnroll', 'Auto-enroll new archive'] as const,
-                  ['announcementsEnabled', 'Announcements'] as const,
-                ] as const
-              ).map(([key, label]) => (
-                <label key={key} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={programme[key]}
-                    onChange={() => void toggleProgramme(key)}
-                  />
-                  {label}
-                </label>
-              ))}
+
+              <div className="flex flex-col gap-2">
+                {(
+                  [
+                    ['fallbackEnabled', 'Fallback enabled'] as const,
+                    ['fallbackAutoEnroll', 'Auto-enroll new archive'] as const,
+                    ['announcementsEnabled', 'Announcements'] as const,
+                  ] as const
+                ).map(([key, label]) => (
+                  <label key={key} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={programme[key]}
+                      onChange={() => void toggleProgramme(key)}
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+
               <div>
                 <p className="text-foreground-secondary mb-2 text-xs uppercase">
                   Rotation ({programme.items.length})
                 </p>
                 {programme.items.length === 0 ? (
                   <p className="text-foreground-secondary text-sm">
-                    No programme items yet.
+                    No programme items yet. Build a playlist in Channel designer
+                    → 24/7 radio.
                   </p>
                 ) : (
-                  <ul className="flex flex-col gap-1">
+                  <ul className="divide-border divide-y">
                     {programme.items.map((item) => (
                       <li
                         key={item.id}
-                        className="border-border rounded border px-3 py-2 text-sm"
+                        className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm first:pt-0 last:pb-0"
                       >
-                        {item.title}
-                        <span className="text-foreground-secondary ml-2 text-xs">
+                        <span className="min-w-0 font-medium">
+                          {item.title}
+                        </span>
+                        <span className="text-foreground-secondary text-xs">
                           {item.status}
                           {item.isFallback ? ', fallback' : ''}
                         </span>
@@ -213,11 +251,9 @@ export function StudioScheduleView() {
                   </ul>
                 )}
               </div>
-            </>
+            </div>
           )}
-        </section>
-
-        {msg && <p className="text-sm">{msg}</p>}
+        </StudioPanel>
       </div>
     </StudioGate>
   );

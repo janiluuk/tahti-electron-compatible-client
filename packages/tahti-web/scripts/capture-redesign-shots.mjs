@@ -37,32 +37,28 @@ await page.evaluate(() => {
 
 const shots = [
   {
-    path: '/studio/shows',
-    out: 'studio-shows-v1.png',
-    check: (t) => t.toLowerCase().includes('shows'),
-  },
-  {
-    path: '/studio/playlists',
-    out: 'studio-playlists-v1.png',
-    check: (t) => t.toLowerCase().includes('playlist'),
-  },
-  {
-    path: '/studio/channel',
-    out: 'studio-channel-v1.png',
-    check: (t) => t.toLowerCase().includes('channel'),
-  },
-  {
-    path: '/studio/collections',
-    out: 'studio-collections-v1.png',
+    path: '/studio/schedule',
+    out: 'studio-schedule-v1.png',
     check: (t) => {
       const l = t.toLowerCase();
-      return l.includes('albums') && !l.includes('/api/me/collections');
+      return (
+        l.includes('schedule') &&
+        l.includes('next planned broadcast') &&
+        !l.includes('/api/')
+      );
     },
   },
   {
-    path: '/studio/releases',
-    out: 'studio-releases-v1.png',
-    check: (t) => t.toLowerCase().includes('releases'),
+    path: '/studio/stats',
+    out: 'studio-stats-v1.png',
+    check: (t) => {
+      const l = t.toLowerCase();
+      return (
+        l.includes('stats') &&
+        l.includes('top tracks') &&
+        !l.includes('/api/me/stats')
+      );
+    },
   },
 ];
 

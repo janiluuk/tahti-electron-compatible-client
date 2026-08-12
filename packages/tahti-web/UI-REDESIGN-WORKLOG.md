@@ -21,11 +21,11 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 7 | Release detail | `/studio/releases/$id` | **in-review** | (panels + Save CTA) |
 | 8 | Collections / album designer | `/studio/collections` | **in-review** | `docs/redesign-shots/studio-collections-v1.png` |
 | 9 | Collection editor | `/studio/collections/$slug` | **in-review** | |
-| 10 | Audio editor list | `/studio/editor` | pending | |
-| 11 | Editor project | `/studio/editor/$id` | pending | |
-| 12 | Schedule | `/studio/schedule` | pending | |
-| 13 | Stats | `/studio/stats` | pending | |
-| 14 | Stats detail | `/studio/stats/detail` | pending | |
+| 10 | Audio editor list | `/studio/editor` | **in-review** | (panels + icon row actions) |
+| 11 | Editor project | `/studio/editor/$id` | **in-review** | |
+| 12 | Schedule | `/studio/schedule` | **in-review** | `docs/redesign-shots/studio-schedule-v1.png` |
+| 13 | Stats | `/studio/stats` | **in-review** | `docs/redesign-shots/studio-stats-v1.png` |
+| 14 | Stats detail | `/studio/stats/detail` | **in-review** | (panels + range chips) |
 | 15 | Channel designer | `/studio/channel` | **in-review** | `docs/redesign-shots/studio-channel-v1.png` |
 | 16 | Shows | `/studio/shows` | **in-review** | `docs/redesign-shots/studio-shows-v1.png` |
 | 17 | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **in-review** | |
@@ -213,6 +213,39 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 **Settings:** Dropped “Full media builder” and “Manage on production” moderator link-outs.
 
 **Screenshots:** `studio-shows-v1`, `studio-playlists-v1`, `studio-channel-v1`, `studio-collections-v1` (+ releases refresh).
+
+**Status:** in-review — awaiting comment or `approved`.
+
+### 2026-08-12 — Schedule + Stats (+ Editor panel parity)
+
+**Goal:** Next pending studio tools with Nuclear panel depth; icon-dense secondary chrome.
+
+**Schedule (`/studio/schedule`):**
+
+- StudioPageHeader + Save CTA; human subtitle (no API source jargon)
+- Next broadcast + Offline programme as StudioPanels
+- Mode chips; quiet link to Channel 24/7 radio
+- Empty rotation points to Channel designer
+
+**Stats (`/studio/stats` + detail):**
+
+- Summary metric panels; Top tracks / countries lists
+- Detail CTA → plays chart; track titles link into Library
+- Revenue note is in-app (`/studio/revenue`), not a prod escape hatch
+- Detail: StudioPageHeader + range chips; drop API path jargon / middle-dot meta
+
+**Editor list / project (also pending; brought to same shell):**
+
+- StudioPageHeader / StudioPanel; icon-only Open / Pro editor row actions
+- Project page: Pro editor primary CTA; archive link into Library
+
+**UX / icons (studio sweep):**
+
+- Library: Play / More / Pin / Audio editor / Delete → icon-only with aria-label
+- Albums tracklist: Up / Down / Remove → chevron / trash icons
+- Releases More: Public link / Distribution → icons; release detail secondary same
+
+**Screenshots:** `studio-schedule-v1.png`, `studio-stats-v1.png`
 
 **Status:** in-review — awaiting comment or `approved`.
 

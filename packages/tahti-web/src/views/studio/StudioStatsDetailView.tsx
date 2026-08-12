@@ -8,6 +8,7 @@ import {
 } from '../../api/studio-extras';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 const RANGES: StatsPlaysRange[] = ['7', '30', 'all'];
 
@@ -19,7 +20,7 @@ function formatAxisDate(iso: string): string {
 export function StudioStatsDetailView() {
   const [range, setRange] = useState<StatsPlaysRange>('30');
   const [data, setData] = useState<StatsPlays | null>(null);
-  const [source, setSource] = useState('…');
+  const [isDemo, setIsDemo] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export function StudioStatsDetailView() {
         return;
       }
       setData(r.data);
-      setSource(r.meta.source);
+      setIsDemo(r.meta.source === 'mock');
       setLoading(false);
     });
     return () => {
@@ -48,63 +49,60 @@ export function StudioStatsDetailView() {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/stats" />
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-foreground-secondary mb-1 text-xs">
-              <Link
-                to="/studio/stats"
-                className="underline-offset-2 hover:underline"
-              >
-                ← Stats
-              </Link>
-            </p>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Plays & listeners
-            </h1>
-            <p className="text-foreground-secondary mt-1 text-sm">
-              Daily series from <code>/api/me/stats/plays</code>. Source:{' '}
-              {source}.
-            </p>
-          </div>
-          <div
-            className="border-border flex gap-1 rounded-lg border p-1"
-            role="group"
-            aria-label="Plays time range"
+        <p className="text-foreground-secondary -mb-2 text-xs">
+          <Link
+            to="/studio/stats"
+            className="underline-offset-2 hover:underline"
           >
-            {RANGES.map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRange(r)}
-                className={`rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide uppercase ${
-                  range === r
-                    ? 'bg-primary text-foreground'
-                    : 'text-foreground-secondary hover:text-foreground'
-                }`}
-              >
-                {r === 'all' ? 'All' : `${r}d`}
-              </button>
-            ))}
-          </div>
-        </div>
+            ← Stats
+          </Link>
+        </p>
+        <StudioPageHeader
+          title="Plays & listeners"
+          subtitle={`Daily plays for the selected range.${isDemo ? ' (demo data)' : ''}`}
+          action={
+            <div
+              className="border-border flex gap-1 rounded-lg border p-1"
+              role="group"
+              aria-label="Plays time range"
+            >
+              {RANGES.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setRange(r)}
+                  className={`rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide uppercase ${
+                    range === r
+                      ? 'bg-primary text-foreground'
+                      : 'text-foreground-secondary hover:text-foreground'
+                  }`}
+                >
+                  {r === 'all' ? 'All' : `${r}d`}
+                </button>
+              ))}
+            </div>
+          }
+        />
 
         {loading || !data ? (
-          <p className="text-foreground-secondary text-sm">Loading plays…</p>
+          <StudioPanel>
+            <p className="text-foreground-secondary text-sm">Loading plays…</p>
+          </StudioPanel>
         ) : (
           <>
-            <section className="border-border rounded-xl border p-4">
+            <StudioPanel>
               <div className="text-foreground-secondary text-xs tracking-wide uppercase">
                 Plays — last {label}
               </div>
-              <p className="font-display mt-1 text-3xl font-bold">
+              <p className="font-display mt-1 text-3xl font-bold tracking-tight">
                 {data.totalPlays.toLocaleString()}
               </p>
               <p className="text-foreground-secondary mt-1 text-xs">
                 {data.totalDownloads.toLocaleString()} downloads
                 {data.totalSmartLinkClicks != null
-                  ? ` · ${data.totalSmartLinkClicks.toLocaleString()} smart-link clicks`
+                  ? `, ${data.totalSmartLinkClicks.toLocaleString()} smart-link clicks`
                   : ''}
               </p>
 
@@ -150,37 +148,34 @@ export function StudioStatsDetailView() {
                   </span>
                 </div>
               )}
-            </section>
+            </StudioPanel>
 
-            <section className="flex flex-col gap-2">
-              <h2 className="font-display text-lg font-bold">
-                Download countries
-              </h2>
+            <StudioPanel title="Download countries">
               {(data.downloadCountries ?? []).length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
                   No geo breakdown in this response.
                 </p>
               ) : (
-                <ul className="flex flex-col gap-1">
+                <ul className="divide-border divide-y">
                   {(data.downloadCountries ?? []).map((c) => (
                     <li
                       key={c.countryCode}
-                      className="border-border flex justify-between gap-2 rounded border px-3 py-2 text-sm"
+                      className="flex justify-between gap-3 py-2.5 text-sm first:pt-0 last:pb-0"
                     >
-                      <span>
+                      <span className="font-medium">
                         {c.displayName}{' '}
-                        <span className="text-foreground-secondary">
+                        <span className="text-foreground-secondary font-normal">
                           ({c.countryCode})
                         </span>
                       </span>
-                      <span className="text-foreground-secondary">
-                        {c.count}
+                      <span className="text-foreground-secondary tabular-nums">
+                        {c.count.toLocaleString()}
                       </span>
                     </li>
                   ))}
                 </ul>
               )}
-            </section>
+            </StudioPanel>
           </>
         )}
       </div>
