@@ -1,0 +1,42 @@
+{
+  "name": "@nuclearplayer/tahti-web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "POC: Tahti listen experience on Nuclear UI — eventual production web listen client",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "clean": "rm -rf dist .turbo node_modules/.vite",
+    "deploy:vimage": "./deploy/deploy-vimage.sh"
+  },
+  "dependencies": {
+    "@nuclearplayer/model": "workspace:*",
+    "@nuclearplayer/tailwind-config": "workspace:*",
+    "@nuclearplayer/themes": "workspace:*",
+    "@nuclearplayer/ui": "workspace:*",
+    "@tanstack/react-router": "^1.131.2",
+    "hls.js": "^1.5.15",
+    "lucide-react": "^0.542.0",
+    "motion": "^12.23.12",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sonner": "^2.0.7",
+    "zustand": "^5.0.7"
+  },
+  "devDependencies": {
+    "@nuclearplayer/eslint-config": "workspace:*",
+    "@tailwindcss/vite": "^4.1.11",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^5.0.1",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3",
+    "vite-plugin-svgr": "^4.3.0",
+    "vitest": "^4.0.0"
+  }
+}

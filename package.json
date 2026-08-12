@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "turbo dev --filter=@nuclearplayer/player --filter=@nuclearplayer/ui",
     "dev:remote": "VITE_HOST=0.0.0.0 turbo dev --filter=@nuclearplayer/player --filter=@nuclearplayer/ui",
+    "dev:tahti": "pnpm --filter @nuclearplayer/tahti-web dev",
+    "deploy:tahti-beta": "pnpm --filter @nuclearplayer/tahti-web run deploy:vimage",
     "build": "turbo build",
     "lint": "turbo lint",
     "lint:fix": "turbo lint:fix",

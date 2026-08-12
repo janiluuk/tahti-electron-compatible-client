@@ -11,6 +11,9 @@ coverage
 test-results
 .DS_Store
 
+# Local Tahti fit planning (not part of upstream Nuclear)
+tahti-fit/
+
 flatpak/pnpm-sources.json
 flatpak/cargo-sources.json
 flatpak/.flatpak-cargo-generator.py
