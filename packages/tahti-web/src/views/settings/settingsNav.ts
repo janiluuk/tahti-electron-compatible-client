@@ -1,6 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  Bell,
   Link2,
   Paintbrush,
   Palette,
@@ -17,7 +16,6 @@ export type SettingsSectionId =
   | 'channel'
   | 'broadcast'
   | 'money'
-  | 'notifications'
   | 'themes'
   | 'connections'
   | 'whats-new';
@@ -33,13 +31,13 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   {
     id: 'account',
     label: 'Account',
-    description: 'Session, membership, security',
+    description: 'Session, security, membership, notifications',
     Icon: User,
   },
   {
     id: 'artist',
     label: 'Artist',
-    description: 'Profile, members, press kit',
+    description: 'Profile, social links, members, press kit',
     Icon: UserCircle2,
   },
   {
@@ -61,12 +59,6 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     Icon: Wallet,
   },
   {
-    id: 'notifications',
-    label: 'Notifications',
-    description: 'Email & alerts',
-    Icon: Bell,
-  },
-  {
     id: 'themes',
     label: 'Themes',
     description: 'App appearance',
@@ -75,7 +67,7 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   {
     id: 'connections',
     label: 'Connections',
-    description: 'Social + import sources',
+    description: 'Import sources',
     Icon: Link2,
   },
   {
