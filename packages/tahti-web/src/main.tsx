@@ -9,8 +9,6 @@ import '@nuclearplayer/ui';
 import { router } from './router';
 import { useThemeStore } from './stores/themeStore';
 
-import './styles.css';
-
 useThemeStore.getState().init();
 
 const el = document.getElementById('root');
