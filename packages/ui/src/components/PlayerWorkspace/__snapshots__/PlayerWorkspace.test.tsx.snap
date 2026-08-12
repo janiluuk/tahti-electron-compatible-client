@@ -11,25 +11,28 @@ exports[`PlayerWorkspace > (Snapshot) both sidebars collapsed 1`] = `
       transition="[object Object]"
     >
       <span
-        class="mb-4 flex flex-row items-center justify-end"
+        class="flex flex-row items-center mb-1 justify-center px-0.5 pt-1"
       >
         <button
-          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center top-2 px-2 right-1"
+          aria-label="Expand panel"
+          aria-pressed="false"
+          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 bg-transparent justify-center size-7 transition-all text-foreground-secondary opacity-45 hover:opacity-100"
           data-headlessui-state=""
           data-testid="sidebar-toggle-left"
+          title="Expand panel"
           type="button"
         >
           <svg
             aria-hidden="true"
             class="lucide lucide-panel-left"
             fill="none"
-            height="24"
+            height="14"
             stroke="currentColor"
             stroke-linecap="round"
             stroke-linejoin="round"
-            stroke-width="2"
+            stroke-width="1.75"
             viewBox="0 0 24 24"
-            width="24"
+            width="14"
             xmlns="http://www.w3.org/2000/svg"
           >
             <rect
@@ -59,25 +62,28 @@ exports[`PlayerWorkspace > (Snapshot) both sidebars collapsed 1`] = `
       transition="[object Object]"
     >
       <span
-        class="mb-4 flex flex-row items-center justify-start"
+        class="flex flex-row items-center mb-1 justify-center px-0.5 pt-1"
       >
         <button
-          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center top-2 px-2 left-1 mx-1 mt-2"
+          aria-label="Expand panel"
+          aria-pressed="false"
+          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 bg-transparent justify-center size-7 transition-all text-foreground-secondary opacity-45 hover:opacity-100"
           data-headlessui-state=""
           data-testid="sidebar-toggle-right"
+          title="Expand panel"
           type="button"
         >
           <svg
             aria-hidden="true"
             class="lucide lucide-panel-right"
             fill="none"
-            height="24"
+            height="14"
             stroke="currentColor"
             stroke-linecap="round"
             stroke-linejoin="round"
-            stroke-width="2"
+            stroke-width="1.75"
             viewBox="0 0 24 24"
-            width="24"
+            width="14"
             xmlns="http://www.w3.org/2000/svg"
           >
             <rect
@@ -112,25 +118,28 @@ exports[`PlayerWorkspace > (Snapshot) both sidebars expanded 1`] = `
       transition="[object Object]"
     >
       <span
-        class="mb-4 flex flex-row items-center justify-end"
+        class="flex flex-row items-center mb-2 justify-end"
       >
         <button
-          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center top-2 px-2 right-1"
+          aria-label="Collapse panel"
+          aria-pressed="true"
+          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
           data-headlessui-state=""
           data-testid="sidebar-toggle-left"
+          title="Collapse panel"
           type="button"
         >
           <svg
             aria-hidden="true"
             class="lucide lucide-panel-left"
             fill="none"
-            height="24"
+            height="14"
             stroke="currentColor"
             stroke-linecap="round"
             stroke-linejoin="round"
-            stroke-width="2"
+            stroke-width="2.25"
             viewBox="0 0 24 24"
-            width="24"
+            width="14"
             xmlns="http://www.w3.org/2000/svg"
           >
             <rect
@@ -163,25 +172,28 @@ exports[`PlayerWorkspace > (Snapshot) both sidebars expanded 1`] = `
       transition="[object Object]"
     >
       <span
-        class="mb-4 flex flex-row items-center justify-start"
+        class="flex flex-row items-center mb-2 justify-start"
       >
         <button
-          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center top-2 px-2 left-1"
+          aria-label="Collapse panel"
+          aria-pressed="true"
+          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
           data-headlessui-state=""
           data-testid="sidebar-toggle-right"
+          title="Collapse panel"
           type="button"
         >
           <svg
             aria-hidden="true"
             class="lucide lucide-panel-right"
             fill="none"
-            height="24"
+            height="14"
             stroke="currentColor"
             stroke-linecap="round"
             stroke-linejoin="round"
-            stroke-width="2"
+            stroke-width="2.25"
             viewBox="0 0 24 24"
-            width="24"
+            width="14"
             xmlns="http://www.w3.org/2000/svg"
           >
             <rect

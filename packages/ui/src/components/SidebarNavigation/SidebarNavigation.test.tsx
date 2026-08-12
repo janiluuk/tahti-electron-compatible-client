@@ -43,8 +43,8 @@ describe('SidebarNavigation', () => {
 
   it('hides text labels in compact mode', () => {
     renderSidebar({ isCompact: true });
-    expect(screen.getByText('Dashboard')).toHaveClass('opacity-0');
-    expect(screen.getByText('Favorites')).toHaveClass('opacity-0');
+    expect(screen.getByText('Dashboard')).toHaveClass('sr-only');
+    expect(screen.getByText('Favorites')).toHaveClass('sr-only');
   });
 
   it('shows tooltips on hover in compact mode', async () => {

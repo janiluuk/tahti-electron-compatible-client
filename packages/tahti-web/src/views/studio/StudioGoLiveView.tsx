@@ -1,8 +1,14 @@
 import { Link } from '@tanstack/react-router';
-import { CheckIcon, CopyIcon, RadioIcon } from 'lucide-react';
+import {
+  CheckIcon,
+  CopyIcon,
+  KeyRoundIcon,
+  PlusIcon,
+  RadioIcon,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
   createRtmpTarget,
@@ -599,24 +605,57 @@ export function StudioGoLiveView() {
               </ul>
             )}
 
-            {!showAddDest ? (
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setShowAddDest(true)}
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setShowAddDest(true)}
+            >
+              <PlusIcon size={16} aria-hidden className="mr-1.5" />
+              Add destination
+            </Button>
+
+            <Dialog.Root
+              isOpen={showAddDest}
+              onClose={() => {
+                setShowAddDest(false);
+                setNewKey('');
+                setNewLabel('');
+              }}
+            >
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!newKey.trim()) {
+                    return;
+                  }
+                  void createRtmpTarget({
+                    provider: newProvider,
+                    streamKey: newKey.trim(),
+                    label: newLabel.trim() || undefined,
+                    enabled: true,
+                  }).then((r) => {
+                    if (!r.ok) {
+                      setMsg(r.error);
+                    } else {
+                      setNewKey('');
+                      setNewLabel('');
+                      setShowAddDest(false);
+                      void reload();
+                    }
+                  });
+                }}
               >
-                Add destination
-              </Button>
-            ) : (
-              <section className="border-border rounded-xl border p-4">
-                <h2 className="font-display text-lg font-bold">
-                  Add destination
-                </h2>
-                <div className="mt-3 flex flex-col gap-2">
+                <Dialog.Title>
+                  <span className="inline-flex items-center gap-2">
+                    <RadioIcon size={18} aria-hidden />
+                    Add destination
+                  </span>
+                </Dialog.Title>
+                <div className="mt-4 flex flex-col gap-3">
                   <label className="text-foreground-secondary text-xs uppercase">
                     Provider
                     <select
-                      className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
+                      className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm normal-case"
                       value={newProvider}
                       onChange={(e) => setNewProvider(e.target.value)}
                     >
@@ -631,56 +670,36 @@ export function StudioGoLiveView() {
                   </label>
                   <label className="text-foreground-secondary text-xs uppercase">
                     Stream key
-                    <input
-                      className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
-                      value={newKey}
-                      onChange={(e) => setNewKey(e.target.value)}
-                      placeholder="Paste platform stream key"
-                    />
+                    <span className="relative mt-1 block">
+                      <KeyRoundIcon
+                        size={14}
+                        aria-hidden
+                        className="text-foreground-secondary pointer-events-none absolute top-1/2 left-2 -translate-y-1/2"
+                      />
+                      <input
+                        className="border-border bg-background text-foreground w-full rounded border py-1.5 pr-2 pl-8 text-sm normal-case"
+                        value={newKey}
+                        onChange={(e) => setNewKey(e.target.value)}
+                        placeholder="Paste platform stream key"
+                        autoFocus
+                      />
+                    </span>
                   </label>
-                  <label className="text-foreground-secondary text-xs uppercase">
-                    Label (optional)
-                    <input
-                      className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
-                      value={newLabel}
-                      onChange={(e) => setNewLabel(e.target.value)}
-                    />
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      disabled={!newKey.trim()}
-                      onClick={() => {
-                        void createRtmpTarget({
-                          provider: newProvider,
-                          streamKey: newKey.trim(),
-                          label: newLabel.trim() || undefined,
-                          enabled: true,
-                        }).then((r) => {
-                          if (!r.ok) {
-                            setMsg(r.error);
-                          } else {
-                            setNewKey('');
-                            setNewLabel('');
-                            setShowAddDest(false);
-                            void reload();
-                          }
-                        });
-                      }}
-                    >
-                      Save destination
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="text"
-                      onClick={() => setShowAddDest(false)}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
+                  <Input
+                    label="Label (optional)"
+                    value={newLabel}
+                    onChange={(e) => setNewLabel(e.target.value)}
+                  />
                 </div>
-              </section>
-            )}
+                <Dialog.Actions>
+                  <Dialog.Close>Cancel</Dialog.Close>
+                  <Button type="submit" disabled={!newKey.trim()}>
+                    <PlusIcon size={16} aria-hidden className="mr-1.5" />
+                    Save destination
+                  </Button>
+                </Dialog.Actions>
+              </form>
+            </Dialog.Root>
 
             <div className="flex flex-wrap gap-2">
               <Button

@@ -9,6 +9,7 @@ import {
   type FetchMeta,
 } from '../api/client';
 import type { FanTiersResponse } from '../api/types';
+import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
 function formatEur(cents: number) {
@@ -81,13 +82,21 @@ export function SubscribeView({ username }: { username: string }) {
       {!user && (
         <p className="border-border bg-background-secondary rounded-lg border px-3 py-2 text-sm">
           Sign in to start Stripe Checkout.{' '}
-          <Link to="/login" className="underline-offset-2 hover:underline">
+          <button
+            type="button"
+            className="underline-offset-2 hover:underline"
+            onClick={() => useAuthModalStore.getState().open('login')}
+          >
             Login
-          </Link>{' '}
+          </button>{' '}
           or{' '}
-          <Link to="/join" className="underline-offset-2 hover:underline">
+          <button
+            type="button"
+            className="underline-offset-2 hover:underline"
+            onClick={() => useAuthModalStore.getState().open('join')}
+          >
             Join
-          </Link>
+          </button>
           . Tier cards still load anonymously.
         </p>
       )}

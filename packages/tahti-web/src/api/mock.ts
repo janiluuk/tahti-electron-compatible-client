@@ -44,12 +44,7 @@ const MOCK_DIRECTORY: ChannelDirectoryResponse = {
       avatarUrl: null,
       genres: ['electronic'],
     },
-    {
-      slug: TAHTI_RADIO_SLUG,
-      displayName: 'Tahti Radio',
-      avatarUrl: null,
-      genres: ['radio'],
-    },
+    // tahti-radio is featured via fetchRadioStation on Listen — not listed here.
   ],
 };
 
@@ -58,13 +53,13 @@ export function mockDirectory(): ChannelDirectoryResponse {
 }
 
 export function mockChannel(slug: string): PublicChannel {
+  const isRadio = slug === TAHTI_RADIO_SLUG;
   const item = MOCK_DIRECTORY.items.find((c) => c.slug === slug) ?? {
     slug,
-    displayName: slug,
+    displayName: isRadio ? 'Tahti Radio' : slug,
     avatarUrl: null,
-    genres: [],
+    genres: isRadio ? ['radio'] : [],
   };
-  const isRadio = slug === TAHTI_RADIO_SLUG;
   return {
     slug: item.slug,
     state: 'LIVE',

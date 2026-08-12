@@ -170,6 +170,12 @@ export async function fetchProgramme(): Promise<{
   }
 }
 
+export type ProgrammeItemPatch = {
+  archiveItemId: string;
+  isFallback: boolean;
+  fallbackOrder?: number;
+};
+
 export async function patchProgramme(
   patch: Partial<
     Pick<
@@ -179,10 +185,23 @@ export async function patchProgramme(
       | 'fallbackAutoEnroll'
       | 'announcementsEnabled'
     >
-  >,
+  > & { items?: ProgrammeItemPatch[] },
 ): Promise<{ ok: true; data: ProgrammeView } | { ok: false; error: string }> {
   if (forceMock()) {
-    mockProgramme = { ...mockProgramme, ...patch };
+    mockProgramme = {
+      ...mockProgramme,
+      ...patch,
+      items: patch.items
+        ? patch.items.map((i, idx) => ({
+            id: i.archiveItemId,
+            title: `Rotation ${idx + 1}`,
+            status: 'READY',
+            durationSec: null,
+            isFallback: i.isFallback,
+            fallbackOrder: i.fallbackOrder ?? idx,
+          }))
+        : mockProgramme.items,
+    };
     return {
       ok: true,
       data: { ...mockProgramme, items: [...mockProgramme.items] },
@@ -203,6 +222,29 @@ export async function patchProgramme(
       error: err instanceof Error ? err.message : 'Save failed',
     };
   }
+}
+
+/** Cap matches prod MAX_FALLBACK_ITEMS — keep 24/7 playlist picks tractable. */
+export const MAX_RADIO_PLAYLIST_ITEMS = 5;
+
+/** Apply a playlist's archive tracks as the channel 24/7 rotation. */
+export async function applyPlaylistToProgramme(
+  archiveItemIds: string[],
+  opts?: { enable?: boolean; mode?: 'shuffle' | 'ordered' },
+): Promise<{ ok: true; data: ProgrammeView } | { ok: false; error: string }> {
+  const ids = archiveItemIds.filter(Boolean).slice(0, MAX_RADIO_PLAYLIST_ITEMS);
+  if (ids.length === 0) {
+    return { ok: false, error: 'Playlist has no archive tracks to rotate' };
+  }
+  return patchProgramme({
+    fallbackEnabled: opts?.enable ?? true,
+    fallbackMode: opts?.mode ?? 'ordered',
+    items: ids.map((archiveItemId, fallbackOrder) => ({
+      archiveItemId,
+      isFallback: true,
+      fallbackOrder,
+    })),
+  });
 }
 
 // ── Stats ───────────────────────────────────────────────────────────────────

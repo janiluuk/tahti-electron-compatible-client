@@ -9,20 +9,27 @@ import {
   CardGrid,
   FilterChips,
   Input,
+  SectionShell,
 } from '@nuclearplayer/ui';
 
 import {
   fetchChannel,
   fetchDirectory,
   fetchRadioStation,
+  TAHTI_RADIO_SLUG,
   type FetchMeta,
 } from '../api/client';
 import type { ChannelDirectoryItem, PublicChannel } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
+
+const LIBRARY_PREVIEW_CHANNELS = 8;
+const LIBRARY_PREVIEW_TRACKS = 6;
+const LIBRARY_PREVIEW_HISTORY = 5;
 
 export function ListenView() {
   const navigate = useNavigate();
@@ -36,7 +43,11 @@ export function ListenView() {
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const isFavoriteChannel = useLibraryStore((s) => s.isFavoriteChannel);
+  const favoriteChannels = useLibraryStore((s) => s.favoriteChannels);
+  const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
+  const history = useLibraryStore((s) => s.history);
   const user = useAuthStore((s) => s.user);
+  const signedIn = Boolean(user);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,7 +59,9 @@ export function ListenView() {
       if (cancelled) {
         return;
       }
-      setItems(dir.data.items);
+      // Featured radio slot owns tahti-radio — drop it from the grid so it
+      // does not appear twice (directory card often lacks the station logo).
+      setItems(dir.data.items.filter((ch) => ch.slug !== TAHTI_RADIO_SLUG));
       setMeta(dir.meta);
       setRadio(station?.data ?? null);
       setLoading(false);
@@ -116,11 +129,27 @@ export function ListenView() {
     [genres, items.length],
   );
 
+  const radioLogo =
+    radio?.user.avatarUrl ?? radio?.nowPlaying?.artworkUrl ?? null;
+  const radioName = radio?.user.displayName ?? 'Tahti Radio';
+
+  const libraryChannels = favoriteChannels.slice(0, LIBRARY_PREVIEW_CHANNELS);
+  const libraryTracks = favoriteTracks.slice(0, LIBRARY_PREVIEW_TRACKS);
+  const recentHistory = history.slice(0, LIBRARY_PREVIEW_HISTORY);
+  const hasLibraryContent =
+    libraryChannels.length > 0 ||
+    libraryTracks.length > 0 ||
+    recentHistory.length > 0;
+
   return (
     <PageFrame>
       <PageHeader
         title="Listen"
-        subtitle="Tahti channels on Nuclear chrome. Anonymous by default — no account to tune in."
+        subtitle={
+          signedIn
+            ? 'Your library up top — then discover community channels.'
+            : 'Discover Tahti channels. Sign in to see your library here.'
+        }
         meta={
           meta
             ? `Data source: ${meta.source}${meta.reason ? ` (${meta.reason})` : ''}`
@@ -135,19 +164,153 @@ export function ListenView() {
         }
       />
 
+      {signedIn ? (
+        <section className="mb-6 flex w-full flex-col gap-3">
+          <div className="flex w-full flex-wrap items-center justify-between gap-2">
+            <h2 className="text-2xl font-bold">My Library</h2>
+            <Link to="/library">
+              <Button size="sm" variant="secondary">
+                Open library
+              </Button>
+            </Link>
+          </div>
+          {!hasLibraryContent ? (
+            <PageEmpty
+              title="Nothing saved yet"
+              description="Heart channels while browsing, or open Library for favorites, history, and messages."
+              action={
+                <Link to="/library">
+                  <Button size="sm" variant="secondary">
+                    My Library
+                  </Button>
+                </Link>
+              }
+            />
+          ) : (
+            <div className="flex flex-col gap-5">
+              {libraryChannels.length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                      Favorite channels
+                    </h3>
+                    {favoriteChannels.length > LIBRARY_PREVIEW_CHANNELS ? (
+                      <Link
+                        to="/library"
+                        className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+                      >
+                        +{favoriteChannels.length - LIBRARY_PREVIEW_CHANNELS}{' '}
+                        more
+                      </Link>
+                    ) : null}
+                  </div>
+                  <CardGrid>
+                    {libraryChannels.map((ch) => (
+                      <Card
+                        key={ch.slug}
+                        title={
+                          <Link
+                            to="/channel/$slug"
+                            params={{ slug: ch.slug }}
+                            className="hover:underline"
+                          >
+                            {ch.displayName}
+                          </Link>
+                        }
+                        subtitle={ch.slug}
+                        src={ch.avatarUrl ?? undefined}
+                        onPlay={() => void playNow(ch.slug)}
+                        onQueue={() => void add(ch.slug)}
+                        favorited
+                        onFavorite={() => toggleFavoriteChannel(ch)}
+                        onClick={() => {
+                          void navigate({
+                            to: '/channel/$slug',
+                            params: { slug: ch.slug },
+                          });
+                        }}
+                      />
+                    ))}
+                  </CardGrid>
+                </div>
+              ) : null}
+
+              {libraryTracks.length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                    Favorite tracks
+                  </h3>
+                  <PlayableTrackTable
+                    items={libraryTracks}
+                    emptyMessage="No favorite tracks."
+                  />
+                </div>
+              ) : null}
+
+              {recentHistory.length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
+                      Recently played
+                    </h3>
+                    <Link
+                      to="/library/history"
+                      className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+                    >
+                      Full history
+                    </Link>
+                  </div>
+                  <ul className="border-border divide-border divide-y overflow-hidden rounded-lg border">
+                    {recentHistory.map((entry) => (
+                      <li
+                        key={`${entry.playable.id}-${entry.playedAt}`}
+                        className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm"
+                      >
+                        <div className="min-w-0">
+                          <div className="truncate font-medium">
+                            {entry.playable.title}
+                          </div>
+                          <div className="text-foreground-secondary truncate text-xs">
+                            {entry.playable.artist ?? 'Unknown'}
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => play(entry.playable)}
+                        >
+                          Play
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </section>
+      ) : null}
+
       {radio ? (
         <Box
           variant="secondary"
           className="flex flex-wrap items-center justify-between gap-3"
         >
           <div className="flex min-w-0 items-start gap-3">
-            <RadioIcon
-              size={20}
-              className="text-foreground-secondary mt-0.5 shrink-0"
-            />
+            <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg text-sm font-bold tracking-tight">
+              {radioLogo ? (
+                <img
+                  src={radioLogo}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              ) : (
+                <RadioIcon size={20} className="text-foreground-secondary" />
+              )}
+            </div>
             <div className="min-w-0">
               <div className="text-sm font-bold tracking-tight">
-                Tahti Radio
+                {radioName}
               </div>
               <p className="text-foreground-secondary text-xs">
                 {radio.hlsUrl
@@ -184,68 +347,79 @@ export function ListenView() {
         </Box>
       ) : null}
 
-      <Input
-        label="Search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Channel name, slug, genre…"
-        className="max-w-md"
-      />
+      <SectionShell title={signedIn ? 'Discover' : 'Channels'}>
+        <div className="flex flex-col gap-4">
+          <Input
+            label="Search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Channel name, slug, genre…"
+            className="max-w-md"
+          />
 
-      {genres.length > 0 && (
-        <FilterChips items={chipItems} selected={genre} onChange={setGenre} />
-      )}
+          {genres.length > 0 && (
+            <FilterChips
+              items={chipItems}
+              selected={genre}
+              onChange={setGenre}
+            />
+          )}
 
-      <p className="text-foreground-secondary text-xs">
-        Showing {filtered.length} of {items.length} channels
-      </p>
+          <p className="text-foreground-secondary text-xs">
+            Showing {filtered.length} of {items.length} channels
+          </p>
 
-      {loading ? (
-        <PageLoading label="Loading channels…" />
-      ) : filtered.length === 0 ? (
-        <PageEmpty
-          title="No channels match"
-          description={`${query ? `“${query}”` : 'Try another filter'}${genre !== 'all' ? ` in ${genre}` : ''}.`}
-        />
-      ) : (
-        <CardGrid>
-          {filtered.map((ch) => {
-            const favorited = isFavoriteChannel(ch.slug);
-            return (
-              <Card
-                key={ch.slug}
-                title={
-                  <Link
-                    to="/channel/$slug"
-                    params={{ slug: ch.slug }}
-                    className="hover:underline"
-                  >
-                    {ch.displayName}
-                  </Link>
-                }
-                subtitle={ch.genres.slice(0, 2).join(', ') || ch.slug}
-                src={ch.avatarUrl ?? undefined}
-                onPlay={() => void playNow(ch.slug)}
-                onQueue={() => void add(ch.slug)}
-                onFavorite={() =>
-                  toggleFavoriteChannel({
-                    slug: ch.slug,
-                    displayName: ch.displayName,
-                    avatarUrl: ch.avatarUrl,
-                  })
-                }
-                favorited={favorited}
-                onClick={() => {
-                  void navigate({
-                    to: '/channel/$slug',
-                    params: { slug: ch.slug },
-                  });
-                }}
-              />
-            );
-          })}
-        </CardGrid>
-      )}
+          {loading ? (
+            <PageLoading label="Loading channels…" />
+          ) : filtered.length === 0 ? (
+            <PageEmpty
+              title="No channels match"
+              description={`${query ? `“${query}”` : 'Try another filter'}${genre !== 'all' ? ` in ${genre}` : ''}.`}
+            />
+          ) : (
+            <CardGrid>
+              {filtered.map((ch) => {
+                const favorited = signedIn && isFavoriteChannel(ch.slug);
+                return (
+                  <Card
+                    key={ch.slug}
+                    title={
+                      <Link
+                        to="/channel/$slug"
+                        params={{ slug: ch.slug }}
+                        className="hover:underline"
+                      >
+                        {ch.displayName}
+                      </Link>
+                    }
+                    subtitle={ch.genres.slice(0, 2).join(', ') || ch.slug}
+                    src={ch.avatarUrl ?? undefined}
+                    onPlay={() => void playNow(ch.slug)}
+                    onQueue={() => void add(ch.slug)}
+                    onFavorite={
+                      signedIn
+                        ? () =>
+                            toggleFavoriteChannel({
+                              slug: ch.slug,
+                              displayName: ch.displayName,
+                              avatarUrl: ch.avatarUrl,
+                            })
+                        : undefined
+                    }
+                    favorited={favorited}
+                    onClick={() => {
+                      void navigate({
+                        to: '/channel/$slug',
+                        params: { slug: ch.slug },
+                      });
+                    }}
+                  />
+                );
+              })}
+            </CardGrid>
+          )}
+        </div>
+      </SectionShell>
     </PageFrame>
   );
 }

@@ -78,6 +78,25 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   },
 ];
 
+/** Sections visible without signing in (prefs + announcements). */
+export const PUBLIC_SETTINGS_SECTION_IDS: readonly SettingsSectionId[] = [
+  'themes',
+  'whats-new',
+];
+
+export const DEFAULT_PUBLIC_SETTINGS_SECTION: SettingsSectionId = 'themes';
+
+export function isPublicSettingsSection(id: SettingsSectionId): boolean {
+  return PUBLIC_SETTINGS_SECTION_IDS.includes(id);
+}
+
+export function settingsNavForAuth(signedIn: boolean): SettingsNavItem[] {
+  if (signedIn) {
+    return SETTINGS_NAV;
+  }
+  return SETTINGS_NAV.filter((item) => isPublicSettingsSection(item.id));
+}
+
 export function isSettingsSectionId(
   value: string | undefined,
 ): value is SettingsSectionId {

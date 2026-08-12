@@ -37,7 +37,7 @@ exports[`SidebarNavigation > (Snapshot) renders flat nav items in compact mode 1
           </svg>
         </div>
         <span
-          class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-0"
+          class="sr-only"
         >
           Dashboard
         </span>
@@ -71,7 +71,7 @@ exports[`SidebarNavigation > (Snapshot) renders flat nav items in compact mode 1
           </svg>
         </div>
         <span
-          class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-0"
+          class="sr-only"
         >
           Favorites
         </span>
@@ -118,7 +118,7 @@ exports[`SidebarNavigation > (Snapshot) renders flat nav items in normal mode 1`
           </svg>
         </div>
         <span
-          class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+          class="text-sm whitespace-nowrap"
         >
           Dashboard
         </span>
@@ -152,7 +152,7 @@ exports[`SidebarNavigation > (Snapshot) renders flat nav items in normal mode 1`
           </svg>
         </div>
         <span
-          class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+          class="text-sm whitespace-nowrap"
         >
           Favorites
         </span>

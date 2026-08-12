@@ -5,18 +5,20 @@ import { InPageNav } from './InPageNav';
 const PRIMARY = [
   { to: '/studio', label: 'Overview' },
   { to: '/studio/go-live', label: 'Go Live' },
-  { to: '/studio/archive', label: 'Music' },
-  { to: '/studio/upload', label: 'Upload' },
-  { to: '/studio/collections', label: 'Albums' },
+  { to: '/studio/archive', label: 'Library' },
+  { to: '/studio/releases', label: 'Releases' },
+  { to: '/studio/shows', label: 'Shows' },
 ] as const;
 
 const MORE = [
-  { to: '/studio/releases', label: 'Releases' },
+  { to: '/studio/playlists', label: 'Playlists' },
+  { to: '/studio/channel', label: 'Channel designer' },
+  { to: '/studio/upload', label: 'Upload' },
+  { to: '/studio/collections', label: 'Albums' },
   { to: '/studio/editor', label: 'Editor' },
   { to: '/studio/schedule', label: 'Schedule' },
   { to: '/studio/stats', label: 'Stats' },
   { to: '/studio/revenue', label: 'Revenue' },
-  { to: '/studio/channel', label: 'Channel' },
   { to: '/studio/updates', label: 'Updates' },
   { to: '/studio/stash', label: 'Stash' },
   { to: '/studio/setup-channel', label: 'Setup' },

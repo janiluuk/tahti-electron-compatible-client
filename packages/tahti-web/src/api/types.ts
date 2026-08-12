@@ -20,7 +20,7 @@ export type PublicChannel = {
   slug: string;
   state: 'LIVE' | 'OFFLINE' | string;
   hlsUrl: string | null;
-  /** When false, channel chat is off — right rail Chat tab disabled. */
+  /** When false, channel chat is off — right rail chat unavailable. */
   chatEnabled?: boolean;
   visualPreset?: string | null;
   colorSchemeJson?: string | null;

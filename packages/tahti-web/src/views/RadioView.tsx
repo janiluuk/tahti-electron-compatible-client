@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router';
-import { MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Box, Button } from '@nuclearplayer/ui';
@@ -23,7 +22,6 @@ import {
 } from '../components/MediaIconActions';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
-import { useLayoutStore } from '../stores/layoutStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
@@ -54,9 +52,6 @@ export function RadioView() {
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const isFavoriteChannel = useLibraryStore((s) => s.isFavoriteChannel);
-  const setChatContext = useLayoutStore((s) => s.setChatContext);
-  const clearChatContext = useLayoutStore((s) => s.clearChatContext);
-  const openChatRail = useLayoutStore((s) => s.openChatRail);
 
   const reload = () => {
     setLoading(true);
@@ -71,32 +66,18 @@ export function RadioView() {
       setRecent(recentRes.data);
       setRecentMeta(recentRes.meta);
       setLoading(false);
-
-      if (ch?.data) {
-        const enabled = ch.data.chatEnabled !== false;
-        setChatContext({
-          slug: TAHTI_RADIO_SLUG,
-          enabled,
-          reason: enabled ? null : 'Chat is disabled for Tahti Radio',
-          autoOpen: enabled,
-        });
-      } else {
-        clearChatContext();
-      }
     });
   };
 
   useEffect(() => {
     reload();
-    return () => {
-      clearChatContext();
-    };
   }, []);
 
   const favorited = isFavoriteChannel(TAHTI_RADIO_SLUG);
-  const chatOn = station?.chatEnabled !== false;
   const online = Boolean(station?.hlsUrl);
   const nowPlaying = station?.nowPlaying;
+  const stationLogo =
+    station?.user.avatarUrl ?? station?.nowPlaying?.artworkUrl ?? null;
   const memberLive =
     relay?.live && relay.channel
       ? {
@@ -126,7 +107,7 @@ export function RadioView() {
     <PageFrame maxWidth="3xl">
       <PageHeader
         title="Tahti Radio"
-        subtitle="24/7 community radio — always on with live chat. Fair rotation when nobody is booked."
+        subtitle="24/7 community radio — always on. Fair rotation when nobody is booked."
         meta={
           meta
             ? `Source: ${meta.source}${meta.reason ? ` (${meta.reason})` : ''}`
@@ -150,8 +131,16 @@ export function RadioView() {
       ) : (
         <div className="flex flex-col gap-6">
           <header className="flex flex-wrap items-start gap-4">
-            <div className="bg-surface-secondary flex size-14 shrink-0 items-center justify-center rounded-xl text-lg font-bold tracking-tight">
-              TR
+            <div className="bg-surface-secondary flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl text-lg font-bold tracking-tight">
+              {stationLogo ? (
+                <img
+                  src={stationLogo}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              ) : (
+                'TR'
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-foreground text-2xl font-bold tracking-tight">
@@ -250,33 +239,19 @@ export function RadioView() {
 
                 <div className="flex flex-wrap items-start gap-3">
                   <MediaIconActions
-                    actions={[
-                      ...playQueueFavoriteActions({
-                        onPlay: playStation,
-                        onQueue: queueStation,
-                        onFavorite: () =>
-                          toggleFavoriteChannel({
-                            slug: TAHTI_RADIO_SLUG,
-                            displayName: station.user.displayName,
-                            avatarUrl: station.user.avatarUrl,
-                          }),
-                        favorited,
-                        playLabel: 'Play Radio',
-                        queueLabel: 'Queue',
-                      }),
-                      ...(chatOn
-                        ? [
-                            {
-                              id: 'chat',
-                              label: 'Chat',
-                              icon: <MessageCircle size={16} />,
-                              onClick: () => openChatRail(TAHTI_RADIO_SLUG),
-                              variant: 'text' as const,
-                              title: 'Open chat in sidebar',
-                            },
-                          ]
-                        : []),
-                    ]}
+                    actions={playQueueFavoriteActions({
+                      onPlay: playStation,
+                      onQueue: queueStation,
+                      onFavorite: () =>
+                        toggleFavoriteChannel({
+                          slug: TAHTI_RADIO_SLUG,
+                          displayName: station.user.displayName,
+                          avatarUrl: station.user.avatarUrl,
+                        }),
+                      favorited,
+                      playLabel: 'Play Radio',
+                      queueLabel: 'Queue',
+                    })}
                   />
                   <Link to="/channel/$slug" params={{ slug: TAHTI_RADIO_SLUG }}>
                     <Button size="sm" variant="secondary">
@@ -286,36 +261,6 @@ export function RadioView() {
                 </div>
               </div>
             </Box>
-          )}
-
-          {chatOn ? (
-            <section className="border-border flex max-w-xl items-center gap-3 rounded-lg border border-dashed px-4 py-3">
-              <MessageCircle
-                size={18}
-                className="text-foreground-secondary shrink-0 opacity-70"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-bold tracking-tight">
-                  Live chat
-                </div>
-                <p className="text-foreground-secondary text-xs">
-                  Shown in the right sidebar Chat tab — same as a channel page.
-                </p>
-              </div>
-              <Button
-                size="icon-sm"
-                variant="secondary"
-                onClick={() => openChatRail(TAHTI_RADIO_SLUG)}
-                title="Open chat in sidebar"
-                aria-label="Open chat in sidebar"
-              >
-                <MessageCircle size={16} />
-              </Button>
-            </section>
-          ) : (
-            <p className="text-foreground-secondary text-sm">
-              Chat is turned off for Tahti Radio right now.
-            </p>
           )}
 
           <section className="flex flex-col gap-3">

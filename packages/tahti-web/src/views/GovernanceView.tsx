@@ -12,6 +12,7 @@ import {
   type MotionComment,
 } from '../api/client';
 import type { GovernanceMotion } from '../api/types';
+import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
 function stateBadge(state: string): {
@@ -96,9 +97,12 @@ export function GovernanceView() {
           <p className="text-sm">
             Sign in with a cooperative membership account to vote.
           </p>
-          <Link to="/login">
-            <Button size="sm">Login</Button>
-          </Link>
+          <Button
+            size="sm"
+            onClick={() => useAuthModalStore.getState().open('login')}
+          >
+            Log in
+          </Button>
         </div>
       )}
 

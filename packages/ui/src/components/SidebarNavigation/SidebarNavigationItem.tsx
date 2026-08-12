@@ -53,17 +53,10 @@ export const SidebarNavigationItem: FC<SidebarNavigationItemProps> = ({
             <div className="flex size-8 shrink-0 items-center justify-center">
               {icon}
             </div>
-            <span
-              className={cn(
-                'text-sm whitespace-nowrap transition-opacity duration-150',
-                {
-                  'opacity-0': isCompact,
-                  'opacity-100': !isCompact,
-                },
-              )}
-            >
-              {label}
-            </span>
+            {!isCompact && (
+              <span className="text-sm whitespace-nowrap">{label}</span>
+            )}
+            {isCompact && <span className="sr-only">{label}</span>}
           </div>
         </Tooltip>
       )}

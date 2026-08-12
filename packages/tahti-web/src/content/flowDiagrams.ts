@@ -79,16 +79,18 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     pack: 'planned',
     source: 'README.md',
     title: 'Master spine (planned)',
-    blurb: 'Right rail: **Queue | Chat** (Chat when channel chat enabled).',
+    blurb:
+      'Right rail: **Chat**. Bottom bar: **Queue** around play (past | play | up next).',
     mermaid:
-      'flowchart TB\n  subgraph shell["Nuclear shell"]\n    SB[Sparse sidebar]\n    MAIN[Main · ViewShell]\n    RR[Right rail Queue / Chat]\n    PB[Player bar]\n  end\n\n  subgraph listen["Listen"]\n    L["/ Listen directory"]\n    R["/radio"]\n    C["/channel/:slug"]\n    U["/u/:username"]\n  end\n\n  subgraph studio["Studio · in-page tabs"]\n    ST["/studio"]\n    GL[Go Live]\n    CAT[Archive · Releases · Collections · Upload]\n    ED[Editor]\n  end\n\n  subgraph sources["Sources · big tiles"]\n    SRC["/sources"]\n  end\n\n  subgraph settings["Settings · Nuclear sections"]\n    SET["/settings"]\n    TH[Themes]\n  end\n\n  SB --> L\n  SB --> R\n  SB --> ST\n  SB --> SRC\n  SB --> SET\n  L --> C\n  C --> RR\n  C --> PB\n  ST --> GL\n  ST --> CAT\n  ST --> ED\n  SET --> TH\n  U -->|owner| Design[Profile Design tab]\n',
+      'flowchart TB\n  subgraph shell["Nuclear shell"]\n    SB[Sparse sidebar]\n    MAIN[Main · ViewShell]\n    RR[Right rail Chat]\n    PB[Player bar · queue strip]\n  end\n\n  subgraph listen["Listen"]\n    L["/ Listen directory"]\n    R["/radio"]\n    C["/channel/:slug"]\n    U["/u/:username"]\n  end\n\n  subgraph studio["Studio · in-page tabs"]\n    ST["/studio"]\n    GL[Go Live]\n    CAT[Archive · Releases · Collections · Upload]\n    ED[Editor]\n  end\n\n  subgraph sources["Sources · big tiles"]\n    SRC["/sources"]\n  end\n\n  subgraph settings["Settings · Nuclear sections"]\n    SET["/settings"]\n    TH[Themes]\n  end\n\n  SB --> L\n  SB --> R\n  SB --> ST\n  SB --> SRC\n  SB --> SET\n  L --> C\n  C --> RR\n  C --> PB\n  ST --> GL\n  ST --> CAT\n  ST --> ED\n  SET --> TH\n  U -->|owner| Design[Profile Design tab]\n',
   },
   {
     id: 'planned-site-map',
     pack: 'planned',
     source: 'site-map.md',
     title: 'Planned site map — Nuclear tahti-web',
-    blurb: 'Right rail (global): **Queue | Chat**. Bottom: **Player bar**.',
+    blurb:
+      'Right rail: **Chat**. Bottom: **Player bar** with openable queue strip.',
     mermaid:
       'flowchart TB\n  Listen["/ Listen"]:::pub\n  Radio["/radio"]:::pub\n  Channel["/channel/:slug"]:::pub\n  Profile["/u/:username"]:::pub\n  Sub["/subscribe/:username"]:::pub\n  Smart["/r/:slug"]:::pub\n  Coll["/u/:user/c/:slug"]:::pub\n  Embed["/embed/*"]:::pub\n  Lib["/library"]:::auth\n  Studio["/studio/* tabs"]:::studio\n  Sources["/sources"]:::studio\n  Settings["/settings"]:::auth\n  Gov["/governance"]:::auth\n  More["/more · help · legal · status"]:::pub\n  Admin["production /admin"]:::board\n\n  Listen --> Channel\n  Listen --> Radio\n  Listen --> Profile\n  Profile --> Sub\n  Profile --> Coll\n  Profile -->|owner Design| Profile\n  Channel --> Lib\n  Listen --> Studio\n  Studio --> Sources\n  Listen --> Settings\n  Listen --> More\n  Settings -.-> Admin\n  More -.-> Admin\n\n  classDef pub fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;\n  classDef auth fill:#ecfdf5,stroke:#10b981,color:#065f46;\n  classDef studio fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;\n  classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;\n',
   },
@@ -99,7 +101,7 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
     title: 'Anonymous listener — navigation',
     blurb: '---',
     mermaid:
-      'flowchart TD\n  A([Open beta / POC]) --> L["/ Listen · Nuclear main"]\n  L --> R["/radio"]\n  L --> C["/channel/:slug"]\n  L --> U["/u/:username"]\n  R --> C\n  U --> C\n  U --> S["/subscribe/:username"]\n  U --> Coll["/u/:user/c/:slug"]\n  Smart["/r/:slug"] --> U\n\n  C --> Rail{Right rail}\n  Rail --> Q[Queue tab]\n  Rail --> Chat[Chat tab · if enabled]\n  C --> PB[Bottom player bar · HLS]\n\n  L --> More["/more · help · legal"]\n  L --> Auth["/join · /login"]\n',
+      'flowchart TD\n  A([Open beta / POC]) --> L["/ Listen · Nuclear main"]\n  L --> R["/radio"]\n  L --> C["/channel/:slug"]\n  L --> U["/u/:username"]\n  R --> C\n  U --> C\n  U --> S["/subscribe/:username"]\n  U --> Coll["/u/:user/c/:slug"]\n  Smart["/r/:slug"] --> U\n\n  C --> Rail[Right rail Chat]\n  C --> PB[Bottom player · past | play | up next]\n\n  L --> More["/more · help · legal"]\n  L --> Auth["/join · /login"]\n',
   },
   {
     id: 'planned-logged-in-listener',

@@ -523,15 +523,24 @@ export async function fetchStudioCollection(slug: string): Promise<{
 
 export async function addStudioCollectionItem(
   slug: string,
-  archiveItemId: string,
+  item:
+    | string
+    | { archiveItemId: string; releaseId?: never }
+    | { releaseId: string; archiveItemId?: never },
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  const body =
+    typeof item === 'string'
+      ? { archiveItemId: item }
+      : item.archiveItemId
+        ? { archiveItemId: item.archiveItemId }
+        : { releaseId: item.releaseId };
   if (forceMock()) {
     return { ok: true };
   }
   try {
     await requestJson(`/api/me/collections/${encodeURIComponent(slug)}/items`, {
       method: 'POST',
-      body: JSON.stringify({ archiveItemId }),
+      body: JSON.stringify(body),
     });
     return { ok: true };
   } catch (err) {
@@ -592,6 +601,7 @@ export async function createStudioCollection(input: {
   style?: string;
   description?: string;
   isPublic?: boolean;
+  collaborative?: boolean;
 }): Promise<
   { ok: true; data: StudioCollection } | { ok: false; error: string }
 > {
@@ -610,6 +620,7 @@ export async function createStudioCollection(input: {
         description: input.description ?? null,
         style: input.style ?? 'PLAYLIST',
         isPublic: input.isPublic ?? true,
+        collaborative: Boolean(input.collaborative && (input.isPublic ?? true)),
         items: [],
         itemCount: 0,
       },
@@ -625,6 +636,9 @@ export async function createStudioCollection(input: {
           style: input.style ?? 'PLAYLIST',
           description: input.description,
           isPublic: input.isPublic ?? true,
+          collaborative: Boolean(
+            input.collaborative && (input.isPublic ?? true),
+          ),
         }),
       },
     );
@@ -644,6 +658,7 @@ export async function patchStudioCollection(
     description?: string | null;
     style?: string;
     isPublic?: boolean;
+    collaborative?: boolean;
   },
 ): Promise<
   { ok: true; data: StudioCollection } | { ok: false; error: string }
@@ -657,6 +672,7 @@ export async function patchStudioCollection(
         description: patch.description ?? null,
         style: patch.style ?? 'ALBUM',
         isPublic: patch.isPublic ?? true,
+        collaborative: Boolean(patch.collaborative && (patch.isPublic ?? true)),
         items: [],
       },
     };

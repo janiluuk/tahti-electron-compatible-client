@@ -460,7 +460,7 @@ export function MoreView() {
   const gapCount = FEATURES.filter((r) => featureParity(r) !== 'both').length;
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+    <div className="mx-auto flex max-w-7xl flex-col gap-8">
       <div>
         <h1 className="font-display text-3xl font-extrabold tracking-tight">
           Tahti map

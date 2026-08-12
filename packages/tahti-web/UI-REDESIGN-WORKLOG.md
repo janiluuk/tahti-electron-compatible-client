@@ -14,7 +14,7 @@ Workflow rules: one page at a time; do not advance until user approves.
 |---|------|-------|--------|------|
 | 1 | Studio home | `/studio` | **approved** | `docs/redesign-shots/studio-home-v1.png` |
 | 2 | Go Live wizard | `/studio/go-live` | **approved** | `docs/redesign-shots/studio-go-live-v1.png` |
-| 3 | Music / Archive | `/studio/archive` | **approved** | `docs/redesign-shots/studio-archive-v1.png` |
+| 3 | Music / Archive (Library) | `/studio/archive` | **approved** | `docs/redesign-shots/studio-archive-v1.png` |
 | 4 | Archive item | `/studio/archive/$id` | **in-review** | `docs/redesign-shots/studio-archive-item-v1.png` |
 | 5 | Upload | `/studio/upload` | **approved** | `docs/redesign-shots/studio-upload-v1.png` |
 | 6 | Releases | `/studio/releases` | **in-review** | `docs/redesign-shots/studio-releases-v1.png` |
@@ -26,15 +26,18 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 12 | Schedule | `/studio/schedule` | pending | |
 | 13 | Stats | `/studio/stats` | pending | |
 | 14 | Stats detail | `/studio/stats/detail` | pending | |
-| 15 | Channel design | `/studio/channel` | pending | |
-| 16 | Updates / newsletter | `/studio/updates` | pending | |
-| 17 | Revenue / Connect | `/studio/revenue` | pending | |
-| 18 | Stash | `/studio/stash` | pending | |
-| 19 | Sources hub | `/sources` | pending | |
-| 20 | Settings — account | `/settings/account` | pending | |
-| 21 | Settings — artist | `/settings/artist` (etc.) | pending | |
-| 22 | Settings — money / fan tiers | `/settings/money` | pending | |
-| 23 | Settings — connections | `/settings/connections` | pending | |
+| 15 | Channel designer | `/studio/channel` | **in-review** | (polish: tabs + 24/7 radio + panels) |
+| 16 | Shows | `/studio/shows` | **in-review** | (series + episodes; series localStorage) |
+| 17 | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **in-review** | |
+| 18 | Playlists | `/studio/playlists`, `…/$slug` | **in-review** | (TrackTable editor; public/collab) |
+| 19 | Updates / newsletter | `/studio/updates` | pending | |
+| 20 | Revenue / Connect | `/studio/revenue` | pending | |
+| 21 | Stash | `/studio/stash` | pending | |
+| 22 | Sources hub | `/sources` | pending | |
+| 23 | Settings — account | `/settings/account` | pending | |
+| 24 | Settings — artist | `/settings/artist` (etc.) | pending | |
+| 25 | Settings — money / fan tiers | `/settings/money` | pending | |
+| 26 | Settings — connections | `/settings/connections` | pending | |
 
 ## Admin (prod `/admin/*` — not in POC yet)
 
@@ -169,4 +172,29 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 **Screenshot:** `docs/redesign-shots/studio-releases-v1.png`
 
 **Status:** in-review — awaiting comment or `approved`.
+
+### 2026-08-12 — Shows + Playlists + Channel designer (studio pillars)
+
+**Goal:** Ship the accumulated studio pillars with Nuclear panel depth (padded titles, containers).
+
+**Nav IA:** Primary = Overview · Go Live · Library · Releases · Shows. More = Playlists · Channel designer · Upload · Albums · …
+
+**Shows (`/studio/shows`):**
+
+- Create show (interval chips); episode # auto-increments; inherit description/cover
+- Detail: book intervals via radio-slot bookings API; upload or attach broadcast; approve gate with trim/normalize via archive editor render
+- Series/episodes persisted in **localStorage** until a real Show API exists (honest demock gap)
+
+**Playlists (`/studio/playlists`):**
+
+- List + TrackTable editor; add archive tracks and releases; public/private + collaborative
+- Icon-only add-to-playlist affordances on Music rows
+
+**Channel designer (`/studio/channel`):**
+
+- Tabs: Design · 24/7 radio · Profile · Username/domain
+- 24/7 radio: pick/create playlist → apply to programme (max 5 items)
+- StudioPanel / StudioPageHeader polish
+
+**Status:** in-review — awaiting screenshots + comment or `approved`.
 

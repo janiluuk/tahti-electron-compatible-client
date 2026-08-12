@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { UploadIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -46,6 +47,15 @@ export function StudioUploadView() {
           <p className="text-foreground-secondary mt-1 text-sm">
             Add a track to your Music archive. MP3, WAV, FLAC, or AIFF.
           </p>
+          <p className="text-foreground-secondary mt-2 text-xs">
+            Prefer Bandcamp, SoundCloud, or another service?{' '}
+            <Link
+              to="/sources"
+              className="text-foreground underline-offset-2 hover:underline"
+            >
+              Open Sources
+            </Link>
+          </p>
         </div>
         <Input
           label="Title"
@@ -74,6 +84,7 @@ export function StudioUploadView() {
         )}
         <div className="flex flex-wrap gap-2">
           <Button disabled={busy || !file} onClick={() => void submit()}>
+            <UploadIcon size={16} aria-hidden className="mr-1.5" />
             {busy ? 'Uploading…' : 'Upload'}
           </Button>
           {itemId && (
@@ -83,8 +94,13 @@ export function StudioUploadView() {
           )}
         </div>
         <p className="text-foreground-secondary text-xs">
+          Prefer Bandcamp, SoundCloud, or a URL?{' '}
+          <Link to="/sources" className="hover:underline">
+            Open Sources
+          </Link>
+          {' · '}
           <Link to="/studio/archive" className="hover:underline">
-            ← Back to Music
+            Back to Music
           </Link>
         </p>
       </div>

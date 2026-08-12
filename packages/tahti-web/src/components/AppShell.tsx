@@ -1,15 +1,14 @@
-import { Link, Outlet } from '@tanstack/react-router';
+import { Outlet } from '@tanstack/react-router';
 import {
   GaugeIcon,
   LayoutDashboardIcon,
   LibraryIcon,
   MapIcon,
-  PlugIcon,
+  MessageCircleIcon,
   RadioIcon,
   SettingsIcon,
-  SparklesIcon,
 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   PlayerShell,
@@ -18,13 +17,54 @@ import {
   SidebarNavigationItem,
 } from '@nuclearplayer/ui';
 
+import { useIsMobile } from '../hooks/useIsMobile';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
+import { useSettingsModalStore } from '../stores/settingsModalStore';
+import { AppTopNav } from './AppTopNav';
 import { AudioEngine } from './AudioEngine';
+import { AuthDialog } from './AuthDialog';
 import { ConnectedPlayerBar } from './ConnectedPlayerBar';
+import { ConnectedSettingsModal } from './ConnectedSettingsModal';
+import { MobileBottomNav, MobileDrawer } from './MobileChrome';
 import { RightRailPanel } from './RightRailPanel';
 
+function SidebarNavItems({ compact }: { compact: boolean }) {
+  return (
+    <SidebarNavigation isCompact={compact}>
+      <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-1">
+        <SidebarNavigationItem
+          to="/"
+          icon={<GaugeIcon size={16} />}
+          label="Listen"
+        />
+        <SidebarNavigationItem
+          to="/radio"
+          icon={<RadioIcon size={16} />}
+          label="Radio"
+        />
+        <SidebarNavigationItem
+          to="/library"
+          icon={<LibraryIcon size={16} />}
+          label="My Library"
+        />
+        <SidebarNavigationItem
+          to="/studio"
+          icon={<LayoutDashboardIcon size={16} />}
+          label="Studio"
+        />
+        <SidebarNavigationItem
+          to="/more"
+          icon={<MapIcon size={16} />}
+          label="More"
+        />
+      </div>
+    </SidebarNavigation>
+  );
+}
+
 export function AppShell() {
+  const isMobile = useIsMobile();
   const {
     leftCollapsed,
     rightCollapsed,
@@ -34,133 +74,150 @@ export function AppShell() {
     toggleRight,
     setLeftWidth,
     setRightWidth,
+    setRightCollapsed,
   } = useLayoutStore();
-  const user = useAuthStore((s) => s.user);
   const refresh = useAuthStore((s) => s.refresh);
-  const logout = useAuthStore((s) => s.logout);
+  const openSettings = useSettingsModalStore((s) => s.open);
+
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [mobileQueueOpen, setMobileQueueOpen] = useState(false);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    if (!isMobile) {
+      return;
+    }
+    setRightCollapsed(true);
+  }, [isMobile, setRightCollapsed]);
+
   return (
-    <PlayerShell>
-      <header className="border-border bg-background flex items-center justify-between border-b px-4 py-2">
-        <div className="flex items-center gap-3">
-          <span className="font-display text-lg font-extrabold tracking-tight">
-            Tahti
-          </span>
-          <span className="text-foreground-secondary text-xs">
-            Nuclear listen POC
-          </span>
-        </div>
-        <div className="flex items-center gap-3 text-xs">
-          {user ? (
-            <>
-              <span className="text-foreground-secondary">
-                @{user.username}
-              </span>
-              <button
-                type="button"
-                className="text-foreground-secondary hover:text-foreground underline-offset-2 hover:underline"
-                onClick={() => void logout()}
-              >
-                Log out
-              </button>
-            </>
-          ) : (
-            <Link
-              to="/login"
-              className="text-foreground-secondary hover:text-foreground underline-offset-2 hover:underline"
-            >
-              Login
-            </Link>
-          )}
-          <Link
-            to="/whats-new"
-            className="text-foreground-secondary hover:text-foreground flex items-center gap-1 underline-offset-2 hover:underline"
-          >
-            <SparklesIcon size={14} />
-            What&apos;s new
-          </Link>
-          <a
-            href="https://tahti.live"
-            className="text-foreground-secondary hover:text-foreground underline-offset-2 hover:underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            production site
-          </a>
-        </div>
-      </header>
+    <PlayerShell className={isMobile ? 'tahti-mobile-shell' : undefined}>
+      <AppTopNav
+        showMenuButton={isMobile}
+        onOpenMenu={() => setMobileNavOpen(true)}
+      />
 
       <AudioEngine />
 
-      <PlayerWorkspace>
-        <PlayerWorkspace.LeftSidebar
-          width={leftWidth}
-          isCollapsed={leftCollapsed}
-          onWidthChange={setLeftWidth}
-          onToggle={toggleLeft}
-        >
-          <SidebarNavigation isCompact={leftCollapsed}>
-            <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-1">
-              <SidebarNavigationItem
-                to="/"
-                icon={<GaugeIcon size={16} />}
-                label="Listen"
-              />
-              <SidebarNavigationItem
-                to="/radio"
-                icon={<RadioIcon size={16} />}
-                label="Radio"
-              />
-              <SidebarNavigationItem
-                to="/library"
-                icon={<LibraryIcon size={16} />}
-                label="My Library"
-              />
-              <SidebarNavigationItem
-                to="/studio"
-                icon={<LayoutDashboardIcon size={16} />}
-                label="Studio"
-              />
-              <SidebarNavigationItem
-                to="/sources"
-                icon={<PlugIcon size={16} />}
-                label="Sources"
-              />
-              <SidebarNavigationItem
-                to="/more"
-                icon={<MapIcon size={16} />}
-                label="More"
-              />
-              <SidebarNavigationItem
-                to="/settings"
-                icon={<SettingsIcon size={16} />}
-                label="Settings"
-              />
-            </div>
-          </SidebarNavigation>
-        </PlayerWorkspace.LeftSidebar>
-
-        <PlayerWorkspace.Main>
-          <div className="h-full overflow-auto p-4 md:p-6">
+      {isMobile ? (
+        <div className="bg-background-secondary relative flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-auto p-3 pb-2">
             <Outlet />
           </div>
-        </PlayerWorkspace.Main>
+          <MobileBottomNav onOpenQueue={() => setMobileQueueOpen(true)} />
+        </div>
+      ) : (
+        <PlayerWorkspace>
+          <PlayerWorkspace.LeftSidebar
+            width={leftWidth}
+            isCollapsed={leftCollapsed}
+            onWidthChange={setLeftWidth}
+            onToggle={toggleLeft}
+          >
+            <SidebarNavigation isCompact={leftCollapsed}>
+              <div className="flex h-full min-h-0 flex-col">
+                <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-1">
+                  <SidebarNavigationItem
+                    to="/"
+                    icon={<GaugeIcon size={16} />}
+                    label="Listen"
+                  />
+                  <SidebarNavigationItem
+                    to="/radio"
+                    icon={<RadioIcon size={16} />}
+                    label="Radio"
+                  />
+                  <SidebarNavigationItem
+                    to="/library"
+                    icon={<LibraryIcon size={16} />}
+                    label="My Library"
+                  />
+                  <SidebarNavigationItem
+                    to="/studio"
+                    icon={<LayoutDashboardIcon size={16} />}
+                    label="Studio"
+                  />
+                  <SidebarNavigationItem
+                    to="/more"
+                    icon={<MapIcon size={16} />}
+                    label="More"
+                  />
+                </div>
+                <div className="mt-auto flex flex-col gap-1 p-1">
+                  <SidebarNavigationItem
+                    icon={<MessageCircleIcon size={16} />}
+                    label="Chat"
+                    onClick={toggleRight}
+                  />
+                  <SidebarNavigationItem
+                    icon={<SettingsIcon size={16} />}
+                    label="Settings"
+                    onClick={() => openSettings()}
+                  />
+                </div>
+              </div>
+            </SidebarNavigation>
+          </PlayerWorkspace.LeftSidebar>
 
-        <PlayerWorkspace.RightSidebar
-          width={rightWidth}
-          isCollapsed={rightCollapsed}
-          onWidthChange={setRightWidth}
-          onToggle={toggleRight}
-        >
-          <RightRailPanel isCollapsed={rightCollapsed} />
-        </PlayerWorkspace.RightSidebar>
-      </PlayerWorkspace>
+          <PlayerWorkspace.Main>
+            <div className="h-full overflow-auto p-4 md:p-6">
+              <Outlet />
+            </div>
+          </PlayerWorkspace.Main>
+
+          <PlayerWorkspace.RightSidebar
+            width={rightWidth}
+            isCollapsed={rightCollapsed}
+            onWidthChange={setRightWidth}
+            onToggle={toggleRight}
+          >
+            <RightRailPanel isCollapsed={rightCollapsed} />
+          </PlayerWorkspace.RightSidebar>
+        </PlayerWorkspace>
+      )}
 
       <ConnectedPlayerBar />
+      <AuthDialog />
+      <ConnectedSettingsModal />
+
+      <MobileDrawer
+        open={mobileNavOpen}
+        title="Navigate"
+        side="left"
+        onClose={() => setMobileNavOpen(false)}
+      >
+        <div
+          className="flex flex-col gap-1"
+          onClick={() => setMobileNavOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setMobileNavOpen(false);
+            }
+          }}
+          role="presentation"
+        >
+          <SidebarNavItems compact={false} />
+          <SidebarNavigation isCompact={false}>
+            <SidebarNavigationItem
+              icon={<SettingsIcon size={16} />}
+              label="Settings"
+              onClick={() => openSettings()}
+            />
+          </SidebarNavigation>
+        </div>
+      </MobileDrawer>
+
+      <MobileDrawer
+        open={mobileQueueOpen}
+        title="Chat"
+        side="right"
+        onClose={() => setMobileQueueOpen(false)}
+      >
+        <RightRailPanel isCollapsed={false} />
+      </MobileDrawer>
     </PlayerShell>
   );
 }

@@ -1,5 +1,13 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { PlayIcon } from 'lucide-react';
+import {
+  DownloadIcon,
+  Link2Icon,
+  PlayIcon,
+  PlugIcon,
+  SearchIcon,
+  UnplugIcon,
+  UploadIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Badge, Button, Card, CardGrid, MediaArtwork } from '@nuclearplayer/ui';
@@ -27,6 +35,7 @@ import {
   SourceServiceIcon,
   sourceTileSubtitle,
 } from '../components/SourceServiceIcon';
+import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
 
@@ -149,14 +158,18 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
           Sources
         </h1>
         <p className="text-foreground-secondary mt-1 text-sm">
-          Connect and import from services — pick a tile to open its tools. One
-          sidebar entry; detail stays in this pane.
+          Connect and import from services — pick a tile to open its tools.
+          Opened from Music when you add tracks (alongside upload).
         </p>
         {!user && (
           <p className="text-foreground-secondary mt-2 text-xs">
-            <Link to="/login" className="underline-offset-2 hover:underline">
+            <button
+              type="button"
+              className="underline-offset-2 hover:underline"
+              onClick={() => useAuthModalStore.getState().open('login')}
+            >
               Sign in
-            </Link>{' '}
+            </button>{' '}
             to connect OAuth sources.
           </p>
         )}
@@ -278,11 +291,13 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                           });
                         }}
                       >
+                        <PlugIcon size={16} aria-hidden className="mr-1.5" />
                         {status?.connected ? 'Reconnect' : 'Connect'}
                       </Button>
                     ) : (
                       <a href={oauthStartUrl(def.oauthStartPath)}>
                         <Button size="sm" disabled={!user}>
+                          <PlugIcon size={16} aria-hidden className="mr-1.5" />
                           {status?.connected ? 'Reconnect' : 'Connect'}
                         </Button>
                       </a>
@@ -312,6 +327,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                           });
                         }}
                       >
+                        <UnplugIcon size={16} aria-hidden className="mr-1.5" />
                         Disconnect
                       </Button>
                     )}
@@ -320,6 +336,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                 {def.studioDeepLink && (
                   <Link to={def.studioDeepLink as '/studio/upload'}>
                     <Button size="sm" variant="secondary">
+                      <UploadIcon size={16} aria-hidden className="mr-1.5" />
                       Open in Studio
                     </Button>
                   </Link>
@@ -386,6 +403,11 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                           });
                         }}
                       >
+                        <DownloadIcon
+                          size={16}
+                          aria-hidden
+                          className="mr-1.5"
+                        />
                         Import
                       </Button>
                     </li>
@@ -412,6 +434,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                     );
                   }}
                 >
+                  <SearchIcon size={16} aria-hidden className="mr-1.5" />
                   Search
                 </Button>
               </div>
@@ -503,7 +526,10 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                 placeholder="https://open.spotify.com/track/…"
               />
               <Link to="/studio/releases">
-                <Button size="sm">Open releases editor</Button>
+                <Button size="sm">
+                  <Link2Icon size={16} aria-hidden className="mr-1.5" />
+                  Open releases editor
+                </Button>
               </Link>
             </section>
           )}

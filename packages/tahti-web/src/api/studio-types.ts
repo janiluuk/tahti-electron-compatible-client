@@ -100,6 +100,8 @@ export type StudioCollection = {
   type?: string;
   style?: string;
   isPublic?: boolean;
+  /** Public playlists only — logged-in listeners can add catalog tracks. */
+  collaborative?: boolean;
   coverUrl?: string | null;
   items?: StudioCollectionItem[];
   itemCount?: number;

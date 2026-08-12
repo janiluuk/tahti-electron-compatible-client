@@ -43,12 +43,21 @@ import { StudioEditorListView } from './views/studio/StudioEditorListView';
 import { StudioEditorProjectView } from './views/studio/StudioEditorProjectView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
+import {
+  StudioPlaylistEditorView,
+  StudioPlaylistsView,
+} from './views/studio/StudioPlaylistsView';
 import { StudioProEditorView } from './views/studio/StudioProEditorView';
 import { StudioReleaseDetailView } from './views/studio/StudioReleaseDetailView';
 import { StudioReleasesView } from './views/studio/StudioReleasesView';
 import { StudioRevenueView } from './views/studio/StudioRevenueView';
 import { StudioScheduleView } from './views/studio/StudioScheduleView';
 import { StudioSetupChannelView } from './views/studio/StudioSetupChannelView';
+import {
+  StudioEpisodeReviewView,
+  StudioShowDetailView,
+} from './views/studio/StudioShowDetailView';
+import { StudioShowsView } from './views/studio/StudioShowsView';
 import { StudioStashView } from './views/studio/StudioStashView';
 import { StudioStatsDetailView } from './views/studio/StudioStatsDetailView';
 import { StudioStatsView } from './views/studio/StudioStatsView';
@@ -470,6 +479,45 @@ const studioChannelRoute = createRoute({
   component: StudioChannelView,
 });
 
+const studioShowsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/shows',
+  component: StudioShowsView,
+});
+
+const studioShowDetailRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/shows/$id',
+  component: function StudioShowDetailRoute() {
+    const { id } = studioShowDetailRoute.useParams();
+    return <StudioShowDetailView id={id} />;
+  },
+});
+
+const studioEpisodeRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/shows/episodes/$episodeId',
+  component: function StudioEpisodeRoute() {
+    const { episodeId } = studioEpisodeRoute.useParams();
+    return <StudioEpisodeReviewView episodeId={episodeId} />;
+  },
+});
+
+const studioPlaylistsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/playlists',
+  component: StudioPlaylistsView,
+});
+
+const studioPlaylistEditRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/playlists/$slug',
+  component: function StudioPlaylistEditRoute() {
+    const { slug } = studioPlaylistEditRoute.useParams();
+    return <StudioPlaylistEditorView slug={slug} />;
+  },
+});
+
 const studioUpdatesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/updates',
@@ -638,6 +686,11 @@ const routeTree = rootRoute.addChildren([
     studioStatsRoute,
     studioStatsDetailRoute,
     studioChannelRoute,
+    studioShowsRoute,
+    studioShowDetailRoute,
+    studioEpisodeRoute,
+    studioPlaylistsRoute,
+    studioPlaylistEditRoute,
     studioUpdatesRoute,
     studioRevenueRoute,
     studioDistributionRoute,

@@ -1,19 +1,42 @@
 import { Link } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import {
+  Disc3Icon,
+  DiscAlbumIcon,
+  LibraryIcon,
+  MoreHorizontalIcon,
+  PlusIcon,
+} from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import type { FetchMeta } from '../../api/client';
 import { createStudioRelease, fetchStudioReleases } from '../../api/studio';
 import type { StudioRelease } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+
+const RELEASE_TYPES = [
+  {
+    id: 'SINGLE',
+    label: 'Single',
+    icon: <DiscAlbumIcon size={18} aria-hidden />,
+  },
+  { id: 'EP', label: 'EP', icon: <DiscAlbumIcon size={18} aria-hidden /> },
+  { id: 'ALBUM', label: 'Album', icon: <Disc3Icon size={18} aria-hidden /> },
+  {
+    id: 'COMPILATION',
+    label: 'Compilation',
+    icon: <LibraryIcon size={18} aria-hidden />,
+  },
+] as const;
 
 export function StudioReleasesView() {
   const [releases, setReleases] = useState<StudioRelease[]>([]);
   const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [openMoreId, setOpenMoreId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [type, setType] = useState('SINGLE');
@@ -35,6 +58,14 @@ export function StudioReleasesView() {
     reload();
   }, []);
 
+  const closeCreate = () => {
+    setCreateOpen(false);
+    setTitle('');
+    setType('SINGLE');
+    setReleaseDate(new Date().toISOString().slice(0, 10));
+    setCreating(false);
+  };
+
   const create = async () => {
     setCreating(true);
     setMsg(null);
@@ -48,153 +79,192 @@ export function StudioReleasesView() {
       setMsg(r.error);
       return;
     }
-    setTitle('');
-    setShowCreate(false);
     setMsg(`Created ${r.data.title}.`);
+    closeCreate();
     reload();
   };
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/releases" />
-        <header className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Releases
-            </h1>
-            <p className="text-foreground-secondary mt-1 text-sm">
-              Package tracks into singles, EPs, and albums for your public link.
-              {meta?.source === 'mock' ? ' (demo data)' : ''}
-            </p>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => {
-              setShowCreate((v) => !v);
-              setMsg(null);
+        <StudioPageHeader
+          title="Releases"
+          subtitle={`Package tracks into singles, EPs, and albums for your public link.${meta?.source === 'mock' ? ' (demo data)' : ''}`}
+          action={
+            <Button
+              size="sm"
+              onClick={() => {
+                setMsg(null);
+                setCreateOpen(true);
+              }}
+              aria-label="New release"
+              title="New release"
+            >
+              <PlusIcon size={16} aria-hidden className="mr-1.5" />
+              New
+            </Button>
+          }
+        />
+
+        {msg && <p className="text-foreground-secondary text-sm">{msg}</p>}
+
+        <Dialog.Root isOpen={createOpen} onClose={closeCreate}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void create();
             }}
           >
-            {showCreate ? 'Cancel' : 'New release'}
-          </Button>
-        </header>
-
-        {showCreate && (
-          <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
-            <h2 className="font-display text-lg font-bold">New release</h2>
-            <Input
-              label="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <label className="text-foreground-secondary text-xs uppercase">
-              Type
-              <select
-                className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-              >
-                {['SINGLE', 'EP', 'ALBUM', 'COMPILATION'].map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-foreground-secondary text-xs uppercase">
-              Release date
-              <input
-                type="date"
-                className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm"
-                value={releaseDate}
-                onChange={(e) => setReleaseDate(e.target.value)}
+            <Dialog.Title>
+              <span className="inline-flex items-center gap-2">
+                <PlusIcon size={18} aria-hidden />
+                New release
+              </span>
+            </Dialog.Title>
+            <div className="mt-4 flex flex-col gap-3">
+              <Input
+                label="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                autoFocus
               />
-            </label>
-            <div>
+              <div className="flex flex-wrap gap-2">
+                {RELEASE_TYPES.map((t) => (
+                  <TypeChip
+                    key={t.id}
+                    selected={type === t.id}
+                    icon={t.icon}
+                    label={t.label}
+                    onClick={() => setType(t.id)}
+                  />
+                ))}
+              </div>
+              <label className="text-foreground-secondary text-xs uppercase">
+                Release date
+                <input
+                  type="date"
+                  className="border-border bg-background text-foreground mt-1 w-full rounded border px-2 py-1.5 text-sm normal-case"
+                  value={releaseDate}
+                  onChange={(e) => setReleaseDate(e.target.value)}
+                />
+              </label>
+            </div>
+            <Dialog.Actions>
+              <Dialog.Close>Cancel</Dialog.Close>
               <Button
-                size="sm"
+                type="submit"
                 disabled={creating || !title.trim() || !releaseDate}
-                onClick={() => void create()}
               >
+                <PlusIcon size={16} aria-hidden className="mr-1.5" />
                 {creating ? 'Creating…' : 'Create'}
               </Button>
-            </div>
-            {msg && <p className="text-foreground-secondary text-sm">{msg}</p>}
-          </section>
-        )}
+            </Dialog.Actions>
+          </form>
+        </Dialog.Root>
 
-        {!showCreate && msg && (
-          <p className="text-foreground-secondary text-sm">{msg}</p>
-        )}
-
-        {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
-        ) : releases.length === 0 ? (
-          <div className="border-border flex flex-col gap-3 rounded-lg border px-4 py-8 text-center">
-            <p className="text-foreground-secondary text-sm">
-              No releases yet. Create one to share a public link.
-            </p>
-            <div>
-              <Button size="sm" onClick={() => setShowCreate(true)}>
-                New release
-              </Button>
+        <StudioPanel>
+          {loading ? (
+            <p className="text-foreground-secondary text-sm">Loading…</p>
+          ) : releases.length === 0 ? (
+            <div className="flex flex-col gap-3 py-4 text-center">
+              <p className="text-foreground-secondary text-sm">
+                No releases yet. Create one to share a public link.
+              </p>
+              <div>
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
+                  <PlusIcon size={16} aria-hidden className="mr-1.5" />
+                  New release
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <ul className="border-border divide-border divide-y rounded-lg border">
-            {releases.map((r) => (
-              <li
-                key={r.id}
-                className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm"
-              >
-                <div className="min-w-0 flex-1">
-                  <Link
-                    to="/studio/releases/$id"
-                    params={{ id: r.id }}
-                    className="font-medium hover:underline"
-                  >
-                    {r.title}
-                  </Link>
-                  <p className="text-foreground-secondary text-xs">
-                    {r.type}, {r.state}
-                    {typeof r._count?.tracks === 'number'
-                      ? `, ${r._count.tracks} tracks`
-                      : ''}
-                  </p>
-                </div>
-                <Link to="/studio/releases/$id" params={{ id: r.id }}>
-                  <Button size="sm" variant="secondary">
-                    Edit
-                  </Button>
-                </Link>
-                <button
-                  type="button"
-                  className="text-foreground-secondary hover:text-foreground px-2 text-xs"
-                  onClick={() =>
-                    setOpenMoreId((id) => (id === r.id ? null : r.id))
-                  }
+          ) : (
+            <ul className="divide-border divide-y">
+              {releases.map((r) => (
+                <li
+                  key={r.id}
+                  className="flex flex-wrap items-center gap-2 py-3 text-sm first:pt-0 last:pb-0"
                 >
-                  {openMoreId === r.id ? 'Less' : 'More'}
-                </button>
-                {openMoreId === r.id && (
-                  <div className="flex w-full flex-wrap gap-2 pt-1">
-                    <Link to="/r/$slug" params={{ slug: r.smartLinkSlug }}>
-                      <Button size="sm" variant="text">
-                        Public link
-                      </Button>
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      to="/studio/releases/$id"
+                      params={{ id: r.id }}
+                      className="font-medium hover:underline"
+                    >
+                      {r.title}
                     </Link>
-                    <Link to="/studio/distribution">
-                      <Button size="sm" variant="text">
-                        Distribution
-                      </Button>
-                    </Link>
+                    <p className="text-foreground-secondary text-xs">
+                      {r.type}, {r.state}
+                      {typeof r._count?.tracks === 'number'
+                        ? `, ${r._count.tracks} tracks`
+                        : ''}
+                    </p>
                   </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+                  <Link to="/studio/releases/$id" params={{ id: r.id }}>
+                    <Button size="sm" variant="secondary">
+                      Edit
+                    </Button>
+                  </Link>
+                  <Button
+                    size="icon-sm"
+                    variant="text"
+                    aria-label={openMoreId === r.id ? 'Less' : 'More'}
+                    title={openMoreId === r.id ? 'Less' : 'More'}
+                    onClick={() =>
+                      setOpenMoreId((id) => (id === r.id ? null : r.id))
+                    }
+                  >
+                    <MoreHorizontalIcon size={16} aria-hidden />
+                  </Button>
+                  {openMoreId === r.id && (
+                    <div className="flex w-full flex-wrap gap-2 pt-1">
+                      <Link to="/r/$slug" params={{ slug: r.smartLinkSlug }}>
+                        <Button size="sm" variant="text">
+                          Public link
+                        </Button>
+                      </Link>
+                      <Link to="/studio/distribution">
+                        <Button size="sm" variant="text">
+                          Distribution
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </StudioPanel>
       </div>
     </StudioGate>
+  );
+}
+
+function TypeChip({
+  selected,
+  icon,
+  label,
+  onClick,
+}: {
+  selected: boolean;
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs ${
+        selected
+          ? 'border-primary bg-primary/15 text-primary'
+          : 'border-border text-foreground-secondary'
+      }`}
+      onClick={onClick}
+      aria-pressed={selected}
+      title={label}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
   );
 }

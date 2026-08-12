@@ -1,7 +1,15 @@
 import { Link } from '@tanstack/react-router';
+import {
+  CheckIcon,
+  GlobeIcon,
+  ListMusicIcon,
+  LockIcon,
+  PlusIcon,
+  UsersIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
   addStudioCollectionItem,
@@ -12,12 +20,24 @@ import type { StudioCollection } from '../api/studio-types';
 import { useAuthStore } from '../stores/authStore';
 
 type Props = {
+  isOpen: boolean;
   archiveItemId: string;
   trackTitle: string;
   onClose: () => void;
 };
 
+function playlistGlyph(c: StudioCollection) {
+  if (c.collaborative && c.isPublic !== false) {
+    return <UsersIcon size={22} aria-hidden />;
+  }
+  if (c.isPublic === false) {
+    return <LockIcon size={22} aria-hidden />;
+  }
+  return <GlobeIcon size={22} aria-hidden />;
+}
+
 export function AddToPlaylistPanel({
+  isOpen,
   archiveItemId,
   trackTitle,
   onClose,
@@ -32,38 +52,53 @@ export function AddToPlaylistPanel({
   const [note, setNote] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
+  const [newPublic, setNewPublic] = useState(true);
+  const [newCollab, setNewCollab] = useState(false);
   const [creatingBusy, setCreatingBusy] = useState(false);
 
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    setNote(null);
+    setCreating(false);
+    setNewName('');
+    setNewPublic(true);
+    setNewCollab(false);
+    setAddedSlugs(new Set());
     if (!user) {
       setCollections([]);
       return;
     }
     let cancelled = false;
+    setCollections(null);
     void fetchStudioCollections().then((res) => {
       if (cancelled) {
         return;
       }
-      if (res.meta.source === 'api' || res.data.length > 0) {
-        setCollections(res.data);
-        setLoadError(res.meta.reason ?? null);
-      } else if (res.meta.reason) {
-        setLoadError(res.meta.reason);
-        setCollections([]);
-      } else {
-        setCollections(res.data);
-      }
+      const playlists = res.data.filter(
+        (c) => !c.style || c.style === 'PLAYLIST' || c.style === 'CUSTOM',
+      );
+      setCollections(playlists.length > 0 ? playlists : res.data);
+      setLoadError(res.meta.reason ?? null);
     });
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, isOpen]);
+
+  const handleClose = () => {
+    setCreating(false);
+    setNewName('');
+    setNote(null);
+    onClose();
+  };
 
   const addTo = async (slug: string, name: string) => {
     setAddingSlug(slug);
     setNote(null);
     try {
-      const r = await addStudioCollectionItem(slug, archiveItemId);
+      const r = await addStudioCollectionItem(slug, { archiveItemId });
       if (!r.ok) {
         setNote(r.error);
         return;
@@ -86,15 +121,16 @@ export function AddToPlaylistPanel({
       const created = await createStudioCollection({
         name,
         style: 'PLAYLIST',
+        isPublic: newPublic,
+        collaborative: newPublic && newCollab,
       });
       if (!created.ok) {
         setNote(created.error);
         return;
       }
-      const add = await addStudioCollectionItem(
-        created.data.slug,
+      const add = await addStudioCollectionItem(created.data.slug, {
         archiveItemId,
-      );
+      });
       if (!add.ok) {
         setNote(add.error);
         return;
@@ -103,132 +139,156 @@ export function AddToPlaylistPanel({
       setAddedSlugs((prev) => new Set(prev).add(created.data.slug));
       setNewName('');
       setCreating(false);
-      setNote(`Created "${name}" and added the track`);
+      setNote(`Created “${name}” and added the track`);
     } finally {
       setCreatingBusy(false);
     }
   };
 
   return (
-    <div
-      className="border-border bg-background-secondary absolute right-0 bottom-full z-30 mb-2 w-72 rounded-lg border p-3 shadow-lg"
-      role="region"
-      aria-label="Add to playlist"
-    >
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <p className="text-sm font-medium">
-          Add &ldquo;{trackTitle}&rdquo; to…
-        </p>
-        <button
-          type="button"
-          className="text-foreground-secondary text-xs hover:underline"
-          onClick={onClose}
-          aria-label="Close"
-        >
-          ✕
-        </button>
-      </div>
+    <Dialog.Root isOpen={isOpen} onClose={handleClose} className="max-w-md">
+      <Dialog.Title>
+        <span className="inline-flex items-center gap-2">
+          <ListMusicIcon size={18} aria-hidden />
+          Add to playlist
+        </span>
+      </Dialog.Title>
+      <Dialog.Description>
+        Choose a playlist for &ldquo;{trackTitle}&rdquo;, or create one.
+      </Dialog.Description>
 
-      {!user ? (
-        <p className="text-foreground-secondary text-sm">
-          <Link to="/login" className="underline" onClick={onClose}>
-            Sign in
-          </Link>{' '}
-          to save tracks to a playlist.
-        </p>
-      ) : collections === null ? (
-        <p className="text-foreground-secondary text-sm">Loading playlists…</p>
-      ) : loadError && collections.length === 0 ? (
-        <p className="text-foreground-secondary text-sm">{loadError}</p>
-      ) : (
-        <ul className="max-h-48 space-y-1 overflow-y-auto">
-          {collections.map((c) => {
-            const added = addedSlugs.has(c.slug);
-            return (
-              <li key={c.slug}>
+      <div className="mt-4">
+        {!user ? (
+          <p className="text-foreground-secondary text-sm">
+            <Link to="/login" className="underline" onClick={handleClose}>
+              Sign in
+            </Link>{' '}
+            to save tracks to a playlist.
+          </p>
+        ) : collections === null ? (
+          <p className="text-foreground-secondary text-sm">
+            Loading playlists…
+          </p>
+        ) : loadError && collections.length === 0 ? (
+          <p className="text-foreground-secondary text-sm">{loadError}</p>
+        ) : (
+          <div className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4">
+            {collections.map((c) => {
+              const added = addedSlugs.has(c.slug);
+              const busy = addingSlug === c.slug;
+              return (
                 <button
+                  key={c.slug}
                   type="button"
-                  className="hover:bg-background flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm disabled:opacity-50"
-                  disabled={added || addingSlug === c.slug}
+                  className={`border-border hover:border-primary flex flex-col items-center gap-1.5 rounded-lg border px-2 py-3 text-center disabled:opacity-50 ${
+                    added ? 'border-primary bg-primary/10' : ''
+                  }`}
+                  disabled={added || busy}
                   onClick={() => void addTo(c.slug, c.name)}
+                  aria-label={added ? `Added to ${c.name}` : `Add to ${c.name}`}
+                  title={c.name}
                 >
-                  <span className="min-w-0 truncate">
-                    {c.name}
-                    {c.style ? (
-                      <span className="text-foreground-secondary text-xs">
-                        {' '}
-                        ({c.style})
-                      </span>
-                    ) : null}
+                  <span className="text-foreground-secondary flex h-10 w-10 items-center justify-center">
+                    {added ? (
+                      <CheckIcon
+                        size={22}
+                        className="text-primary"
+                        aria-hidden
+                      />
+                    ) : (
+                      playlistGlyph(c)
+                    )}
                   </span>
-                  <span className="text-foreground-secondary shrink-0 text-xs">
-                    {added
-                      ? 'Added'
-                      : addingSlug === c.slug
-                        ? 'Adding…'
-                        : 'Add'}
+                  <span className="line-clamp-2 w-full text-[11px] leading-tight">
+                    {c.name}
                   </span>
                 </button>
-              </li>
-            );
-          })}
-          {collections.length === 0 && (
-            <li className="text-foreground-secondary px-2 py-1 text-sm">
-              No playlists yet.
-            </li>
-          )}
-        </ul>
-      )}
-
-      {user && collections !== null && (
-        <div className="border-border mt-2 border-t pt-2">
-          {creating ? (
-            <form
-              className="flex flex-col gap-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void createAndAdd();
-              }}
+              );
+            })}
+            <button
+              type="button"
+              className="border-border hover:border-primary flex flex-col items-center gap-1.5 rounded-lg border border-dashed px-2 py-3 text-center"
+              onClick={() => setCreating(true)}
+              aria-label="Create new playlist"
+              title="New playlist"
             >
-              <Input
-                label="Playlist name"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
+              <span className="text-foreground-secondary flex h-10 w-10 items-center justify-center">
+                <PlusIcon size={22} aria-hidden />
+              </span>
+              <span className="text-[11px] leading-tight">New</span>
+            </button>
+            {collections.length === 0 && (
+              <p className="text-foreground-secondary col-span-full px-1 text-xs">
+                No playlists yet — tap New.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {user && creating && (
+        <form
+          className="border-border mt-4 flex flex-col gap-3 border-t pt-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void createAndAdd();
+          }}
+        >
+          <Input
+            label="Playlist name"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            autoFocus
+          />
+          <div className="flex flex-wrap gap-3 text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={newPublic}
+                onChange={(e) => {
+                  setNewPublic(e.target.checked);
+                  if (!e.target.checked) {
+                    setNewCollab(false);
+                  }
+                }}
               />
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  type="submit"
-                  disabled={creatingBusy || !newName.trim()}
-                >
-                  {creatingBusy ? 'Creating…' : 'Create & add'}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="text"
-                  type="button"
-                  onClick={() => {
-                    setCreating(false);
-                    setNewName('');
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          ) : (
+              Public
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={newCollab}
+                disabled={!newPublic}
+                onChange={(e) => setNewCollab(e.target.checked)}
+              />
+              Others can add tracks
+            </label>
+          </div>
+          <Dialog.Actions>
             <Button
               size="sm"
-              variant="secondary"
-              onClick={() => setCreating(true)}
+              variant="text"
+              type="button"
+              onClick={() => {
+                setCreating(false);
+                setNewName('');
+              }}
             >
-              + New playlist
+              Cancel
             </Button>
-          )}
-        </div>
+            <Button
+              size="sm"
+              type="submit"
+              disabled={creatingBusy || !newName.trim()}
+            >
+              <PlusIcon size={16} aria-hidden className="mr-1.5" />
+              {creatingBusy ? 'Creating…' : 'Create & add'}
+            </Button>
+          </Dialog.Actions>
+        </form>
       )}
 
-      {note && <p className="text-foreground-secondary mt-2 text-xs">{note}</p>}
-    </div>
+      {note && <p className="text-foreground-secondary mt-3 text-xs">{note}</p>}
+    </Dialog.Root>
   );
 }

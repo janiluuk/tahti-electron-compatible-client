@@ -1,6 +1,13 @@
-import { useEffect, useState } from 'react';
+import {
+  CircleDollarSignIcon,
+  MessageCircleIcon,
+  NewspaperIcon,
+  PlusIcon,
+  SparklesIcon,
+} from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Dialog, Input } from '@nuclearplayer/ui';
 
 import {
   createFanTier,
@@ -10,9 +17,21 @@ import {
 } from '../api/fan-tiers';
 
 const PERK_OPTIONS = [
-  { key: 'FAN_CHAT', label: 'Fan chat' },
-  { key: 'FAN_NEWSLETTER', label: 'Fan newsletter' },
-  { key: 'EARLY_ACCESS', label: 'Early access' },
+  {
+    key: 'FAN_CHAT',
+    label: 'Fan chat',
+    icon: <MessageCircleIcon size={14} aria-hidden />,
+  },
+  {
+    key: 'FAN_NEWSLETTER',
+    label: 'Fan newsletter',
+    icon: <NewspaperIcon size={14} aria-hidden />,
+  },
+  {
+    key: 'EARLY_ACCESS',
+    label: 'Early access',
+    icon: <SparklesIcon size={14} aria-hidden />,
+  },
 ] as const;
 
 function euros(cents: number): string {
@@ -22,6 +41,7 @@ function euros(cents: number): string {
 export function FanTiersEditor() {
   const [tiers, setTiers] = useState<FanTierRow[]>([]);
   const [source, setSource] = useState('…');
+  const [createOpen, setCreateOpen] = useState(false);
   const [name, setName] = useState('Supporter');
   const [eurosAmt, setEurosAmt] = useState('5');
   const [description, setDescription] = useState('');
@@ -46,14 +66,43 @@ export function FanTiersEditor() {
     );
   };
 
+  const closeCreate = () => {
+    setCreateOpen(false);
+    setName('Supporter');
+    setEurosAmt('5');
+    setDescription('');
+    setPerks(['FAN_CHAT']);
+    setBusy(false);
+  };
+
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-foreground-secondary text-xs">
-        Artist fan tiers via <code>/api/me/fan-tiers</code> ({source}).
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-foreground-secondary text-xs">
+          Artist fan tiers via <code>/api/me/fan-tiers</code> ({source}).
+        </p>
+        <Button
+          size="sm"
+          onClick={() => {
+            setMsg(null);
+            setCreateOpen(true);
+          }}
+          aria-label="New tier"
+          title="New tier"
+        >
+          <PlusIcon size={16} aria-hidden className="mr-1.5" />
+          New tier
+        </Button>
+      </div>
 
       {tiers.length === 0 ? (
-        <p className="text-foreground-secondary text-sm">No tiers yet.</p>
+        <div className="border-border flex flex-col items-center gap-3 rounded-lg border px-4 py-6 text-center">
+          <p className="text-foreground-secondary text-sm">No tiers yet.</p>
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <PlusIcon size={16} aria-hidden className="mr-1.5" />
+            New tier
+          </Button>
+        </div>
       ) : (
         <ul className="flex flex-col gap-2">
           {tiers.map((t) => (
@@ -105,52 +154,18 @@ export function FanTiersEditor() {
         </ul>
       )}
 
-      <div className="border-border flex flex-col gap-3 rounded-xl border p-4">
-        <h3 className="font-display text-base font-bold">New tier</h3>
-        <Input
-          label="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Input
-          label="Price (€ / month)"
-          value={eurosAmt}
-          onChange={(e) => setEurosAmt(e.target.value)}
-        />
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-foreground-secondary text-xs uppercase">
-            Description
-          </span>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={2}
-            className="border-border bg-background rounded-md border px-3 py-2 outline-none"
-          />
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {PERK_OPTIONS.map((p) => (
-            <button
-              key={p.key}
-              type="button"
-              className={`rounded-full border px-3 py-1 text-xs ${
-                perks.includes(p.key)
-                  ? 'border-primary bg-primary/15 text-primary'
-                  : 'border-border text-foreground-secondary'
-              }`}
-              onClick={() => togglePerk(p.key)}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-        <Button
-          size="sm"
-          disabled={busy || !name.trim()}
-          onClick={() => {
+      {msg && <p className="text-foreground-secondary text-xs">{msg}</p>}
+
+      <Dialog.Root isOpen={createOpen} onClose={closeCreate}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
             const eurosN = Number(eurosAmt.replace(',', '.'));
             if (!Number.isFinite(eurosN) || eurosN < 1) {
               setMsg('Enter a price of at least €1.');
+              return;
+            }
+            if (!name.trim() || busy) {
               return;
             }
             setBusy(true);
@@ -167,15 +182,90 @@ export function FanTiersEditor() {
                 return;
               }
               setMsg('Tier created.');
-              setDescription('');
+              closeCreate();
               reload();
             });
           }}
         >
-          {busy ? 'Creating…' : 'Create tier'}
-        </Button>
-        {msg && <p className="text-foreground-secondary text-xs">{msg}</p>}
-      </div>
+          <Dialog.Title>
+            <span className="inline-flex items-center gap-2">
+              <CircleDollarSignIcon size={18} aria-hidden />
+              New tier
+            </span>
+          </Dialog.Title>
+          <div className="mt-4 flex flex-col gap-3">
+            <Input
+              label="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+            />
+            <Input
+              label="Price (€ / month)"
+              value={eurosAmt}
+              onChange={(e) => setEurosAmt(e.target.value)}
+            />
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-foreground-secondary text-xs uppercase">
+                Description
+              </span>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+                className="border-border bg-background rounded-md border px-3 py-2 outline-none"
+              />
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {PERK_OPTIONS.map((p) => (
+                <PerkChip
+                  key={p.key}
+                  selected={perks.includes(p.key)}
+                  icon={p.icon}
+                  label={p.label}
+                  onClick={() => togglePerk(p.key)}
+                />
+              ))}
+            </div>
+          </div>
+          <Dialog.Actions>
+            <Dialog.Close>Cancel</Dialog.Close>
+            <Button type="submit" disabled={busy || !name.trim()}>
+              <PlusIcon size={16} aria-hidden className="mr-1.5" />
+              {busy ? 'Creating…' : 'Create tier'}
+            </Button>
+          </Dialog.Actions>
+        </form>
+      </Dialog.Root>
     </div>
+  );
+}
+
+function PerkChip({
+  selected,
+  icon,
+  label,
+  onClick,
+}: {
+  selected: boolean;
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs ${
+        selected
+          ? 'border-primary bg-primary/15 text-primary'
+          : 'border-border text-foreground-secondary'
+      }`}
+      onClick={onClick}
+      aria-pressed={selected}
+      title={label}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
   );
 }

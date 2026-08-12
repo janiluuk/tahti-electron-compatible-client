@@ -15,11 +15,13 @@ import {
   type ProfileFields,
 } from '../../api/studio-extras';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
+import { ChannelRadioPlaylistPanel } from '../../components/ChannelRadioPlaylistPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { useAuthStore } from '../../stores/authStore';
 
-type Tab = 'design' | 'profile' | 'domain';
+type Tab = 'design' | 'radio' | 'profile' | 'domain';
 
 export function StudioChannelView() {
   const user = useAuthStore((s) => s.user);
@@ -71,35 +73,27 @@ export function StudioChannelView() {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/channel" />
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            Channel
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Design, profile, and domain shortcut. Full prefs (themes,
-            notifications, broadcast, money, connections) live under{' '}
-            <Link to="/settings" className="underline-offset-2 hover:underline">
-              Settings
-            </Link>
-            .
-          </p>
-          {user && (
-            <Link
-              to="/u/$username"
-              params={{ username: user.username }}
-              className="text-foreground-secondary mt-1 inline-block text-xs underline-offset-2 hover:underline"
-            >
-              Open public profile →
-            </Link>
-          )}
-        </div>
+        <StudioPageHeader
+          title="Channel designer"
+          subtitle="Look, 24/7 radio playlist, profile, and domain. Full prefs live under Settings."
+        />
+        {user && (
+          <Link
+            to="/u/$username"
+            params={{ username: user.username }}
+            className="text-foreground-secondary -mt-2 text-xs underline-offset-2 hover:underline"
+          >
+            Open public profile →
+          </Link>
+        )}
 
         <nav className="flex flex-wrap gap-2">
           {(
             [
               { id: 'design' as const, label: 'Design' },
+              { id: 'radio' as const, label: '24/7 radio' },
               { id: 'profile' as const, label: 'Profile' },
               { id: 'domain' as const, label: 'Username / domain' },
             ] as const
@@ -110,7 +104,7 @@ export function StudioChannelView() {
               onClick={() => setTab(t.id)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium tracking-wide uppercase ${
                 tab === t.id
-                  ? 'bg-primary text-foreground'
+                  ? 'bg-primary text-foreground shadow-sm'
                   : 'border-border text-foreground-secondary hover:text-foreground border'
               }`}
             >
@@ -120,12 +114,12 @@ export function StudioChannelView() {
         </nav>
 
         {tab === 'design' && user && (
-          <div className="flex flex-col gap-4">
+          <StudioPanel>
             {channel?.slug ? (
-              <div className="border-border flex flex-col gap-2 rounded-lg border px-4 py-3">
+              <div className="border-border bg-background mb-4 flex flex-col gap-2 rounded-lg border px-4 py-3 shadow-sm">
                 <p className="text-sm">
-                  Design the channel on the live page — drag layers, hide/add
-                  blocks from the side menu, and tune Look there.
+                  Prefer editing on the live page — drag layers and tune Look
+                  there.
                 </p>
                 <Link
                   to="/channel/$slug"
@@ -144,73 +138,74 @@ export function StudioChannelView() {
               avatarUrl={user.avatarUrl}
               bio={bio || profile?.bio}
             />
-          </div>
+          </StudioPanel>
         )}
 
+        {tab === 'radio' && <ChannelRadioPlaylistPanel />}
+
         {tab === 'profile' && (
-          <div className="flex flex-col gap-3">
-            {!profile ? (
-              <p className="text-foreground-secondary text-sm">Loading…</p>
-            ) : (
-              <>
-                <Input
-                  label="Display name"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                />
-                <label className="flex flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs uppercase">
-                    Bio
-                  </span>
-                  <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    rows={4}
-                    className="border-border bg-background rounded-md border px-3 py-2"
+          <StudioPanel title="Profile">
+            <div className="flex flex-col gap-3">
+              {!profile ? (
+                <p className="text-foreground-secondary text-sm">Loading…</p>
+              ) : (
+                <>
+                  <Input
+                    label="Display name"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
                   />
-                </label>
-                <Input
-                  label="Pronouns"
-                  value={pronouns}
-                  onChange={(e) => setPronouns(e.target.value)}
-                />
-                <Input
-                  label="Tip jar URL"
-                  value={tipJarUrl}
-                  onChange={(e) => setTipJarUrl(e.target.value)}
-                />
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={chatEnabled}
-                    onChange={(e) => setChatEnabled(e.target.checked)}
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="text-foreground-secondary text-xs uppercase">
+                      Bio
+                    </span>
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      rows={4}
+                      className="border-border bg-background rounded-md border px-3 py-2"
+                    />
+                  </label>
+                  <Input
+                    label="Pronouns"
+                    value={pronouns}
+                    onChange={(e) => setPronouns(e.target.value)}
                   />
-                  Public channel chat enabled
-                </label>
-                <Button
-                  size="sm"
-                  disabled={busy || !displayName.trim()}
-                  onClick={() => void saveProfile()}
-                >
-                  {busy ? 'Saving…' : 'Save profile'}
-                </Button>
-              </>
-            )}
-          </div>
+                  <Input
+                    label="Tip jar URL"
+                    value={tipJarUrl}
+                    onChange={(e) => setTipJarUrl(e.target.value)}
+                  />
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={chatEnabled}
+                      onChange={(e) => setChatEnabled(e.target.checked)}
+                    />
+                    Public channel chat enabled
+                  </label>
+                  <Button
+                    size="sm"
+                    disabled={busy || !displayName.trim()}
+                    onClick={() => void saveProfile()}
+                  >
+                    {busy ? 'Saving…' : 'Save profile'}
+                  </Button>
+                </>
+              )}
+            </div>
+          </StudioPanel>
         )}
 
         {tab === 'domain' && (
           <div className="flex flex-col gap-4">
-            <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
-              <h2 className="font-display text-lg font-bold">
-                Username / channel slug
-              </h2>
+            <StudioPanel title="Username / channel slug">
               <Input
                 label="Slug"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
               />
-              <div className="flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <Button
                   size="sm"
                   variant="secondary"
@@ -238,13 +233,14 @@ export function StudioChannelView() {
                 </Button>
               </div>
               {slugNote && (
-                <p className="text-foreground-secondary text-xs">{slugNote}</p>
+                <p className="text-foreground-secondary mt-2 text-xs">
+                  {slugNote}
+                </p>
               )}
-            </section>
+            </StudioPanel>
 
-            <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
-              <h2 className="font-display text-lg font-bold">Custom domain</h2>
-              <p className="text-foreground-secondary text-xs">
+            <StudioPanel title="Custom domain">
+              <p className="text-foreground-secondary mb-3 text-xs">
                 Requires membership. Current:{' '}
                 {channel?.customDomain
                   ? `${channel.customDomain}${channel.customDomainVerified ? ' (verified)' : ' (pending)'}`
@@ -256,7 +252,7 @@ export function StudioChannelView() {
                 onChange={(e) => setDomain(e.target.value)}
                 placeholder="music.example.com"
               />
-              <div className="flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <Button
                   size="sm"
                   onClick={() => {
@@ -292,11 +288,11 @@ export function StudioChannelView() {
                 </Button>
               </div>
               {domainInfo && (
-                <p className="text-foreground-secondary text-xs">
+                <p className="text-foreground-secondary mt-2 text-xs">
                   {domainInfo}
                 </p>
               )}
-            </section>
+            </StudioPanel>
           </div>
         )}
 

@@ -87,6 +87,7 @@ import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
+import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { WhatsNewPanel } from '../WhatsNewView';
@@ -208,9 +209,12 @@ function AccountPanel() {
           <SettingsHint>
             Sign in to manage membership and security.
           </SettingsHint>
-          <Link to="/login">
-            <Button size="sm">Login</Button>
-          </Link>
+          <Button
+            size="sm"
+            onClick={() => useAuthModalStore.getState().open('login')}
+          >
+            Log in
+          </Button>
         </div>
       </SectionShell>
     );
@@ -342,9 +346,13 @@ function ArtistPanel() {
     return (
       <SectionShell title="Artist">
         <SettingsHint>
-          <Link to="/login" className="underline-offset-2 hover:underline">
+          <button
+            type="button"
+            className="underline-offset-2 hover:underline"
+            onClick={() => useAuthModalStore.getState().open('login')}
+          >
             Sign in
-          </Link>{' '}
+          </button>{' '}
           to edit artist profile.
         </SettingsHint>
       </SectionShell>

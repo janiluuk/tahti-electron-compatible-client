@@ -13,6 +13,7 @@ import type { ReactNode } from 'react';
 import { Button } from '@nuclearplayer/ui';
 
 import { cn } from '../lib/cn';
+import { useLayoutStore } from '../stores/layoutStore';
 
 const NAV = [
   {
@@ -52,12 +53,14 @@ const NAV = [
 ] as const;
 
 type MobileBottomNavProps = {
-  onOpenQueue: () => void;
+  onOpenQueue?: () => void;
 };
 
 /** Fixed bottom tab bar for phone layouts. */
 export function MobileBottomNav({ onOpenQueue }: MobileBottomNavProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const toggleBottomQueue = useLayoutStore((s) => s.toggleBottomQueue);
+  const openQueue = onOpenQueue ?? toggleBottomQueue;
 
   return (
     <nav
@@ -85,7 +88,7 @@ export function MobileBottomNav({ onOpenQueue }: MobileBottomNavProps) {
       })}
       <button
         type="button"
-        onClick={onOpenQueue}
+        onClick={openQueue}
         className="text-foreground-secondary hover:text-foreground flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-md px-1 py-1.5 text-[10px] tracking-wide"
       >
         <ListMusicIcon size={18} />
@@ -103,7 +106,7 @@ type MobileDrawerProps = {
   side?: 'left' | 'right';
 };
 
-/** Full-height slide-over used for nav / queue on mobile. */
+/** Full-height slide-over used for nav / panels on mobile. */
 export function MobileDrawer({
   open,
   title,

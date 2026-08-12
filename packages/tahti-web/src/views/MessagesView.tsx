@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -12,6 +11,7 @@ import {
   type ChatDm,
   type ConversationSummary,
 } from '../api/messages';
+import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
 export function MessagesView() {
@@ -56,9 +56,12 @@ export function MessagesView() {
         <p className="text-foreground-secondary text-sm">
           Sign in to read DMs.
         </p>
-        <Link to="/login">
-          <Button size="sm">Login</Button>
-        </Link>
+        <Button
+          size="sm"
+          onClick={() => useAuthModalStore.getState().open('login')}
+        >
+          Log in
+        </Button>
       </div>
     );
   }

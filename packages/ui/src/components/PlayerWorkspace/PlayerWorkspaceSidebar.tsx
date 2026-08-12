@@ -70,22 +70,32 @@ export const PlayerWorkspaceSidebar: FC<PlayerWorkspaceSidebarProps> = ({
       }
     >
       <span
-        className={cn('mb-4 flex flex-row items-center', {
-          'justify-end': side === 'left',
-          'justify-start': side === 'right',
+        className={cn('flex flex-row items-center', {
+          'mb-1 justify-center px-0.5 pt-1': isCollapsed,
+          'mb-2 justify-end': !isCollapsed && side === 'left',
+          'mb-2 justify-start': !isCollapsed && side === 'right',
         })}
       >
         <Button
           data-testid={`sidebar-toggle-${side}`}
-          className={cn('top-2 px-2', {
-            'right-1': side === 'left',
-            'left-1': side === 'right',
-            'mx-1 mt-2': side === 'right' && isCollapsed,
-          })}
-          size="icon"
+          variant={isCollapsed ? 'text' : 'secondary'}
+          size="icon-sm"
+          title={isCollapsed ? 'Expand panel' : 'Collapse panel'}
+          aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
+          aria-pressed={!isCollapsed}
+          className={cn(
+            'size-7 transition-all',
+            isCollapsed
+              ? 'text-foreground-secondary opacity-45 hover:opacity-100'
+              : 'opacity-100',
+          )}
           onClick={onToggle}
         >
-          {side === 'left' ? <PanelLeft /> : <PanelRight />}
+          {side === 'left' ? (
+            <PanelLeft size={14} strokeWidth={isCollapsed ? 1.75 : 2.25} />
+          ) : (
+            <PanelRight size={14} strokeWidth={isCollapsed ? 1.75 : 2.25} />
+          )}
         </Button>
         {!isCollapsed && headerActions && (
           <span className="flex flex-1 items-center justify-end gap-1">

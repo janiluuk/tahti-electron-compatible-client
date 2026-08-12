@@ -25,6 +25,10 @@ type PlayerState = {
   isLive: boolean;
   shuffle: boolean;
   repeatMode: RepeatMode;
+  /** True after the user has started playback at least once this session. */
+  hasPlayed: boolean;
+  /** Whether the bottom player bar is shown; set true on play, false via hide. */
+  playerBarVisible: boolean;
   /** Set by UI; AudioEngine applies to the media element then clears. */
   seekTarget: number | null;
   /** Shared Web Audio analyser for channel visualizers (set by AudioEngine). */
@@ -35,6 +39,7 @@ type PlayerState = {
   playQueueIndex: (id: string) => void;
   removeFromQueue: (id: string) => void;
   clearQueue: () => void;
+  hidePlayerBar: () => void;
   setStatus: (status: PlaybackStatus, error?: string | null) => void;
   setProgress: (currentTime: number, duration: number) => void;
   setVolume: (volume: number) => void;
@@ -110,6 +115,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   isLive: true,
   shuffle: false,
   repeatMode: 'off',
+  hasPlayed: false,
+  playerBarVisible: false,
   seekTarget: null,
   analyser: null,
 
@@ -129,6 +136,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       duration: 0,
       seekTarget: null,
       isLive: item.kind === 'live' || item.kind === 'radio',
+      hasPlayed: true,
+      playerBarVisible: true,
     });
   },
 
@@ -158,6 +167,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       currentTime: 0,
       seekTarget: null,
       isLive: playable?.kind === 'live' || playable?.kind === 'radio',
+      hasPlayed: true,
+      playerBarVisible: true,
     });
   },
 
@@ -183,6 +194,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       currentTime: 0,
       duration: 0,
     }),
+
+  hidePlayerBar: () => set({ playerBarVisible: false }),
 
   setStatus: (status, error = null) => set({ status, error }),
 
