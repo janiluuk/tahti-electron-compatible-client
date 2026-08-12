@@ -48,8 +48,8 @@ Tahti web (`pnpm dev:tahti`) does **not** require Rust/Tauri.
 ## Install
 
 ```bash
-git clone https://github.com/janiluuk/tahti-nuclear.git
-cd tahti-nuclear
+git clone https://github.com/janiluuk/tahti-electron-compatible-client.git
+cd tahti-electron-compatible-client
 pnpm install
 ```
 
