@@ -4,18 +4,18 @@ Offline demo state lives in [`src/api/mock-session.ts`](src/api/mock-session.ts)
 
 ## Working end-to-end paths
 
-| Flow | Notes |
-|------|--------|
-| Login / TOTP / logout | Session via `setMockSessionUser`; `/me` returns it; persist rehydrates session |
-| Listen / Radio / Channel / Archive | Directory + HLS/MP3 fixtures |
-| Favorites / Follow | Mutable following set |
-| Fan subscribe | Activates in-session; Account / Settings Money lists it |
-| Studio Go Live | Broadcast mocks + simulate signal |
-| Sources OAuth Connect | In-app mock connect/disconnect (no real OAuth redirect) |
-| Stripe Connect onboard | In-app activate — no `connect.stripe.com` redirect |
-| Chat join / send | Local mock append (history REST) |
-| Governance vote / comment | In-memory motions |
-| Messages / Studio catalog | Module-local stores |
+| Flow                               | Notes                                                                          |
+| ---------------------------------- | ------------------------------------------------------------------------------ |
+| Login / TOTP / logout              | Session via `setMockSessionUser`; `/me` returns it; persist rehydrates session |
+| Listen / Radio / Channel / Archive | Directory + HLS/MP3 fixtures                                                   |
+| Favorites / Follow                 | Mutable following set                                                          |
+| Fan subscribe                      | Activates in-session; Account / Settings Money lists it                        |
+| Studio Go Live                     | Broadcast mocks + simulate signal                                              |
+| Sources OAuth Connect              | In-app mock connect/disconnect (no real OAuth redirect)                        |
+| Stripe Connect onboard             | In-app activate — no `connect.stripe.com` redirect                             |
+| Chat join / send                   | Local mock append (history REST)                                               |
+| Governance vote / comment          | In-memory motions                                                              |
+| Messages / Studio catalog          | Module-local stores                                                            |
 
 ## Demo credentials
 
@@ -34,7 +34,11 @@ Production / beta builds (`import.meta.env.PROD`) **do not** fall back to fixtur
 - [ ] Newsletter send confirmation + DM search users fixture expansion
 - [ ] Press-kit gallery upload mock (currently link-out)
 - [ ] Member invite mock (currently link-out)
+- [x] Stash upload / delete mock store (wave 7)
+- [x] Venue register mock success path
+- [x] TOTP setup/confirm/disable mock path
 - [ ] Visualizer: no mock needed — needs real WebGL runtime
+- [ ] Stash share mock
 
 ## Run
 
