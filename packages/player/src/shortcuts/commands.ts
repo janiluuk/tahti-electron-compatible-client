@@ -10,6 +10,11 @@ export const COMMANDS: Record<string, ShortcutCommand> = {
     defaultShortcut: 'space',
     section: 'playback',
   },
+  'playback.play': {
+    id: 'playback.play',
+    defaultShortcut: 'enter',
+    section: 'playback',
+  },
   'playback.next': {
     id: 'playback.next',
     defaultShortcut: 'mod+right',
@@ -48,6 +53,16 @@ export const COMMANDS: Record<string, ShortcutCommand> = {
   'general.toggleSettings': {
     id: 'general.toggleSettings',
     defaultShortcut: 'mod+comma',
+    section: 'general',
+  },
+  'general.goBack': {
+    id: 'general.goBack',
+    defaultShortcut: 'alt+left',
+    section: 'general',
+  },
+  'general.goForward': {
+    id: 'general.goForward',
+    defaultShortcut: 'alt+right',
     section: 'general',
   },
 };

@@ -1,3 +1,4 @@
+import { useRouter } from '@tanstack/react-router';
 import { FC } from 'react';
 
 import { useQueueStore } from '../stores/queueStore';
@@ -7,8 +8,25 @@ import { useSoundStore } from '../stores/soundStore';
 import { useShortcut } from './useShortcut';
 
 export const GlobalShortcuts: FC = () => {
+  const router = useRouter();
+
   useShortcut('playback.toggle', () => {
     useSoundStore.getState().toggle();
+  });
+
+  useShortcut('playback.play', () => {
+    const { status, play } = useSoundStore.getState();
+    if (status !== 'playing') {
+      play();
+    }
+  });
+
+  useShortcut('general.goBack', () => {
+    router.history.back();
+  });
+
+  useShortcut('general.goForward', () => {
+    router.history.forward();
   });
 
   useShortcut('playback.next', () => {
