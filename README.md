@@ -7,16 +7,21 @@
 
 </p>
 
+> **Tahti fork** of [nukeop/nuclear](https://github.com/nukeop/nuclear).  
+> Primary product work: `@nuclearplayer/tahti-web` (Tahti listen/studio on Nuclear UI).  
+> See [TAHTI-FORK.md](TAHTI-FORK.md) for remotes, sync, and deploy.
+
 <div align="center">
 
-# Nuclear 
+# Nuclear (Tahti fork)
 
 </div>
 
 <div align="center">
 
   Nuclear is a free, open-source music player without ads or tracking. Search for any song or artist, build playlists, and start listening.<br>
-  Runs on Windows, macOS, and Linux.
+  Runs on Windows, macOS, and Linux.<br>
+  <strong>This fork</strong> adds the Tahti web listen client — <code>pnpm dev:tahti</code>.
   
 </div>
 

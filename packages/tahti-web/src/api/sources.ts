@@ -1,8 +1,25 @@
 import type { FetchMeta } from './client';
 import { DEMO_MP3 } from './mock';
+import {
+  isMockOauthConnected,
+  setMockOauthConnected,
+  type MockOauthId,
+} from './mock-session';
 import type { TahtiPlayable } from './types';
 
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
+
+const OAUTH_IDS = new Set<MockOauthId>([
+  'bandcamp',
+  'soundcloud',
+  'google-drive',
+  'mixcloud',
+  'spotify',
+]);
+
+function asOauthId(id: string): MockOauthId | null {
+  return OAUTH_IDS.has(id as MockOauthId) ? (id as MockOauthId) : null;
+}
 
 const apiBase = () => {
   if (import.meta.env.VITE_TAHTI_API_URL?.startsWith('http')) {
@@ -165,6 +182,16 @@ export async function fetchConnectionStatus(
     };
   }
   if (forceMock()) {
+    const oauthId = asOauthId(id);
+    if (oauthId) {
+      return {
+        data: {
+          connected: isMockOauthConnected(oauthId),
+          configured: true,
+        },
+        meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+      };
+    }
     return {
       data: { connected: true, configured: true },
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
@@ -388,10 +415,22 @@ export function playableFromSoundcloud(t: SoundcloudTrack): TahtiPlayable {
   };
 }
 
+/** Mock-only: flip an OAuth integration to connected without leaving the app. */
+export async function connectIntegrationMock(
+  id: MockOauthId,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!forceMock()) {
+    return { ok: false, error: 'connectIntegrationMock is mock-only' };
+  }
+  setMockOauthConnected(id, true);
+  return { ok: true };
+}
+
 export async function disconnectIntegration(
   id: 'bandcamp' | 'soundcloud' | 'google-drive' | 'mixcloud',
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
+    setMockOauthConnected(id, false);
     return { ok: true };
   }
   try {

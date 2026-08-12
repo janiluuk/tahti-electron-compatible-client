@@ -880,9 +880,16 @@ function MoneyPanel() {
                     void startFanConnectOnboard().then((r) => {
                       if (!r.ok) {
                         setMsg(r.error);
-                      } else {
-                        window.open(r.url, '_blank', 'noopener,noreferrer');
+                        return;
                       }
+                      if ('mockActivated' in r) {
+                        setMsg(r.message);
+                        void fetchFanConnectStatus().then((x) =>
+                          setConnect(x.data),
+                        );
+                        return;
+                      }
+                      window.open(r.url, '_blank', 'noopener,noreferrer');
                     });
                   }}
                 >
@@ -896,9 +903,13 @@ function MoneyPanel() {
                   void fetchFanConnectPortal().then((r) => {
                     if (!r.ok) {
                       setMsg(r.error);
-                    } else {
-                      window.open(r.url, '_blank', 'noopener,noreferrer');
+                      return;
                     }
+                    if ('mockActivated' in r) {
+                      setMsg(r.message);
+                      return;
+                    }
+                    window.open(r.url, '_blank', 'noopener,noreferrer');
                   });
                 }}
               >

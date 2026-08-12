@@ -9,6 +9,7 @@ import {
   registerRequest,
   verifyEmailRequest,
 } from '../api/client';
+import { setMockSessionUser } from '../api/mock-session';
 import type { AuthUser } from '../api/types';
 import { rehydrateLibraryForUser, useLibraryStore } from './libraryStore';
 
@@ -65,8 +66,9 @@ export const useAuthStore = create<AuthState>()(
             await afterUserChange(data);
             return;
           }
-          // Keep mock/offline demo user if we stored one while FORCE_MOCK
+          // Rehydrate in-memory mock session from persisted zustand user
           if (import.meta.env.VITE_FORCE_MOCK === '1' && get().user) {
+            setMockSessionUser(get().user);
             set({ loading: false, hydrated: true });
             await afterUserChange(get().user);
             return;

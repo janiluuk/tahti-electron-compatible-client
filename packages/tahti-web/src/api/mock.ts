@@ -382,8 +382,8 @@ export function mockAuthUser(overrides?: Partial<AuthUser>): AuthUser {
     id: 'mock-user-1',
     email: 'demo@tahti.live',
     username: 'demo',
-    displayName: 'Demo Listener',
-    tier: 'FREE',
+    displayName: 'Demo Artist',
+    tier: 'ARTIST',
     avatarUrl: null,
     isMember: true,
     channel: {
@@ -423,7 +423,7 @@ export function mockFanTiers(username: string): FanTiersResponse {
         perks: ['Fan chat', 'Monthly note from the artist'],
       },
     ],
-    paymentsReady: false,
+    paymentsReady: true,
   };
 }
 

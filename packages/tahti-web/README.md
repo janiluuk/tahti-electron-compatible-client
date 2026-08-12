@@ -7,10 +7,11 @@
 ```bash
 export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 22
 pnpm --filter @nuclearplayer/tahti-web dev
-# Mock: VITE_FORCE_MOCK=1
+# Offline demo (no API):
+VITE_FORCE_MOCK=1 pnpm --filter @nuclearplayer/tahti-web dev
 ```
 
-Open http://localhost:5180
+Open http://localhost:5180 — mock login: `demo@tahti.live` / any password. See [`MOCKS.md`](MOCKS.md).
 
 ## IA (sparse sidebar)
 

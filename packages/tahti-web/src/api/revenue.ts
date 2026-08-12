@@ -1,4 +1,8 @@
 import type { FetchMeta } from './client';
+import {
+  getMockConnectStatus,
+  mockCompleteConnectOnboard,
+} from './mock-session';
 
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
 
@@ -80,13 +84,7 @@ export async function fetchFanConnectStatus(): Promise<{
 }> {
   if (forceMock()) {
     return {
-      data: {
-        stripeConfigured: true,
-        accountId: 'acct_mock',
-        chargesEnabled: true,
-        detailsSubmitted: true,
-        paymentsReady: true,
-      },
+      data: getMockConnectStatus(),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
@@ -110,10 +108,19 @@ export async function fetchFanConnectStatus(): Promise<{
 }
 
 export async function startFanConnectOnboard(): Promise<
-  { ok: true; url: string } | { ok: false; error: string }
+  | { ok: true; url: string }
+  | { ok: true; mockActivated: true; message: string }
+  | { ok: false; error: string }
 > {
   if (forceMock()) {
-    return { ok: true, url: 'https://connect.stripe.com/mock-onboard' };
+    const status = mockCompleteConnectOnboard();
+    return {
+      ok: true,
+      mockActivated: true,
+      message: status.paymentsReady
+        ? 'Mock Connect onboard complete — payments ready.'
+        : 'Mock Connect onboard updated.',
+    };
   }
   try {
     const { data } = await requestJson<{ url: string }>(
@@ -132,10 +139,23 @@ export async function startFanConnectOnboard(): Promise<
 }
 
 export async function fetchFanConnectPortal(): Promise<
-  { ok: true; url: string } | { ok: false; error: string }
+  | { ok: true; url: string }
+  | { ok: true; mockActivated: true; message: string }
+  | { ok: false; error: string }
 > {
   if (forceMock()) {
-    return { ok: true, url: 'https://connect.stripe.com/mock-portal' };
+    const status = getMockConnectStatus();
+    if (!status.accountId) {
+      return {
+        ok: false,
+        error: 'Complete mock onboarding first (no Connect account yet).',
+      };
+    }
+    return {
+      ok: true,
+      mockActivated: true,
+      message: `Mock Stripe portal for ${status.accountId} — no redirect offline.`,
+    };
   }
   try {
     const { data } = await requestJson<{ url: string }>(

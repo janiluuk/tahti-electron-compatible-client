@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Card, CardGrid } from '@nuclearplayer/ui';
 
 import {
+  connectIntegrationMock,
   disconnectIntegration,
   fetchConnectionStatus,
   fetchSoundcloudTracks,
@@ -27,6 +28,8 @@ import {
 } from '../components/SourceServiceIcon';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
+
+const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
 
 type TileStatus = {
   status: ConnectionStatus | null;
@@ -246,11 +249,43 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
               <div className="mt-4 flex flex-wrap gap-2">
                 {def.kind === 'oauth' && def.oauthStartPath && (
                   <>
-                    <a href={oauthStartUrl(def.oauthStartPath)}>
-                      <Button size="sm" disabled={!user}>
+                    {forceMock() ? (
+                      <Button
+                        size="sm"
+                        disabled={!user}
+                        onClick={() => {
+                          const id = selected as
+                            | 'bandcamp'
+                            | 'soundcloud'
+                            | 'google-drive'
+                            | 'mixcloud'
+                            | 'spotify';
+                          void connectIntegrationMock(id).then((r) => {
+                            setNote(
+                              r.ok ? `Mock connected ${def.name}.` : r.error,
+                            );
+                            void fetchConnectionStatus(selected).then((x) => {
+                              setStatus(x.data);
+                              setTiles((prev) => ({
+                                ...prev,
+                                [selected]: {
+                                  status: x.data,
+                                  metaSource: x.meta.source,
+                                },
+                              }));
+                            });
+                          });
+                        }}
+                      >
                         {status?.connected ? 'Reconnect' : 'Connect'}
                       </Button>
-                    </a>
+                    ) : (
+                      <a href={oauthStartUrl(def.oauthStartPath)}>
+                        <Button size="sm" disabled={!user}>
+                          {status?.connected ? 'Reconnect' : 'Connect'}
+                        </Button>
+                      </a>
+                    )}
                     {status?.connected && (
                       <Button
                         size="sm"
@@ -263,9 +298,16 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                             | 'mixcloud';
                           void disconnectIntegration(id).then((r) => {
                             setNote(r.ok ? 'Disconnected.' : r.error);
-                            void fetchConnectionStatus(selected).then((x) =>
-                              setStatus(x.data),
-                            );
+                            void fetchConnectionStatus(selected).then((x) => {
+                              setStatus(x.data);
+                              setTiles((prev) => ({
+                                ...prev,
+                                [selected]: {
+                                  status: x.data,
+                                  metaSource: x.meta.source,
+                                },
+                              }));
+                            });
                           });
                         }}
                       >

@@ -3,7 +3,6 @@ import {
   channelToPlayable,
   DEMO_MP3,
   mockArchiveItems,
-  mockAuthUser,
   mockChannel,
   mockChatAccess,
   mockChatHistory,
@@ -19,6 +18,17 @@ import {
   mockVenues,
   radioToPlayable,
 } from './mock';
+import {
+  buildMockLoginUser,
+  clearMockSessionUser,
+  getMockSessionUser,
+  listMockFollowing,
+  listMockSubscriptions,
+  mockActivateSubscription,
+  mockFollow,
+  mockUnfollow,
+  setMockSessionUser,
+} from './mock-session';
 import type {
   ArchiveItem,
   AuthUser,
@@ -386,7 +396,10 @@ export async function fetchAuthMe(): Promise<{
   meta: FetchMeta;
 }> {
   if (forceMock()) {
-    return { data: null, meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
+    return {
+      data: getMockSessionUser(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
   }
   try {
     const data = await getJson<AuthUser>('/api/auth/me');
@@ -417,14 +430,9 @@ export async function loginRequest(
         challengeId: 'mock-totp-challenge',
       };
     }
-    return {
-      ok: true,
-      user: mockAuthUser({
-        email,
-        username: email.split('@')[0]?.replace(/\+.*$/, '') || 'demo',
-        id: `mock-${email}`,
-      }),
-    };
+    const user = buildMockLoginUser(email);
+    setMockSessionUser(user);
+    return { ok: true, user };
   }
   try {
     const { data } = await requestJson<{
@@ -459,14 +467,20 @@ export async function loginTotpRequest(
       challengeId === 'mock-totp-challenge' &&
       (code === '000000' || code === '123456')
     ) {
-      return {
-        ok: true,
-        user: mockAuthUser({
-          email: 'demo+totp@tahti.live',
-          username: 'demo-totp',
-          id: 'mock-totp-user',
-        }),
-      };
+      const user = buildMockLoginUser('demo+totp@tahti.live', {
+        username: 'demo-totp',
+        id: 'mock-totp-user',
+        displayName: 'Demo TOTP',
+        channel: {
+          slug: 'demo-totp',
+          state: 'OFFLINE',
+          goneLiveAt: null,
+          customDomain: null,
+          customDomainVerified: false,
+        },
+      });
+      setMockSessionUser(user);
+      return { ok: true, user };
     }
     return { ok: false, error: 'Invalid code (mock accepts 000000 or 123456)' };
   }
@@ -541,6 +555,7 @@ export async function verifyEmailRequest(
 
 export async function logoutRequest(): Promise<void> {
   if (forceMock()) {
+    clearMockSessionUser();
     return;
   }
   try {
@@ -579,9 +594,14 @@ export async function startFanSubscribe(
   | { ok: false; error: string }
 > {
   if (forceMock()) {
+    if (!getMockSessionUser()) {
+      return { ok: false, error: 'Log in first (mock) to activate a fan sub.' };
+    }
+    const row = mockActivateSubscription(username, tierId);
     return {
-      ok: false,
-      error: 'Mock mode — Stripe checkout unavailable. Use a live API + login.',
+      ok: true,
+      activated: true,
+      message: `Mock subscribed to ${row.tierName} — ${row.artist.displayName}`,
     };
   }
   try {
@@ -678,12 +698,9 @@ export async function fetchFollowing(username: string): Promise<{
   meta: FetchMeta;
 }> {
   if (forceMock()) {
+    void username;
     return {
-      data: mockDirectory().items.map((c) => ({
-        username: c.slug,
-        displayName: c.displayName,
-        avatarUrl: c.avatarUrl,
-      })),
+      data: listMockFollowing(),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
@@ -701,6 +718,7 @@ export async function followArtist(
   username: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
+    mockFollow(username);
     return { ok: true };
   }
   try {
@@ -723,6 +741,7 @@ export async function unfollowArtist(
   username: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (forceMock()) {
+    mockUnfollow(username);
     return { ok: true };
   }
   try {
@@ -1114,19 +1133,7 @@ export async function fetchMySubscriptions(): Promise<{
 }> {
   if (forceMock()) {
     return {
-      data: [
-        {
-          id: 'mock-sub-1',
-          tierName: 'Supporter',
-          amountCents: 500,
-          state: 'ACTIVE',
-          currentPeriodEnd: new Date(Date.now() + 86400000 * 20).toISOString(),
-          artist: {
-            username: 'northern-lights',
-            displayName: 'Northern Lights',
-          },
-        },
-      ],
+      data: listMockSubscriptions(),
       meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
     };
   }
