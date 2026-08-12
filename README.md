@@ -1,15 +1,15 @@
-# tahti-electron-compatible-client
+# Tahti Nuclear Player
 
-Tahti fork of [Nuclear](https://github.com/nukeop/nuclear): a desktop music player (Tauri + React) plus a **Tahti listen / artist studio** web POC built on the same UI stack.
+Tahti Nuclear Player is built on [Nuclear](https://github.com/nukeop/nuclear): a desktop music player (Tauri + React) plus a **Tahti listen / artist studio** web POC built on the same UI stack.
 
 Inspired by Nuclear’s free, ad-free player model — adapted toward high-quality streaming so artists can present their work well.
 
-> **Not upstream Nuclear.** Do not open PRs against [nukeop/nuclear](https://github.com/nukeop/nuclear) from this tree. See [TAHTI-FORK.md](./TAHTI-FORK.md).
+> **Not upstream Nuclear.** Do not open PRs against [nukeop/nuclear](https://github.com/nukeop/nuclear) from this tree. See [TAHTI.md](./TAHTI.md).
 
 ## Who it’s for
 
 - **Tahti contributors** building the next listen / studio web client (`packages/tahti-web`)
-- **Developers** exploring Nuclear’s Tauri player, plugins, and shared UI packages in this fork
+- **Developers** exploring Nuclear’s Tauri player, plugins, and shared UI packages in this project
 
 ## What’s in this repo
 
@@ -48,8 +48,8 @@ Tahti web (`pnpm dev:tahti`) does **not** require Rust/Tauri.
 ## Install
 
 ```bash
-git clone https://github.com/janiluuk/tahti-electron-compatible-client.git
-cd tahti-electron-compatible-client
+git clone https://github.com/janiluuk/tahti-nuclear.git
+cd tahti-nuclear
 pnpm install
 ```
 
@@ -113,12 +113,12 @@ Publishes the Tahti web build for `beta.tahti.live` (vimage / Pi proxy). See [`p
 | Experimental / next listen+studio client on Nuclear UI | `apps/web` and API/services at [tahti](https://github.com/janiluuk) (separate workspace) |
 | Talks to public `api.tahti.live` (or local API via proxy) | Full product stack |
 
-Fork remotes and sync notes: [TAHTI-FORK.md](./TAHTI-FORK.md).
+Remotes and sync notes: [TAHTI.md](./TAHTI.md).
 
 ## Agents & contributing
 
 - **AI agents:** follow [AGENTS.md](./AGENTS.md) (commands, packages, code style, Rust layout, testing).
-- Upstream Nuclear does not take direct app PRs; prefer plugins for Nuclear itself. This fork is for Tahti work — coordinate with the maintainers before large changes.
+- Upstream Nuclear does not take direct app PRs; prefer plugins for Nuclear itself. This project is for Tahti work — coordinate with the maintainers before large changes.
 - Skills under `.agents/skills/` (components, plugins, host pattern, docs).
 
 ## License
