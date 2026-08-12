@@ -212,6 +212,85 @@ export type RevelatorRoyaltyReportRow = {
   syncedAt: string;
 };
 
+export const RELEASE_CREDIT_ROLES = [
+  'writer',
+  'composer',
+  'performer',
+  'producer',
+  'remixer',
+  'engineer',
+  'label',
+] as const;
+
+export type ReleaseCreditRole = (typeof RELEASE_CREDIT_ROLES)[number];
+
+export type ReleaseCredit = {
+  role: ReleaseCreditRole;
+  name: string;
+  artistUsername?: string;
+};
+
+export type ReleaseChecklistItem = {
+  id: string;
+  label: string;
+  done: boolean;
+  hint?: string;
+};
+
+/** GET/PATCH /api/me/releases/:id/catalog */
+export type ReleaseCatalog = {
+  id: string;
+  title: string;
+  type: string;
+  state: string;
+  releaseDate: string;
+  description: string | null;
+  artworkUrl: string | null;
+  smartLinkSlug: string;
+  smartLinkTargets: Record<string, string> | null;
+  upc: string | null;
+  musicbrainzReleaseId: string | null;
+  musicbrainzArtistId: string | null;
+  discogsReleaseId: string | null;
+  pLine: string | null;
+  cLine: string | null;
+  labelImprint: string | null;
+  credits: ReleaseCredit[] | null;
+  revelatorId: string | null;
+  revelatorStatus: string | null;
+  tracks: Array<{
+    id: string;
+    position: number;
+    title: string;
+    isrc: string | null;
+    musicbrainzRecordingId?: string | null;
+    durationSec: number | null;
+  }>;
+  checklist: ReleaseChecklistItem[];
+};
+
+export type ReleaseCatalogPatch = {
+  upc?: string | null;
+  musicbrainzReleaseId?: string | null;
+  musicbrainzArtistId?: string | null;
+  discogsReleaseId?: string | null;
+  pLine?: string | null;
+  cLine?: string | null;
+  labelImprint?: string | null;
+  credits?: ReleaseCredit[];
+};
+
+export type SpotifyArtistProfile = {
+  artistId: string;
+  name: string;
+  imageUrl: string | null;
+};
+
+export type SpotifyProfileStatus = {
+  configured: boolean;
+  profile: SpotifyArtistProfile | null;
+};
+
 export function createDefaultEditList(sourceDuration: number): EditList {
   return {
     version: 1,

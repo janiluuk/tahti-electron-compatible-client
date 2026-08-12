@@ -52,12 +52,13 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 
 - [ ] Channel chat hardening (captcha / rail parity)
 - [ ] Full Three.js visualizer preset set
-- [ ] Stash upload UI (preview/play only today)
+- [x] Stash upload / delete
 - [ ] Stats detail page (beyond summary)
 - [ ] Sources OAuth silent-mock demock polish
 - [x] Venue register
-- [ ] Membership purchase, password/security
-- [ ] Listener-only dashboard, distribution / radio slots / moderate
+- [x] Membership purchase + TOTP manage
+- [x] Distribution (catalog + Revelator + Spotify profile)
+- [ ] Listener-only dashboard, radio slots depth, moderate
 - [ ] Multitrack timeline editing, press-kit / invites polish
 - [ ] Production cutover for `apps/web`
 
@@ -127,8 +128,10 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Channel design | channel/edit | `/channel/$slug?edit=1` + `/studio/channel` | `partial` | Inline Edit design: presets, layers drag/hide/add; layout localStorage; look via API |
 | Updates / newsletter | posts | `/studio/updates` | `live-api` | |
 | Revenue / Connect | revenue | `/studio/revenue` | `live-api` | demock wave 4; onboard/portal redirect to Stripe |
-| Stash | `/dashboard/stash` | `/studio/stash` | `partial` | |
-| Distribution / radio slots / moderate | various | — | `missing` | |
+| Stash | `/dashboard/stash` | `/studio/stash` | `live-api` | upload/delete + mock |
+| Distribution | `/dashboard/distribution` | `/studio/distribution` | `live-api` | catalog, Revelator pay+submit, Spotify profile, royalties |
+| Radio slots / Shows | `/dashboard/tahti-radio-slots` | `/studio/shows` | `partial` | bookings live; series localStorage |
+| Channel moderators | `/dashboard/moderate/:slug` | — | `missing` | |
 
 ## 5. Settings / sources
 
