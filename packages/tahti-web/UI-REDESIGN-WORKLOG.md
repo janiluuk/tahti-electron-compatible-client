@@ -14,9 +14,9 @@ Workflow rules: one page at a time; do not advance until user approves.
 |---|------|-------|--------|------|
 | 1 | Studio home | `/studio` | **approved** | `docs/redesign-shots/studio-home-v1.png` |
 | 2 | Go Live wizard | `/studio/go-live` | **approved** | `docs/redesign-shots/studio-go-live-v1.png` |
-| 3 | Music / Archive | `/studio/archive` | **in-review** | `docs/redesign-shots/studio-archive-v1.png` |
-| 4 | Archive item | `/studio/archive/$id` | pending | |
-| 5 | Upload | `/studio/upload` | **in-review** | `docs/redesign-shots/studio-upload-v1.png` |
+| 3 | Music / Archive | `/studio/archive` | **approved** | `docs/redesign-shots/studio-archive-v1.png` |
+| 4 | Archive item | `/studio/archive/$id` | **in-review** | `docs/redesign-shots/studio-archive-item-v1.png` |
+| 5 | Upload | `/studio/upload` | **approved** | `docs/redesign-shots/studio-upload-v1.png` |
 | 6 | Releases | `/studio/releases` | pending | |
 | 7 | Release detail | `/studio/releases/$id` | pending | |
 | 8 | Collections / album designer | `/studio/collections` | pending | |
@@ -119,7 +119,9 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 
 **Screenshot:** `docs/redesign-shots/studio-archive-v1.png` (captured mock Vite + Playwright)
 
-**Status:** in-review — awaiting comment or `approved`.
+**Status:** approved (user: continue / next slice).
+
+**Note:** Same ship commit (`60f5d875a`) also included artist gallery on profiles (fan-facing; not a studio worklog row).
 
 ### 2026-08-12 — Page 5 Upload v1 (`in-review`)
 
@@ -133,6 +135,21 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 
 **Screenshot:** `docs/redesign-shots/studio-upload-v1.png` (captured mock Vite + Playwright)
 
-**Status:** in-review — awaiting comment or `approved` (pages 3 + 5 together).
+**Status:** approved (user: continue / next slice).
 
 **Shared note:** StudioNav slim (primary 5 + collapsed “More studio tools”) ships with these pages; review on both shots.
+
+### 2026-08-12 — Page 4 Archive item v1 (`in-review`)
+
+**Goal:** One job — edit metadata; hide audio editor until needed.
+
+**Changes:**
+
+- Human subtitle + status/visibility chips (no middle-dot status line)
+- Header **Save** as the only primary CTA
+- Fields: title, description, genre, public toggle
+- **More tools** disclosure for Audio editor
+
+**Screenshot:** `docs/redesign-shots/studio-archive-item-v1.png`
+
+**Status:** in-review — awaiting comment or `approved`.

@@ -37,23 +37,16 @@ await page.evaluate(() => {
 
 const shots = [
   {
-    path: '/studio/archive',
-    out: 'studio-archive-v1.png',
+    path: '/studio/archive/arch-mock-1',
+    out: 'studio-archive-item-v1.png',
     check: (t) => {
       const l = t.toLowerCase();
       return (
-        l.includes('music') &&
-        l.includes('upload') &&
-        l.includes('more studio tools')
+        l.includes('edit title') &&
+        l.includes('save') &&
+        l.includes('more tools') &&
+        !l.includes('multipart')
       );
-    },
-  },
-  {
-    path: '/studio/upload',
-    out: 'studio-upload-v1.png',
-    check: (t) => {
-      const l = t.toLowerCase();
-      return l.includes('upload') && !l.includes('multipart') && !/\bput\b/.test(l);
     },
   },
 ];
