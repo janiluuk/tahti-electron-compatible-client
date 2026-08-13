@@ -23,7 +23,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input, SectionShell, Tabs } from '@nuclearplayer/ui';
+import {
+  Button,
+  Input,
+  PluginItem,
+  SectionShell,
+  Tabs,
+  Toggle,
+} from '@nuclearplayer/ui';
 
 import {
   fetchChannelMembers,
@@ -130,6 +137,8 @@ export function SettingsSectionBody({
       return <ThemesPanel />;
     case 'connections':
       return <ConnectionsPanel />;
+    case 'integrations':
+      return <IntegrationsMcpPanel />;
     case 'whats-new':
       return (
         <SectionShell title="What's new">
@@ -139,6 +148,66 @@ export function SettingsSectionBody({
     default:
       return null;
   }
+}
+
+/** Nuclear desktop MCP — same stack as upstream player (not the web SPA). */
+function IntegrationsMcpPanel() {
+  const cursorSnippet = `{
+  "mcpServers": {
+    "nuclear": {
+      "url": "http://127.0.0.1:8800/mcp"
+    }
+  }
+}`;
+
+  return (
+    <SectionShell title="Integrations">
+      <div className="flex flex-col gap-4 text-sm">
+        <SettingsHint>
+          The original Nuclear MCP server ships in this monorepo&apos;s desktop
+          player (<code className="text-xs">@nuclearplayer/player</code>),
+          byte-identical to upstream. It is not hosted on the beta web SPA —
+          agents need the Tauri app + localhost bridge.
+        </SettingsHint>
+        <div className="border-border bg-background-secondary/40 rounded-lg border p-4">
+          <h3 className="text-foreground mb-2 font-medium">
+            Enable MCP (desktop)
+          </h3>
+          <ol className="text-foreground-secondary list-decimal space-y-1.5 pl-5">
+            <li>
+              From repo root:{' '}
+              <code className="text-xs">
+                pnpm --filter @nuclearplayer/player dev
+              </code>
+            </li>
+            <li>Settings → Integrations → Enable MCP Server</li>
+            <li>
+              Connect at{' '}
+              <code className="text-xs">http://127.0.0.1:8800/mcp</code>{' '}
+              (Streamable HTTP; ports 8800–8809)
+            </li>
+          </ol>
+        </div>
+        <div className="border-border bg-background-secondary/40 rounded-lg border p-4">
+          <h3 className="text-foreground mb-2 font-medium">Cursor / Claude</h3>
+          <pre className="bg-background overflow-x-auto rounded-md p-3 text-xs">
+            {cursorSnippet}
+          </pre>
+          <SettingsHint>
+            Tools: list_methods, method_details, describe_type, call — Queue,
+            Playback, Metadata, Favorites, Playlists, Dashboard, Providers.
+          </SettingsHint>
+        </div>
+        <SettingsHint>
+          Full docs: packages/docs/integrations/mcp-server.md and
+          packages/tahti-web/docs/MCP.md. Parity:{' '}
+          <code className="text-xs">
+            node packages/tahti-web/scripts/verify-nuclear-mcp-parity.mjs
+          </code>
+        </SettingsHint>
+      </div>
+    </SectionShell>
+  );
 }
 
 function MembershipCheckoutButton({
@@ -941,45 +1010,37 @@ function BroadcastPanel() {
               {targets.length === 0 ? (
                 <SettingsHint>No destinations yet.</SettingsHint>
               ) : (
-                <ul className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   {targets.map((t) => (
-                    <li
+                    <PluginItem
                       key={t.id}
-                      className="border-border flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
-                    >
-                      <div>
-                        <div className="font-medium">
-                          {t.label || t.provider} {t.enabled ? '' : '(off)'}
-                        </div>
-                        <div className="text-foreground-secondary text-xs">
-                          {t.provider}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => {
+                      icon={<Cast size={22} aria-hidden />}
+                      name={t.label || t.provider}
+                      author={t.provider}
+                      description={
+                        t.keyLast4
+                          ? `${t.rtmpUrl} · key ···${t.keyLast4}`
+                          : t.rtmpUrl
+                      }
+                      disabled={!t.enabled}
+                      labels={{ by: 'via' }}
+                      rightAccessory={
+                        <Toggle
+                          checked={t.enabled}
+                          onChange={(checked) => {
                             void patchRtmpTarget(t.id, {
-                              enabled: !t.enabled,
+                              enabled: checked,
                             }).then(reloadTargets);
                           }}
-                        >
-                          {t.enabled ? 'Disable' : 'Enable'}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="text"
-                          onClick={() => {
-                            void deleteRtmpTarget(t.id).then(reloadTargets);
-                          }}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    </li>
+                          aria-label={`Toggle ${t.label || t.provider}`}
+                        />
+                      }
+                      onRemove={() => {
+                        void deleteRtmpTarget(t.id).then(reloadTargets);
+                      }}
+                    />
                   ))}
-                </ul>
+                </div>
               )}
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
                 <Input
