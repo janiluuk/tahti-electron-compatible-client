@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Card, CardGrid } from '@nuclearplayer/ui';
@@ -15,9 +15,43 @@ import {
   ArtistGalleryPanel,
 } from '../components/ArtistGalleryPanel';
 import { ChannelDesigner } from '../components/ChannelDesigner';
+import { GlowMediaTile } from '../components/GlowMediaTile';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { isPinned } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
+import { useLibraryStore } from '../stores/libraryStore';
+import { usePlayerStore } from '../stores/playerStore';
+
+const GLOW_COLORS = [
+  '#a78bfa',
+  '#22d3ee',
+  '#fb7185',
+  '#34d399',
+  '#fbbf24',
+  '#60a5fa',
+];
+
+function releaseToPlayable(
+  release: PublicProfile['releases'][number],
+  artist: string,
+  channelSlug?: string,
+): TahtiPlayable | null {
+  const track = release.tracks?.find((t) => t.playUrl);
+  if (!track?.playUrl) {
+    return null;
+  }
+  const isHls = track.playUrl.includes('.m3u8');
+  return {
+    id: `archive:${track.archiveItemId ?? release.id}`,
+    kind: 'archive',
+    title: track.title,
+    artist,
+    coverUrl: release.artworkUrl ?? undefined,
+    streamUrl: track.playUrl,
+    protocol: isHls ? 'hls' : 'https',
+    channelSlug,
+  };
+}
 
 type Tab = 'music' | 'releases' | 'collections' | 'gallery' | 'design';
 
@@ -50,6 +84,12 @@ export function ArtistView({ username }: { username: string }) {
   const [tab, setTab] = useState<Tab>('music');
   const [galleryImages, setGalleryImages] = useState<PublicPressKitImage[]>([]);
   const [galleryLoaded, setGalleryLoaded] = useState(false);
+
+  const navigate = useNavigate();
+  const play = usePlayerStore((s) => s.play);
+  const enqueue = usePlayerStore((s) => s.enqueue);
+  const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
+  const isFavoriteTrack = useLibraryStore((s) => s.isFavoriteTrack);
 
   const isOwner = Boolean(me && me.username === username);
   const hasGallery = galleryImages.length > 0;
@@ -96,28 +136,58 @@ export function ArtistView({ username }: { username: string }) {
     }
   }, [tab, hasGallery]);
 
-  const { pinnedPlayables, catalogPlayables } = useMemo(() => {
-    if (!profile) {
-      return { pinnedPlayables: [], catalogPlayables: [] };
-    }
-    const artist = profile.artist.displayName;
-    const slug = profile.channel?.slug;
-    const pinnedTracks = [...profile.tracks]
-      .filter((t) => isPinned(t))
-      .sort((a, b) => (b.pinnedAt ?? '').localeCompare(a.pinnedAt ?? ''));
-    const pinnedIds = new Set(pinnedTracks.map((t) => t.id));
-    const toPlayable = (t: PublicProfile['tracks'][number]) =>
-      profileTrackToPlayable(t, artist, slug);
-    return {
-      pinnedPlayables: pinnedTracks
-        .map(toPlayable)
-        .filter((p): p is TahtiPlayable => Boolean(p)),
-      catalogPlayables: profile.tracks
-        .filter((t) => !pinnedIds.has(t.id))
-        .map(toPlayable)
-        .filter((p): p is TahtiPlayable => Boolean(p)),
-    };
-  }, [profile]);
+  const { pinnedPlayables, pinnedTiles, catalogPlayables, releaseTiles } =
+    useMemo(() => {
+      if (!profile) {
+        return {
+          pinnedPlayables: [],
+          pinnedTiles: [],
+          catalogPlayables: [],
+          releaseTiles: [],
+        };
+      }
+      const artist = profile.artist.displayName;
+      const slug = profile.channel?.slug;
+      const pinnedTracks = [...profile.tracks]
+        .filter((t) => isPinned(t))
+        .sort((a, b) => (b.pinnedAt ?? '').localeCompare(a.pinnedAt ?? ''));
+      const pinnedIds = new Set(pinnedTracks.map((t) => t.id));
+      const toPlayable = (t: PublicProfile['tracks'][number]) =>
+        profileTrackToPlayable(t, artist, slug);
+
+      const pinnedTiles = pinnedTracks
+        .map((t) => ({ track: t, playable: toPlayable(t) }))
+        .filter(
+          (
+            x,
+          ): x is {
+            track: (typeof pinnedTracks)[number];
+            playable: TahtiPlayable;
+          } => Boolean(x.playable),
+        );
+
+      const releaseTiles = [...profile.releases]
+        .sort((a, b) =>
+          (b.releaseDate ?? '').localeCompare(a.releaseDate ?? ''),
+        )
+        .slice(0, 6)
+        .map((release) => ({
+          release,
+          playable: releaseToPlayable(release, artist, slug),
+        }));
+
+      return {
+        pinnedPlayables: pinnedTracks
+          .map(toPlayable)
+          .filter((p): p is TahtiPlayable => Boolean(p)),
+        pinnedTiles,
+        catalogPlayables: profile.tracks
+          .filter((t) => !pinnedIds.has(t.id))
+          .map(toPlayable)
+          .filter((p): p is TahtiPlayable => Boolean(p)),
+        releaseTiles,
+      };
+    }, [profile]);
 
   if (loading) {
     return <p className="text-foreground-secondary text-sm">Loading artist…</p>;
@@ -258,8 +328,8 @@ export function ArtistView({ username }: { username: string }) {
       </div>
 
       {tab === 'music' && (
-        <section className="flex flex-col gap-6">
-          {pinnedPlayables.length > 0 && (
+        <section className="flex flex-col gap-8">
+          {pinnedTiles.length > 0 && (
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="text-sm font-semibold tracking-wide uppercase">
@@ -274,18 +344,75 @@ export function ArtistView({ username }: { username: string }) {
                   </Link>
                 )}
               </div>
-              <PlayableTrackTable
-                items={pinnedPlayables}
-                emptyMessage="No pinned tracks."
-              />
+              <CardGrid className="grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-6">
+                {pinnedTiles.map(({ track, playable }, i) => (
+                  <GlowMediaTile
+                    key={track.id}
+                    title={track.title}
+                    subtitle={track.artistName ?? artist.displayName}
+                    src={track.bannerUrl ?? undefined}
+                    glowColor={GLOW_COLORS[i % GLOW_COLORS.length]}
+                    onPlay={() => play(playable)}
+                    onQueue={() => enqueue(playable)}
+                    onFavorite={() => toggleFavoriteTrack(playable)}
+                    favorited={isFavoriteTrack(playable.id)}
+                  />
+                ))}
+              </CardGrid>
             </div>
           )}
+
+          {releaseTiles.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="text-sm font-semibold tracking-wide uppercase">
+                  Latest releases
+                </h2>
+                {releases.length > releaseTiles.length && (
+                  <button
+                    type="button"
+                    onClick={() => setTab('releases')}
+                    className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
+                  >
+                    View all {releases.length}
+                  </button>
+                )}
+              </div>
+              <CardGrid className="grid-cols-[repeat(auto-fill,minmax(13rem,1fr))] gap-6">
+                {releaseTiles.map(({ release, playable }, i) => (
+                  <GlowMediaTile
+                    key={release.id}
+                    title={release.title}
+                    subtitle={release.type ?? 'Release'}
+                    src={release.artworkUrl ?? undefined}
+                    glowColor={GLOW_COLORS[(i + 2) % GLOW_COLORS.length]}
+                    className="w-full"
+                    onClick={
+                      release.smartLinkSlug
+                        ? () => {
+                            void navigate({
+                              to: '/r/$slug',
+                              params: { slug: release.smartLinkSlug! },
+                            });
+                          }
+                        : undefined
+                    }
+                    onPlay={playable ? () => play(playable) : undefined}
+                    onQueue={playable ? () => enqueue(playable) : undefined}
+                    onFavorite={
+                      playable ? () => toggleFavoriteTrack(playable) : undefined
+                    }
+                    favorited={playable ? isFavoriteTrack(playable.id) : false}
+                  />
+                ))}
+              </CardGrid>
+            </div>
+          )}
+
           <div className="flex flex-col gap-3">
-            {pinnedPlayables.length > 0 && (
-              <h2 className="text-sm font-semibold tracking-wide uppercase">
-                Catalog
-              </h2>
-            )}
+            <h2 className="text-sm font-semibold tracking-wide uppercase">
+              Catalog
+            </h2>
             <PlayableTrackTable
               items={catalogPlayables}
               emptyMessage={
