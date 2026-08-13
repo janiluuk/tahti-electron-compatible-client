@@ -76,7 +76,8 @@ export type IntegrationId =
   | 'mixcloud'
   | 'url'
   | 'spotify'
-  | 'broadcast';
+  | 'broadcast'
+  | 'radio';
 
 export type ConnectionStatus = {
   connected: boolean;
@@ -166,6 +167,14 @@ export const SOURCE_DEFS: SourceDef[] = [
     studioDeepLink: '/studio/archive',
     kind: 'tool',
   },
+  {
+    id: 'radio',
+    name: 'Internet radio',
+    description:
+      'Paste an M3U/M3U8 playlist or direct stream URL to play a station, with metadata looked up automatically.',
+    oauthStartPath: null,
+    kind: 'tool',
+  },
 ];
 
 export function oauthStartUrl(path: string): string {
@@ -175,7 +184,7 @@ export function oauthStartUrl(path: string): string {
 export async function fetchConnectionStatus(
   id: IntegrationId,
 ): Promise<{ data: ConnectionStatus; meta: FetchMeta }> {
-  if (id === 'upload' || id === 'url' || id === 'broadcast') {
+  if (id === 'upload' || id === 'url' || id === 'broadcast' || id === 'radio') {
     return {
       data: { connected: true, configured: true },
       meta: { source: forceMock() ? 'mock' : 'api' },

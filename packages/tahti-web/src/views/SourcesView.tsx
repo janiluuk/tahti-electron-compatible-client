@@ -4,6 +4,7 @@ import {
   Link2Icon,
   PlayIcon,
   PlugIcon,
+  Radio as RadioIcon,
   SearchIcon,
   UnplugIcon,
   UploadIcon,
@@ -12,6 +13,15 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Badge, Button, Card, CardGrid, MediaArtwork } from '@nuclearplayer/ui';
 
+import {
+  COMMON_STATIONS,
+  lookupStationByUrl,
+  playableFromRadioStation,
+  readIcyStreamTitle,
+  resolveStreamUrl,
+  searchStationsByName,
+  type RadioStation,
+} from '../api/radio-sources';
 import {
   connectIntegrationMock,
   disconnectIntegration,
@@ -94,6 +104,14 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const [radioUrl, setRadioUrl] = useState('');
+  const [radioBusy, setRadioBusy] = useState(false);
+  const [radioStation, setRadioStation] = useState<RadioStation | null>(null);
+  const [radioNowPlaying, setRadioNowPlaying] = useState<string | null>(null);
+  const [radioNote, setRadioNote] = useState<string | null>(null);
+  const [radioQuery, setRadioQuery] = useState('');
+  const [radioResults, setRadioResults] = useState<RadioStation[]>([]);
+
   // Overview: load connection status for every integration (plugin-store style chips).
   useEffect(() => {
     let cancelled = false;
@@ -150,6 +168,40 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   }, [selected]);
 
   const overview = useMemo(() => SOURCE_DEFS, []);
+
+  const openRadioStation = (station: RadioStation) => {
+    setRadioStation(station);
+    setRadioNowPlaying(null);
+    setRadioNote(null);
+    void readIcyStreamTitle(station.streamUrl).then((title) => {
+      setRadioNowPlaying(title);
+    });
+  };
+
+  const resolveRadioUrl = () => {
+    const input = radioUrl.trim();
+    if (!input) {
+      return;
+    }
+    setRadioBusy(true);
+    setRadioNote(null);
+    void resolveStreamUrl(input).then(async ({ streamUrl, title }) => {
+      const found = await lookupStationByUrl(streamUrl);
+      setRadioBusy(false);
+      const station: RadioStation = found ?? {
+        id: streamUrl,
+        name: title || streamUrl,
+        streamUrl,
+        source: 'unknown',
+      };
+      if (!found) {
+        setRadioNote(
+          'Not in the public station directory — playing the stream directly with the name from the playlist, if any.',
+        );
+      }
+      openRadioStation(station);
+    });
+  };
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
@@ -531,6 +583,152 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                   Open releases editor
                 </Button>
               </Link>
+            </section>
+          )}
+
+          {selected === 'radio' && (
+            <section className="flex flex-col gap-5">
+              <div className="flex flex-col gap-3">
+                <p className="text-foreground-secondary text-sm">
+                  Paste an M3U/M3U8 playlist or a direct stream URL. Station
+                  metadata is looked up in the public Radio Browser directory;
+                  live "now playing" is read from the stream's ICY metadata when
+                  the server allows it.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    className="border-border bg-background text-foreground min-w-[240px] flex-1 rounded border px-2 py-1.5 text-sm"
+                    value={radioUrl}
+                    onChange={(e) => setRadioUrl(e.target.value)}
+                    placeholder="https://example.com/stream.m3u8"
+                  />
+                  <Button
+                    size="sm"
+                    disabled={!radioUrl.trim() || radioBusy}
+                    onClick={resolveRadioUrl}
+                  >
+                    <RadioIcon size={16} aria-hidden className="mr-1.5" />
+                    {radioBusy ? 'Resolving…' : 'Resolve'}
+                  </Button>
+                </div>
+                {radioNote && (
+                  <p className="text-foreground-secondary text-xs">
+                    {radioNote}
+                  </p>
+                )}
+              </div>
+
+              {radioStation && (
+                <div className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-3">
+                  <MediaArtwork
+                    size="sm"
+                    src={radioStation.favicon}
+                    alt={radioStation.name}
+                    imageReveal={false}
+                    onPlay={() =>
+                      play(
+                        playableFromRadioStation(radioStation, radioNowPlaying),
+                      )
+                    }
+                    playLabel="Play"
+                    onQueue={() =>
+                      enqueue(
+                        playableFromRadioStation(radioStation, radioNowPlaying),
+                      )
+                    }
+                    queueLabel="Queue"
+                    className="border-border shrink-0 rounded border"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">
+                      {radioStation.name}
+                    </div>
+                    <div className="text-foreground-secondary truncate text-xs">
+                      {radioNowPlaying
+                        ? `Now playing: ${radioNowPlaying}`
+                        : radioNowPlaying === null
+                          ? 'Live "now playing" unavailable for this stream'
+                          : '…'}
+                    </div>
+                    {radioStation.tags && radioStation.tags.length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {radioStation.tags.slice(0, 4).map((tag) => (
+                          <Badge key={tag} variant="pill" color="secondary">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2">
+                <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+                  Search the public directory
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
+                    value={radioQuery}
+                    onChange={(e) => setRadioQuery(e.target.value)}
+                    placeholder="Station name"
+                  />
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      void searchStationsByName(radioQuery.trim()).then(
+                        setRadioResults,
+                      );
+                    }}
+                  >
+                    <SearchIcon size={16} aria-hidden className="mr-1.5" />
+                    Search
+                  </Button>
+                </div>
+                {radioResults.length > 0 && (
+                  <ul className="flex flex-col gap-1.5">
+                    {radioResults.map((s) => (
+                      <li key={s.id}>
+                        <button
+                          type="button"
+                          className="border-border hover:bg-background-secondary flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-sm"
+                          onClick={() => openRadioStation(s)}
+                        >
+                          <span className="truncate">{s.name}</span>
+                          <span className="text-foreground-secondary shrink-0 text-xs">
+                            {s.codec}
+                            {s.bitrateKbps ? ` ${s.bitrateKbps}kbps` : ''}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <h3 className="font-display text-sm font-bold tracking-wide uppercase">
+                  Common stations
+                </h3>
+                <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                  {COMMON_STATIONS.map((s) => (
+                    <li key={s.id}>
+                      <button
+                        type="button"
+                        className="border-border hover:bg-background-secondary flex w-full items-center justify-between rounded-md border px-3 py-2 text-left text-sm"
+                        onClick={() => openRadioStation(s)}
+                      >
+                        <span className="truncate">{s.name}</span>
+                        <span className="text-foreground-secondary shrink-0 text-xs">
+                          {s.tags?.[0]}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </section>
           )}
 

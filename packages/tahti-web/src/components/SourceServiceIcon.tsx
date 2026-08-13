@@ -1,4 +1,11 @@
-import { Archive, Link2, Radio, Upload, type LucideIcon } from 'lucide-react';
+import {
+  Archive,
+  Link2,
+  Radio,
+  RadioTower,
+  Upload,
+  type LucideIcon,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import type { IntegrationId } from '../api/sources';
@@ -22,6 +29,7 @@ const TILE: Record<
   url: { bg: '#334155', fg: '#f8fafc', Icon: Link2 },
   spotify: { bg: '#1db954', fg: '#fff', brand: 'sp' },
   broadcast: { bg: '#0ea5e9', fg: '#fff', Icon: Radio },
+  radio: { bg: '#7c3aed', fg: '#fff', Icon: RadioTower },
 };
 
 function BrandMark({
@@ -145,6 +153,8 @@ export function sourceTileSubtitle(id: IntegrationId): string {
       return 'Search & queue';
     case 'broadcast':
       return 'Live captures';
+    case 'radio':
+      return 'M3U / stream URL';
     default:
       return '';
   }
