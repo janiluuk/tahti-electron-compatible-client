@@ -64,6 +64,7 @@ import { StudioShowsView } from './views/studio/StudioShowsView';
 import { StudioStashView } from './views/studio/StudioStashView';
 import { StudioStatsDetailView } from './views/studio/StudioStatsDetailView';
 import { StudioStatsView } from './views/studio/StudioStatsView';
+import { StudioTrackInsightsView } from './views/studio/StudioTrackInsightsView';
 import { StudioUpdatesView } from './views/studio/StudioUpdatesView';
 import { StudioUploadView } from './views/studio/StudioUploadView';
 import { StudioVenuesView } from './views/studio/StudioVenuesView';
@@ -564,6 +565,20 @@ const studioEmbedsRoute = createRoute({
   component: StudioEmbedsView,
 });
 
+const studioInsightsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/insights/$kind/$id',
+  component: function StudioInsightsRoute() {
+    const { kind, id } = studioInsightsRoute.useParams();
+    return (
+      <StudioTrackInsightsView
+        kind={kind === 'release-tracks' ? 'release-tracks' : 'archive'}
+        id={id}
+      />
+    );
+  },
+});
+
 const embedChannelRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/embed/c/$slug',
@@ -726,6 +741,7 @@ const routeTree = rootRoute.addChildren([
     studioVenuesRoute,
     studioEventsRoute,
     studioEmbedsRoute,
+    studioInsightsRoute,
     dashboardIndexAliasRoute,
     dashboardSplatAliasRoute,
   ]),

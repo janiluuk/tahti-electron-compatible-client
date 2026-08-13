@@ -139,6 +139,14 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                       ? 'Unpin from page'
                       : `Pin to page (${pinnedCount}/${MAX_PINNED_TRACKS})`}
                 </Button>
+                <Link
+                  to="/studio/insights/$kind/$id"
+                  params={{ kind: 'archive', id }}
+                >
+                  <Button size="sm" variant="secondary">
+                    Insights
+                  </Button>
+                </Link>
                 <Button
                   disabled={saving || !title.trim()}
                   onClick={() => void save()}

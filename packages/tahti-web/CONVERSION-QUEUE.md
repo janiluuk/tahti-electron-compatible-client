@@ -5,7 +5,7 @@ Also see [FEATURES.md](./FEATURES.md) for shipped rows.
 
 Convert **one row at a time**.
 
-**Next up:** #10 Insights (`missing`).
+**Next up:** #11 Stats detail (`partial` — summary only, no drill-down).
 
 ## Artist / studio — priority
 
@@ -20,7 +20,7 @@ Convert **one row at a time**.
 | 7 | Artist venues manage | `/dashboard/venues` | `/studio/venues` | **done** (profile edit + bookings; `live-api` + mock) |
 | 8 | Events | `/dashboard/events` | `/studio/events` | **done** (`live-api` + mock) |
 | 9 | Studio embeds manager | `/dashboard/embeds` | `/studio/embeds` | **done** (SoundCloud track embeds; `live-api` + mock) |
-| 10 | Insights | `/dashboard/insights/:kind/:id` | — | `missing` |
+| 10 | Insights | `/dashboard/insights/:kind/:id` | `/studio/insights/$kind/$id` | **done** (period, plays/downloads, daily chart, countries; `live-api` + mock) |
 | 11 | Stats detail | `/dashboard/stats/detail` | summary only | `partial` |
 | 12 | Stash upload / delete | `/dashboard/stash` | `/studio/stash` | **done** (`live-api` + mock) |
 | 13 | Press kit | settings/presskit | — | `missing` |
