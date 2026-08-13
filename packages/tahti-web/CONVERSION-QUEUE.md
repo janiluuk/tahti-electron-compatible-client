@@ -5,7 +5,7 @@ Also see [FEATURES.md](./FEATURES.md) for shipped rows.
 
 Convert **one row at a time**.
 
-**Next up:** #7 Artist venues manage (`missing`).
+**Next up:** #8 Events (`missing`).
 
 ## Artist / studio — priority
 
@@ -17,7 +17,7 @@ Convert **one row at a time**.
 | 4 | Distribution | `/dashboard/distribution` | `/studio/distribution` | **done** (catalog + Revelator + Spotify profile + royalties; `live-api` + mock) |
 | 5 | Tahti Radio slot booking / Shows | `/dashboard/tahti-radio-slots` | `/studio/shows` | `partial` (bookings live; series localStorage) |
 | 6 | Channel moderators | `/dashboard/moderate/:slug` | `/studio/moderation` | **done** (delegated mods + chat bans; `live-api` + mock) |
-| 7 | Artist venues manage | `/dashboard/venues` | — | `missing` |
+| 7 | Artist venues manage | `/dashboard/venues` | `/studio/venues` | **done** (profile edit + bookings; `live-api` + mock) |
 | 8 | Events | `/dashboard/events` | — | `missing` |
 | 9 | Studio embeds manager | `/dashboard/embeds` | public embeds only | `missing` |
 | 10 | Insights | `/dashboard/insights/:kind/:id` | — | `missing` |

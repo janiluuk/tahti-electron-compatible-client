@@ -22,6 +22,7 @@ const MORE = [
   { to: '/studio/updates', label: 'Updates' },
   { to: '/studio/stash', label: 'Stash' },
   { to: '/studio/moderation', label: 'Moderation' },
+  { to: '/studio/venues', label: 'Venues' },
   { to: '/studio/setup-channel', label: 'Setup' },
 ] as const;
 
