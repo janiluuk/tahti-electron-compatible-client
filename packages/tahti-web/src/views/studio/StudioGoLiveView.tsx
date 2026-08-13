@@ -483,6 +483,15 @@ export function StudioGoLiveView() {
                   <p className="text-foreground-secondary text-sm">
                     Channel <code>/{slug}</code>
                   </p>
+                  {isLive && signal?.connected && (
+                    <p className="text-foreground-secondary mt-1 text-xs">
+                      {signal.codec ?? 'audio'} · {signal.bitrateKbps ?? '—'}{' '}
+                      kbps
+                      {typeof signal.listeners === 'number'
+                        ? ` · ${signal.listeners} listening`
+                        : ''}
+                    </p>
+                  )}
                 </div>
               </div>
 
