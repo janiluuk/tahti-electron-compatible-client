@@ -41,6 +41,7 @@ import { StudioCollectionsView } from './views/studio/StudioCollectionsView';
 import { StudioDistributionView } from './views/studio/StudioDistributionView';
 import { StudioEditorListView } from './views/studio/StudioEditorListView';
 import { StudioEditorProjectView } from './views/studio/StudioEditorProjectView';
+import { StudioEmbedsView } from './views/studio/StudioEmbedsView';
 import { StudioEventsView } from './views/studio/StudioEventsView';
 import { StudioGoLiveView } from './views/studio/StudioGoLiveView';
 import { StudioHomeView } from './views/studio/StudioHomeView';
@@ -557,6 +558,12 @@ const studioEventsRoute = createRoute({
   component: StudioEventsView,
 });
 
+const studioEmbedsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/embeds',
+  component: StudioEmbedsView,
+});
+
 const embedChannelRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/embed/c/$slug',
@@ -718,6 +725,7 @@ const routeTree = rootRoute.addChildren([
     studioModerationRoute,
     studioVenuesRoute,
     studioEventsRoute,
+    studioEmbedsRoute,
     dashboardIndexAliasRoute,
     dashboardSplatAliasRoute,
   ]),

@@ -5,7 +5,7 @@ Also see [FEATURES.md](./FEATURES.md) for shipped rows.
 
 Convert **one row at a time**.
 
-**Next up:** #9 Studio embeds manager (`missing` — public embeds exist, no owner-facing embed manager).
+**Next up:** #10 Insights (`missing`).
 
 ## Artist / studio — priority
 
@@ -19,7 +19,7 @@ Convert **one row at a time**.
 | 6 | Channel moderators | `/dashboard/moderate/:slug` | `/studio/moderation` | **done** (delegated mods + chat bans; `live-api` + mock) |
 | 7 | Artist venues manage | `/dashboard/venues` | `/studio/venues` | **done** (profile edit + bookings; `live-api` + mock) |
 | 8 | Events | `/dashboard/events` | `/studio/events` | **done** (`live-api` + mock) |
-| 9 | Studio embeds manager | `/dashboard/embeds` | public embeds only | `missing` |
+| 9 | Studio embeds manager | `/dashboard/embeds` | `/studio/embeds` | **done** (SoundCloud track embeds; `live-api` + mock) |
 | 10 | Insights | `/dashboard/insights/:kind/:id` | — | `missing` |
 | 11 | Stats detail | `/dashboard/stats/detail` | summary only | `partial` |
 | 12 | Stash upload / delete | `/dashboard/stash` | `/studio/stash` | **done** (`live-api` + mock) |

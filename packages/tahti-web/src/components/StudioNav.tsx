@@ -24,6 +24,7 @@ const MORE = [
   { to: '/studio/moderation', label: 'Moderation' },
   { to: '/studio/venues', label: 'Venues' },
   { to: '/studio/events', label: 'Events' },
+  { to: '/studio/embeds', label: 'Embeds' },
   { to: '/studio/setup-channel', label: 'Setup' },
 ] as const;
 
