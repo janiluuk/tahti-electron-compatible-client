@@ -172,6 +172,24 @@ pnpm deploy:tahti-beta
 
 Publishes the Tahti web build for `beta.tahti.live` (vimage / Pi proxy). See [`packages/tahti-web/deploy/README.md`](./packages/tahti-web/deploy/README.md).
 
+## MCP (desktop player)
+
+The Nuclear desktop player ships with a built-in [MCP](https://modelcontextprotocol.io/) server, preserved byte-identical from upstream — it lets an AI agent control playback, queue, favorites, playlists, and providers.
+
+1. Run the desktop player: `pnpm dev`
+2. Settings → Integrations → **Enable MCP Server** (binds `http://127.0.0.1:8800/mcp`, localhost only)
+3. Point your tool at it with **Streamable HTTP**:
+
+```bash
+# Claude Code
+claude mcp add nuclear --transport http http://127.0.0.1:8800/mcp
+
+# Codex CLI
+codex mcp add nuclear --url http://127.0.0.1:8800/mcp
+```
+
+Full docs: [`packages/docs/integrations/mcp-server.md`](./packages/docs/integrations/mcp-server.md) (tool reference, OpenCode/Cursor/Windsurf/MCP Inspector setup, agent skill download). This is a **desktop-only** capability — the Vite SPA (`@nuclearplayer/tahti-web`) can't host the localhost control-plane bridge a CDN-served multi-user app would need; see [`packages/tahti-web/docs/MCP.md`](./packages/tahti-web/docs/MCP.md) for why.
+
 ## Relation to Tahti
 
 | This repo | Production Tahti monorepo |
