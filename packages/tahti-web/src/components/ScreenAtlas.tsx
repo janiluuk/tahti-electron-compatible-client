@@ -1,4 +1,4 @@
-import { Badge, Textarea } from '@nuclearplayer/ui';
+import { Badge, Button, Textarea } from '@nuclearplayer/ui';
 
 import {
   MAP_CASE_GROUPS,
@@ -7,6 +7,71 @@ import {
   type MapShot,
 } from '../content/mapScreens';
 import { useMapNotesStore } from '../stores/mapNotesStore';
+
+function csvCell(value: string): string {
+  return `"${value.replace(/"/g, '""')}"`;
+}
+
+/** Flat id → title/viewName lookup so the export can label rows without a note. */
+function caseLookup(): Record<string, { title: string; viewName: string }> {
+  const map: Record<string, { title: string; viewName: string }> = {};
+  for (const group of MAP_CASE_GROUPS) {
+    for (const c of group.cases) {
+      map[c.id] = { title: c.title, viewName: c.viewName };
+    }
+  }
+  return map;
+}
+
+function notesToCsv(notesByCaseId: Record<string, string>): string {
+  const lookup = caseLookup();
+  const header = ['view_id', 'view_name', 'case_title', 'commentary'];
+  const rows = Object.entries(notesByCaseId)
+    .filter(([, note]) => note.trim().length > 0)
+    .map(([caseId, note]) => {
+      const meta = lookup[caseId];
+      return [caseId, meta?.viewName ?? '', meta?.title ?? '', note];
+    });
+  return [header, ...rows]
+    .map((row) => row.map(csvCell).join(','))
+    .join('\r\n');
+}
+
+function ExportNotesButton() {
+  const notesByCaseId = useMapNotesStore((s) => s.notesByCaseId);
+  const count = Object.values(notesByCaseId).filter(
+    (n) => n.trim().length > 0,
+  ).length;
+
+  const download = () => {
+    const csv = notesToCsv(notesByCaseId);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `tahti-map-notes-${stamp}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Button
+      size="sm"
+      variant="secondary"
+      onClick={download}
+      disabled={count === 0}
+      aria-label="Export notes as CSV"
+      title={
+        count === 0
+          ? 'Add a note on any case below to enable export'
+          : `Export ${count} note${count === 1 ? '' : 's'} as CSV`
+      }
+    >
+      Export notes ({count}) as CSV
+    </Button>
+  );
+}
 
 function firstOpenableRoute(route: string): string | null {
   const candidate = route.split(',')[0]?.trim() ?? route.trim();
@@ -165,12 +230,15 @@ export function ScreenAtlas() {
       aria-labelledby="screen-atlas-heading"
     >
       <div>
-        <h2
-          id="screen-atlas-heading"
-          className="font-display text-2xl font-extrabold tracking-tight"
-        >
-          Screen atlas
-        </h2>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h2
+            id="screen-atlas-heading"
+            className="font-display text-2xl font-extrabold tracking-tight"
+          >
+            Screen atlas
+          </h2>
+          <ExportNotesButton />
+        </div>
         <p className="text-foreground-secondary mt-1 max-w-3xl text-sm">
           Each case is a two-column comparison:{' '}
           <strong className="text-foreground font-semibold">Tahti</strong>{' '}
@@ -178,7 +246,9 @@ export function ScreenAtlas() {
           <strong className="text-foreground font-semibold">Nuclear</strong>{' '}
           (this beta). Missing captures show &ldquo;shot pending&rdquo;; views
           that exist on only one surface are flagged as a parity gap. Add your
-          own notes on each card — they stay in this browser.
+          own notes on each card — they stay in this browser, and export as a
+          CSV (view id, view name, case title, commentary) so I can review them
+          later.
         </p>
         <p className="text-foreground-secondary mt-1 text-xs tracking-wide uppercase">
           {MAP_CASE_GROUPS.length} flows · {total} cases · {gaps} parity gap

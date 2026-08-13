@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, Textarea } from '@nuclearplayer/ui';
 
 import {
   createEvent,
@@ -17,6 +17,7 @@ export function StudioEventsView() {
   const [msg, setMsg] = useState<string | null>(null);
 
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [place, setPlace] = useState('');
   const [location, setLocation] = useState('');
   const [eventUrl, setEventUrl] = useState('');
@@ -76,6 +77,17 @@ export function StudioEventsView() {
           </div>
           <label className="flex flex-col gap-1 text-sm">
             <span className="text-foreground-secondary text-xs uppercase">
+              Description
+            </span>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              placeholder="What should people expect — set details, door time, ticketing…"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-foreground-secondary text-xs uppercase">
               Start
             </span>
             <input
@@ -91,6 +103,7 @@ export function StudioEventsView() {
             onClick={() => {
               void createEvent({
                 title: title.trim(),
+                description: description.trim(),
                 place: place.trim(),
                 location: location.trim(),
                 eventUrl: eventUrl.trim() || undefined,
@@ -100,6 +113,7 @@ export function StudioEventsView() {
                   setMsg(r.error);
                 } else {
                   setTitle('');
+                  setDescription('');
                   setPlace('');
                   setLocation('');
                   setEventUrl('');
@@ -133,6 +147,11 @@ export function StudioEventsView() {
                     {new Date(ev.startAt).toLocaleString()} · {ev.place},{' '}
                     {ev.location}
                   </div>
+                  {ev.description && (
+                    <p className="text-foreground-secondary mt-1 max-w-md text-xs">
+                      {ev.description}
+                    </p>
+                  )}
                   {ev.eventUrl && (
                     <a
                       href={ev.eventUrl}

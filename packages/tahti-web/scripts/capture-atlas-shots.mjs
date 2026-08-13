@@ -68,17 +68,34 @@ const shots = [
   { path: '/studio/channel', out: 'studio-channel-v1.png', auth: true },
   { path: '/studio/setup-channel', out: 'studio-setup-channel-v1.png', auth: true },
   { path: '/studio/shows', out: 'studio-shows-v1.png', auth: true },
+  { path: '/studio/events', out: 'studio-events-v1.png', auth: true },
   { path: '/studio/playlists', out: 'studio-playlists-v1.png', auth: true },
   { path: '/studio/updates', out: 'studio-updates-v1.png', auth: true },
   { path: '/studio/revenue', out: 'studio-revenue-v1.png', auth: true },
   { path: '/studio/distribution', out: 'studio-distribution-v1.png', auth: true },
   { path: '/studio/stash', out: 'studio-stash-v1.png', auth: true },
+  { path: '/more', out: 'map-more-v1.png', auth: true },
 ];
 
-const browser = await chromium.launch({
+const launchOpts = {
   executablePath: process.env.CHROMIUM_PATH || undefined,
-});
-const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  args: process.env.CHROMIUM_NO_SANDBOX ? ['--no-sandbox'] : [],
+};
+
+let browser = await chromium.launch(launchOpts);
+let page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+let lastAuth = null;
+
+/** Some pages (e.g. hCaptcha widgets) can crash the renderer in a
+ * network-sandboxed environment — relaunch and re-apply auth if that happens. */
+async function ensureAlive() {
+  if (browser.isConnected() && !page.isClosed()) {
+    return;
+  }
+  browser = await chromium.launch(launchOpts);
+  page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  lastAuth = null;
+}
 
 async function setAuth(on) {
   await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
@@ -93,10 +110,10 @@ async function setAuth(on) {
   }
 }
 
-let lastAuth = null;
 let failed = 0;
 
 for (const s of shots) {
+  await ensureAlive();
   const wantAuth = s.auth !== false;
   if (lastAuth !== wantAuth) {
     await setAuth(wantAuth);
@@ -105,15 +122,51 @@ for (const s of shots) {
   try {
     await page.goto(`${BASE}${s.path}`, { waitUntil: 'networkidle', timeout: 45000 });
   } catch {
-    await page.goto(`${BASE}${s.path}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await ensureAlive();
+    try {
+      await page.goto(`${BASE}${s.path}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    } catch (err) {
+      console.error('skip', s.out, err.message);
+      failed += 1;
+      continue;
+    }
   }
-  await page.waitForTimeout(1800);
-  const out = join(outDir, s.out);
-  await page.screenshot({ path: out, fullPage: true });
-  const text = (await page.locator('body').innerText().catch(() => '')).slice(0, 200);
-  console.log('wrote', s.out, '|', text.replace(/\s+/g, ' ').slice(0, 80));
-  if (!text || text.length < 8) {
-    console.warn('WARN empty-ish', s.out);
+  try {
+    if (s.out === 'map-more-v1.png') {
+      // Seed one note so the CSV export button renders in its enabled state.
+      await page.evaluate(() => {
+        localStorage.setItem(
+          'tahti-web-map-notes',
+          JSON.stringify({
+            state: {
+              notesByCaseId: {
+                'anon-home': 'Genre chips need higher contrast on dark theme.',
+              },
+            },
+            version: 0,
+          }),
+        );
+      });
+      await page.reload({ waitUntil: 'networkidle' });
+    }
+    await page.waitForTimeout(1800);
+    const out = join(outDir, s.out);
+    await page.screenshot({ path: out, fullPage: true });
+    let text = (await page.locator('body').innerText().catch(() => '')).slice(0, 200);
+    if (!text || text.length < 8) {
+      // Flaky renders happen in this sandboxed headless env — one retry with a reload.
+      await page.reload({ waitUntil: 'networkidle', timeout: 30000 }).catch(() => {});
+      await page.waitForTimeout(2000);
+      await page.screenshot({ path: out, fullPage: true });
+      text = (await page.locator('body').innerText().catch(() => '')).slice(0, 200);
+    }
+    console.log('wrote', s.out, '|', text.replace(/\s+/g, ' ').slice(0, 80));
+    if (!text || text.length < 8) {
+      console.warn('WARN empty-ish', s.out);
+      failed += 1;
+    }
+  } catch (err) {
+    console.error('skip', s.out, err.message);
     failed += 1;
   }
 }

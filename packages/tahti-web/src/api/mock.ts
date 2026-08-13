@@ -30,68 +30,315 @@ export const DEMO_HLS =
 export const DEMO_MP3 =
   'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
 
+type StationRelease = {
+  title: string;
+  type: 'ALBUM' | 'EP' | 'SINGLE';
+  description: string;
+};
+
+type StationContent = {
+  displayName: string;
+  genres: string[];
+  bio: string;
+  colorAccent: string;
+  colorHighlight: string;
+  nowPlayingTitle: string;
+  followerCount: number;
+  pronouns?: string | null;
+  trackTitles: string[];
+  releases: StationRelease[];
+};
+
+/** Per-station mock content — keeps the listen directory, artist pages, and
+ * archive items feeling like distinct channels instead of one repeated blurb. */
+const STATION_CONTENT: Record<string, StationContent> = {
+  'northern-lights': {
+    displayName: 'Northern Lights',
+    genres: ['ambient', 'live'],
+    bio: '24/7 community radio — always on while we grow the member meta-stream. Tune in and chat with listeners worldwide.',
+    colorAccent: '#22D3EE',
+    colorHighlight: '#A78BFA',
+    nowPlayingTitle: 'Aurora Drift (mock rotation)',
+    followerCount: 412,
+    pronouns: 'she/her',
+    trackTitles: [
+      'Aurora Drift',
+      'Midnight Broadcast',
+      'Archive Session 02',
+      'Kaamos Bloom',
+    ],
+    releases: [
+      {
+        title: 'First Light EP',
+        type: 'EP',
+        description:
+          'Four-track EP built from a winter of live broadcasts — slow-building pads recorded during actual aurora activity over Rovaniemi.',
+      },
+      {
+        title: 'Polar Static',
+        type: 'ALBUM',
+        description:
+          'A full-length ambient record mixed entirely from field recordings collected on member listening sessions across two winters.',
+      },
+    ],
+  },
+  'screenshot-demo': {
+    displayName: 'Screenshot Demo',
+    genres: ['electronic'],
+    bio: 'Demo channel used for screenshot fixtures — kept intentionally minimal so UI captures stay legible.',
+    colorAccent: '#22D3EE',
+    colorHighlight: '#A78BFA',
+    nowPlayingTitle: 'Live set (mock HLS)',
+    followerCount: 58,
+    trackTitles: ['Fixture Loop', 'Screenshot Pad', 'Test Tone Suite'],
+    releases: [
+      {
+        title: 'Fixture Set',
+        type: 'EP',
+        description: 'Placeholder release used to populate screenshot flows.',
+      },
+    ],
+  },
+  'midnight-cartography': {
+    displayName: 'Midnight Cartography',
+    genres: ['downtempo', 'trip-hop'],
+    bio: 'Helsinki duo mapping late-night bus routes into slow breakbeats and tape-warped bass. Weekly show, Thursdays after midnight.',
+    colorAccent: '#FB7185',
+    colorHighlight: '#FBBF24',
+    nowPlayingTitle: 'Route 550 (live dub)',
+    followerCount: 1024,
+    pronouns: 'they/them',
+    trackTitles: [
+      'Route 550',
+      'Ring Rail Interlude',
+      'Sleeper Cabin',
+      'Harbour Fog',
+      'Last Tram Home',
+    ],
+    releases: [
+      {
+        title: 'Night Bus Atlas',
+        type: 'ALBUM',
+        description:
+          'Nine tracks recorded riding Helsinki night buses end to end, each named for the route that inspired it. Field noise left in on purpose.',
+      },
+      {
+        title: 'Ring Rail',
+        type: 'SINGLE',
+        description:
+          'A single built entirely from recordings made on the Ring Rail loop over one rainy October week.',
+      },
+    ],
+  },
+  'tundra-static': {
+    displayName: 'Tundra Static',
+    genres: ['noise', 'experimental'],
+    bio: 'Contact-mic experiments and modular noise from an artist collective in Oulu. Not for the faint of speaker.',
+    colorAccent: '#34D399',
+    colorHighlight: '#64748B',
+    nowPlayingTitle: 'Permafrost Feedback Loop',
+    followerCount: 233,
+    trackTitles: [
+      'Permafrost Feedback Loop',
+      'Rust Belt Choir',
+      'Pipeline Hum',
+      'Static Migration',
+    ],
+    releases: [
+      {
+        title: 'Signal Decay',
+        type: 'ALBUM',
+        description:
+          'A full-length exploration of contact-mic recordings taken from decommissioned industrial sites around the Oulu river.',
+      },
+    ],
+  },
+  'saimaa-sessions': {
+    displayName: 'Saimaa Sessions',
+    genres: ['jazz', 'improv'],
+    bio: 'Lakeside improv jazz trio broadcasting live from a boathouse studio on Saimaa. Expect long forms and open mic guests.',
+    colorAccent: '#60A5FA',
+    colorHighlight: '#FBBF24',
+    nowPlayingTitle: 'Boathouse Session — Set 1',
+    followerCount: 687,
+    pronouns: 'he/him',
+    trackTitles: [
+      'Boathouse Session — Set 1',
+      'Ice-Out Suite',
+      'Ferry Bell Changes',
+      'Late Summer Modal',
+      'Boathouse Session — Set 2',
+    ],
+    releases: [
+      {
+        title: 'Ice-Out',
+        type: 'ALBUM',
+        description:
+          'Recorded live over three consecutive lake thaws, this record follows the trio through fully improvised long-form sets.',
+      },
+      {
+        title: 'Boathouse Sessions Vol. 1',
+        type: 'EP',
+        description:
+          'The first in an ongoing archive series pulled straight from unedited boathouse broadcast tapes.',
+      },
+    ],
+  },
+  'kaiku-collective': {
+    displayName: 'Kaiku Collective',
+    genres: ['hip-hop', 'beats'],
+    bio: 'Turku beatmaker collective — six producers trading a weekly slot, always closing with an open freestyle line.',
+    colorAccent: '#A78BFA',
+    colorHighlight: '#22D3EE',
+    nowPlayingTitle: 'Echo Chamber Cypher',
+    followerCount: 1560,
+    trackTitles: [
+      'Echo Chamber Cypher',
+      'Turku Loop Diary',
+      'Sample Crate Vol. 4',
+      'Freestyle Line (Live)',
+    ],
+    releases: [
+      {
+        title: 'Loop Diary',
+        type: 'ALBUM',
+        description:
+          'A rotating-producer compilation — each of the six Kaiku members contributes two beats built the same week they were recorded.',
+      },
+      {
+        title: 'Cypher Tapes',
+        type: 'EP',
+        description:
+          'Raw freestyle closers pulled from six months of live weekly sessions, sequenced back to back with no edits.',
+      },
+    ],
+  },
+  'valo-radio': {
+    displayName: 'Valo Radio',
+    genres: ['synthwave', 'retro'],
+    bio: 'Neon-soaked synth broadcasts out of Tampere. Analog gear only, monthly all-night streams for the arcade crowd.',
+    colorAccent: '#FBBF24',
+    colorHighlight: '#FB7185',
+    nowPlayingTitle: 'Arcade Sunset',
+    followerCount: 894,
+    pronouns: 'she/her',
+    trackTitles: [
+      'Arcade Sunset',
+      'Analog Heart',
+      'Grid Runner',
+      'Chrome Highway',
+      'Neon Curfew',
+    ],
+    releases: [
+      {
+        title: 'Chrome Highway',
+        type: 'ALBUM',
+        description:
+          'An all-analog synthwave record tracked live to tape over a single all-night session, no sequencing plugins used.',
+      },
+      {
+        title: 'Arcade Sunset',
+        type: 'SINGLE',
+        description:
+          'Lead single from the monthly all-night stream series — built around a single arpeggiator patch recorded live.',
+      },
+    ],
+  },
+  metsanpeitto: {
+    displayName: 'Metsänpeitto',
+    genres: ['folk', 'acoustic'],
+    bio: 'Dark Finnish folk duo recording acoustic sets deep in the forest — kantele, field recordings, and close harmony.',
+    colorAccent: '#34D399',
+    colorHighlight: '#A78BFA',
+    nowPlayingTitle: 'Forest Cover (live)',
+    followerCount: 349,
+    pronouns: 'they/them',
+    trackTitles: [
+      'Forest Cover',
+      'Kantele Waltz',
+      'Moss Path',
+      'Northern Lullaby',
+    ],
+    releases: [
+      {
+        title: 'Forest Cover',
+        type: 'EP',
+        description:
+          'Four songs tracked outdoors on portable recorders during a week camped near Nuuksio — wind and birdsong left untouched.',
+      },
+    ],
+  },
+};
+
 const MOCK_DIRECTORY: ChannelDirectoryResponse = {
-  items: [
-    {
-      slug: 'northern-lights',
-      displayName: 'Northern Lights',
-      avatarUrl: null,
-      genres: ['ambient', 'live'],
-    },
-    {
-      slug: 'screenshot-demo',
-      displayName: 'Screenshot Demo',
-      avatarUrl: null,
-      genres: ['electronic'],
-    },
-    // tahti-radio is featured via fetchRadioStation on Listen — not listed here.
-  ],
+  items: Object.entries(STATION_CONTENT).map(([slug, s]) => ({
+    slug,
+    displayName: s.displayName,
+    avatarUrl: null,
+    genres: s.genres,
+  })),
+  // tahti-radio is featured via fetchRadioStation on Listen — not listed here.
 };
 
 export function mockDirectory(): ChannelDirectoryResponse {
   return MOCK_DIRECTORY;
 }
 
+function stationContent(slug: string): StationContent {
+  return (
+    STATION_CONTENT[slug] ?? {
+      displayName: slug,
+      genres: [],
+      bio: 'Mock channel for the Nuclear × Tahti listen POC.',
+      colorAccent: '#22D3EE',
+      colorHighlight: '#A78BFA',
+      nowPlayingTitle: 'Live set (mock HLS)',
+      followerCount: 12,
+      trackTitles: ['Midnight Broadcast', 'Archive Session 02', 'Demo HLS cut'],
+      releases: [
+        {
+          title: 'First Light EP',
+          type: 'EP',
+          description: 'Mock release for the listen POC.',
+        },
+      ],
+    }
+  );
+}
+
 export function mockChannel(slug: string): PublicChannel {
   const isRadio = slug === TAHTI_RADIO_SLUG;
-  const item = MOCK_DIRECTORY.items.find((c) => c.slug === slug) ?? {
-    slug,
-    displayName: isRadio ? 'Tahti Radio' : slug,
-    avatarUrl: null,
-    genres: isRadio ? ['radio'] : [],
-  };
+  const content = stationContent(isRadio ? 'northern-lights' : slug);
   return {
-    slug: item.slug,
+    slug,
     state: 'LIVE',
     hlsUrl: DEMO_HLS,
     chatEnabled: true,
     visualPreset: isRadio ? 'REACTIVE_GRID' : 'AURORA',
     colorSchemeJson: JSON.stringify({
-      accent: '#22D3EE',
-      highlight: '#A78BFA',
+      accent: content.colorAccent,
+      highlight: content.colorHighlight,
       background: '#0B1220',
       foreground: '#F8FAFC',
       muted: '#64748B',
     }),
     colorScheme: {
-      accent: '#22D3EE',
-      highlight: '#A78BFA',
+      accent: content.colorAccent,
+      highlight: content.colorHighlight,
       background: '#0B1220',
       foreground: '#F8FAFC',
       muted: '#64748B',
     },
     user: {
-      username: item.slug,
-      displayName: item.displayName,
-      bio: isRadio
-        ? '24/7 community radio — always on while we grow the member meta-stream. Tune in and chat with listeners worldwide.'
-        : 'Mock channel for the Nuclear × Tahti listen POC.',
-      avatarUrl: item.avatarUrl,
+      username: slug,
+      displayName: isRadio ? 'Tahti Radio' : content.displayName,
+      bio: content.bio,
+      avatarUrl: null,
     },
     nowPlaying: {
-      title: isRadio ? 'Aurora Drift (mock rotation)' : 'Live set (mock HLS)',
-      artistName: isRadio ? 'Northern Lights' : item.displayName,
-      artistUsername: isRadio ? 'northern-lights' : item.slug,
+      title: isRadio ? 'Aurora Drift (mock rotation)' : content.nowPlayingTitle,
+      artistName: isRadio ? 'Northern Lights' : content.displayName,
+      artistUsername: isRadio ? 'northern-lights' : slug,
       artworkUrl: null,
     },
   };
@@ -124,64 +371,110 @@ export function mockRadioRecentlyPlayed(): RadioRecentlyPlayedItem[] {
     },
     {
       id: 'mock-rp-2',
-      title: 'Midnight Broadcast',
-      artistName: 'Screenshot Demo',
-      artistUsername: 'screenshot-demo',
+      title: 'Route 550',
+      artistName: 'Midnight Cartography',
+      artistUsername: 'midnight-cartography',
       artworkUrl: null,
       playedAt: new Date(now - 18 * 60_000).toISOString(),
     },
     {
       id: 'mock-rp-3',
+      title: 'Boathouse Session — Set 1',
+      artistName: 'Saimaa Sessions',
+      artistUsername: 'saimaa-sessions',
+      artworkUrl: null,
+      playedAt: new Date(now - 42 * 60_000).toISOString(),
+    },
+    {
+      id: 'mock-rp-4',
+      title: 'Echo Chamber Cypher',
+      artistName: 'Kaiku Collective',
+      artistUsername: 'kaiku-collective',
+      artworkUrl: null,
+      playedAt: new Date(now - 71 * 60_000).toISOString(),
+    },
+    {
+      id: 'mock-rp-5',
       title: 'CC0 Selects Cut',
       artistName: 'Tahti Selects',
       artistUsername: null,
       artworkUrl: null,
-      playedAt: new Date(now - 42 * 60_000).toISOString(),
+      playedAt: new Date(now - 96 * 60_000).toISOString(),
     },
   ];
 }
 
+const GENRE_TAGS: Record<string, string> = {
+  ambient: 'ambient',
+  live: 'live',
+  electronic: 'electronic',
+  downtempo: 'downtempo',
+  'trip-hop': 'downtempo',
+  noise: 'noise',
+  experimental: 'experimental',
+  jazz: 'jazz',
+  improv: 'jazz',
+  'hip-hop': 'hip-hop',
+  beats: 'hip-hop',
+  synthwave: 'synthwave',
+  retro: 'synthwave',
+  folk: 'folk',
+  acoustic: 'folk',
+};
+
 export function mockArchiveItems(slug: string): ArchiveItem[] {
   const channel = mockChannel(slug);
+  const content = stationContent(slug);
   const artist = channel.user.displayName;
-  return [
-    {
-      id: `${slug}-archive-1`,
-      title: 'Midnight Broadcast',
-      artistName: artist,
-      durationSec: 372,
-      bannerUrl: null,
-      audioUrl: DEMO_MP3,
-      genre: 'ambient',
-      createdAt: '2026-07-01T20:00:00.000Z',
-      pinnedAt: '2026-07-15T12:00:00.000Z',
-    },
-    {
-      id: `${slug}-archive-2`,
-      title: 'Archive Session 02',
-      artistName: artist,
-      durationSec: 541,
-      bannerUrl: null,
-      audioUrl: DEMO_MP3,
-      genre: 'live',
-      createdAt: '2026-06-12T18:30:00.000Z',
-    },
-    {
-      id: `${slug}-archive-3`,
-      title: 'Demo HLS cut',
-      artistName: artist,
-      durationSec: 120,
-      bannerUrl: null,
-      audioUrl: DEMO_HLS,
-      genre: 'electronic',
-      createdAt: '2026-05-01T12:00:00.000Z',
-    },
+  const primaryGenre = GENRE_TAGS[content.genres[0] ?? ''] ?? 'electronic';
+  const durations = [372, 541, 120, 298, 615];
+  const dates = [
+    '2026-07-01T20:00:00.000Z',
+    '2026-06-12T18:30:00.000Z',
+    '2026-05-01T12:00:00.000Z',
+    '2026-04-18T21:00:00.000Z',
+    '2026-03-22T19:15:00.000Z',
   ];
+  return content.trackTitles.map((title, i) => ({
+    id: `${slug}-archive-${i + 1}`,
+    title,
+    artistName: artist,
+    durationSec: durations[i % durations.length],
+    bannerUrl: null,
+    audioUrl: i === durations.length - 1 && i % 2 === 0 ? DEMO_HLS : DEMO_MP3,
+    genre: primaryGenre,
+    createdAt: dates[i % dates.length],
+    ...(i === 0 ? { pinnedAt: '2026-07-15T12:00:00.000Z' } : {}),
+  }));
 }
 
 export function mockProfile(username: string): PublicProfile {
   const channel = mockChannel(username);
+  const content = stationContent(username);
   const archive = mockArchiveItems(username);
+  const releaseSlugFor = (i: number) => `${username}-release-${i + 1}`;
+
+  const releases = content.releases.map((rel, i) => ({
+    id: `${username}-rel-${i + 1}`,
+    title: rel.title,
+    type: rel.type,
+    artworkUrl: null,
+    smartLinkSlug: releaseSlugFor(i),
+    releaseDate: [
+      '2026-04-01T00:00:00.000Z',
+      '2026-01-15T00:00:00.000Z',
+      '2025-10-03T00:00:00.000Z',
+    ][i % 3],
+    description: rel.description,
+    tracks: archive.slice(i * 2, i * 2 + 2).map((a, j) => ({
+      position: j + 1,
+      title: a.title,
+      durationSec: a.durationSec,
+      archiveItemId: a.id,
+      playUrl: a.audioUrl,
+    })),
+  }));
+
   return {
     artist: {
       username: channel.user.username,
@@ -190,47 +483,43 @@ export function mockProfile(username: string): PublicProfile {
       avatarUrl: channel.user.avatarUrl,
       tipJarUrl: null,
       tier: 'FREE',
-      pronouns: null,
-      followerCount: 12,
+      pronouns: content.pronouns ?? null,
+      followerCount: content.followerCount,
     },
     channel: { slug: channel.slug, state: channel.state, artistKind: 'SINGLE' },
-    releases: [
-      {
-        id: `${username}-rel-1`,
-        title: 'First Light EP',
-        type: 'EP',
-        artworkUrl: null,
-        smartLinkSlug: `${username}-first-light`,
-        releaseDate: '2026-04-01T00:00:00.000Z',
-        description: 'Mock release for the listen POC.',
-        tracks: archive.slice(0, 2).map((a, i) => ({
-          position: i + 1,
-          title: a.title,
-          durationSec: a.durationSec,
-          archiveItemId: a.id,
-          playUrl: a.audioUrl,
-        })),
-      },
-    ],
-    tracks: archive.map((a) => ({
+    releases,
+    tracks: archive.map((a, i) => ({
       id: a.id,
       title: a.title,
       artistName: a.artistName,
       durationSec: a.durationSec,
       bannerUrl: a.bannerUrl,
       playUrl: a.audioUrl,
-      releaseSlug: `${username}-first-light`,
+      releaseSlug: releaseSlugFor(
+        Math.floor(i / 2) % Math.max(releases.length, 1),
+      ),
       pinned: Boolean(a.pinnedAt),
       pinnedAt: a.pinnedAt ?? null,
     })),
-    fanTiers: [{ id: 'tier-1', name: 'Supporter', amountCents: 500 }],
+    fanTiers: [
+      {
+        id: 'tier-1',
+        name: 'Supporter',
+        amountCents: 500,
+      },
+      {
+        id: 'tier-2',
+        name: 'Patron',
+        amountCents: 1500,
+      },
+    ],
     collections: [
       {
         slug: 'favorites-vault',
         name: 'Favorites vault',
         type: 'PLAYLIST',
         style: 'LIST',
-        description: 'Mock public collection.',
+        description: `Hand-picked highlights from ${content.displayName}'s archive.`,
         coverUrl: null,
         isFeatured: true,
         itemCount: 2,
