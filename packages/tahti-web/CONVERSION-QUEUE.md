@@ -5,7 +5,7 @@ Also see [FEATURES.md](./FEATURES.md) for shipped rows.
 
 Convert **one row at a time**.
 
-**Next up:** #8 Events (`missing`).
+**Next up:** #9 Studio embeds manager (`missing` — public embeds exist, no owner-facing embed manager).
 
 ## Artist / studio — priority
 
@@ -18,7 +18,7 @@ Convert **one row at a time**.
 | 5 | Tahti Radio slot booking / Shows | `/dashboard/tahti-radio-slots` | `/studio/shows` | `partial` (bookings live; series localStorage) |
 | 6 | Channel moderators | `/dashboard/moderate/:slug` | `/studio/moderation` | **done** (delegated mods + chat bans; `live-api` + mock) |
 | 7 | Artist venues manage | `/dashboard/venues` | `/studio/venues` | **done** (profile edit + bookings; `live-api` + mock) |
-| 8 | Events | `/dashboard/events` | — | `missing` |
+| 8 | Events | `/dashboard/events` | `/studio/events` | **done** (`live-api` + mock) |
 | 9 | Studio embeds manager | `/dashboard/embeds` | public embeds only | `missing` |
 | 10 | Insights | `/dashboard/insights/:kind/:id` | — | `missing` |
 | 11 | Stats detail | `/dashboard/stats/detail` | summary only | `partial` |
