@@ -159,6 +159,18 @@ const mockMods: ModeratorRow[] = [
   },
 ];
 
+export type ChatBan = {
+  fingerprintHash: string;
+  bannedAt: string;
+};
+
+const mockChatBans: ChatBan[] = [
+  {
+    fingerprintHash: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4',
+    bannedAt: '2026-07-20T18:00:00.000Z',
+  },
+];
+
 let mockPress: PressKitMeta = {
   hasZip: false,
   bioShort: 'Demo Artist — live electronic sets from the north.',
@@ -357,6 +369,25 @@ export async function fetchChannelMembers(): Promise<{
   }
 }
 
+/** Real shape of GET /api/me/channel/moderators — delegated chat moderators. */
+type ChannelModeratorApiRow = {
+  userId: string;
+  username: string;
+  displayName: string;
+  grantedAt: string;
+};
+
+function toModeratorRow(row: ChannelModeratorApiRow): ModeratorRow {
+  return {
+    id: row.userId,
+    username: row.username,
+    displayName: row.displayName,
+    // Delegated moderators can ban/unban chat; prod has no finer-grained split.
+    canTimeout: true,
+    canDelete: true,
+  };
+}
+
 export async function fetchModerators(): Promise<{
   data: ModeratorRow[];
   meta: FetchMeta;
@@ -368,13 +399,140 @@ export async function fetchModerators(): Promise<{
     };
   }
   try {
-    const { data } = await requestJson<
-      ModeratorRow[] | { moderators: ModeratorRow[] }
-    >('/api/me/moderators');
-    const list = Array.isArray(data) ? data : (data.moderators ?? []);
-    return { data: list, meta: { source: 'api' } };
+    const { data } = await requestJson<ChannelModeratorApiRow[]>(
+      '/api/me/channel/moderators',
+    );
+    return { data: data.map(toModeratorRow), meta: { source: 'api' } };
   } catch (err) {
     return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function addModerator(
+  username: string,
+): Promise<{ ok: true; data: ModeratorRow } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const row: ModeratorRow = {
+      id: `mod-mock-${Date.now()}`,
+      username,
+      displayName: username,
+      canTimeout: true,
+      canDelete: true,
+    };
+    mockMods.push(row);
+    return { ok: true, data: row };
+  }
+  try {
+    const { data } = await requestJson<ChannelModeratorApiRow>(
+      '/api/me/channel/moderators',
+      { method: 'POST', body: JSON.stringify({ username }) },
+    );
+    return { ok: true, data: toModeratorRow(data) };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not add moderator',
+    };
+  }
+}
+
+export async function removeModerator(
+  userId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const idx = mockMods.findIndex((m) => m.id === userId);
+    if (idx >= 0) {
+      mockMods.splice(idx, 1);
+    }
+    return { ok: true };
+  }
+  try {
+    await requestJson(
+      `/api/me/channel/moderators/${encodeURIComponent(userId)}`,
+      {
+        method: 'DELETE',
+      },
+    );
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not remove moderator',
+    };
+  }
+}
+
+export async function fetchChatBans(slug: string): Promise<{
+  data: ChatBan[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: [...mockChatBans],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<ChatBan[]>(
+      `/api/me/moderate/${encodeURIComponent(slug)}/chat/bans`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export async function banChatFingerprint(
+  slug: string,
+  fingerprintHash: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    if (!mockChatBans.some((b) => b.fingerprintHash === fingerprintHash)) {
+      mockChatBans.unshift({
+        fingerprintHash,
+        bannedAt: new Date().toISOString(),
+      });
+    }
+    return { ok: true };
+  }
+  try {
+    await requestJson(`/api/me/moderate/${encodeURIComponent(slug)}/chat/ban`, {
+      method: 'POST',
+      body: JSON.stringify({ fingerprintHash }),
+    });
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not ban',
+    };
+  }
+}
+
+export async function unbanChatFingerprint(
+  slug: string,
+  fingerprintHash: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const idx = mockChatBans.findIndex(
+      (b) => b.fingerprintHash === fingerprintHash,
+    );
+    if (idx >= 0) {
+      mockChatBans.splice(idx, 1);
+    }
+    return { ok: true };
+  }
+  try {
+    await requestJson(
+      `/api/me/moderate/${encodeURIComponent(slug)}/chat/ban/${encodeURIComponent(fingerprintHash)}`,
+      { method: 'DELETE' },
+    );
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not unban',
+    };
   }
 }
 

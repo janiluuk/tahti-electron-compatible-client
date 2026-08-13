@@ -5,7 +5,7 @@ Also see [FEATURES.md](./FEATURES.md) for shipped rows.
 
 Convert **one row at a time**.
 
-**Next up:** #5 Tahti Radio slot booking / Shows (`partial` — harden series beyond localStorage / live booking depth).
+**Next up:** #7 Artist venues manage (`missing`).
 
 ## Artist / studio — priority
 
@@ -16,7 +16,7 @@ Convert **one row at a time**.
 | 3 | Password / security + TOTP manage | settings/account | Settings Account (TOTP) | **done** (TOTP; no separate change-password API in prod) |
 | 4 | Distribution | `/dashboard/distribution` | `/studio/distribution` | **done** (catalog + Revelator + Spotify profile + royalties; `live-api` + mock) |
 | 5 | Tahti Radio slot booking / Shows | `/dashboard/tahti-radio-slots` | `/studio/shows` | `partial` (bookings live; series localStorage) |
-| 6 | Channel moderators | `/dashboard/moderate/:slug` | — | `missing` |
+| 6 | Channel moderators | `/dashboard/moderate/:slug` | `/studio/moderation` | **done** (delegated mods + chat bans; `live-api` + mock) |
 | 7 | Artist venues manage | `/dashboard/venues` | — | `missing` |
 | 8 | Events | `/dashboard/events` | — | `missing` |
 | 9 | Studio embeds manager | `/dashboard/embeds` | public embeds only | `missing` |
