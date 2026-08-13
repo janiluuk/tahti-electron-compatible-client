@@ -1,6 +1,20 @@
+import {
+  AudioLines,
+  Cloud,
+  Droplets,
+  Flashlight,
+  Grid3x3,
+  Slash,
+  Sparkles,
+  Spline,
+  Square,
+  Sun,
+  Waves,
+  type LucideIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button } from '@nuclearplayer/ui';
+import { Button, PluginItem, Toggle } from '@nuclearplayer/ui';
 
 import {
   BRAND_ACCENTS,
@@ -11,7 +25,59 @@ import {
   VISUAL_PRESETS,
   type ChannelVisual,
   type ColorScheme,
+  type VisualPreset,
 } from '../api/channel-design';
+import { useVisualizerPrefsStore } from '../stores/visualizerPrefsStore';
+
+const PRESET_META: Record<
+  VisualPreset,
+  { description: string; Icon: LucideIcon }
+> = {
+  MINIMAL: {
+    description: 'No animated background — solid color only.',
+    Icon: Slash,
+  },
+  WATER_RIPPLE: {
+    description: 'Soft ripple distortion synced to audio level.',
+    Icon: Droplets,
+  },
+  WAVEFORM_BARS: {
+    description: 'Classic frequency bars across the bottom.',
+    Icon: AudioLines,
+  },
+  PARTICLE_FIELD: {
+    description: 'Drifting particles that pulse with the beat.',
+    Icon: Sparkles,
+  },
+  AURORA: {
+    description: 'Flowing aurora-style color bands.',
+    Icon: Waves,
+  },
+  REACTIVE_GRID: {
+    description: 'Pulsing grid lines that react to the mix.',
+    Icon: Grid3x3,
+  },
+  CLOUDSCAPE: {
+    description: 'Slow-moving cloud gradients.',
+    Icon: Cloud,
+  },
+  LINE_TANGLE: {
+    description: 'Tangled line art that reacts to levels.',
+    Icon: Spline,
+  },
+  BACKDROP_BOX: {
+    description: 'Boxed grid backdrop, subtle motion.',
+    Icon: Square,
+  },
+  LENS_FLARES: {
+    description: 'Soft lens-flare glints over the artwork.',
+    Icon: Sun,
+  },
+  IES_SPOTLIGHT: {
+    description: 'Spotlight-style beam sweep.',
+    Icon: Flashlight,
+  },
+};
 
 type Props = {
   displayName: string;
@@ -45,6 +111,8 @@ export function ChannelDesigner({
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const isPresetEnabled = useVisualizerPrefsStore((s) => s.isEnabled);
+  const togglePreset = useVisualizerPrefsStore((s) => s.togglePreset);
 
   useEffect(() => {
     void fetchChannelVisual().then((r) => {
@@ -116,21 +184,44 @@ export function ChannelDesigner({
         <h3 className="text-foreground-secondary text-xs tracking-wide uppercase">
           Visual preset
         </h3>
-        <div className="flex flex-wrap gap-2">
-          {VISUAL_PRESETS.map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => applyLocal({ visualPreset: p })}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium tracking-wide uppercase ${
-                visual.visualPreset === p
-                  ? 'bg-primary text-foreground'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              {p.replace(/_/g, ' ')}
-            </button>
-          ))}
+        <p className="text-foreground-secondary text-xs">
+          Enabled by default — toggle off ones you don&apos;t want to pick from,
+          same as the desktop player&apos;s plugin store.
+        </p>
+        <div className="flex flex-col gap-2">
+          {VISUAL_PRESETS.map((p) => {
+            const meta = PRESET_META[p];
+            const active = visual.visualPreset === p;
+            const enabled = isPresetEnabled(p);
+            return (
+              <PluginItem
+                key={p}
+                icon={<meta.Icon size={22} aria-hidden />}
+                name={p.replace(/_/g, ' ')}
+                author={active ? 'Active' : 'Visualizer'}
+                description={meta.description}
+                disabled={!enabled}
+                labels={{ by: '' }}
+                rightAccessory={
+                  <div className="flex items-center gap-2">
+                    <Toggle
+                      checked={enabled}
+                      onChange={(checked) => togglePreset(p, checked)}
+                      aria-label={`Toggle ${p} visualizer`}
+                    />
+                    <Button
+                      size="sm"
+                      variant={active ? undefined : 'secondary'}
+                      disabled={active || !enabled}
+                      onClick={() => applyLocal({ visualPreset: p })}
+                    >
+                      {active ? 'In use' : 'Use'}
+                    </Button>
+                  </div>
+                }
+              />
+            );
+          })}
         </div>
       </section>
 
