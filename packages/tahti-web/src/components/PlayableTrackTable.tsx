@@ -2,12 +2,11 @@ import type { Track } from '@nuclearplayer/model';
 import { TrackTable } from '@nuclearplayer/ui';
 
 import type { TahtiPlayable } from '../api/types';
-import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { playableToTrack } from '../lib/playableToTrack';
 import { trackTableLabels } from '../lib/trackTableLabels';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
-import { AddToPlaylistButton } from './AddToPlaylistButton';
+import { PlayableTrackContextMenu } from './PlayableTrackContextMenu';
 
 type Props = {
   items: TahtiPlayable[];
@@ -33,11 +32,6 @@ export function PlayableTrackTable({
   const resolve = (track: Track): TahtiPlayable | null =>
     byId.get(track.source.id) ?? null;
 
-  const firstArchive = items.find((i) => archiveItemIdFromPlayableId(i.id));
-  const firstArchiveId = firstArchive
-    ? archiveItemIdFromPlayableId(firstArchive.id)
-    : null;
-
   return (
     <div className="flex min-h-[240px] flex-col gap-3">
       <TrackTable
@@ -51,7 +45,7 @@ export function PlayableTrackTable({
           playAll: true,
           addAllToQueue: true,
           reorderable: false,
-          contextMenu: false,
+          contextMenu: true,
         }}
         display={{
           displayThumbnail: true,
@@ -99,21 +93,9 @@ export function PlayableTrackTable({
         }}
         meta={{
           isTrackFavorite: (track) => isFavoriteTrack(track.source.id),
+          ContextMenuWrapper: PlayableTrackContextMenu,
         }}
       />
-      {firstArchive && firstArchiveId && (
-        <div className="border-border flex flex-wrap items-center gap-2 border-t pt-3">
-          <p className="text-foreground-secondary text-xs">
-            Save &ldquo;{firstArchive.title}&rdquo; (or whatever is in the
-            player bar) to a playlist:
-          </p>
-          <AddToPlaylistButton
-            archiveItemId={firstArchiveId}
-            trackTitle={firstArchive.title}
-            variant="secondary"
-          />
-        </div>
-      )}
     </div>
   );
 }

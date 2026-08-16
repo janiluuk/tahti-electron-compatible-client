@@ -77,6 +77,7 @@ import { TransparencyView } from './views/TransparencyView';
 import { VenueRegisterView } from './views/VenueRegisterView';
 import { VenuesView } from './views/VenuesView';
 import { VerifyView } from './views/VerifyView';
+import { WhatsNewView } from './views/WhatsNewView';
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -208,12 +209,7 @@ const moreRoute = createRoute({
 const whatsNewRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/whats-new',
-  beforeLoad: () => {
-    throw redirect({
-      to: '/settings/$section',
-      params: { section: 'whats-new' },
-    });
-  },
+  component: WhatsNewView,
 });
 
 const channelRoute = createRoute({
