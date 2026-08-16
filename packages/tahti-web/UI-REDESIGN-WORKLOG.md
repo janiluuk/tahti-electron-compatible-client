@@ -34,10 +34,10 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 20 | Revenue / Connect | `/studio/revenue` | **approved** | `docs/redesign-shots/studio-revenue-v1.png` |
 | 21 | Stash | `/studio/stash` | **approved** | `docs/redesign-shots/studio-stash-v1.png` |
 | 22 | Sources hub | `/sources` | **approved** | `docs/redesign-shots/sources-v1.png`, `docs/redesign-shots/sources-detail-v1.png` |
-| 23 | Settings — account | `/settings/account` | pending | |
-| 24 | Settings — artist | `/settings/artist` (etc.) | pending | |
-| 25 | Settings — money / fan tiers | `/settings/money` | pending | |
-| 26 | Settings — connections | `/settings/connections` | pending | |
+| 23 | Settings — account | `/settings/account` | **approved** | already Nuclear shell (no redesign needed) |
+| 24 | Settings — artist | `/settings/artist` (etc.) | **approved** | `docs/redesign-shots/settings-artist-v1.png` |
+| 25 | Settings — money / fan tiers | `/settings/money` | **approved** | already Nuclear shell (no redesign needed) |
+| 26 | Settings — connections | `/settings/connections` | **approved** | already Nuclear shell (no redesign needed) |
 
 ## Admin (prod `/admin/*` — not in POC yet)
 
@@ -324,6 +324,18 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 - No behavior changes — grid, tabs, connect/disconnect, and import flows untouched
 
 **Screenshots:** `docs/redesign-shots/sources-v1.png` (overview grid), `docs/redesign-shots/sources-detail-v1.png` (SoundCloud detail tab)
+
+**Status:** approved.
+
+### 2026-08-17 — Pages 23–26 Settings account/artist/money/connections
+
+**Finding:** these four rows were tracked as `pending`, but the worklog was stale — the Settings modal (`SettingsPanels.tsx`) already uses the Nuclear `SettingsPanel` shell consistently across every section (sub-tabs, bordered `SettingsInfo` rows, real Save CTAs, tier cards). No layout/chrome work was actually outstanding.
+
+**Verified via screenshot, no changes needed:** Account (Session/Security/Membership/Notifications sub-tabs, read-only `SettingsInfo` rows are intentional — editable display name lives under Artist → Profile), Money (Fan tiers list with New/Deactivate, matches the Releases/Stash divide-y pattern), Connections (short redirect notice pointing to Sources, intentionally minimal).
+
+**One real fix, already shipped in the Source:/API sweep:** Account → Membership had a raw `Source: {source}` debug line — removed there, not here.
+
+**Screenshot:** `docs/redesign-shots/settings-artist-v1.png` (representative — Profile sub-tab with Save CTA)
 
 **Status:** approved.
 
