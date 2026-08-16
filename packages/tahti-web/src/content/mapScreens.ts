@@ -160,8 +160,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod channel chat rail',
         },
         new: {
+          image: '/map/nuclear/channel-chat.png',
           route: '/chat/$slug / channel Chat tab',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear chat rail',
         },
       },
       {
@@ -208,8 +209,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod smart link',
         },
         new: {
+          image: '/map/nuclear/smart-link.png',
           route: '/r/$slug',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear smart link',
         },
       },
       {
@@ -223,8 +225,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod collection',
         },
         new: {
+          image: '/map/nuclear/collection.png',
           route: '/u/$username/c/$slug',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear collection',
         },
       },
       {
@@ -238,8 +241,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod embed',
         },
         new: {
+          image: '/map/nuclear/embed.png',
           route: '/embed/c/$slug',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear embed',
         },
       },
       {
@@ -253,8 +257,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod venues',
         },
         new: {
+          image: '/map/nuclear/venues.png',
           route: '/venues',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear venues',
         },
       },
       {
@@ -358,7 +363,8 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
         new: {
           image: '/map/nuclear/login.png',
           route: '/login (TOTP step)',
-          caption: 'Nuclear shot pending for dedicated TOTP step',
+          caption:
+            'Real gap, not just a missing shot: authStore has totpChallengeId/loginTotp wired, but LoginView never renders a code-entry step — a TOTP-enrolled member would get stuck after password.',
         },
       },
     ],
@@ -412,8 +418,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod messages (via dashboard)',
         },
         new: {
+          image: '/map/nuclear/listener-dashboard.png',
           route: '/library/messages',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear DMs (in My Library, not a separate dashboard)',
         },
       },
       {
@@ -501,8 +508,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod setup wizard',
         },
         new: {
+          image: '/map/nuclear/setup-channel-gated.png',
           route: '/studio (gated)',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear studio home nudges channel creation inline',
         },
       },
       {
@@ -596,8 +604,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod releases',
         },
         new: {
+          image: '/map/nuclear/releases.png',
           route: '/studio/releases',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear releases',
         },
       },
       {
@@ -659,8 +668,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod revenue',
         },
         new: {
+          image: '/map/nuclear/revenue.png',
           route: '/studio/revenue',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear revenue',
         },
       },
       {
@@ -674,8 +684,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod channel appearance',
         },
         new: {
+          image: '/map/nuclear/channel-design.png',
           route: '/studio/channel',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear channel designer',
         },
       },
       {
@@ -689,8 +700,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod schedule',
         },
         new: {
+          image: '/map/nuclear/schedule.png',
           route: '/studio/schedule',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear schedule',
         },
       },
       {
@@ -704,8 +716,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod newsletter',
         },
         new: {
+          image: '/map/nuclear/updates.png',
           route: '/studio/updates',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear updates',
         },
       },
       {
@@ -719,8 +732,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod editor',
         },
         new: {
+          image: '/map/nuclear/editor.png',
           route: '/studio/editor',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear editor',
         },
       },
       {
@@ -750,8 +764,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod fan-subs settings',
         },
         new: {
+          image: '/map/nuclear/money-tiers.png',
           route: '/settings/money',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear fan tiers',
         },
       },
     ],
@@ -774,8 +789,9 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Prod Connect incomplete state',
         },
         new: {
+          image: '/map/nuclear/revenue.png',
           route: '/studio/revenue',
-          caption: 'Nuclear shot pending',
+          caption: 'Nuclear revenue',
         },
       },
       {
