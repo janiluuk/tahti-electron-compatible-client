@@ -12,6 +12,7 @@ import {
 } from '../../api/sources';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { usePlayerStore } from '../../stores/playerStore';
 
 export function StudioStashView() {
@@ -32,118 +33,133 @@ export function StudioStashView() {
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-4xl flex-col gap-6">
+      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/stash" />
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
-              Stash
-            </h1>
-            <p className="text-foreground-secondary mt-1 text-sm">
-              Private locker, not public archive.
-            </p>
-          </div>
-          <div>
-            <input
-              ref={inputRef}
-              type="file"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                e.target.value = '';
-                if (!file) {
-                  return;
-                }
-                setBusy(true);
-                setMsg(null);
-                void uploadStashFile(file).then((res) => {
-                  setBusy(false);
-                  if (!res.ok) {
-                    setMsg(res.error);
+        <StudioPageHeader
+          title="Stash"
+          subtitle="Private locker, not public archive."
+          action={
+            <>
+              <input
+                ref={inputRef}
+                type="file"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = '';
+                  if (!file) {
                     return;
                   }
-                  setMsg(`Uploaded ${file.name}`);
-                  void reload();
-                });
-              }}
-            />
-            <Button
-              size="sm"
-              disabled={busy}
-              onClick={() => inputRef.current?.click()}
-            >
-              <span className="inline-flex items-center gap-1.5">
-                <UploadIcon size={14} />
-                {busy ? 'Uploading…' : 'Upload'}
-              </span>
-            </Button>
-          </div>
-        </div>
-        {msg && <p className="text-sm">{msg}</p>}
-        {files.length === 0 ? (
-          <p className="text-foreground-secondary text-sm">No stash files.</p>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {files.map((f) => (
-              <li
-                key={f.id}
-                className="border-border flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
+                  setBusy(true);
+                  setMsg(null);
+                  void uploadStashFile(file).then((res) => {
+                    setBusy(false);
+                    if (!res.ok) {
+                      setMsg(res.error);
+                      return;
+                    }
+                    setMsg(`Uploaded ${file.name}`);
+                    void reload();
+                  });
+                }}
+              />
+              <Button
+                size="sm"
+                disabled={busy}
+                onClick={() => inputRef.current?.click()}
+                aria-label="Upload"
+                title="Upload"
               >
-                <div>
-                  <div className="text-sm font-medium">{f.filename}</div>
-                  <div className="text-foreground-secondary text-xs">
-                    {f.contentType ?? 'file'}
-                    {f.sizeBytes != null
-                      ? ` · ${Math.round(f.sizeBytes / 1024)} KB`
-                      : ''}
-                  </div>
-                </div>
-                <div className="flex gap-1">
-                  <Button
-                    size="icon-sm"
-                    title="Play"
-                    aria-label="Play"
-                    onClick={() => {
-                      void fetchStashDownload(f.id).then((r) => {
-                        if (!r.data?.url) {
-                          return;
-                        }
-                        play({
-                          id: `stash:${f.id}`,
-                          kind: 'archive',
-                          title: f.filename,
-                          artist: 'Stash',
-                          streamUrl: r.data.url,
-                          protocol: 'https',
-                          sourceProvider: 'stash',
-                        });
-                      });
-                    }}
-                  >
-                    <PlayIcon size={16} className="fill-current" />
-                  </Button>
-                  <Button
-                    size="icon-sm"
-                    variant="secondary"
-                    title="Delete"
-                    aria-label="Delete"
-                    onClick={() => {
-                      void deleteStashFile(f.id).then((res) => {
-                        if (!res.ok) {
-                          setMsg(res.error);
-                          return;
-                        }
-                        setFiles((prev) => prev.filter((x) => x.id !== f.id));
-                      });
-                    }}
-                  >
-                    <Trash2Icon size={16} />
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                <UploadIcon size={16} aria-hidden className="mr-1.5" />
+                {busy ? 'Uploading…' : 'Upload'}
+              </Button>
+            </>
+          }
+        />
+
+        {msg && (
+          <p className="text-foreground-secondary text-sm" role="status">
+            {msg}
+          </p>
         )}
+
+        <StudioPanel>
+          {files.length === 0 ? (
+            <div className="flex flex-col gap-3 py-4 text-center">
+              <p className="text-foreground-secondary text-sm">
+                No stash files yet.
+              </p>
+              <div>
+                <Button size="sm" onClick={() => inputRef.current?.click()}>
+                  <UploadIcon size={16} aria-hidden className="mr-1.5" />
+                  Upload
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <ul className="divide-border divide-y">
+              {files.map((f) => (
+                <li
+                  key={f.id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm first:pt-0 last:pb-0"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium">{f.filename}</div>
+                    <div className="text-foreground-secondary text-xs">
+                      {f.contentType ?? 'file'}
+                      {f.sizeBytes != null
+                        ? ` · ${Math.round(f.sizeBytes / 1024)} KB`
+                        : ''}
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      title="Play"
+                      aria-label="Play"
+                      onClick={() => {
+                        void fetchStashDownload(f.id).then((r) => {
+                          if (!r.data?.url) {
+                            return;
+                          }
+                          play({
+                            id: `stash:${f.id}`,
+                            kind: 'archive',
+                            title: f.filename,
+                            artist: 'Stash',
+                            streamUrl: r.data.url,
+                            protocol: 'https',
+                            sourceProvider: 'stash',
+                          });
+                        });
+                      }}
+                    >
+                      <PlayIcon size={16} className="fill-current" />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="text"
+                      title="Delete"
+                      aria-label="Delete"
+                      onClick={() => {
+                        void deleteStashFile(f.id).then((res) => {
+                          if (!res.ok) {
+                            setMsg(res.error);
+                            return;
+                          }
+                          setFiles((prev) => prev.filter((x) => x.id !== f.id));
+                        });
+                      }}
+                    >
+                      <Trash2Icon size={16} />
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </StudioPanel>
       </div>
     </StudioGate>
   );

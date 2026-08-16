@@ -31,8 +31,8 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 17 | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **in-review** | |
 | 18 | Playlists | `/studio/playlists`, `…/$slug` | **in-review** | `docs/redesign-shots/studio-playlists-v1.png` |
 | 19 | Updates / newsletter | `/studio/updates` | **approved** | `docs/redesign-shots/studio-updates-v1.png` |
-| 20 | Revenue / Connect | `/studio/revenue` | **in-review** | `docs/redesign-shots/studio-revenue-v1.png` |
-| 21 | Stash | `/studio/stash` | pending | |
+| 20 | Revenue / Connect | `/studio/revenue` | **approved** | `docs/redesign-shots/studio-revenue-v1.png` |
+| 21 | Stash | `/studio/stash` | **approved** | `docs/redesign-shots/studio-stash-v1.png` |
 | 22 | Sources hub | `/sources` | pending | |
 | 23 | Settings — account | `/settings/account` | pending | |
 | 24 | Settings — artist | `/settings/artist` (etc.) | pending | |
@@ -294,5 +294,21 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 
 **Screenshot:** `docs/redesign-shots/studio-revenue-v1.png`
 
-**Status:** in-review — awaiting comment or `approved`.
+**Status:** approved.
+
+### 2026-08-17 — Page 21 Stash v1 (`in-review`)
+
+**Goal:** Same StudioPageHeader/StudioPanel shell as the rest of studio; the page still used the pre-redesign bordered-`<li>` list and a raw flex header.
+
+**Changes:**
+
+- `StudioPageHeader` with Upload as the single header CTA (file input stays hidden, triggered via ref)
+- File list moved into `StudioPanel` with `divide-y` rows, matching Releases/Stash's siblings
+- Empty state gets its own Upload CTA
+- Play/Delete stay icon-only, switched to `variant="text"` for consistency with other row actions
+- No behavior changes — same upload/download/delete handlers
+
+**Screenshot:** `docs/redesign-shots/studio-stash-v1.png`
+
+**Status:** approved.
 
