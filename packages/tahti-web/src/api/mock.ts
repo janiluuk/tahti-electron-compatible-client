@@ -6,6 +6,7 @@ import type {
   ChatAccess,
   ChatMessage,
   FanTiersResponse,
+  FeedResponse,
   PublicChannel,
   PublicCollection,
   PublicProfile,
@@ -47,6 +48,14 @@ type StationContent = {
   pronouns?: string | null;
   trackTitles: string[];
   releases: StationRelease[];
+  /** Optional artwork — most mock stations intentionally ship without any
+   * (avatarUrl/bannerUrl/artworkUrl null) to keep fixtures obviously
+   * placeholder; a station can opt in for screenshot fidelity. */
+  avatarUrl?: string;
+  /** Parallel to `trackTitles` — cover art each track/archive item shows. */
+  trackArtwork?: string[];
+  /** Parallel to `releases`. */
+  releaseArtwork?: string[];
 };
 
 /** Per-station mock content — keeps the listen directory, artist pages, and
@@ -268,13 +277,54 @@ const STATION_CONTENT: Record<string, StationContent> = {
       },
     ],
   },
+  'dj-moonlight': {
+    displayName: 'DJ Moonlight',
+    genres: ['deep house', 'nu-disco'],
+    bio: 'Helsinki selector spinning warm, filtered house for the drive home. Monthly After Hours residency and the odd rooftop set when the weather holds.',
+    colorAccent: '#A78BFA',
+    colorHighlight: '#FB7185',
+    nowPlayingTitle: 'Moonlight Drive (live mix)',
+    followerCount: 2140,
+    pronouns: 'she/her',
+    avatarUrl: '/mock/dj-moonlight/avatar.svg',
+    trackTitles: [
+      'Moonlight Drive',
+      'After Hours Radio',
+      'Blue Hour',
+      'Neon Tide',
+    ],
+    trackArtwork: [
+      '/mock/dj-moonlight/cover-moonlight-drive.svg',
+      '/mock/dj-moonlight/cover-moonlight-drive.svg',
+      '/mock/dj-moonlight/cover-after-hours.svg',
+      '/mock/dj-moonlight/cover-after-hours.svg',
+    ],
+    releases: [
+      {
+        title: 'Moonlight Drive',
+        type: 'EP',
+        description:
+          'Two-track EP built for the late-night A1 loop out of Helsinki — sidechained pads and a vocoder hook recorded live during a winter drive.',
+      },
+      {
+        title: 'After Hours',
+        type: 'ALBUM',
+        description:
+          "Warm, filtered cuts from DJ Moonlight's residency — mixed down from the closing sets nobody wanted to leave.",
+      },
+    ],
+    releaseArtwork: [
+      '/mock/dj-moonlight/cover-moonlight-drive.svg',
+      '/mock/dj-moonlight/cover-after-hours.svg',
+    ],
+  },
 };
 
 const MOCK_DIRECTORY: ChannelDirectoryResponse = {
   items: Object.entries(STATION_CONTENT).map(([slug, s]) => ({
     slug,
     displayName: s.displayName,
-    avatarUrl: null,
+    avatarUrl: s.avatarUrl ?? null,
     genres: s.genres,
   })),
   // tahti-radio is featured via fetchRadioStation on Listen — not listed here.
@@ -333,13 +383,13 @@ export function mockChannel(slug: string): PublicChannel {
       username: slug,
       displayName: isRadio ? 'Tahti Radio' : content.displayName,
       bio: content.bio,
-      avatarUrl: null,
+      avatarUrl: isRadio ? null : (content.avatarUrl ?? null),
     },
     nowPlaying: {
       title: isRadio ? 'Aurora Drift (mock rotation)' : content.nowPlayingTitle,
       artistName: isRadio ? 'Northern Lights' : content.displayName,
       artistUsername: isRadio ? 'northern-lights' : slug,
-      artworkUrl: null,
+      artworkUrl: isRadio ? null : (content.trackArtwork?.[0] ?? null),
     },
   };
 }
@@ -440,7 +490,7 @@ export function mockArchiveItems(slug: string): ArchiveItem[] {
     title,
     artistName: artist,
     durationSec: durations[i % durations.length],
-    bannerUrl: null,
+    bannerUrl: content.trackArtwork?.[i] ?? null,
     audioUrl: i === durations.length - 1 && i % 2 === 0 ? DEMO_HLS : DEMO_MP3,
     genre: primaryGenre,
     createdAt: dates[i % dates.length],
@@ -458,7 +508,7 @@ export function mockProfile(username: string): PublicProfile {
     id: `${username}-rel-${i + 1}`,
     title: rel.title,
     type: rel.type,
-    artworkUrl: null,
+    artworkUrl: content.releaseArtwork?.[i] ?? null,
     smartLinkSlug: releaseSlugFor(i),
     releaseDate: [
       '2026-04-01T00:00:00.000Z',
@@ -850,4 +900,83 @@ export function mockAnnouncements(): Announcement[] {
       link: 'https://tahti.live/about',
     },
   ];
+}
+
+function feedArtist(slug: string) {
+  const channel = mockChannel(slug);
+  return {
+    username: slug,
+    displayName: channel.user.displayName,
+    avatarUrl: channel.user.avatarUrl,
+  };
+}
+
+/** GET /api/me/feed — recent posts/tracks/releases from artists the member
+ * follows. Mixes a few of the richer mock stations so it reads like a real
+ * timeline instead of one repeated fixture. */
+export function mockFeed(): FeedResponse {
+  const moonlight = stationContent('dj-moonlight');
+  const cartography = stationContent('midnight-cartography');
+  return {
+    followingCount: 5,
+    items: [
+      {
+        kind: 'release',
+        id: 'feed-1',
+        date: '2026-08-14T18:00:00.000Z',
+        artist: feedArtist('dj-moonlight'),
+        title: moonlight.releases[1].title,
+        releaseType: moonlight.releases[1].type,
+        artworkUrl: moonlight.releaseArtwork?.[1] ?? null,
+        smartLinkSlug: 'dj-moonlight-release-2',
+      },
+      {
+        kind: 'post',
+        id: 'feed-2',
+        date: '2026-08-13T09:30:00.000Z',
+        artist: feedArtist('midnight-cartography'),
+        title: 'Thursday show moved an hour later',
+        body: 'Starting at 01:00 EEST this week — recording a special Ring Rail segment first. See you after midnight.',
+      },
+      {
+        kind: 'track',
+        id: 'feed-3',
+        date: '2026-08-12T21:15:00.000Z',
+        artist: feedArtist('dj-moonlight'),
+        title: moonlight.trackTitles[0],
+        bannerUrl: moonlight.trackArtwork?.[0] ?? null,
+        channelSlug: 'dj-moonlight',
+      },
+      {
+        kind: 'release',
+        id: 'feed-4',
+        date: '2026-08-10T12:00:00.000Z',
+        artist: feedArtist('kaiku-collective'),
+        title:
+          stationContent('kaiku-collective').releases[0]?.title ??
+          'New release',
+        releaseType:
+          stationContent('kaiku-collective').releases[0]?.type ?? 'EP',
+        artworkUrl: null,
+        smartLinkSlug: 'kaiku-collective-release-1',
+      },
+      {
+        kind: 'track',
+        id: 'feed-5',
+        date: '2026-08-08T19:45:00.000Z',
+        artist: feedArtist('midnight-cartography'),
+        title: cartography.trackTitles[0],
+        bannerUrl: null,
+        channelSlug: 'midnight-cartography',
+      },
+      {
+        kind: 'post',
+        id: 'feed-6',
+        date: '2026-08-05T15:00:00.000Z',
+        artist: feedArtist('northern-lights'),
+        title: null,
+        body: 'Winter field recordings from the Rovaniemi session are archived now — check the catalog for the raw takes.',
+      },
+    ],
+  };
 }

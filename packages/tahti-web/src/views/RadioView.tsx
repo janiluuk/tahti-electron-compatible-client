@@ -22,6 +22,7 @@ import {
 } from '../components/MediaIconActions';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { TrackInfoDialog, type TrackInfo } from '../components/TrackInfoDialog';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
@@ -47,6 +48,7 @@ export function RadioView() {
   const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [recentMeta, setRecentMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
+  const [infoTrack, setInfoTrack] = useState<TrackInfo | null>(null);
 
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
@@ -219,9 +221,27 @@ export function RadioView() {
                   <div className="text-foreground-secondary text-xs tracking-wide uppercase">
                     Now playing
                   </div>
-                  <div className="text-foreground mt-1 text-xl font-bold tracking-tight">
-                    {nowPlaying?.title ?? 'Tahti Radio'}
-                  </div>
+                  {nowPlaying?.title ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setInfoTrack({
+                          title: nowPlaying.title,
+                          artistName: nowPlaying.artistName ?? 'Tahti Radio',
+                          artistUsername: nowPlaying.artistUsername ?? null,
+                          artworkUrl: nowPlaying.artworkUrl ?? null,
+                          meta: 'Live now',
+                        })
+                      }
+                      className="text-foreground mt-1 text-left text-xl font-bold tracking-tight underline-offset-4 hover:underline"
+                    >
+                      {nowPlaying.title}
+                    </button>
+                  ) : (
+                    <div className="text-foreground mt-1 text-xl font-bold tracking-tight">
+                      Tahti Radio
+                    </div>
+                  )}
                   <div className="text-foreground-secondary mt-0.5 text-sm">
                     {nowPlaying?.artistUsername ? (
                       <Link
@@ -286,35 +306,39 @@ export function RadioView() {
                     key={item.id}
                     className="border-border flex items-center gap-3 rounded-lg border px-3 py-2"
                   >
-                    <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-                      {item.artworkUrl ? (
-                        <img
-                          src={item.artworkUrl}
-                          alt=""
-                          className="size-full object-cover"
-                        />
-                      ) : (
-                        item.title.slice(0, 2).toUpperCase()
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">
-                        {item.title}
-                      </div>
-                      <div className="text-foreground-secondary truncate text-xs">
-                        {item.artistUsername ? (
-                          <Link
-                            to="/u/$username"
-                            params={{ username: item.artistUsername }}
-                            className="underline-offset-2 hover:underline"
-                          >
-                            {item.artistName}
-                          </Link>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setInfoTrack({
+                          title: item.title,
+                          artistName: item.artistName,
+                          artistUsername: item.artistUsername,
+                          artworkUrl: item.artworkUrl,
+                          meta: formatAgo(item.playedAt),
+                        })
+                      }
+                      className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                    >
+                      <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
+                        {item.artworkUrl ? (
+                          <img
+                            src={item.artworkUrl}
+                            alt=""
+                            className="size-full object-cover"
+                          />
                         ) : (
-                          item.artistName
+                          item.title.slice(0, 2).toUpperCase()
                         )}
                       </div>
-                    </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium underline-offset-2 hover:underline">
+                          {item.title}
+                        </div>
+                        <div className="text-foreground-secondary truncate text-xs">
+                          {item.artistName}
+                        </div>
+                      </div>
+                    </button>
                     <span className="text-foreground-secondary shrink-0 text-xs">
                       {formatAgo(item.playedAt)}
                     </span>
@@ -341,6 +365,12 @@ export function RadioView() {
           </p>
         </div>
       )}
+
+      <TrackInfoDialog
+        isOpen={Boolean(infoTrack)}
+        onClose={() => setInfoTrack(null)}
+        track={infoTrack}
+      />
     </PageFrame>
   );
 }

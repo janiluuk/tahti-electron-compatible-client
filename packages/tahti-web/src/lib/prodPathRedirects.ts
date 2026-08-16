@@ -60,6 +60,9 @@ export function resolveDashboardRedirect(rest: string | undefined): string {
   if (first === 'stats' && key.includes('detail')) {
     return '/studio/stats/detail';
   }
+  if (first === 'moderate') {
+    return '/studio/moderation';
+  }
   if (DASHBOARD_REDIRECTS[first]) {
     return DASHBOARD_REDIRECTS[first];
   }

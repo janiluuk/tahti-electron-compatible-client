@@ -449,3 +449,44 @@ export type Announcement = {
   publishedAt: string;
   link?: string | null;
 };
+
+/** GET /api/me/feed — recent activity from artists the current user follows. */
+export type FeedArtist = {
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+};
+
+export type FeedItem =
+  | {
+      kind: 'post';
+      id: string;
+      date: string;
+      artist: FeedArtist;
+      title: string | null;
+      body: string;
+    }
+  | {
+      kind: 'track';
+      id: string;
+      date: string;
+      artist: FeedArtist;
+      title: string;
+      bannerUrl: string | null;
+      channelSlug: string;
+    }
+  | {
+      kind: 'release';
+      id: string;
+      date: string;
+      artist: FeedArtist;
+      title: string;
+      releaseType: string;
+      artworkUrl: string | null;
+      smartLinkSlug: string | null;
+    };
+
+export type FeedResponse = {
+  items: FeedItem[];
+  followingCount: number;
+};

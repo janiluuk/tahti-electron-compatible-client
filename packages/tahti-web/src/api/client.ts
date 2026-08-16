@@ -10,6 +10,7 @@ import {
   mockCollection,
   mockDirectory,
   mockFanTiers,
+  mockFeed,
   mockProfile,
   mockRadio,
   mockRadioRecentlyPlayed,
@@ -52,6 +53,7 @@ import type {
   CollectionEmbedView,
   FanSubscriptionRow,
   FanTiersResponse,
+  FeedResponse,
   FollowListUser,
   GovernanceMotion,
   MembershipStatus,
@@ -671,6 +673,67 @@ export async function verifyEmailRequest(
   }
 }
 
+/** GET /api/auth/setup-password?token= — one-time invite link that lets a
+ * passwordless account (board-invited, imported) set an initial password. */
+export async function fetchSetupPasswordInfo(
+  token: string,
+): Promise<
+  | { ok: true; email: string; username: string; displayName: string }
+  | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return {
+      ok: true,
+      email: 'newartist@tahti.live',
+      username: 'newartist',
+      displayName: 'New Artist',
+    };
+  }
+  try {
+    const { data } = await requestJson<{
+      email: string;
+      username: string;
+      displayName: string;
+    }>(`/api/auth/setup-password?token=${encodeURIComponent(token)}`);
+    return { ok: true, ...data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Invalid or expired link',
+    };
+  }
+}
+
+export async function submitSetupPassword(
+  token: string,
+  password: string,
+  email?: string,
+): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const user = buildMockLoginUser(email || 'newartist@tahti.live');
+    setMockSessionUser(user);
+    return { ok: true, user };
+  }
+  try {
+    await requestJson<{ ok: true; user: Partial<AuthUser> }>(
+      '/api/auth/setup-password',
+      { method: 'POST', body: JSON.stringify({ token, password }) },
+    );
+    // POST sets the session cookie but returns a partial user shape —
+    // fetch the full session user the same way login/register do.
+    const me = await fetchAuthMe();
+    if (!me.data) {
+      return { ok: false, error: 'Password set, but session did not start' };
+    }
+    return { ok: true, user: me.data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not set password',
+    };
+  }
+}
+
 export async function logoutRequest(): Promise<void> {
   if (forceMock()) {
     clearMockSessionUser();
@@ -1271,6 +1334,28 @@ export async function fetchMembership(): Promise<{
     return { data, meta: { source: 'api' } };
   } catch (err) {
     return { data: null, meta: apiErrorMeta(err) };
+  }
+}
+
+/** GET /api/me/feed — listener home: recent activity from followed artists. */
+export async function fetchFeed(): Promise<{
+  data: FeedResponse;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockFeed(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<FeedResponse>('/api/me/feed');
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return {
+      data: { items: [], followingCount: 0 },
+      meta: apiErrorMeta(err),
+    };
   }
 }
 

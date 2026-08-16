@@ -31,7 +31,7 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 17 | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **in-review** | |
 | 18 | Playlists | `/studio/playlists`, `…/$slug` | **in-review** | `docs/redesign-shots/studio-playlists-v1.png` |
 | 19 | Updates / newsletter | `/studio/updates` | **approved** | `docs/redesign-shots/studio-updates-v1.png` |
-| 20 | Revenue / Connect | `/studio/revenue` | pending | |
+| 20 | Revenue / Connect | `/studio/revenue` | **in-review** | `docs/redesign-shots/studio-revenue-v1.png` |
 | 21 | Stash | `/studio/stash` | pending | |
 | 22 | Sources hub | `/sources` | pending | |
 | 23 | Settings — account | `/settings/account` | pending | |
@@ -280,4 +280,19 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 **Screenshots:** `docs/redesign-shots/studio-updates-v1.png` (Posts tab), `docs/redesign-shots/studio-updates-newsletter-v1.png` (Newsletter tab)
 
 **Status:** approved.
+
+### 2026-08-16 — Page 20 Revenue / Connect v1 (`in-review`)
+
+**Goal:** Same StudioPageHeader/StudioPanel shell; replace the yes/no status list with the ✓/○ chip pattern from the Go Live wizard; drop dev jargon from user-facing copy.
+
+**Changes:**
+
+- `StudioPageHeader` with a plain subtitle — dropped "Source: mock" and the `VITE_FORCE_MOCK=1` dev-env line that was leaking into the UI
+- Stripe Connect status (configured / charges enabled / details submitted / payments ready) now reads as compact ✓/○ chips instead of a `yes`/`no` bullet list
+- Fan-sub Connect, grant estimate, and past grants are each a `StudioPanel`; past grants moved to `divide-y` rows
+- No behavior changes — same onboarding/portal handlers
+
+**Screenshot:** `docs/redesign-shots/studio-revenue-v1.png`
+
+**Status:** in-review — awaiting comment or `approved`.
 

@@ -10,15 +10,18 @@ import type { IntegrationId } from './api/sources';
 import { SOURCE_DEFS } from './api/sources';
 import { AppShell } from './components/AppShell';
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
+import { useAuthStore } from './stores/authStore';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
 import { ChatView } from './views/ChatView';
 import { CollectionView } from './views/CollectionView';
+import { DashboardAliasView } from './views/DashboardAliasView';
 import {
   EmbedChannelView,
   EmbedCollectionView,
   EmbedReleaseView,
 } from './views/EmbedViews';
+import { FeedView } from './views/FeedView';
 import { GovernanceView } from './views/GovernanceView';
 import { HelpArticleView, HelpHubView } from './views/HelpView';
 import { JoinView } from './views/JoinView';
@@ -29,6 +32,7 @@ import { LoginView } from './views/LoginView';
 import { MoreView } from './views/MoreView';
 import { RadioView } from './views/RadioView';
 import { SettingsView } from './views/settings/SettingsView';
+import { SetupPasswordView } from './views/SetupPasswordView';
 import { SignupPaymentView } from './views/SignupPaymentView';
 import { SmartLinkView } from './views/SmartLinkView';
 import { SourcesView } from './views/SourcesView';
@@ -117,6 +121,12 @@ const settingsSectionRoute = createRoute({
     const { section } = settingsSectionRoute.useParams();
     return <SettingsView sectionId={section} />;
   },
+});
+
+const feedRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/feed',
+  component: FeedView,
 });
 
 const libraryRoute = createRoute({
@@ -306,6 +316,12 @@ const verifyRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/verify',
   component: VerifyView,
+});
+
+const setupPasswordRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/setup-password',
+  component: SetupPasswordView,
 });
 
 const loginRoute = createRoute({
@@ -651,19 +667,39 @@ const prodSubscribeAliasRoute = createRoute({
 const dashboardIndexAliasRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/dashboard',
-  beforeLoad: () => {
-    throw redirect({ href: '/studio' });
-  },
+  component: DashboardAliasView,
 });
+
+function waitForAuthHydration(): Promise<void> {
+  if (useAuthStore.getState().hydrated) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    const unsub = useAuthStore.subscribe((state) => {
+      if (state.hydrated) {
+        unsub();
+        resolve();
+      }
+    });
+  });
+}
 
 const dashboardSplatAliasRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/dashboard/$',
-  beforeLoad: ({ params }) => {
+  beforeLoad: async ({ params }) => {
     const splat =
       typeof params._splat === 'string'
         ? params._splat
         : String((params as { _splat?: string })._splat ?? '');
+    // This route also matches bare `/dashboard` (empty splat) ahead of the
+    // `/dashboard` index route — apply the same artist-vs-listener split
+    // here instead of falling through to the `''` → `/studio` prod alias.
+    if (!splat.replace(/^\/+|\/+$/g, '')) {
+      await waitForAuthHydration();
+      const user = useAuthStore.getState().user;
+      throw redirect({ href: user?.channel ? '/studio' : '/feed' });
+    }
     throw redirect({ href: resolveDashboardRedirect(splat) });
   },
 });
@@ -676,6 +712,7 @@ const routeTree = rootRoute.addChildren([
     themesRoute,
     settingsRoute,
     settingsSectionRoute,
+    feedRoute,
     libraryRoute,
     libraryHistoryRoute,
     libraryMessagesRoute,
@@ -703,6 +740,7 @@ const routeTree = rootRoute.addChildren([
     joinRoute,
     signupPaymentRoute,
     verifyRoute,
+    setupPasswordRoute,
     loginRoute,
     accountRoute,
     statusRoute,

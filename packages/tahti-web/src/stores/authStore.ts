@@ -7,6 +7,7 @@ import {
   loginTotpRequest,
   logoutRequest,
   registerRequest,
+  submitSetupPassword,
   verifyEmailRequest,
 } from '../api/client';
 import { setMockSessionUser } from '../api/mock-session';
@@ -33,6 +34,11 @@ type AuthState = {
     displayName: string;
   }) => Promise<string>;
   verify: (token: string) => Promise<string>;
+  setupPassword: (
+    token: string,
+    password: string,
+    email?: string,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
 };
@@ -146,6 +152,17 @@ export const useAuthStore = create<AuthState>()(
           throw new Error(result.error);
         }
         return result.message;
+      },
+
+      setupPassword: async (token, password, email) => {
+        set({ loading: true, error: null });
+        const result = await submitSetupPassword(token, password, email);
+        if (!result.ok) {
+          set({ loading: false, error: result.error });
+          throw new Error(result.error);
+        }
+        set({ user: result.user, loading: false, error: null });
+        await afterUserChange(result.user);
       },
 
       logout: async () => {

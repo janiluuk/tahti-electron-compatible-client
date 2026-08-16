@@ -14,6 +14,7 @@ import {
 } from '../../api/revenue';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 function euros(cents: number | string): string {
   const n = typeof cents === 'string' ? Number(cents) : cents;
@@ -27,7 +28,6 @@ export function StudioRevenueView() {
   const [connect, setConnect] = useState<FanConnectStatus | null>(null);
   const [grants, setGrants] = useState<GrantRow[]>([]);
   const [estimate, setEstimate] = useState<GrantEstimate | null>(null);
-  const [source, setSource] = useState('…');
   const [msg, setMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,46 +39,50 @@ export function StudioRevenueView() {
       setConnect(c.data);
       setGrants(g.data);
       setEstimate(e.data);
-      setSource(c.meta.source);
     });
   }, []);
 
   return (
     <StudioGate requireChannel={false}>
-      <div className="mx-auto flex max-w-3xl flex-col gap-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/revenue" />
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            Revenue
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Fan-sub Connect status + cooperative grant share. Source: {source}.
-            Offline demo uses <code>VITE_FORCE_MOCK=1</code>; live opens Stripe
-            onboard/portal URLs.
+        <StudioPageHeader
+          title="Revenue"
+          subtitle="Fan subscription payouts and your cooperative grant share."
+        />
+
+        {msg && (
+          <p className="text-foreground-secondary text-sm" role="status">
+            {msg}
           </p>
-        </div>
+        )}
 
         {connect && (
-          <section className="border-border rounded-xl border p-4">
-            <h2 className="font-display text-lg font-bold">
-              Fan subs / Stripe Connect
-            </h2>
-            <ul className="text-foreground-secondary mt-2 space-y-1 text-sm">
-              <li>
-                Stripe configured: {connect.stripeConfigured ? 'yes' : 'no'}
-              </li>
-              <li>Charges enabled: {connect.chargesEnabled ? 'yes' : 'no'}</li>
-              <li>
-                Details submitted: {connect.detailsSubmitted ? 'yes' : 'no'}
-              </li>
-              <li>Payments ready: {connect.paymentsReady ? 'yes' : 'no'}</li>
-              {connect.accountId && (
-                <li>
-                  Account: <code>{connect.accountId}</code>
-                </li>
-              )}
-            </ul>
-            <div className="mt-3 flex flex-wrap gap-2">
+          <StudioPanel title="Fan subs · Stripe Connect">
+            <div className="text-foreground-secondary flex flex-wrap gap-2 text-xs">
+              <span
+                className={`rounded-full border px-2 py-0.5 ${connect.stripeConfigured ? 'border-primary/40' : 'border-border'}`}
+              >
+                {connect.stripeConfigured ? '✓' : '○'} Stripe configured
+              </span>
+              <span
+                className={`rounded-full border px-2 py-0.5 ${connect.chargesEnabled ? 'border-primary/40' : 'border-border'}`}
+              >
+                {connect.chargesEnabled ? '✓' : '○'} Charges enabled
+              </span>
+              <span
+                className={`rounded-full border px-2 py-0.5 ${connect.detailsSubmitted ? 'border-primary/40' : 'border-border'}`}
+              >
+                {connect.detailsSubmitted ? '✓' : '○'} Details submitted
+              </span>
+              <span
+                className={`rounded-full border px-2 py-0.5 ${connect.paymentsReady ? 'border-primary/40' : 'border-border'}`}
+              >
+                {connect.paymentsReady ? '✓' : '○'} Payments ready
+              </span>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
               {!connect.paymentsReady && (
                 <Button
                   size="sm"
@@ -124,50 +128,44 @@ export function StudioRevenueView() {
                 </Button>
               )}
             </div>
-          </section>
+          </StudioPanel>
         )}
 
         {estimate && (
-          <section className="border-border rounded-xl border p-4">
-            <h2 className="font-display text-lg font-bold">
-              Grant estimate ({estimate.year})
-            </h2>
-            <p className="mt-2 text-2xl font-bold">
+          <StudioPanel title={`Grant estimate (${estimate.year})`}>
+            <p className="text-3xl font-bold">
               {euros(estimate.estimateCents)}
             </p>
-            <p className="text-foreground-secondary text-sm">
+            <p className="text-foreground-secondary mt-1 text-sm">
               {estimate.units} engagement units
               {estimate.eligible
                 ? ', eligible'
                 : ', not yet eligible (need more units)'}
             </p>
-          </section>
+          </StudioPanel>
         )}
 
-        <section className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-bold">Past grants</h2>
+        <StudioPanel title="Past grants">
           {grants.length === 0 ? (
             <p className="text-foreground-secondary text-sm">
               No disbursements yet.
             </p>
           ) : (
-            <ul className="flex flex-col gap-2">
+            <ul className="divide-border divide-y">
               {grants.map((g) => (
                 <li
                   key={`${g.forYear}-${g.state}`}
-                  className="border-border flex justify-between rounded border px-3 py-2 text-sm"
+                  className="flex items-center justify-between py-2.5 text-sm first:pt-0 last:pb-0"
                 >
                   <span>
                     {g.forYear} — {g.state}
                   </span>
-                  <span>{euros(g.amountCents)}</span>
+                  <span className="font-medium">{euros(g.amountCents)}</span>
                 </li>
               ))}
             </ul>
           )}
-        </section>
-
-        {msg && <p className="text-sm">{msg}</p>}
+        </StudioPanel>
       </div>
     </StudioGate>
   );

@@ -56,10 +56,12 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 - [ ] Stats detail page (beyond summary)
 - [ ] Sources OAuth silent-mock demock polish
 - [x] Venue register
-- [ ] Membership purchase (`/signup/payment`) — still missing vs prod
+- [x] Membership purchase (`/signup/payment`) — Stripe checkout + mock activate
 - [x] TOTP at login (manage/settings depth still thin)
 - [x] Distribution (catalog + Revelator + Spotify profile)
-- [ ] Listener-only dashboard, radio slots depth, moderate
+- [x] Channel moderators (`/studio/moderation`)
+- [x] Listener-only dashboard (`/dashboard` routes non-artists to `/library`)
+- [ ] Radio slots depth
 - [ ] Multitrack timeline editing, press-kit / invites polish
 - [ ] Production cutover for `apps/web`
 
@@ -94,9 +96,9 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | TOTP | `/login` | `/login` | `live-api` | |
 | Register | `/join` | `/join` | `live-api` | |
 | Email verify | `/verify` | `/verify` (+ join) | `live-api` | auto-verify from `?token=` |
-| Membership purchase | `/signup/payment` | — | `missing` | |
+| Membership purchase | `/signup/payment` | `/signup/payment` | `live-api` | Stripe checkout; mock instant-activate under FORCE_MOCK |
 | Logout / `/me` | session | store | `live-api` | |
-| Password / security | settings | — | `missing` | |
+| Password setup (invite link) | `/setup-password?token=` | `/setup-password` | `live-api` | one-time token sets initial password (no logged-in "change password" exists in prod — TOTP is the only account security setting) |
 
 ## 3. Logged-in listener
 
@@ -110,7 +112,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Membership status | account | `/settings/account` | `live-api` | |
 | Governance list/vote | `/governance` | `/governance` | `live-api` | demock wave 5; 401/403 → forbidden empty |
 | DMs | `/dashboard/messages` | `/library/messages` | `live-api` | demock wave 5 |
-| Listener-only dashboard | `/dashboard` | — | `missing` | |
+| Listener-only dashboard | `/dashboard` | `/dashboard` → `/library` | `live-api` | non-artists no longer hit the Studio "create a channel" wall |
 
 ## 4. Artist studio
 
@@ -132,7 +134,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Stash | `/dashboard/stash` | `/studio/stash` | `live-api` | upload/delete + mock |
 | Distribution | `/dashboard/distribution` | `/studio/distribution` | `live-api` | catalog, Revelator pay+submit, Spotify profile, royalties |
 | Radio slots / Shows | `/dashboard/tahti-radio-slots` | `/studio/shows` | `partial` | bookings live; series localStorage |
-| Channel moderators | `/dashboard/moderate/:slug` | — | `missing` | |
+| Channel moderators | `/dashboard/moderate/:slug` | `/studio/moderation` | `live-api` | |
 
 ## 5. Settings / sources
 

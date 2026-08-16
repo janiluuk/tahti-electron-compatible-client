@@ -5,6 +5,7 @@ import {
   LibraryIcon,
   MapIcon,
   RadioIcon,
+  RssIcon,
   SettingsIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -43,6 +44,11 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
           to="/radio"
           icon={<RadioIcon size={16} />}
           label="Radio"
+        />
+        <SidebarNavigationItem
+          to="/feed"
+          icon={<RssIcon size={16} />}
+          label="Feed"
         />
         <SidebarNavigationItem
           to="/library"
@@ -132,6 +138,11 @@ export function AppShell() {
                     to="/radio"
                     icon={<RadioIcon size={16} />}
                     label="Radio"
+                  />
+                  <SidebarNavigationItem
+                    to="/feed"
+                    icon={<RssIcon size={16} />}
+                    label="Feed"
                   />
                   <SidebarNavigationItem
                     to="/library"
