@@ -70,11 +70,9 @@ export function SubscribeView({ username }: { username: string }) {
             {data.artist.bio}
           </p>
         )}
-        {meta && (
+        {!data.paymentsReady && (
           <p className="text-foreground-secondary text-xs">
-            Source: {meta.source}
-            {meta.reason ? ` (${meta.reason})` : ''}
-            {!data.paymentsReady ? ' — payments not ready on this artist' : ''}
+            Payments not ready on this artist yet.
           </p>
         )}
       </header>

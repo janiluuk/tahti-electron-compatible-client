@@ -40,7 +40,6 @@ function euros(cents: number): string {
 
 export function FanTiersEditor() {
   const [tiers, setTiers] = useState<FanTierRow[]>([]);
-  const [source, setSource] = useState('…');
   const [createOpen, setCreateOpen] = useState(false);
   const [name, setName] = useState('Supporter');
   const [eurosAmt, setEurosAmt] = useState('5');
@@ -52,7 +51,6 @@ export function FanTiersEditor() {
   const reload = () => {
     void fetchMyFanTiers().then((r) => {
       setTiers(r.data);
-      setSource(r.meta.source);
     });
   };
 
@@ -79,7 +77,7 @@ export function FanTiersEditor() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-foreground-secondary text-xs">
-          Artist fan tiers via <code>/api/me/fan-tiers</code> ({source}).
+          Fan subscription tiers, perks, and pricing.
         </p>
         <Button
           size="sm"

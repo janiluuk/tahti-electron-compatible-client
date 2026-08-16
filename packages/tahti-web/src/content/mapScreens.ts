@@ -361,10 +361,10 @@ export const MAP_CASE_GROUPS: MapCaseGroup[] = [
           caption: 'Same form; TOTP field when required',
         },
         new: {
-          image: '/map/nuclear/login.png',
+          image: '/map/nuclear/login-totp.png',
           route: '/login (TOTP step)',
           caption:
-            'Real gap, not just a missing shot: authStore has totpChallengeId/loginTotp wired, but LoginView never renders a code-entry step — a TOTP-enrolled member would get stuck after password.',
+            'Nuclear TOTP step — lives in the AuthDialog modal (opened by /login), not a full-page route.',
         },
       },
     ],

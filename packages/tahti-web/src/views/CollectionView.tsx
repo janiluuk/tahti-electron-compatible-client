@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { fetchCollection, type FetchMeta } from '../api/client';
+import { fetchCollection } from '../api/client';
 import type { PublicCollection, TahtiPlayable } from '../api/types';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 
@@ -35,7 +35,6 @@ export function CollectionView({
   slug: string;
 }) {
   const [collection, setCollection] = useState<PublicCollection | null>(null);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,7 +45,6 @@ export function CollectionView({
         return;
       }
       setCollection(res.data);
-      setMeta(res.meta);
       setLoading(false);
     });
     return () => {
@@ -102,13 +100,6 @@ export function CollectionView({
         {collection.description && (
           <p className="text-foreground max-w-2xl text-sm">
             {collection.description}
-          </p>
-        )}
-        {meta && (
-          <p className="text-foreground-secondary text-xs">
-            Source: {meta.source}
-            {meta.reason ? ` (${meta.reason})` : ''} — API{' '}
-            <code>/api/v1/collections/{slug}</code>
           </p>
         )}
       </header>

@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 
 import { Badge, Button, Input } from '@nuclearplayer/ui';
 
-import type { FetchMeta } from '../../api/client';
 import {
   fetchAllRoyalties,
   fetchReleaseCatalog,
@@ -131,13 +130,11 @@ function SpotifyProfilePanel() {
   const [artistUrl, setArtistUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const [source, setSource] = useState('…');
 
   useEffect(() => {
     void fetchSpotifyArtistProfile().then((r) => {
       setConfigured(r.data.configured);
       setProfile(r.data.profile);
-      setSource(r.meta.source);
     });
   }, []);
 
@@ -158,7 +155,7 @@ function SpotifyProfilePanel() {
       <p className="font-medium">Spotify artist profile</p>
       <p className="text-foreground-secondary mt-1 text-xs">
         Link your Spotify artist page so “Your tracks” auto-loads when adding
-        tracks to a collection. Source: {source}.
+        tracks to a collection.
       </p>
       {profile ? (
         <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -789,14 +786,12 @@ export function StudioDistributionView() {
   const [allRoyalties, setAllRoyalties] = useState<RevelatorRoyaltyReportRow[]>(
     [],
   );
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     void Promise.all([fetchStudioReleases(), fetchAllRoyalties()]).then(
       ([rel, roy]) => {
         setReleases(rel.data.releases);
-        setMeta(rel.meta);
         setAllRoyalties(roy.data);
         setLoading(false);
       },
@@ -814,7 +809,6 @@ export function StudioDistributionView() {
           <p className="text-foreground-secondary mt-1 text-sm">
             DSP delivery & catalog metadata — submit releases to Revelator,
             track UPC/ISRC/MusicBrainz identifiers, and review royalty reports.
-            {meta ? ` Source: ${meta.source}.` : ''}
           </p>
         </div>
 

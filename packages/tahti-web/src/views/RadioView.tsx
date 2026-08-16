@@ -8,7 +8,6 @@ import {
   fetchRadioRecentlyPlayed,
   fetchRadioStation,
   TAHTI_RADIO_SLUG,
-  type FetchMeta,
 } from '../api/client';
 import type {
   PublicChannel,
@@ -45,8 +44,6 @@ export function RadioView() {
   const [station, setStation] = useState<PublicChannel | null>(null);
   const [relay, setRelay] = useState<RadioNowPlaying | null>(null);
   const [recent, setRecent] = useState<RadioRecentlyPlayedItem[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
-  const [recentMeta, setRecentMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [infoTrack, setInfoTrack] = useState<TrackInfo | null>(null);
 
@@ -63,10 +60,8 @@ export function RadioView() {
       fetchRadioRecentlyPlayed(),
     ]).then(([ch, memberRelay, recentRes]) => {
       setStation(ch?.data ?? null);
-      setMeta(ch?.meta ?? null);
       setRelay(memberRelay.data);
       setRecent(recentRes.data);
-      setRecentMeta(recentRes.meta);
       setLoading(false);
     });
   };
@@ -110,11 +105,6 @@ export function RadioView() {
       <PageHeader
         title="Tahti Radio"
         subtitle="24/7 community radio — always on. Fair rotation when nobody is booked."
-        meta={
-          meta
-            ? `Source: ${meta.source}${meta.reason ? ` (${meta.reason})` : ''}`
-            : undefined
-        }
       />
 
       {loading ? (
@@ -284,17 +274,9 @@ export function RadioView() {
           )}
 
           <section className="flex flex-col gap-3">
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-xl font-bold tracking-tight">
-                Recently played
-              </h2>
-              {recentMeta ? (
-                <span className="text-foreground-secondary text-xs">
-                  {recentMeta.source}
-                  {recentMeta.reason ? ` (${recentMeta.reason})` : ''}
-                </span>
-              ) : null}
-            </div>
+            <h2 className="text-xl font-bold tracking-tight">
+              Recently played
+            </h2>
             {recent.length === 0 ? (
               <p className="text-foreground-secondary text-sm">
                 No recent plays logged yet.

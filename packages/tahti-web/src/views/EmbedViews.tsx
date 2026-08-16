@@ -6,7 +6,6 @@ import {
   fetchEmbedChannel,
   fetchEmbedCollection,
   fetchEmbedRelease,
-  type FetchMeta,
 } from '../api/client';
 import type {
   ChannelEmbedView,
@@ -35,7 +34,6 @@ function EmbedChrome({ children }: { children: ReactNode }) {
 
 export function EmbedChannelView({ slug }: { slug: string }) {
   const [data, setData] = useState<ChannelEmbedView | null>(null);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [playable, setPlayable] = useState<TahtiPlayable | null>(null);
   const [loading, setLoading] = useState(true);
   const play = usePlayerStore((s) => s.play);
@@ -50,7 +48,6 @@ export function EmbedChannelView({ slug }: { slug: string }) {
         return;
       }
       setData(res.data);
-      setMeta(res.meta);
       setPlayable(res.playable);
       setLoading(false);
     });
@@ -80,8 +77,7 @@ export function EmbedChannelView({ slug }: { slug: string }) {
               </p>
               <p className="text-foreground-secondary truncate text-xs">
                 @{data.artist.username}
-                {data.state === 'LIVE' ? ' — LIVE' : ' — offline'}
-                {meta?.source ? ` (${meta.source})` : ''}
+                {data.state === 'LIVE' ? ' — LIVE' : ' — offline'}{' '}
               </p>
             </div>
             {playable ? (
@@ -112,7 +108,6 @@ export function EmbedChannelView({ slug }: { slug: string }) {
 
 export function EmbedReleaseView({ id }: { id: string }) {
   const [data, setData] = useState<ReleaseEmbedView | null>(null);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [playables, setPlayables] = useState<TahtiPlayable[]>([]);
   const [loading, setLoading] = useState(true);
   const play = usePlayerStore((s) => s.play);
@@ -125,7 +120,6 @@ export function EmbedReleaseView({ id }: { id: string }) {
         return;
       }
       setData(res.data);
-      setMeta(res.meta);
       setPlayables(res.playables);
       setLoading(false);
     });
@@ -154,8 +148,7 @@ export function EmbedReleaseView({ id }: { id: string }) {
                 {data.title}
               </p>
               <p className="text-foreground-secondary truncate text-xs">
-                {data.artist.displayName}
-                {meta?.source ? ` (${meta.source})` : ''}
+                {data.artist.displayName}{' '}
               </p>
             </div>
             {playables[0] && (
@@ -221,7 +214,6 @@ export function EmbedCollectionView({
   username?: string;
 }) {
   const [data, setData] = useState<CollectionEmbedView | null>(null);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [playables, setPlayables] = useState<TahtiPlayable[]>([]);
   const [loading, setLoading] = useState(true);
   const play = usePlayerStore((s) => s.play);
@@ -235,7 +227,6 @@ export function EmbedCollectionView({
         return;
       }
       setData(res.data);
-      setMeta(res.meta);
       setPlayables(res.playables);
       setLoading(false);
     });
@@ -266,8 +257,7 @@ export function EmbedCollectionView({
                 {data.name}
               </p>
               <p className="text-foreground-secondary truncate text-xs">
-                {data.artist.displayName}
-                {meta?.source ? ` (${meta.source})` : ''}
+                {data.artist.displayName}{' '}
               </p>
             </div>
             <div className="flex gap-1">

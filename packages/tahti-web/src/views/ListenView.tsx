@@ -17,7 +17,6 @@ import {
   fetchDirectory,
   fetchRadioStation,
   TAHTI_RADIO_SLUG,
-  type FetchMeta,
 } from '../api/client';
 import type { ChannelDirectoryItem, PublicChannel } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
@@ -35,7 +34,6 @@ export function ListenView() {
   const navigate = useNavigate();
   const [items, setItems] = useState<ChannelDirectoryItem[]>([]);
   const [radio, setRadio] = useState<PublicChannel | null>(null);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [genre, setGenre] = useState('all');
@@ -62,7 +60,6 @@ export function ListenView() {
       // Featured radio slot owns tahti-radio — drop it from the grid so it
       // does not appear twice (directory card often lacks the station logo).
       setItems(dir.data.items.filter((ch) => ch.slug !== TAHTI_RADIO_SLUG));
-      setMeta(dir.meta);
       setRadio(station?.data ?? null);
       setLoading(false);
     });
@@ -149,11 +146,6 @@ export function ListenView() {
           signedIn
             ? 'Your library up top — then discover community channels.'
             : 'Discover Tahti channels. Sign in to see your library here.'
-        }
-        meta={
-          meta
-            ? `Data source: ${meta.source}${meta.reason ? ` (${meta.reason})` : ''}`
-            : undefined
         }
         actions={
           user?.channel ? (

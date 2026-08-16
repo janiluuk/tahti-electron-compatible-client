@@ -8,7 +8,6 @@ import {
   fetchMotionComments,
   postMotionComment,
   voteOnMotion,
-  type FetchMeta,
   type MotionComment,
 } from '../api/client';
 import type { GovernanceMotion } from '../api/types';
@@ -31,7 +30,6 @@ function stateBadge(state: string): {
 export function GovernanceView() {
   const user = useAuthStore((s) => s.user);
   const [motions, setMotions] = useState<GovernanceMotion[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [forbidden, setForbidden] = useState(false);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -46,7 +44,6 @@ export function GovernanceView() {
     }
     void fetchGovernanceMotions().then((res) => {
       setMotions(res.data);
-      setMeta(res.meta);
       setForbidden(Boolean(res.forbidden) && res.data.length === 0);
       setLoading(false);
     });
@@ -84,12 +81,6 @@ export function GovernanceView() {
         <p className="text-foreground-secondary mt-1 text-sm">
           Cooperative motions — vote YES / NO / ABSTAIN and join the discussion.
         </p>
-        {meta && (
-          <p className="text-foreground-secondary mt-2 text-xs">
-            Source: {meta.source}
-            {meta.reason ? ` (${meta.reason})` : ''}
-          </p>
-        )}
       </div>
 
       {!user && (

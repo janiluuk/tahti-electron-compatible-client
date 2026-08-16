@@ -22,13 +22,11 @@ export function MessagesView() {
   const [otherName, setOtherName] = useState('');
   const [body, setBody] = useState('');
   const [composeUser, setComposeUser] = useState('');
-  const [source, setSource] = useState('…');
   const [msg, setMsg] = useState<string | null>(null);
 
   const reloadInbox = () => {
     void fetchConversations().then((r) => {
       setInbox(r.data);
-      setSource(r.meta.source);
     });
   };
 
@@ -73,7 +71,7 @@ export function MessagesView() {
           Messages
         </h1>
         <p className="text-foreground-secondary text-xs">
-          Inbox via <code>/api/me/messages/conversations</code> ({source}).
+          Direct messages with artists and listeners.
         </p>
       </div>
 

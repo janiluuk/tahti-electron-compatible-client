@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { Button, Card, CardGrid } from '@nuclearplayer/ui';
 
-import { fetchProfile, fetchSmartLink, type FetchMeta } from '../api/client';
+import { fetchProfile, fetchSmartLink } from '../api/client';
 import type {
   SmartLinkView as SmartLinkData,
   TahtiPlayable,
@@ -14,7 +14,6 @@ import { usePlayerStore } from '../stores/playerStore';
 export function SmartLinkView({ slug }: { slug: string }) {
   const [data, setData] = useState<SmartLinkData | null>(null);
   const [playables, setPlayables] = useState<TahtiPlayable[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const play = usePlayerStore((s) => s.play);
 
@@ -26,7 +25,6 @@ export function SmartLinkView({ slug }: { slug: string }) {
         return;
       }
       setData(res.data);
-      setMeta(res.meta);
 
       // Smart-link payload has track titles only; resolve play URLs via artist profile.
       try {
@@ -107,13 +105,6 @@ export function SmartLinkView({ slug }: { slug: string }) {
         {data.release.description && (
           <p className="text-foreground mt-2 text-sm whitespace-pre-wrap">
             {data.release.description}
-          </p>
-        )}
-        {meta && (
-          <p className="text-foreground-secondary text-xs">
-            Source: {meta.source}
-            {meta.reason ? ` (${meta.reason})` : ''} — API{' '}
-            <code>/api/v1/r/{slug}</code>
           </p>
         )}
       </header>

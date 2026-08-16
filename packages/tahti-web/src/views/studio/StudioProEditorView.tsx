@@ -38,7 +38,6 @@ export function StudioProEditorView({
   const [editList, setEditList] = useState<EditList | null>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [peaks, setPeaks] = useState<number[]>([]);
-  const [metaSource, setMetaSource] = useState('');
   const [currentTime, setCurrentTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [selection, setSelection] = useState<{
@@ -75,7 +74,6 @@ export function StudioProEditorView({
       setUpdatedAt(draft.data.updatedAt);
       const level = draft.data.editorPeaks?.levels?.[0];
       setPeaks(level && level.length > 0 ? level : []);
-      setMetaSource(`${src.meta.source}/${draft.meta.source}`);
       setLoading(false);
     });
     void fetchArchiveStems(archiveItemId).then((r) => {
@@ -305,7 +303,7 @@ export function StudioProEditorView({
           </h1>
           <p className="text-foreground-secondary mt-1 text-sm">
             Waveform, cut/trim, EQ/comp/limiter knobs (EditList), stems, draft +
-            render. Source: {metaSource || '…'}.
+            render.
           </p>
         </div>
 

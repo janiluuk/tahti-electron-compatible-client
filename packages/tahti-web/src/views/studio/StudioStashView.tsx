@@ -18,14 +18,12 @@ export function StudioStashView() {
   const play = usePlayerStore((s) => s.play);
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<StashFile[]>([]);
-  const [source, setSource] = useState('…');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
   const reload = () =>
     fetchStashFiles().then((r) => {
       setFiles(r.data);
-      setSource(r.meta.source);
     });
 
   useEffect(() => {
@@ -42,7 +40,7 @@ export function StudioStashView() {
               Stash
             </h1>
             <p className="text-foreground-secondary mt-1 text-sm">
-              Private locker (not public archive). Source: {source}.
+              Private locker, not public archive.
             </p>
           </div>
           <div>

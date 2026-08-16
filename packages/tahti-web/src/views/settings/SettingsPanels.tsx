@@ -258,7 +258,6 @@ function AccountPanel() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const [membership, setMembership] = useState<MembershipStatus | null>(null);
-  const [source, setSource] = useState('…');
 
   useEffect(() => {
     if (!user) {
@@ -266,7 +265,6 @@ function AccountPanel() {
     }
     void fetchMembership().then((r) => {
       setMembership(r.data);
-      setSource(r.meta.source);
     });
   }, [user]);
 
@@ -317,7 +315,6 @@ function AccountPanel() {
           label: tabLabel(Wallet, 'Membership'),
           content: (
             <div className="flex flex-col gap-4">
-              <SettingsHint>Source: {source}</SettingsHint>
               {!membership ? (
                 <SettingsHint>Could not load membership.</SettingsHint>
               ) : (
@@ -360,7 +357,6 @@ function AccountPanel() {
                         onActivated={() => {
                           void fetchMembership().then((r) => {
                             setMembership(r.data);
-                            setSource(r.meta.source);
                           });
                         }}
                       />

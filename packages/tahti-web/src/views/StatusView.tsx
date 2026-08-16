@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { fetchPlatformStatus, type FetchMeta } from '../api/client';
+import { fetchPlatformStatus } from '../api/client';
 import type { PlatformStatus } from '../api/types';
 
 function stateClass(state: string): string {
@@ -16,7 +16,6 @@ function stateClass(state: string): string {
 
 export function StatusView() {
   const [data, setData] = useState<PlatformStatus | null>(null);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,7 +26,6 @@ export function StatusView() {
         return;
       }
       setData(res.data);
-      setMeta(res.meta);
       setLoading(false);
     });
     return () => {
@@ -50,12 +48,6 @@ export function StatusView() {
         <p className="text-foreground-secondary mt-1 text-sm">
           Live dependency checks from <code>GET /api/v1/status</code>.
         </p>
-        {meta && (
-          <p className="text-foreground-secondary mt-2 text-xs">
-            Source: {meta.source}
-            {meta.reason ? ` (${meta.reason})` : ''}
-          </p>
-        )}
       </div>
 
       {loading && (

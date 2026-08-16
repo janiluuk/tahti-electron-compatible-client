@@ -5,7 +5,6 @@ import {
   fetchTransparencyGrants,
   fetchTransparencyLedger,
   fetchTransparencyYtd,
-  type FetchMeta,
 } from '../api/client';
 import type {
   TransparencyGrantReport,
@@ -25,7 +24,6 @@ export function TransparencyView() {
   const [ytd, setYtd] = useState<TransparencyYtd | null>(null);
   const [grants, setGrants] = useState<TransparencyGrantReport | null>(null);
   const [ledger, setLedger] = useState<TransparencyLedgerEntry[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,7 +39,6 @@ export function TransparencyView() {
       setYtd(y.data);
       setGrants(g.data);
       setLedger(l.data);
-      setMeta(y.meta.source === 'api' ? y.meta : g.meta);
       setLoading(false);
     });
     return () => {
@@ -72,12 +69,6 @@ export function TransparencyView() {
           Public co-op ledger snapshots from <code>/api/v1/transparency/*</code>
           .
         </p>
-        {meta && (
-          <p className="text-foreground-secondary text-xs">
-            Source: {meta.source}
-            {meta.reason ? ` (${meta.reason})` : ''}
-          </p>
-        )}
       </header>
 
       {ytd && (

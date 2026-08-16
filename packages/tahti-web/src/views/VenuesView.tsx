@@ -1,12 +1,11 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { fetchVenues, type FetchMeta } from '../api/client';
+import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';
 
 export function VenuesView() {
   const [venues, setVenues] = useState<VenueDirectoryItem[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,7 +15,6 @@ export function VenuesView() {
         return;
       }
       setVenues(res.data);
-      setMeta(res.meta);
       setLoading(false);
     });
     return () => {
@@ -40,13 +38,6 @@ export function VenuesView() {
           </Link>{' '}
           for board review.
         </p>
-        {meta && (
-          <p className="text-foreground-secondary mt-2 text-xs">
-            Source: {meta.source}
-            {meta.reason ? ` (${meta.reason})` : ''} —{' '}
-            <code>/api/v1/venues</code>
-          </p>
-        )}
       </div>
 
       {loading ? (

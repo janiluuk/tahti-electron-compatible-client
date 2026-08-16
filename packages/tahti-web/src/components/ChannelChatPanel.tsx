@@ -7,7 +7,6 @@ import {
   fetchChatHistory,
   requestChatToken,
   requestChatViewerToken,
-  type FetchMeta,
 } from '../api/client';
 import { postChatReaction } from '../api/studio-extras';
 import type { ChatMessage } from '../api/types';
@@ -43,7 +42,6 @@ type Props = {
 export function ChannelChatPanel({ slug, compact, rail }: Props) {
   const user = useAuthStore((s) => s.user);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [accessNote, setAccessNote] = useState<string | null>(null);
   const [handle, setHandle] = useState('');
   const [pendingHandle, setPendingHandle] = useState('');
@@ -98,7 +96,6 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
           return;
         }
         setMessages(hist.data);
-        setMeta(hist.meta);
         // Only force mock send mode for offline demo — API-down fallback
         // must not block Centrifugo when a real token is available.
         if (forceMock()) {
@@ -330,12 +327,7 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
     }
   }
 
-  const statusLabel =
-    mode === 'live' && wsStatus === 'connected'
-      ? 'Live (Centrifugo)'
-      : mode === 'mock'
-        ? 'Mock / local send'
-        : 'REST history (send is local until WS connects)';
+  const isLive = mode === 'live' && wsStatus === 'connected';
 
   return (
     <div
@@ -345,10 +337,15 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
     >
       <div className="border-border flex items-center justify-between gap-2 border-b px-3 py-2">
         <div className="font-display text-sm font-bold">Chat</div>
-        <div className="text-foreground-secondary text-[10px] tracking-wide uppercase">
-          {statusLabel}
-          {meta?.source ? `, ${meta.source}` : ''}
-        </div>
+        {isLive && (
+          <div className="text-foreground-secondary flex items-center gap-1.5 text-[10px] tracking-wide uppercase">
+            <span
+              className="bg-accent-green size-1.5 rounded-full"
+              aria-hidden
+            />
+            Live
+          </div>
+        )}
       </div>
 
       <div className="border-border flex flex-wrap items-center gap-1 border-b px-3 py-2">
@@ -428,18 +425,6 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
           />
           {captchaNeeded && captchaConfigured && (
             <div ref={captchaRef} className="min-h-[78px]" />
-          )}
-          {captchaNeeded && !captchaConfigured && (
-            <p className="text-foreground-secondary text-[10px]">
-              Captcha skipped — set <code>VITE_HCAPTCHA_SITEKEY</code> for
-              anonymous join against a live API. Mock / missing key still joins
-              locally when the API rejects.
-            </p>
-          )}
-          {forceMock() && (
-            <p className="text-foreground-secondary text-[10px]">
-              Captcha skipped in mock (<code>VITE_FORCE_MOCK=1</code>).
-            </p>
           )}
           {user && (
             <p className="text-foreground-secondary text-[10px]">
