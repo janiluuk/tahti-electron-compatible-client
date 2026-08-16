@@ -8,7 +8,7 @@ import {
   fetchPublicPressKitImages,
   type PublicPressKitImage,
 } from '../api/artist-settings';
-import { fetchProfile, type FetchMeta } from '../api/client';
+import { fetchProfile } from '../api/client';
 import type { PublicProfile, TahtiPlayable } from '../api/types';
 import {
   ArtistGalleryAddIcon,
@@ -79,7 +79,6 @@ function profileTrackToPlayable(
 export function ArtistView({ username }: { username: string }) {
   const me = useAuthStore((s) => s.user);
   const [profile, setProfile] = useState<PublicProfile | null>(null);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('music');
   const [galleryImages, setGalleryImages] = useState<PublicPressKitImage[]>([]);
@@ -102,7 +101,6 @@ export function ArtistView({ username }: { username: string }) {
         return;
       }
       setProfile(res.data);
-      setMeta(res.meta);
       setLoading(false);
     });
     return () => {
@@ -249,12 +247,6 @@ export function ArtistView({ username }: { username: string }) {
         {artist.bio && (
           <p className="text-foreground mt-2 max-w-2xl text-sm whitespace-pre-wrap">
             {artist.bio}
-          </p>
-        )}
-        {meta && (
-          <p className="text-foreground-secondary text-xs">
-            Source: {meta.source}
-            {meta.reason ? ` (${meta.reason})` : ''}
           </p>
         )}
         <div className="mt-2 flex flex-wrap gap-3 text-sm">

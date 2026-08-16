@@ -3,11 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
 
-import {
-  fetchMembership,
-  fetchMySubscriptions,
-  type FetchMeta,
-} from '../api/client';
+import { fetchMembership, fetchMySubscriptions } from '../api/client';
 import type { FanSubscriptionRow, MembershipStatus } from '../api/types';
 import { useAuthStore } from '../stores/authStore';
 
@@ -20,7 +16,6 @@ export function AccountView() {
   const logout = useAuthStore((s) => s.logout);
   const [membership, setMembership] = useState<MembershipStatus | null>(null);
   const [subs, setSubs] = useState<FanSubscriptionRow[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -38,11 +33,6 @@ export function AccountView() {
         }
         setMembership(m.data);
         setSubs(s.data);
-        setMeta(
-          m.meta.source === 'api' || s.meta.source === 'api'
-            ? { source: 'api' }
-            : m.meta,
-        );
         setLoading(false);
       },
     );
@@ -77,12 +67,6 @@ export function AccountView() {
           <p className="text-foreground-secondary mt-1 text-sm">
             {user.displayName} (@{user.username}) — member dashboard lite
           </p>
-          {meta && (
-            <p className="text-foreground-secondary mt-1 text-xs">
-              Source: {meta.source}
-              {meta.reason ? ` (${meta.reason})` : ''}
-            </p>
-          )}
         </div>
         <div className="flex flex-wrap gap-2">
           <a

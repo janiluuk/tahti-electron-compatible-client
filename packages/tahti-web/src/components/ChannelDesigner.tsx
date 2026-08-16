@@ -107,7 +107,6 @@ export function ChannelDesigner({
 }: Props) {
   const [visual, setVisual] = useState<ChannelVisual | null>(null);
   const [scheme, setScheme] = useState<ColorScheme>({});
-  const [source, setSource] = useState('…');
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -118,7 +117,6 @@ export function ChannelDesigner({
     void fetchChannelVisual().then((r) => {
       setVisual(r.data);
       setScheme(parseColorScheme(r.data.colorSchemeJson));
-      setSource(r.meta.source);
       setDirty(false);
     });
   }, [reloadToken]);
@@ -311,7 +309,6 @@ export function ChannelDesigner({
         {busy ? 'Saving…' : dirty ? 'Save look' : 'Saved'}
       </Button>
       {msg && <p className="text-sm">{msg}</p>}
-      <p className="text-foreground-secondary text-[10px]">Source: {source}</p>
     </>
   );
 
@@ -328,7 +325,7 @@ export function ChannelDesigner({
           </h2>
           <p className="text-foreground-secondary text-xs">
             Prefer editing on the live channel page — open your channel and hit
-            Edit design. Source: {source}.
+            Edit design.
           </p>
         </div>
       </div>

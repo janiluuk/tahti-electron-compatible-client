@@ -25,12 +25,10 @@ export function SecurityTotpPanel() {
   const [disablePassword, setDisablePassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [source, setSource] = useState('…');
 
   useEffect(() => {
     void fetchTotpStatus().then((r) => {
       setEnabled(r.data.enabled);
-      setSource(r.meta.source);
     });
   }, []);
 
@@ -45,9 +43,6 @@ export function SecurityTotpPanel() {
   return (
     <SectionShell title="Two-factor authentication">
       <div className="flex flex-col gap-4">
-        <p className="text-foreground-secondary text-xs">
-          Source: {source}. Same flow as production Settings → Account.
-        </p>
         <p className="text-sm">
           Status:{' '}
           <span className="font-medium">

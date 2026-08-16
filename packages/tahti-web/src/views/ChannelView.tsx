@@ -9,7 +9,6 @@ import {
   archiveItemToPlayable,
   fetchChannel,
   fetchChannelArchive,
-  type FetchMeta,
 } from '../api/client';
 import type { ArchiveItem, PublicChannel, TahtiPlayable } from '../api/types';
 import { ChannelDesigner } from '../components/ChannelDesigner';
@@ -46,8 +45,6 @@ export function ChannelView({ slug }: { slug: string }) {
   const me = useAuthStore((s) => s.user);
   const [channel, setChannel] = useState<PublicChannel | null>(null);
   const [archive, setArchive] = useState<ArchiveItem[]>([]);
-  const [meta, setMeta] = useState<FetchMeta | null>(null);
-  const [archiveMeta, setArchiveMeta] = useState<FetchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [layout, setLayout] = useState<ChannelPageItem[]>(() =>
     loadChannelPageLayout(slug),
@@ -97,9 +94,7 @@ export function ChannelView({ slug }: { slug: string }) {
           return;
         }
         setChannel(ch.data);
-        setMeta(ch.meta);
         setArchive(items.data);
-        setArchiveMeta(items.meta);
         setLoading(false);
 
         const enabled = ch.data?.chatEnabled !== false;
@@ -346,15 +341,7 @@ export function ChannelView({ slug }: { slug: string }) {
       case 'archive':
         return (
           <section className="flex flex-col gap-6">
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-xl font-bold tracking-tight">Archive</h2>
-              {archiveMeta && (
-                <span className="text-foreground-secondary text-xs">
-                  {archiveMeta.source}
-                  {archiveMeta.reason ? ` (${archiveMeta.reason})` : ''}
-                </span>
-              )}
-            </div>
+            <h2 className="text-xl font-bold tracking-tight">Archive</h2>
             {pinnedPlayables.length > 0 && (
               <div className="flex flex-col gap-3">
                 <h3 className="text-sm font-semibold tracking-wide uppercase">
@@ -508,12 +495,6 @@ export function ChannelView({ slug }: { slug: string }) {
             @{channel.user.username}
           </Link>
         </p>
-        {meta && (
-          <p className="text-foreground-secondary text-xs">
-            Source: {meta.source}
-            {meta.reason ? ` (${meta.reason})` : ''}
-          </p>
-        )}
       </div>
 
       {visibleItems.map((item) => {
