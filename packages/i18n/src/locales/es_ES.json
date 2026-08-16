@@ -220,27 +220,28 @@
     "title": "Temas",
     "basic": "Temas básicos",
     "advanced": "Temas avanzados",
-    "marketplace": "Temas de la tienda",
+    "marketplace": "The Crate",
     "default": "Predeterminado",
     "selectPlaceholder": "Selecciona un tema",
     "description": "Temas encontrados en el directorio de datos de la aplicación",
     "tabs": {
       "myThemes": "Mis temas",
-      "store": "Tienda"
+      "store": "The Crate"
     },
     "store": {
-      "searchPlaceholder": "Buscar temas...",
+      "searchPlaceholder": "Search The Crate...",
       "install": "Instalar",
       "installing": "Instalando",
       "installed": "Instalado",
       "by": "por",
       "installError": "Error al instalar {{name}}",
-      "loadError": "Error al cargar la tienda de temas.",
+      "loadError": "Failed to load The Crate.",
       "apply": "Aplicar",
       "active": "Activo",
       "uninstall": "Desinstalar",
       "uninstallError": "Error al desinstalar {{name}}"
-    }
+    },
+    "marketplaceEmpty": "No crate themes installed yet. Browse The Crate to add some."
   },
   "dashboard": {
     "title": "Panel",

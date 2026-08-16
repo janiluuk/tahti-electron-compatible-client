@@ -295,12 +295,18 @@ describe('Themes view', async () => {
       expect(ThemesWrapper.activeBasicTheme).toBeNull();
     });
 
-    it('hides the marketplace dropdown when no marketplace themes are installed', async () => {
+    it('shows The Crate empty hint when no crate themes are installed', async () => {
       await ThemesWrapper.mount();
+      expect(screen.getByTestId('marketplace-themes')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'No crate themes installed yet. Browse The Crate to add some.',
+        ),
+      ).toBeInTheDocument();
       expect(ThemesWrapper.marketplaceThemeSelect).toBeNull();
     });
 
-    it('shows the marketplace dropdown when marketplace themes are installed', async () => {
+    it('shows the crate dropdown when marketplace themes are installed', async () => {
       await ThemesWrapper.mountWithMarketplaceTheme();
       expect(ThemesWrapper.marketplaceThemeSelect).not.toBeNull();
     });
@@ -355,7 +361,7 @@ describe('Themes view', async () => {
     });
   });
 
-  describe('Store tab', () => {
+  describe('The Crate tab', () => {
     beforeEach(() => {
       ThemesWrapper.setupStoreIndex();
     });

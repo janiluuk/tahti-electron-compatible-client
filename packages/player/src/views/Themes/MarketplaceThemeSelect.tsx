@@ -12,19 +12,21 @@ export const MarketplaceThemeSelect = () => {
   const options = useMarketplaceThemeOptions();
   const value = activeTheme.type === 'marketplace' ? activeTheme.id : '';
 
-  if (marketplaceThemes.length === 0) {
-    return null;
-  }
-
   return (
     <SectionShell data-testid="marketplace-themes" title={t('marketplace')}>
       <div className="max-w-80 p-1">
-        <Select
-          placeholder={t('selectPlaceholder')}
-          options={options}
-          value={value}
-          onValueChange={loadAndApplyMarketplaceTheme}
-        />
+        {marketplaceThemes.length === 0 ? (
+          <p className="text-foreground-secondary text-sm leading-relaxed">
+            {t('marketplaceEmpty')}
+          </p>
+        ) : (
+          <Select
+            placeholder={t('selectPlaceholder')}
+            options={options}
+            value={value}
+            onValueChange={loadAndApplyMarketplaceTheme}
+          />
+        )}
       </div>
     </SectionShell>
   );

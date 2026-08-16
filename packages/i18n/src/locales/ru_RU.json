@@ -220,27 +220,28 @@
     "title": "Темы",
     "basic": "Базовые темы",
     "advanced": "Продвинутые темы",
-    "marketplace": "Темы из магазина",
+    "marketplace": "The Crate",
     "default": "По умолчанию",
     "selectPlaceholder": "Выберите тему",
     "description": "Темы из директории данных приложения",
     "tabs": {
       "myThemes": "Мои темы",
-      "store": "Магазин"
+      "store": "The Crate"
     },
     "store": {
-      "searchPlaceholder": "Поиск тем...",
+      "searchPlaceholder": "Search The Crate...",
       "install": "Установить",
       "installing": "Установка",
       "installed": "Установлено",
       "by": "от",
       "installError": "Не удалось установить {{name}}",
-      "loadError": "Не удалось загрузить магазин тем.",
+      "loadError": "Failed to load The Crate.",
       "apply": "Применить",
       "active": "Активна",
       "uninstall": "Удалить",
       "uninstallError": "Не удалось удалить {{name}}"
-    }
+    },
+    "marketplaceEmpty": "No crate themes installed yet. Browse The Crate to add some."
   },
   "dashboard": {
     "title": "Панель",

@@ -220,22 +220,23 @@
     "title": "Themes",
     "basic": "Basic themes",
     "advanced": "Advanced themes",
-    "marketplace": "Store themes",
+    "marketplace": "The Crate",
+    "marketplaceEmpty": "No crate themes installed yet. Browse The Crate to add some.",
     "default": "Default",
     "selectPlaceholder": "Select a theme",
     "description": "Themes found in your app data themes directory",
     "tabs": {
       "myThemes": "My themes",
-      "store": "Store"
+      "store": "The Crate"
     },
     "store": {
-      "searchPlaceholder": "Search themes...",
+      "searchPlaceholder": "Search The Crate...",
       "install": "Install",
       "installing": "Installing",
       "installed": "Installed",
       "by": "by",
       "installError": "Failed to install {{name}}",
-      "loadError": "Failed to load the theme store.",
+      "loadError": "Failed to load The Crate.",
       "apply": "Apply",
       "active": "Active",
       "uninstall": "Uninstall",

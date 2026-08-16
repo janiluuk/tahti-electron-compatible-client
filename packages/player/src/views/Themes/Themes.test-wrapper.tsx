@@ -140,6 +140,10 @@ export const ThemesWrapper = {
     if (!section) {
       return null;
     }
+    // Empty crate: section is visible with hint text, no Select button.
+    if (!within(section).queryByRole('button')) {
+      return null;
+    }
     return createSelectWrapper(() => section);
   },
 
@@ -150,7 +154,7 @@ export const ThemesWrapper = {
   },
 
   async goToStoreTab() {
-    await userEvent.click(screen.getByRole('tab', { name: 'Store' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'The Crate' }));
   },
 
   async goToMyThemesTab() {
@@ -177,7 +181,7 @@ export const ThemesWrapper = {
   },
 
   async searchStore(query: string) {
-    const input = screen.getByPlaceholderText('Search themes...');
+    const input = screen.getByPlaceholderText('Search The Crate...');
     await userEvent.clear(input);
     await userEvent.type(input, query);
   },
