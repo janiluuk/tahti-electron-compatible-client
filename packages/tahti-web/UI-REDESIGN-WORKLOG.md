@@ -33,7 +33,7 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 19 | Updates / newsletter | `/studio/updates` | **approved** | `docs/redesign-shots/studio-updates-v1.png` |
 | 20 | Revenue / Connect | `/studio/revenue` | **approved** | `docs/redesign-shots/studio-revenue-v1.png` |
 | 21 | Stash | `/studio/stash` | **approved** | `docs/redesign-shots/studio-stash-v1.png` |
-| 22 | Sources hub | `/sources` | pending | |
+| 22 | Sources hub | `/sources` | **approved** | `docs/redesign-shots/sources-v1.png`, `docs/redesign-shots/sources-detail-v1.png` |
 | 23 | Settings — account | `/settings/account` | pending | |
 | 24 | Settings — artist | `/settings/artist` (etc.) | pending | |
 | 25 | Settings — money / fan tiers | `/settings/money` | pending | |
@@ -309,6 +309,21 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 - No behavior changes — same upload/download/delete handlers
 
 **Screenshot:** `docs/redesign-shots/studio-stash-v1.png`
+
+**Status:** approved.
+
+### 2026-08-17 — Page 22 Sources hub v1 (`in-review`)
+
+**Goal:** Lighter pass than most pages — the overview grid and per-source detail panels already had good Nuclear treatment (service-branded tiles, status chips) from an earlier "plugin-store style" pass. Mainly a chrome/jargon cleanup.
+
+**Changes:**
+
+- Outer page switched from a raw `<h1>` block to the shared `PageFrame`/`PageHeader` (matches Listen/Radio/Feed instead of a bespoke header)
+- Dropped "Opened from Music when you add tracks (alongside upload)" implementation detail from the subtitle
+- Removed the "Status source: mock" debug line from the per-source detail header — the existing status chip (Mock/Connected/Needs auth/etc.) already conveys this
+- No behavior changes — grid, tabs, connect/disconnect, and import flows untouched
+
+**Screenshots:** `docs/redesign-shots/sources-v1.png` (overview grid), `docs/redesign-shots/sources-detail-v1.png` (SoundCloud detail tab)
 
 **Status:** approved.
 

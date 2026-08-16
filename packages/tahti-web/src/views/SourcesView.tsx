@@ -41,6 +41,7 @@ import {
   type SpotifySearchTrack,
   type StashFile,
 } from '../api/sources';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import {
   SourceServiceIcon,
   sourceTileSubtitle,
@@ -204,28 +205,22 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   };
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Sources
-        </h1>
-        <p className="text-foreground-secondary mt-1 text-sm">
-          Connect and import from services — pick a tile to open its tools.
-          Opened from Music when you add tracks (alongside upload).
-        </p>
-        {!user && (
-          <p className="text-foreground-secondary mt-2 text-xs">
+    <PageFrame>
+      <PageHeader
+        title="Sources"
+        subtitle="Connect and import from services — pick a tile to open its tools."
+        meta={
+          !user ? (
             <button
               type="button"
               className="underline-offset-2 hover:underline"
               onClick={() => useAuthModalStore.getState().open('login')}
             >
-              Sign in
-            </button>{' '}
-            to connect OAuth sources.
-          </p>
-        )}
-      </div>
+              Sign in to connect OAuth sources.
+            </button>
+          ) : undefined
+        }
+      />
 
       {!selected && (
         <CardGrid
@@ -305,9 +300,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                   );
                 })()}
               </div>
-              <p className="text-foreground-secondary mt-1 text-xs tracking-wide uppercase">
-                Status source: {meta}
-              </p>
               <p className="text-foreground-secondary mt-2 text-sm">
                 {def.description}
               </p>
@@ -770,6 +762,6 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
           )}
         </>
       )}
-    </div>
+    </PageFrame>
   );
 }
