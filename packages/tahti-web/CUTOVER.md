@@ -76,6 +76,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 - [ ] Archive or slim `apps/web` Next tree (admin-only extract).
 - [ ] Channel custom-domain / wildcard host behaviour with SPA (Caddy/NPM #55).
 - [ ] Client-only storage migration story for favorites/history (localStorage namespaced).
+- [x] **Desktop MCP / MPD / Jam** — Nuclear MCP remains in `@nuclearplayer/player` **as-is** (not a SPA feature). Documented in [`docs/MCP.md`](docs/MCP.md); verify with `scripts/verify-nuclear-mcp-parity.mjs`.
 
 ---
 
@@ -433,6 +434,10 @@ Work from FEATURES.md; mark done there and here.
 - [ ] License offer page `/agpl` serves full text + source link (AGPL compliance for network use)
 
 ---
+
+## Desktop integrations (MCP / MPD / Jam)
+
+Nuclear’s **MCP server** is Tauri-only (`packages/player` + `plugin-sdk/mcp`), localhost Streamable HTTP on `:8800–8809`. It is **preserved as-is** in this fork (parity with upstream `nuclear`). It is **out of scope** for the SPA cutover / `beta.tahti.live` — do not expose `/mcp` on the public edge. See [`docs/MCP.md`](docs/MCP.md).
 
 ## Phase 10 — Risks & open decisions
 

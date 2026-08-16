@@ -59,6 +59,7 @@ Open http://localhost:5180 — mock login: `demo@tahti.live` / any password.
 - Port checklist (prod → POC): [`FEATURES.md`](FEATURES.md)
 - Offline mocks: [`MOCKS.md`](MOCKS.md)
 - Cutover: [`CUTOVER.md`](CUTOVER.md)
+- Nuclear desktop MCP (as-is): [`docs/MCP.md`](docs/MCP.md) — run `pnpm --filter @nuclearplayer/player dev`, Settings → Integrations
 - Repo overview: [`../../README.md`](../../README.md)
 
 ## IA (sparse sidebar)

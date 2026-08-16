@@ -1,10 +1,12 @@
 import { Link } from '@tanstack/react-router';
 
-import { Badge } from '@nuclearplayer/ui';
+import { Badge, Button } from '@nuclearplayer/ui';
 
 import { FlowGallery } from '../components/FlowGallery';
+import { MapCommentForm } from '../components/MapCommentForm';
 import { ParityBadges, ScreenAtlas } from '../components/ScreenAtlas';
 import type { MapParity } from '../content/mapScreens';
+import { useMapNotesStore } from '../stores/mapNotesStore';
 
 type Status = 'live' | 'stub' | 'studio' | 'admin';
 
@@ -452,7 +454,67 @@ function FeatureCompareCard({ row }: { row: FeatureRow }) {
           {row.notes}
         </p>
       ) : null}
+      <MapCommentForm
+        kind="feature"
+        targetId={row.feature}
+        title={row.feature}
+        feature={row.feature}
+        label="Parity comment"
+        placeholder={`Comment on “${row.feature}”…`}
+        className="border-border flex flex-col gap-2 border-t px-3 py-3"
+      />
     </article>
+  );
+}
+
+function SavedMapComments() {
+  const comments = useMapNotesStore((s) => s.comments);
+  const clearComments = useMapNotesStore((s) => s.clearComments);
+
+  if (comments.length === 0) {
+    return null;
+  }
+
+  return (
+    <section
+      id="saved-comments"
+      className="border-border flex flex-col gap-3 rounded-xl border p-4"
+      aria-labelledby="saved-comments-heading"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2
+            id="saved-comments-heading"
+            className="font-display text-xl font-bold tracking-tight"
+          >
+            Saved comments
+          </h2>
+          <p className="text-foreground-secondary mt-1 text-sm">
+            Submitted from this page · stored in localStorage (
+            <code className="text-foreground">tahti-web-map-notes</code>).
+          </p>
+        </div>
+        <Button size="sm" variant="secondary" onClick={() => clearComments()}>
+          Clear log
+        </Button>
+      </div>
+      <ul className="flex max-h-80 flex-col gap-2 overflow-y-auto">
+        {comments.map((c) => (
+          <li
+            key={c.id}
+            className="border-border bg-background-secondary/40 rounded-lg border px-3 py-2 text-sm"
+          >
+            <div className="text-foreground-secondary flex flex-wrap gap-x-2 text-[11px] tracking-wide uppercase">
+              <span>{c.kind}</span>
+              <span>{c.title}</span>
+              {c.pack ? <span>pack {c.pack}</span> : null}
+              <span>{new Date(c.submittedAt).toLocaleString()}</span>
+            </div>
+            <p className="mt-1 whitespace-pre-wrap">{c.text}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -466,10 +528,20 @@ export function MoreView() {
           Tahti map
         </h1>
         <p className="text-foreground-secondary mt-1 max-w-2xl text-sm">
-          Concrete flow cases for production Tahti vs this Nuclear beta client —
-          side-by-side screenshots, mermaid journeys, and the feature matrix.
-          Full port checklist:{' '}
-          <code className="text-foreground">FEATURES.md</code>.
+          Three surfaces, one API: canonical{' '}
+          <code className="text-foreground">apps/web</code>, this Nuclear client
+          (<code className="text-foreground">beta.tahti.live</code>), and public
+          docs at{' '}
+          <a
+            href="https://api.tahti.live/api"
+            target="_blank"
+            rel="noreferrer"
+            className="underline-offset-2 hover:underline"
+          >
+            api.tahti.live/api
+          </a>
+          . Side-by-side screenshots, mermaid journeys, and the feature matrix.
+          Port checklist: <code className="text-foreground">FEATURES.md</code>.
         </p>
         <nav className="mt-3 flex flex-wrap gap-2 text-xs">
           <a
@@ -514,6 +586,12 @@ export function MoreView() {
           >
             Features
           </a>
+          <a
+            href="#saved-comments"
+            className="border-border hover:text-foreground text-foreground-secondary rounded-md border px-2 py-1"
+          >
+            Comments
+          </a>
         </nav>
       </div>
 
@@ -533,6 +611,8 @@ export function MoreView() {
       <ScreenAtlas />
 
       <FlowGallery />
+
+      <SavedMapComments />
 
       <section
         id="feature-matrix"

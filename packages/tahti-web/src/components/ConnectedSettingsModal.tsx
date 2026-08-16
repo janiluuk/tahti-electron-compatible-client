@@ -1,7 +1,9 @@
+import { BookOpenIcon, GithubIcon } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { Button, SettingsPanel } from '@nuclearplayer/ui';
 
+import { MAIN_CONTENT_PADDING } from '../layout/contentPadding';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
@@ -12,6 +14,15 @@ import {
   type SettingsSectionId,
 } from '../views/settings/settingsNav';
 import { SettingsSectionBody } from '../views/settings/SettingsPanels';
+
+/** Canonical Tahti Nuclear origin (TAHTI.md / README remotes). */
+const GITHUB_REPO_URL =
+  'https://github.com/janiluuk/tahti-electron-compatible-client';
+/** Public Scalar/OpenAPI docs (packages/tahti-web/README.md). */
+const API_DOCS_URL = 'https://api.tahti.live/api';
+
+const footerLinkClass =
+  'text-foreground-secondary hover:text-foreground hover:bg-background-secondary flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors';
 
 /** Nuclear SettingsPanel modal wrapping Tahti settings sections. */
 export function ConnectedSettingsModal() {
@@ -45,7 +56,12 @@ export function ConnectedSettingsModal() {
       id: item.id,
       label: item.label,
       icon: <Icon size={16} />,
-      content: () => <SettingsSectionBody section={item.id} />,
+      // SettingsPanel dialog uses p-0; pad here so section headers match AppShell.
+      content: () => (
+        <div className={MAIN_CONTENT_PADDING}>
+          <SettingsSectionBody section={item.id} />
+        </div>
+      ),
     };
   });
 
@@ -57,16 +73,38 @@ export function ConnectedSettingsModal() {
       activeTab={resolvedTab}
       onTabChange={(tabId) => setActiveTab(tabId as SettingsSectionId)}
       navFooter={
-        !signedIn ? (
-          <div className="flex flex-col gap-2">
-            <p className="text-foreground-secondary text-xs">
-              Sign in for account, artist, and studio settings.
-            </p>
-            <Button size="sm" onClick={() => openAuth('login')}>
-              Log in
-            </Button>
+        <div className="flex flex-col gap-2">
+          {!signedIn ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-foreground-secondary text-xs">
+                Sign in for account, artist, and studio settings.
+              </p>
+              <Button size="sm" onClick={() => openAuth('login')}>
+                Log in
+              </Button>
+            </div>
+          ) : null}
+          <div className="border-border flex flex-col gap-0.5 border-t pt-2">
+            <a
+              href={GITHUB_REPO_URL}
+              className={footerLinkClass}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <GithubIcon size={14} aria-hidden />
+              GitHub
+            </a>
+            <a
+              href={API_DOCS_URL}
+              className={footerLinkClass}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <BookOpenIcon size={14} aria-hidden />
+              API docs
+            </a>
           </div>
-        ) : undefined
+        </div>
       }
     />
   );

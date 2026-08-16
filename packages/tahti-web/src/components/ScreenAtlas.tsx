@@ -1,4 +1,4 @@
-import { Badge, Button, Textarea } from '@nuclearplayer/ui';
+import { Badge, Button } from '@nuclearplayer/ui';
 
 import {
   MAP_CASE_GROUPS,
@@ -6,7 +6,8 @@ import {
   type MapParity,
   type MapShot,
 } from '../content/mapScreens';
-import { useMapNotesStore } from '../stores/mapNotesStore';
+import { useMapNotesStore, type MapComment } from '../stores/mapNotesStore';
+import { MapCommentForm } from './MapCommentForm';
 
 function csvCell(value: string): string {
   return `"${value.replace(/"/g, '""')}"`;
@@ -23,28 +24,42 @@ function caseLookup(): Record<string, { title: string; viewName: string }> {
   return map;
 }
 
-function notesToCsv(notesByCaseId: Record<string, string>): string {
+function commentsToCsv(comments: MapComment[]): string {
   const lookup = caseLookup();
-  const header = ['view_id', 'view_name', 'case_title', 'commentary'];
-  const rows = Object.entries(notesByCaseId)
-    .filter(([, note]) => note.trim().length > 0)
-    .map(([caseId, note]) => {
-      const meta = lookup[caseId];
-      return [caseId, meta?.viewName ?? '', meta?.title ?? '', note];
-    });
+  const header = [
+    'kind',
+    'target_id',
+    'title',
+    'view_name',
+    'pack',
+    'feature',
+    'commentary',
+    'submitted_at',
+  ];
+  const rows = comments.map((c) => {
+    const meta = c.kind === 'case' ? lookup[c.targetId] : undefined;
+    return [
+      c.kind,
+      c.targetId,
+      c.title,
+      meta?.viewName ?? '',
+      c.pack ?? '',
+      c.feature ?? '',
+      c.text,
+      c.submittedAt,
+    ];
+  });
   return [header, ...rows]
     .map((row) => row.map(csvCell).join(','))
     .join('\r\n');
 }
 
 function ExportNotesButton() {
-  const notesByCaseId = useMapNotesStore((s) => s.notesByCaseId);
-  const count = Object.values(notesByCaseId).filter(
-    (n) => n.trim().length > 0,
-  ).length;
+  const comments = useMapNotesStore((s) => s.comments);
+  const count = comments.length;
 
   const download = () => {
-    const csv = notesToCsv(notesByCaseId);
+    const csv = commentsToCsv(comments);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -61,14 +76,14 @@ function ExportNotesButton() {
       variant="secondary"
       onClick={download}
       disabled={count === 0}
-      aria-label="Export notes as CSV"
+      aria-label="Export submitted comments as CSV"
       title={
         count === 0
-          ? 'Add a note on any case below to enable export'
-          : `Export ${count} note${count === 1 ? '' : 's'} as CSV`
+          ? 'Submit a comment below to enable export'
+          : `Export ${count} comment${count === 1 ? '' : 's'} as CSV`
       }
     >
-      Export notes ({count}) as CSV
+      Export comments ({count}) as CSV
     </Button>
   );
 }
@@ -187,35 +202,6 @@ function ShotPane({
   );
 }
 
-function CaseNotes({ caseId, title }: { caseId: string; title: string }) {
-  const note = useMapNotesStore((s) => s.notesByCaseId[caseId] ?? '');
-  const setNote = useMapNotesStore((s) => s.setNote);
-
-  return (
-    <div className="border-border flex flex-col gap-2 border-t px-4 py-4">
-      <label
-        htmlFor={`map-note-${caseId}`}
-        className="text-foreground text-xs font-semibold tracking-wide uppercase"
-      >
-        Your notes
-      </label>
-      <Textarea
-        id={`map-note-${caseId}`}
-        tone="secondary"
-        rows={3}
-        value={note}
-        onChange={(e) => setNote(caseId, e.target.value)}
-        placeholder={`Notes for “${title}”…`}
-        className="min-h-[5.5rem] text-sm"
-        aria-label={`Notes for ${title}`}
-      />
-      <p className="text-foreground-secondary text-[11px]">
-        Saved on this device — survives refresh.
-      </p>
-    </div>
-  );
-}
-
 /** Dual Tahti | Nuclear atlas driven by concrete flow cases. */
 export function ScreenAtlas() {
   const total = MAP_CASE_GROUPS.reduce((n, g) => n + g.cases.length, 0);
@@ -245,10 +231,9 @@ export function ScreenAtlas() {
           (production) beside{' '}
           <strong className="text-foreground font-semibold">Nuclear</strong>{' '}
           (this beta). Missing captures show &ldquo;shot pending&rdquo;; views
-          that exist on only one surface are flagged as a parity gap. Add your
-          own notes on each card — they stay in this browser, and export as a
-          CSV (view id, view name, case title, commentary) so I can review them
-          later.
+          that exist on only one surface are flagged as a parity gap. Submit
+          notes on each card — they persist in this browser; export submitted
+          comments as CSV (kind, ids, pack, commentary, timestamp).
         </p>
         <p className="text-foreground-secondary mt-1 text-xs tracking-wide uppercase">
           {MAP_CASE_GROUPS.length} flows · {total} cases · {gaps} parity gap
@@ -318,7 +303,11 @@ export function ScreenAtlas() {
                         />
                       </div>
                     </div>
-                    <CaseNotes caseId={c.id} title={c.title} />
+                    <MapCommentForm
+                      kind="case"
+                      targetId={c.id}
+                      title={c.title}
+                    />
                     {openHref && !nuclearAbsent ? (
                       <a
                         href={openHref}

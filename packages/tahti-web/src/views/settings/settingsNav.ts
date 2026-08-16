@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  Bot,
   Link2,
   Paintbrush,
   Palette,
@@ -18,6 +19,7 @@ export type SettingsSectionId =
   | 'money'
   | 'themes'
   | 'connections'
+  | 'integrations'
   | 'whats-new';
 
 export type SettingsNavItem = {
@@ -71,6 +73,12 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
     Icon: Link2,
   },
   {
+    id: 'integrations',
+    label: 'Integrations',
+    description: 'Nuclear MCP (desktop AI control)',
+    Icon: Bot,
+  },
+  {
     id: 'whats-new',
     label: "What's new",
     description: 'Product announcements',
@@ -81,6 +89,7 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
 /** Sections visible without signing in (prefs + announcements). */
 export const PUBLIC_SETTINGS_SECTION_IDS: readonly SettingsSectionId[] = [
   'themes',
+  'integrations',
   'whats-new',
 ];
 

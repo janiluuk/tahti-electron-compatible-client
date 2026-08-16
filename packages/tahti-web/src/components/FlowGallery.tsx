@@ -8,17 +8,18 @@ import {
   type FlowDiagram,
   type FlowDiagramPack,
 } from '../content/flowDiagrams';
+import { MapCommentForm } from './MapCommentForm';
 import { MermaidDiagram } from './MermaidDiagram';
 
 export function FlowGallery() {
-  const [pack, setPack] = useState<FlowDiagramPack>('planned');
+  const [pack, setPack] = useState<FlowDiagramPack>('current');
   const diagrams = useMemo(
     () => FLOW_DIAGRAMS.filter((d) => d.pack === pack),
     [pack],
   );
   const [selectedId, setSelectedId] = useState<string>(
     () =>
-      FLOW_DIAGRAMS.find((d) => d.pack === 'planned')?.id ??
+      FLOW_DIAGRAMS.find((d) => d.pack === 'current')?.id ??
       FLOW_DIAGRAMS[0]?.id ??
       '',
   );
@@ -61,7 +62,7 @@ export function FlowGallery() {
           </h2>
           <p className="text-foreground-secondary mt-1 max-w-xl text-sm">
             Mermaid journeys aligned with the atlas cases — anonymous, auth,
-            listener, artist, and edge gates. Toggle Current vs Planned.
+            listener, artist, and edge gates. Toggle apps/web vs Nuclear.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -146,6 +147,15 @@ export function FlowGallery() {
               <div className="border-border bg-background-secondary/40 rounded-lg border p-3">
                 <MermaidDiagram key={selected.id} chart={selected.mermaid} />
               </div>
+              <MapCommentForm
+                kind="flow"
+                targetId={selected.id}
+                title={selected.title}
+                pack={selected.pack}
+                label="Flow notes"
+                placeholder={`Notes for flow “${selected.title}”…`}
+                className="mt-3 flex flex-col gap-2"
+              />
             </>
           )}
         </div>

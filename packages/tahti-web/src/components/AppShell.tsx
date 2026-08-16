@@ -17,6 +17,8 @@ import {
 } from '@nuclearplayer/ui';
 
 import { useIsMobile } from '../hooks/useIsMobile';
+import { MAIN_CONTENT_PADDING } from '../layout/contentPadding';
+import { cn } from '../lib/cn';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
@@ -103,7 +105,9 @@ export function AppShell() {
 
       {isMobile ? (
         <div className="bg-background-secondary relative flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="min-h-0 flex-1 overflow-auto p-3 pb-2">
+          <div
+            className={cn('min-h-0 flex-1 overflow-auto', MAIN_CONTENT_PADDING)}
+          >
             <Outlet />
           </div>
           <MobileBottomNav onOpenQueue={() => setMobileQueueOpen(true)} />
@@ -156,8 +160,14 @@ export function AppShell() {
             </SidebarNavigation>
           </PlayerWorkspace.LeftSidebar>
 
-          <PlayerWorkspace.Main>
-            <div className="h-full overflow-auto p-4 md:p-6">
+          {/*
+            Padding lives on Main (outside the scrollport) so titles keep
+            breathing room from the pane edge while content scrolls.
+          */}
+          <PlayerWorkspace.Main
+            className={cn('min-h-0 overflow-hidden', MAIN_CONTENT_PADDING)}
+          >
+            <div className="h-full overflow-auto">
               <Outlet />
             </div>
           </PlayerWorkspace.Main>

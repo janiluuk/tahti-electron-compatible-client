@@ -157,6 +157,16 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Board admin | `/admin/*` | — | `out-of-scope` | |
 | WebGL visualizer | channel page | ChannelView Live | `partial` | aurora/grid/bars POC; not full Three.js preset set |
 
+## 7. Desktop Nuclear integrations (not web SPA)
+
+| Feature | Upstream Nuclear | This fork | Status | Notes |
+|---------|------------------|-----------|--------|-------|
+| MCP server (Streamable HTTP) | Tauri `packages/player` MCP | same paths | **complete / as-is** | Byte-identical to sibling `nuclear` checkout; Settings → Integrations in **desktop player**; see [`docs/MCP.md`](docs/MCP.md) |
+| MCP tool meta | `@nuclearplayer/plugin-sdk/mcp` | same | **complete / as-is** | |
+| MPD / Nuclear Jam HTTP | Tauri player | present in player | desktop-only | Not ported to beta SPA (same as upstream) |
+
+Web cutover (`beta.tahti.live`) does **not** host Nuclear MCP — localhost player control plane. Do not strip `packages/player/src-tauri/src/mcp/` when packaging desktop.
+
 ---
 
 ## How to verify live (not mock)

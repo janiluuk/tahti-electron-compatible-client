@@ -1,5 +1,6 @@
-// Extracted from tahti-fit/flows — browse on /more (Tahti map)
-export type FlowDiagramPack = 'current' | 'planned';
+// Mermaid journeys for /more (Tahti map).
+// Packs: production apps/web vs this Nuclear client (beta.tahti.live) on the same API.
+export type FlowDiagramPack = 'current' | 'nuclear';
 export type FlowDiagram = {
   id: string;
   pack: FlowDiagramPack;
@@ -13,234 +14,832 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
   {
     id: 'current-README',
     pack: 'current',
-    source: 'README.md',
+    source: 'docs/flows/README.md',
     title: 'Master spine (all personas)',
-    blurb: '---',
-    mermaid:
-      'flowchart TB\n  subgraph entry["1 · Entry"]\n    H["/ Home"]\n    L["/listen · /radio · /venues"]\n    H --> L\n  end\n\n  subgraph public["2 · Anonymous listen"]\n    C["/c/:slug channel"]\n    U["/u/:username profile"]\n    R["/r/:slug smart link"]\n    L --> C\n    L --> U\n    U --> C\n    U --> S["/u/:username/subscribe"]\n    R --> U\n  end\n\n  subgraph auth["3 · Account"]\n    J["/join · /signup"]\n    LI["/login"]\n    V["/verify"]\n    J --> V\n    LI --> D\n  end\n\n  subgraph studio["4 · Logged-in surfaces"]\n    D["/dashboard"]\n    G["/governance"]\n    D --> G\n  end\n\n  subgraph artist["5 · Artist studio"]\n    D --> BC["Broadcast · Schedule"]\n    D --> LIB["Music · Upload · Collections · Smart Links"]\n    D --> AUD["Newsletter · Revenue · Settings"]\n  end\n\n  subgraph board["6 · Board admin"]\n    A["/admin/*"]\n    D -.-> A\n  end\n\n  entry --> public\n  public --> auth\n  auth --> studio\n  studio --> artist\n  studio --> board\n',
+    blurb:
+      'Hosted product (apps/web + @tahti/ui). Same public API as Nuclear. Visual truth: live UI + docs/e2e-screenshots/.',
+    mermaid: `flowchart TB
+  subgraph entry["1 · Entry"]
+    H["/ Home"]
+    L["/listen · /radio · /venues"]
+    H --> L
+  end
+
+  subgraph public["2 · Anonymous listen"]
+    C["/c/:slug channel"]
+    U["/u/:username profile"]
+    R["/r/:slug smart link"]
+    L --> C
+    L --> U
+    U --> C
+    U --> S["/u/:username/subscribe"]
+    R --> U
+  end
+
+  subgraph auth["3 · Account"]
+    J["/join · /signup"]
+    LI["/login"]
+    V["/verify"]
+    J --> V
+    LI --> D
+  end
+
+  subgraph studio["4 · Logged-in surfaces"]
+    D["/dashboard"]
+    G["/governance"]
+    D --> G
+  end
+
+  subgraph artist["5 · Artist studio"]
+    D --> BC["Broadcast · Schedule"]
+    D --> LIB["Music · Upload · Collections · Smart Links"]
+    D --> AUD["Newsletter · Revenue · Settings"]
+  end
+
+  subgraph board["6 · Board admin"]
+    A["/admin/*"]
+    D -.-> A
+  end
+
+  subgraph api["7 · Public API"]
+    Docs["api.tahti.live/api · OpenAPI"]
+  end
+
+  entry --> public
+  public --> auth
+  auth --> studio
+  studio --> artist
+  studio --> board
+  public -.-> Docs
+  studio -.-> Docs
+`,
   },
   {
     id: 'current-site-map',
     pack: 'current',
-    source: 'site-map.md',
+    source: 'docs/flows/site-map.md',
     title: 'Site map — every user-facing route',
     blurb:
-      'Successful login defaults toward `/dashboard` (or `?next=` safe internal path). Logout returns to public home / login.',
-    mermaid:
-      'flowchart TB\n  %% Public marketing & discovery\n  Home["/"]:::pub\n  Listen["/listen"]:::pub\n  Radio["/radio"]:::pub\n  Venues["/venues"]:::pub\n  VenuesReg["/venues/register"]:::pub\n  How["/how-it-works"]:::pub\n  About["/about"]:::pub\n  Help["/help…"]:::pub\n  Status["/status"]:::pub\n  Trans["/transparency"]:::pub\n  Method["/transparency/methodology"]:::pub\n  Apply["/apply"]:::pub\n  Join["/join · /signup"]:::pub\n  Login["/login"]:::pub\n  Verify["/verify"]:::pub\n  Terms["/terms · /privacy · /agpl"]:::pub\n\n  %% Public artist surfaces\n  Channel["/c/:slug"]:::pub\n  Profile["/u/:username"]:::pub\n  Sub["/u/:username/subscribe"]:::pub\n  Coll["/u/:username/c/:collection"]:::pub\n  Smart["/r/:slug"]:::pub\n  EmbedC["/embed/c/:slug"]:::pub\n  EmbedR["/embed/r/:id"]:::pub\n\n  %% Authed listener / member\n  Dash["/dashboard"]:::auth\n  Gov["/governance"]:::mem\n  GovVenues["/governance/venues"]:::board\n\n  %% Artist studio (sidebar)\n  Stats["/dashboard/stats"]:::art\n  Archive["/dashboard/archive · Music"]:::art\n  Upload["/dashboard/upload"]:::art\n  Colls["/dashboard/collections"]:::art\n  Releases["/dashboard/releases · Smart Links"]:::art\n  Dist["/dashboard/distribution"]:::art\n  Stash["/dashboard/stash"]:::art\n  Broadcast["/dashboard/broadcast"]:::art\n  Schedule["/dashboard/schedule"]:::art\n  VenuesDash["/dashboard/venues"]:::art\n  Events["/dashboard/events"]:::art\n  RadioSlot["/dashboard/tahti-radio-slots"]:::art\n  Posts["/dashboard/posts"]:::art\n  Embeds["/dashboard/embeds"]:::art\n  News["/dashboard/newsletter/compose"]:::art\n  Revenue["/dashboard/revenue"]:::art\n  Design["/dashboard/channel/edit"]:::art\n  Settings["/dashboard/settings/*"]:::art\n  Editor["/dashboard/editor"]:::art\n  Msgs["/dashboard/messages"]:::art\n\n  %% Board\n  Admin["/admin/*"]:::board\n\n  Home --> Listen\n  Home --> Radio\n  Home --> Venues\n  Home --> Trans\n  Home --> Join\n  Home --> Login\n  Home --> Channel\n  Listen --> Channel\n  Radio --> Channel\n  Profile --> Channel\n  Profile --> Sub\n  Profile --> Coll\n  Smart --> Profile\n  Join --> Verify\n  Login --> Dash\n  Dash --> Stats\n  Dash --> Archive\n  Dash --> Upload\n  Dash --> Colls\n  Dash --> Releases\n  Dash --> Broadcast\n  Dash --> Schedule\n  Dash --> News\n  Dash --> Revenue\n  Dash --> Design\n  Dash --> Settings\n  Dash --> Gov\n  Dash --> Admin\n  Gov --> GovVenues\n  Admin --> GovVenues\n\n  classDef pub fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;\n  classDef auth fill:#ecfdf5,stroke:#10b981,color:#065f46;\n  classDef mem fill:#fef3c7,stroke:#d97706,color:#92400e;\n  classDef art fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;\n  classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;\n',
+      'Auth colours: public · session · member · artist · board. Login → /dashboard (or ?next=). Logout → home / login.',
+    mermaid: `flowchart TB
+  Home["/"]:::pub
+  Listen["/listen"]:::pub
+  Radio["/radio"]:::pub
+  Venues["/venues"]:::pub
+  VenuesReg["/venues/register"]:::pub
+  How["/how-it-works"]:::pub
+  About["/about"]:::pub
+  Help["/help…"]:::pub
+  Status["/status"]:::pub
+  Trans["/transparency"]:::pub
+  Method["/transparency/methodology"]:::pub
+  Apply["/apply"]:::pub
+  Join["/join · /signup"]:::pub
+  Login["/login"]:::pub
+  Verify["/verify"]:::pub
+  Terms["/terms · /privacy · /agpl"]:::pub
+
+  Channel["/c/:slug"]:::pub
+  Profile["/u/:username"]:::pub
+  Sub["/u/:username/subscribe"]:::pub
+  Coll["/u/:username/c/:collection"]:::pub
+  Smart["/r/:slug"]:::pub
+  EmbedC["/embed/c/:slug"]:::pub
+  EmbedR["/embed/r/:id"]:::pub
+  EmbedCol["/embed/col/:slug"]:::pub
+
+  Dash["/dashboard"]:::auth
+  Msgs["/dashboard/messages"]:::auth
+  Gov["/governance"]:::mem
+  GovVenues["/governance/venues"]:::board
+
+  Stats["/dashboard/stats"]:::art
+  Archive["/dashboard/archive · Music"]:::art
+  Upload["/dashboard/upload"]:::art
+  Colls["/dashboard/collections"]:::art
+  Releases["/dashboard/releases · Smart Links"]:::art
+  Dist["/dashboard/distribution"]:::art
+  Stash["/dashboard/stash"]:::art
+  Broadcast["/dashboard/broadcast"]:::art
+  Schedule["/dashboard/schedule"]:::art
+  VenuesDash["/dashboard/venues"]:::art
+  Events["/dashboard/events"]:::art
+  RadioSlot["/dashboard/tahti-radio-slots"]:::art
+  Posts["/dashboard/posts"]:::art
+  Embeds["/dashboard/embeds"]:::art
+  News["/dashboard/newsletter/compose"]:::art
+  Revenue["/dashboard/revenue"]:::art
+  Design["/dashboard/channel/edit"]:::art
+  Settings["/dashboard/settings/*"]:::art
+  Editor["/dashboard/editor"]:::art
+
+  Admin["/admin/*"]:::board
+  ApiDocs["api.tahti.live/api"]:::pub
+
+  Home --> Listen
+  Home --> Radio
+  Home --> Venues
+  Home --> Trans
+  Home --> Join
+  Home --> Login
+  Home --> Channel
+  Listen --> Channel
+  Radio --> Channel
+  Profile --> Channel
+  Profile --> Sub
+  Profile --> Coll
+  Smart --> Profile
+  Join --> Verify
+  Login --> Dash
+  Dash --> Stats
+  Dash --> Archive
+  Dash --> Upload
+  Dash --> Colls
+  Dash --> Releases
+  Dash --> Broadcast
+  Dash --> Schedule
+  Dash --> News
+  Dash --> Revenue
+  Dash --> Design
+  Dash --> Settings
+  Dash --> Msgs
+  Dash --> Gov
+  Dash --> Admin
+  Gov --> GovVenues
+  Admin --> GovVenues
+  Home -.-> ApiDocs
+
+  classDef pub fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;
+  classDef auth fill:#ecfdf5,stroke:#10b981,color:#065f46;
+  classDef mem fill:#fef3c7,stroke:#d97706,color:#92400e;
+  classDef art fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;
+  classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
+`,
   },
   {
     id: 'current-anonymous-listener',
     pack: 'current',
-    source: 'anonymous-listener.md',
+    source: 'docs/flows/anonymous-listener.md',
     title: 'Anonymous listener — navigation',
-    blurb: '---',
-    mermaid:
-      'flowchart TD\n  A([Land on Tahti]) --> H["/ Home"]\n  H --> L["/listen Discover"]\n  H --> R["/radio Tahti Radio"]\n  H --> V["/venues Calendar"]\n  H --> T["/transparency"]\n  H --> Help["/help…"]\n  H --> Auth["/join or /login"]\n\n  L --> C["/c/:slug Channel"]\n  R --> C\n  H --> C\n  H --> P["/u/:username Profile"]\n  P --> C\n  P --> S["/u/:username/subscribe"]\n  P --> Coll["/u/:username/c/:collection"]\n  Smart["/r/:slug Smart link"] --> P\n  Smart --> C\n\n  C --> Play{Live?}\n  Play -->|Yes| Live[Play HLS live + public chat]\n  Play -->|No| Arch[Archive / rotation playback]\n  Live --> Chat[Join chat with anonymous handle]\n  Arch --> Chat\n\n  S --> Gate{Want fan perks?}\n  Gate -->|Yes| Auth\n  Gate -->|Browse only| S\n\n  EmbedC["/embed/c/:slug"] -.-> C\n  EmbedR["/embed/r/:id"] -.-> Smart\n',
+    blurb: 'No account. Live or archive on /c/:slug + public chat handle.',
+    mermaid: `flowchart TD
+  A([Land on Tahti]) --> H["/ Home"]
+  H --> L["/listen Discover"]
+  H --> R["/radio Tahti Radio"]
+  H --> V["/venues Calendar"]
+  H --> T["/transparency"]
+  H --> Help["/help…"]
+  H --> Auth["/join or /login"]
+
+  L --> C["/c/:slug Channel"]
+  R --> C
+  H --> C
+  H --> P["/u/:username Profile"]
+  P --> C
+  P --> S["/u/:username/subscribe"]
+  P --> Coll["/u/:username/c/:collection"]
+  Smart["/r/:slug Smart link"] --> P
+  Smart --> C
+
+  C --> Play{Live?}
+  Play -->|Yes| Live[Play HLS live + public chat]
+  Play -->|No| Arch[Archive / rotation playback]
+  Live --> Chat[Join chat with anonymous handle]
+  Arch --> Chat
+
+  S --> Gate{Want fan perks?}
+  Gate -->|Yes| Auth
+  Gate -->|Browse only| S
+
+  EmbedC["/embed/c/:slug"] -.-> C
+  EmbedR["/embed/r/:id"] -.-> Smart
+`,
   },
   {
     id: 'current-logged-in-listener',
     pack: 'current',
-    source: 'logged-in-listener.md',
+    source: 'docs/flows/logged-in-listener.md',
     title: 'Logged-in listener / member — navigation',
-    blurb: '---',
-    mermaid:
-      'flowchart TD\n  A([Anonymous]) --> Join["/join or /signup"]\n  Join --> Verify["/verify email"]\n  Verify --> Login["/login"]\n  A --> Login\n\n  Login --> Dash["/dashboard"]\n  Dash --> Free{Membership?}\n\n  Free -->|None · free listener| FreeDash[Listener dashboard]\n  Free -->|€40 member| MemDash[Member dashboard]\n  Free -->|Also has channel| Artist[Part 3 · Artist studio]\n\n  FreeDash --> Sub["/u/:artist/subscribe → Stripe"]\n  MemDash --> Gov["/governance"]\n  Gov --> Motions[Browse / vote motions]\n  Gov --> VenuesMem[Member venue views]\n\n  Sub --> FanChat[Fan chat on /c/:slug when perk allows]\n  FreeDash --> Msgs["/dashboard/messages"]\n  MemDash --> Msgs\n  FreeDash --> Account["/dashboard/settings/account"]\n',
+    blurb:
+      'Free listener · €40 coop member · optional channel → artist studio.',
+    mermaid: `flowchart TD
+  A([Anonymous]) --> Join["/join or /signup"]
+  Join --> Verify["/verify email"]
+  Verify --> Login["/login"]
+  A --> Login
+
+  Login --> Dash["/dashboard"]
+  Dash --> Free{Membership?}
+
+  Free -->|None · free listener| FreeDash[Listener dashboard]
+  Free -->|€40 member| MemDash[Member dashboard]
+  Free -->|Also has channel| Artist[Part 3 · Artist studio]
+
+  FreeDash --> Sub["/u/:artist/subscribe → Stripe"]
+  MemDash --> Gov["/governance"]
+  Gov --> Motions[Browse / vote motions]
+  Gov --> VenuesMem[Member venue views]
+
+  Sub --> FanChat[Fan chat on /c/:slug when perk allows]
+  FreeDash --> Msgs["/dashboard/messages"]
+  MemDash --> Msgs
+  FreeDash --> Account["/dashboard/settings/account"]
+`,
   },
   {
     id: 'current-artist',
     pack: 'current',
-    source: 'artist.md',
+    source: 'docs/flows/artist.md',
     title: 'Artist — navigation',
-    blurb: '---',
-    mermaid:
-      'flowchart TD\n  Login["/login"] --> Dash["/dashboard Channel overview"]\n  Dash --> Setup["/dashboard/setup-channel if no channel"]\n\n  subgraph sidebar["Studio sidebar"]\n    direction TB\n    Dash\n    Stats["Stats"]\n    subgraph lib["My Library"]\n      Music["Music · archive"]\n      Upload["Upload"]\n      Colls["Collections"]\n      Links["Smart Links · releases"]\n      Dist["Distribution · More"]\n      Stash["Stash · More"]\n    end\n    subgraph bc["Broadcasting"]\n      Broadcast["Broadcast"]\n      Schedule["Schedule"]\n      Venues["Venues · More"]\n      Events["Events · More"]\n      RadioSlot["Radio slot · More"]\n      Posts["Posts · More"]\n      Embeds["Embeds · More"]\n    end\n    subgraph aud["Audience"]\n      Newsletter["Newsletter"]\n      Revenue["Revenue"]\n    end\n    subgraph setupG["Channel setup"]\n      Design["Design"]\n      Settings["Settings → subnav"]\n    end\n  end\n\n  Dash --> Stats\n  Dash --> lib\n  Dash --> bc\n  Dash --> aud\n  Dash --> setupG\n\n  Broadcast --> Live["Go live · OBS keys · browser studio"]\n  Music --> ArchItem["Archive item · editor"]\n  Upload --> Import["Import Bandcamp / SC / Drive / URL"]\n  Links --> RelDetail["Release detail"]\n  Colls --> CollEdit["Collection editor"]\n  Settings --> SetTabs["Account · Artist info · Fan subs · …"]\n\n  Dash -.-> Pub["Public /c/:slug · /u/:username"]\n',
+    blurb: 'Studio sidebar groups match packages/ui dashboard-nav.',
+    mermaid: `flowchart TD
+  Login["/login"] --> Dash["/dashboard Channel overview"]
+  Dash --> Setup["/dashboard/setup-channel if no channel"]
+
+  subgraph sidebar["Studio sidebar"]
+    direction TB
+    Dash
+    Stats["Stats"]
+    subgraph lib["My Library"]
+      Music["Music · archive"]
+      Upload["Upload"]
+      Colls["Collections"]
+      Links["Smart Links · releases"]
+      Dist["Distribution · More"]
+      Stash["Stash · More"]
+    end
+    subgraph bc["Broadcasting"]
+      Broadcast["Broadcast"]
+      Schedule["Schedule"]
+      Venues["Venues · More"]
+      Events["Events · More"]
+      RadioSlot["Radio slot · More"]
+      Posts["Posts · More"]
+      Embeds["Embeds · More"]
+    end
+    subgraph aud["Audience"]
+      Newsletter["Newsletter"]
+      Revenue["Revenue"]
+    end
+    subgraph setupG["Channel setup"]
+      Design["Design"]
+      Settings["Settings → subnav"]
+    end
+  end
+
+  Dash --> Stats
+  Dash --> lib
+  Dash --> bc
+  Dash --> aud
+  Dash --> setupG
+
+  Broadcast --> Live["Go live · OBS keys · browser studio"]
+  Music --> ArchItem["Archive item · editor"]
+  Upload --> Import["Import Bandcamp / SC / Drive / URL"]
+  Links --> RelDetail["Release detail"]
+  Colls --> CollEdit["Collection editor"]
+  Settings --> SetTabs["Account · Artist info · Fan subs · …"]
+
+  Dash -.-> Pub["Public /c/:slug · /u/:username"]
+`,
   },
   {
     id: 'current-board-member',
     pack: 'current',
-    source: 'board-member.md',
+    source: 'docs/flows/board-member.md',
     title: 'Board member — navigation',
-    blurb: '---',
-    mermaid:
-      'flowchart TD\n  Login["/login as board"] --> Studio["/dashboard"]\n  Studio --> Admin["/admin → /admin/dashboard"]\n\n  subgraph nav["Admin sidebar"]\n    Dash["Dashboard"]\n    Beta["Beta"]\n    Users["Users"]\n    Radio["Radio"]\n    RadioSub["Radio submissions"]\n    News["News"]\n    Selects["Selects"]\n    Streams["Streams"]\n    Support["Support"]\n    Top["Top lists"]\n    Ann["Announcements"]\n    Storage["Storage"]\n    Files["Files"]\n    Reports["Reports"]\n    Fin["Financial"]\n    Gov["Governance"]\n    Feat["Features"]\n    Grants["Grants"]\n    AGM["AGM"]\n    Vendors["Vendors"]\n    Status["Status"]\n  end\n\n  Admin --> Dash\n  Dash --> Beta\n  Dash --> Users\n  Dash --> Streams\n  Dash --> Support\n  Fin --> Ledger["/admin/financial/ledger"]\n  Fin --> FanSubs["/admin/financial/fansubs"]\n  Fin --> Legacy["/admin/financial/legacy-members"]\n  Gov --> Audit["/admin/governance/audit"]\n  Gov --> Res["/admin/governance/resolutions"]\n  Gov --> Report["/admin/governance/report"]\n  Gov --> Venues["/governance/venues verification"]\n  Grants --> GrantYear["/admin/grants/:year"]\n',
+    blurb: 'User.isBoard → /admin/* on apps/web only (not rebuilt in Nuclear).',
+    mermaid: `flowchart TD
+  Login["/login as board"] --> Studio["/dashboard"]
+  Studio --> Admin["/admin → /admin/dashboard"]
+
+  subgraph nav["Admin sidebar"]
+    Dash["Dashboard"]
+    Beta["Beta"]
+    Users["Users"]
+    Radio["Radio"]
+    RadioSub["Radio submissions"]
+    News["News"]
+    Selects["Selects"]
+    Streams["Streams"]
+    Support["Support"]
+    Top["Top lists"]
+    Ann["Announcements"]
+    Storage["Storage"]
+    Files["Files"]
+    Reports["Reports"]
+    Fin["Financial"]
+    Gov["Governance"]
+    Feat["Features"]
+    Grants["Grants"]
+    AGM["AGM"]
+    Vendors["Vendors"]
+    Status["Status"]
+  end
+
+  Admin --> Dash
+  Dash --> Beta
+  Dash --> Users
+  Dash --> Streams
+  Dash --> Support
+  Fin --> Ledger["/admin/financial/ledger"]
+  Fin --> FanSubs["/admin/financial/fansubs"]
+  Fin --> Legacy["/admin/financial/legacy-members"]
+  Gov --> Audit["/admin/governance/audit"]
+  Gov --> Res["/admin/governance/resolutions"]
+  Gov --> Report["/admin/governance/report"]
+  Gov --> Venues["/governance/venues verification"]
+  Grants --> GrantYear["/admin/grants/:year"]
+`,
   },
   {
     id: 'current-navigation-flows-design-review',
     pack: 'current',
-    source: 'navigation-flows-design-review.md',
+    source: 'docs/flows/navigation-flows-design-review.md',
     title: '1. Master spine (all four parts)',
-    blurb: 'Full route colour map: site-map.md.',
-    mermaid:
-      'flowchart TB\n  subgraph p1["Part 1 · Anonymous listener"]\n    H[Home / Listen / Radio] --> C[Channel play + public chat]\n    C --> P[Profile · smart link · collection]\n  end\n\n  subgraph p2["Part 2 · Logged-in listener / member"]\n    A[Join · verify · login] --> D[Dashboard]\n    D --> F[Fan subscribe]\n    D --> G[Governance if member]\n  end\n\n  subgraph p3["Part 3 · Artist"]\n    S[Studio sidebar] --> Lib[My Library]\n    S --> Bc[Broadcasting]\n    S --> Aud[Audience + Settings]\n    Lib --> Pub[Public channel / profile]\n    Bc --> Pub\n  end\n\n  subgraph p4["Part 4 · Board"]\n    Ad[Admin sidebar] --> Ops[Users · Streams · Support]\n    Ad --> Money[Financial · Grants]\n    Ad --> Org[Governance · AGM]\n  end\n\n  p1 --> p2\n  p2 --> p3\n  p3 --> p4\n',
+    blurb: 'Full colour route map: docs/flows/site-map.md.',
+    mermaid: `flowchart TB
+  subgraph p1["Part 1 · Anonymous listener"]
+    H[Home / Listen / Radio] --> C[Channel play + public chat]
+    C --> P[Profile · smart link · collection]
+  end
+
+  subgraph p2["Part 2 · Logged-in listener / member"]
+    A[Join · verify · login] --> D[Dashboard]
+    D --> F[Fan subscribe]
+    D --> G[Governance if member]
+  end
+
+  subgraph p3["Part 3 · Artist"]
+    S[Studio sidebar] --> Lib[My Library]
+    S --> Bc[Broadcasting]
+    S --> Aud[Audience + Settings]
+    Lib --> Pub[Public channel / profile]
+    Bc --> Pub
+  end
+
+  subgraph p4["Part 4 · Board"]
+    Ad[Admin sidebar] --> Ops[Users · Streams · Support]
+    Ad --> Money[Financial · Grants]
+    Ad --> Org[Governance · AGM]
+  end
+
+  p1 --> p2
+  p2 --> p3
+  p3 --> p4
+`,
   },
   {
-    id: 'planned-README',
-    pack: 'planned',
-    source: 'README.md',
-    title: 'Master spine (planned)',
+    id: 'nuclear-README',
+    pack: 'nuclear',
+    source: 'router.tsx + AppShell',
+    title: 'Master spine (Nuclear shell)',
     blurb:
-      'Right rail: **Chat**. Bottom bar: **Queue** around play (past | play | up next).',
-    mermaid:
-      'flowchart TB\n  subgraph shell["Nuclear shell"]\n    SB[Sparse sidebar]\n    MAIN[Main · ViewShell]\n    RR[Right rail Chat]\n    PB[Player bar · queue strip]\n  end\n\n  subgraph listen["Listen"]\n    L["/ Listen directory"]\n    R["/radio"]\n    C["/channel/:slug"]\n    U["/u/:username"]\n  end\n\n  subgraph studio["Studio · in-page tabs"]\n    ST["/studio"]\n    GL[Go Live]\n    CAT[Archive · Releases · Collections · Upload]\n    ED[Editor]\n  end\n\n  subgraph sources["Sources · big tiles"]\n    SRC["/sources"]\n  end\n\n  subgraph settings["Settings · Nuclear sections"]\n    SET["/settings"]\n    TH[Themes]\n  end\n\n  SB --> L\n  SB --> R\n  SB --> ST\n  SB --> SRC\n  SB --> SET\n  L --> C\n  C --> RR\n  C --> PB\n  ST --> GL\n  ST --> CAT\n  ST --> ED\n  SET --> TH\n  U -->|owner| Design[Profile Design tab]\n',
+      'beta.tahti.live — Nuclear chrome on the same Tahti API. Sparse sidebar · main · Chat rail · player bar.',
+    mermaid: `flowchart TB
+  subgraph shell["Nuclear shell"]
+    SB[Sparse sidebar]
+    MAIN[Main]
+    RR[Right rail · Chat / Queue]
+    PB[Player bar]
+  end
+
+  subgraph listen["Listen"]
+    L["/ Listen directory"]
+    R["/radio"]
+    C["/channel/:slug"]
+    U["/u/:username"]
+  end
+
+  subgraph library["My Library"]
+    LIB["/library · Favorites · History · Messages"]
+  end
+
+  subgraph studio["Studio routes"]
+    ST["/studio"]
+    GL["/studio/go-live"]
+    CAT["Archive · Releases · Collections · Upload · …"]
+  end
+
+  subgraph moreHub["More hub"]
+    MORE["/more · Tahti map"]
+    SRC["/sources"]
+    SET["/settings · Themes"]
+  end
+
+  SB --> L
+  SB --> R
+  SB --> LIB
+  SB --> ST
+  SB --> MORE
+  L --> C
+  C --> RR
+  C --> PB
+  ST --> GL
+  ST --> CAT
+  MORE --> SRC
+  MORE --> SET
+  U -->|owner| Design[Profile Design tab]
+`,
   },
   {
-    id: 'planned-site-map',
-    pack: 'planned',
-    source: 'site-map.md',
-    title: 'Planned site map — Nuclear tahti-web',
+    id: 'nuclear-site-map',
+    pack: 'nuclear',
+    source: 'router.tsx',
+    title: 'Site map — Nuclear tahti-web',
     blurb:
-      'Right rail: **Chat**. Bottom: **Player bar** with openable queue strip.',
-    mermaid:
-      'flowchart TB\n  Listen["/ Listen"]:::pub\n  Radio["/radio"]:::pub\n  Channel["/channel/:slug"]:::pub\n  Profile["/u/:username"]:::pub\n  Sub["/subscribe/:username"]:::pub\n  Smart["/r/:slug"]:::pub\n  Coll["/u/:user/c/:slug"]:::pub\n  Embed["/embed/*"]:::pub\n  Lib["/library"]:::auth\n  Studio["/studio/* tabs"]:::studio\n  Sources["/sources"]:::studio\n  Settings["/settings"]:::auth\n  Gov["/governance"]:::auth\n  More["/more · help · legal · status"]:::pub\n  Admin["production /admin"]:::board\n\n  Listen --> Channel\n  Listen --> Radio\n  Listen --> Profile\n  Profile --> Sub\n  Profile --> Coll\n  Profile -->|owner Design| Profile\n  Channel --> Lib\n  Listen --> Studio\n  Studio --> Sources\n  Listen --> Settings\n  Listen --> More\n  Settings -.-> Admin\n  More -.-> Admin\n\n  classDef pub fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;\n  classDef auth fill:#ecfdf5,stroke:#10b981,color:#065f46;\n  classDef studio fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;\n  classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;\n',
+      'Prod path aliases (/listen, /c/:slug, /dashboard/*) redirect into Nuclear routes. Board admin stays on apps/web.',
+    mermaid: `flowchart TB
+  Listen["/ Listen"]:::pub
+  Radio["/radio"]:::pub
+  Channel["/channel/:slug"]:::pub
+  Profile["/u/:username"]:::pub
+  Sub["/subscribe/:username"]:::pub
+  Smart["/r/:slug"]:::pub
+  Coll["/u/:user/c/:slug"]:::pub
+  Chat["/chat · /chat/:slug"]:::pub
+  Embed["/embed/*"]:::pub
+  Venues["/venues"]:::pub
+  Trans["/transparency"]:::pub
+  Help["/help"]:::pub
+  Status["/status"]:::pub
+  Legal["/about · /terms · /privacy · /agpl"]:::pub
+  More["/more · Tahti map"]:::pub
+
+  Lib["/library"]:::auth
+  Settings["/settings"]:::auth
+  Gov["/governance"]:::auth
+  Join["/join · /login · /verify"]:::pub
+
+  Studio["/studio"]:::studio
+  GoLive["/studio/go-live"]:::studio
+  Archive["/studio/archive"]:::studio
+  Releases["/studio/releases"]:::studio
+  Colls["/studio/collections"]:::studio
+  Upload["/studio/upload"]:::studio
+  Editor["/studio/editor"]:::studio
+  Stash["/studio/stash"]:::studio
+  Schedule["/studio/schedule"]:::studio
+  Stats["/studio/stats"]:::studio
+  ChannelEd["/studio/channel"]:::studio
+  Shows["/studio/shows"]:::studio
+  Playlists["/studio/playlists"]:::studio
+  Updates["/studio/updates"]:::studio
+  Revenue["/studio/revenue"]:::studio
+  Dist["/studio/distribution"]:::studio
+  Sources["/sources"]:::studio
+
+  Admin["apps/web /admin/*"]:::board
+  ApiDocs["api.tahti.live/api"]:::pub
+
+  Listen --> Channel
+  Listen --> Radio
+  Listen --> Profile
+  Profile --> Sub
+  Profile --> Coll
+  Channel --> Chat
+  Channel --> Lib
+  Listen --> Studio
+  Studio --> GoLive
+  Studio --> Archive
+  Studio --> Releases
+  Studio --> Colls
+  Studio --> Upload
+  Studio --> Sources
+  Listen --> Settings
+  Listen --> More
+  More -.-> Admin
+  Settings -.-> Admin
+  Listen -.-> ApiDocs
+
+  classDef pub fill:#eef4ff,stroke:#3b82f6,color:#1e3a8a;
+  classDef auth fill:#ecfdf5,stroke:#10b981,color:#065f46;
+  classDef studio fill:#f3e8ff,stroke:#9333ea,color:#6b21a8;
+  classDef board fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
+`,
   },
   {
-    id: 'planned-anonymous-listener',
-    pack: 'planned',
-    source: 'anonymous-listener.md',
+    id: 'nuclear-anonymous-listener',
+    pack: 'nuclear',
+    source: 'Listen / Channel / Radio',
     title: 'Anonymous listener — navigation',
-    blurb: '---',
-    mermaid:
-      'flowchart TD\n  A([Open beta / POC]) --> L["/ Listen · Nuclear main"]\n  L --> R["/radio"]\n  L --> C["/channel/:slug"]\n  L --> U["/u/:username"]\n  R --> C\n  U --> C\n  U --> S["/subscribe/:username"]\n  U --> Coll["/u/:user/c/:slug"]\n  Smart["/r/:slug"] --> U\n\n  C --> Rail[Right rail Chat]\n  C --> PB[Bottom player · past | play | up next]\n\n  L --> More["/more · help · legal"]\n  L --> Auth["/join · /login"]\n',
+    blurb: 'Listen hub is /. Chat + queue live in the right rail / player bar.',
+    mermaid: `flowchart TD
+  A([Open beta.tahti.live]) --> L["/ Listen"]
+  L --> R["/radio"]
+  L --> C["/channel/:slug"]
+  L --> U["/u/:username"]
+  R --> C
+  U --> C
+  U --> S["/subscribe/:username"]
+  U --> Coll["/u/:user/c/:slug"]
+  Smart["/r/:slug"] --> U
+
+  C --> Rail[Right rail Chat]
+  C --> PB[Player bar · seek on VOD]
+
+  L --> More["/more · help · legal · map"]
+  L --> Auth["/join · /login"]
+  L --> Venues["/venues"]
+  L --> Trans["/transparency"]
+`,
   },
   {
-    id: 'planned-logged-in-listener',
-    pack: 'planned',
-    source: 'logged-in-listener.md',
+    id: 'nuclear-logged-in-listener',
+    pack: 'nuclear',
+    source: 'Library / Governance / Settings',
     title: 'Logged-in listener / member — navigation',
-    blurb: '---',
-    mermaid:
-      'flowchart TD\n  Auth["/join · /login · TOTP"] --> L["/ Listen"]\n  L --> Lib["/library · Favorites · History · Messages"]\n  L --> Sub["/subscribe/:artist"]\n  L --> Gov["/governance · if member"]\n  L --> Acc["/settings · Account section"]\n  Lib --> Fav[Favorites tab]\n  Lib --> Hist[History tab]\n  Lib --> DM[Messages tab]\n  Acc --> Themes[Settings → Themes]\n  Sub --> Stripe[Stripe checkout URL]\n',
+    blurb:
+      'Library tabs replace dashboard listener chrome; themes under Settings.',
+    mermaid: `flowchart TD
+  Auth["/join · /login · TOTP"] --> L["/ Listen"]
+  L --> Lib["/library · Favorites · History · Messages"]
+  L --> Sub["/subscribe/:artist"]
+  L --> Gov["/governance · if member"]
+  L --> Acc["/settings · Account"]
+  Lib --> Fav[Favorites]
+  Lib --> Hist[History]
+  Lib --> DM[Messages]
+  Acc --> Themes[Settings → Themes]
+  Sub --> Stripe[Stripe checkout URL]
+`,
   },
   {
-    id: 'planned-artist',
-    pack: 'planned',
-    source: 'artist.md',
+    id: 'nuclear-artist',
+    pack: 'nuclear',
+    source: '/studio/*',
     title: 'Artist — navigation',
-    blurb: '---',
-    mermaid:
-      'flowchart TD\n  Login["/login"] --> Studio["/studio"]\n  Studio --> Tabs{In-page tabs}\n  Tabs --> GL[Go Live]\n  Tabs --> Arch[Archive]\n  Tabs --> Rel[Releases]\n  Tabs --> Coll[Collections]\n  Tabs --> Up[Upload]\n  Tabs --> Ed[Editor]\n  Tabs --> Sch[Schedule]\n  Tabs --> St[Stats]\n  Tabs --> Ch[Channel]\n  Tabs --> Upd[Updates · newsletter]\n\n  Studio --> Sources["/sources · big tiles"]\n  Sources --> Imp[Bandcamp · SC · Drive · Mixcloud · URL]\n\n  Profile["/u/:me"] -->|owner| Design[Design tab · channel designer]\n  Studio --> Settings["/settings · full prefs"]\n\n  GL --> Live["channel LIVE → player bar"]\n  Arch --> Ed\n',
+    blurb:
+      'Studio is route-based (not only in-page tabs). Sources is a sibling hub.',
+    mermaid: `flowchart TD
+  Login["/login"] --> Studio["/studio"]
+  Studio --> Setup["/studio/setup-channel if needed"]
+
+  Studio --> GL["/studio/go-live"]
+  Studio --> Arch["/studio/archive"]
+  Studio --> Rel["/studio/releases"]
+  Studio --> Coll["/studio/collections"]
+  Studio --> Up["/studio/upload"]
+  Studio --> Ed["/studio/editor"]
+  Studio --> Stash["/studio/stash"]
+  Studio --> Sch["/studio/schedule"]
+  Studio --> St["/studio/stats"]
+  Studio --> Ch["/studio/channel"]
+  Studio --> Shows["/studio/shows"]
+  Studio --> Pl["/studio/playlists"]
+  Studio --> Upd["/studio/updates"]
+  Studio --> Rev["/studio/revenue"]
+  Studio --> Dist["/studio/distribution"]
+  Studio --> Src["/sources"]
+
+  Profile["/u/:me"] -->|owner| Design[Design tab]
+  Studio --> Settings["/settings"]
+
+  GL --> Live["LIVE → player bar + /channel/:slug"]
+  Arch --> Ed
+`,
   },
   {
-    id: 'planned-artist-1',
-    pack: 'planned',
-    source: 'artist.md',
+    id: 'nuclear-artist-1',
+    pack: 'nuclear',
+    source: '/studio/go-live',
     title: 'Artist — Go Live path',
-    blurb: '---',
-    mermaid:
-      'flowchart LR\n  A[Studio → Go Live] --> B[Copy OBS / Icecast]\n  B --> C[Signal check]\n  C --> D[Go Live]\n  D --> E[Player bar · open channel]\n  D --> F[Multistream · secondary tab]\n',
+    blurb: 'OBS / Icecast keys → signal check → go live → multistream.',
+    mermaid: `flowchart LR
+  A[Studio → Go Live] --> B[Copy OBS / Icecast]
+  B --> C[Signal check]
+  C --> D[Go Live]
+  D --> E[Player bar · open channel]
+  D --> F[Multistream tab]
+`,
   },
   {
-    id: 'planned-board-member',
-    pack: 'planned',
-    source: 'board-member.md',
-    title: 'Board member — navigation',
-    blurb: '---',
-    mermaid:
-      'flowchart TD\n  POC[Nuclear tahti-web] -->|link-out| Admin["production /admin/*"]\n  Admin --> Users[Users · Streams · Support]\n  Admin --> Money[Financial · Grants]\n  Admin --> Org[Governance · AGM]\n',
+    id: 'nuclear-board-member',
+    pack: 'nuclear',
+    source: 'FEATURES.md',
+    title: 'Board member — link-out',
+    blurb:
+      'Admin console is Tahti-only; Nuclear links out to production /admin.',
+    mermaid: `flowchart TD
+  POC[Nuclear tahti-web] -->|link-out| Admin["apps/web /admin/*"]
+  Admin --> Users[Users · Streams · Support]
+  Admin --> Money[Financial · Grants]
+  Admin --> Org[Governance · AGM]
+`,
   },
   {
-    id: 'planned-navigation-flows-design-review',
-    pack: 'planned',
-    source: 'navigation-flows-design-review.md',
+    id: 'nuclear-navigation-flows-design-review',
+    pack: 'nuclear',
+    source: 'Tahti map',
     title: '1. Spine',
-    blurb: '---',
-    mermaid:
-      'flowchart TB\n  subgraph p1["Part 1 · Anonymous"]\n    L[Listen] --> C[Channel]\n    C --> PB[Player bar]\n    C --> RR[Right · Queue / Chat]\n  end\n  subgraph p2["Part 2 · Member"]\n    A[Auth] --> Lib[Library]\n    A --> Gov[Governance]\n    A --> Set[Settings]\n  end\n  subgraph p3["Part 3 · Artist"]\n    St[Studio tabs] --> GL[Go Live]\n    St --> Cat[Catalog · Editor]\n    Src[Sources tiles] --> Cat\n    Prof[Profile Design] --> St\n  end\n  p1 --> p2\n  p2 --> p3\n',
+    blurb: 'Three product surfaces: apps/web · Nuclear · public API docs.',
+    mermaid: `flowchart TB
+  subgraph p1["Part 1 · Anonymous"]
+    L[Listen] --> C[Channel]
+    C --> PB[Player bar]
+    C --> RR[Right · Queue / Chat]
+  end
+  subgraph p2["Part 2 · Member"]
+    A[Auth] --> Lib[Library]
+    A --> Gov[Governance]
+    A --> Set[Settings]
+  end
+  subgraph p3["Part 3 · Artist"]
+    St[Studio routes] --> GL[Go Live]
+    St --> Cat[Catalog · Editor]
+    Src[Sources] --> Cat
+    Prof[Profile Design] --> St
+  end
+  subgraph api["Public API"]
+    Docs[api.tahti.live/api]
+  end
+  p1 --> p2
+  p2 --> p3
+  p1 -.-> Docs
+`,
   },
   {
     id: 'current-cases-anonymous',
     pack: 'current',
-    source: 'cases-anonymous.md',
+    source: 'cases-anonymous',
     title: 'Cases — anonymous listen',
     blurb:
       'Home, radio online, channel live vs offline, chat join, profile, subscribe gate, smart link, embed.',
-    mermaid:
-      'flowchart TD\n  H["/listen Home"] --> R["/radio online"]\n  H --> C["/c/:slug"]\n  R --> C\n  C --> Live{Live?}\n  Live -->|Yes| L[HLS live + LIVE badge]\n  Live -->|No| A[Archive / rotation VOD]\n  L --> Chat[Chat join anonymous handle]\n  A --> Chat\n  H --> P["/u/:username"]\n  P --> Sub["/u/:user/subscribe gate"]\n  Sub --> Auth["/join or /login"]\n  Smart["/r/:slug"] --> P\n  Emb["/embed/c/:slug"] -.-> C\n',
+    mermaid: `flowchart TD
+  H["/listen Home"] --> R["/radio online"]
+  H --> C["/c/:slug"]
+  R --> C
+  C --> Live{Live?}
+  Live -->|Yes| L[HLS live + LIVE badge]
+  Live -->|No| A[Archive / rotation VOD]
+  L --> Chat[Chat join anonymous handle]
+  A --> Chat
+  H --> P["/u/:username"]
+  P --> Sub["/u/:user/subscribe gate"]
+  Sub --> Auth["/join or /login"]
+  Smart["/r/:slug"] --> P
+  Emb["/embed/c/:slug"] -.-> C
+`,
   },
   {
     id: 'current-cases-auth',
     pack: 'current',
-    source: 'cases-auth.md',
+    source: 'cases-auth',
     title: 'Cases — auth',
     blurb: 'Join, verify token, login, optional TOTP.',
-    mermaid:
-      'flowchart LR\n  J["/join"] --> V["/verify token"]\n  V --> LI["/login"]\n  LI --> TOTP{TOTP enabled?}\n  TOTP -->|Yes| Code[Enter TOTP]\n  TOTP -->|No| Sess[Session cookie]\n  Code --> Sess\n  Sess --> Next["?next= or /dashboard"]\n',
+    mermaid: `flowchart LR
+  J["/join"] --> V["/verify token"]
+  V --> LI["/login"]
+  LI --> TOTP{TOTP enabled?}
+  TOTP -->|Yes| Code[Enter TOTP]
+  TOTP -->|No| Sess[Session cookie]
+  Code --> Sess
+  Sess --> Next["?next= or /dashboard"]
+`,
   },
   {
     id: 'current-cases-listener',
     pack: 'current',
-    source: 'cases-listener.md',
+    source: 'cases-listener',
     title: 'Cases — listener / member',
     blurb: 'Library, fan checkout, DMs, governance vote vs forbidden.',
-    mermaid:
-      'flowchart TD\n  Login --> Dash["/dashboard"]\n  Dash --> Lib[Follows / history]\n  Dash --> Sub["Subscribe → Stripe"]\n  Dash --> DM["/dashboard/messages"]\n  Dash --> Mem{€40 member?}\n  Mem -->|Yes| Gov["/governance vote"]\n  Mem -->|No| Gate[Governance forbidden / upsell]\n',
+    mermaid: `flowchart TD
+  Login --> Dash["/dashboard"]
+  Dash --> Lib[Follows / history]
+  Dash --> Sub["Subscribe → Stripe"]
+  Dash --> DM["/dashboard/messages"]
+  Dash --> Mem{€40 member?}
+  Mem -->|Yes| Gov["/governance vote"]
+  Mem -->|No| Gate[Governance forbidden / upsell]
+`,
   },
   {
     id: 'current-cases-artist',
     pack: 'current',
-    source: 'cases-artist.md',
+    source: 'cases-artist',
     title: 'Cases — artist studio',
     blurb:
       'Home, go-live steps, upload, stash, collections, stats, sources, revenue, channel design.',
-    mermaid:
-      'flowchart TD\n  Dash["/dashboard"] --> Setup{Has channel?}\n  Setup -->|No| SC[Setup channel wizard]\n  Setup -->|Yes| Home[Studio home]\n  Home --> GL["Broadcast: keys → signal → go live"]\n  Home --> Up[Upload prepare PUT complete]\n  Home --> Arch[Archive / Music]\n  Home --> Stash[Stash private]\n  Home --> Coll[Collections designer]\n  Home --> Stats[Stats + detail]\n  Home --> Src[Sources OAuth import]\n  Home --> Rev[Revenue Connect]\n  Home --> Design[Channel design]\n',
+    mermaid: `flowchart TD
+  Dash["/dashboard"] --> Setup{Has channel?}
+  Setup -->|No| SC[Setup channel wizard]
+  Setup -->|Yes| Home[Studio home]
+  Home --> GL["Broadcast: keys → signal → go live"]
+  Home --> Up[Upload prepare PUT complete]
+  Home --> Arch[Archive / Music]
+  Home --> Stash[Stash private]
+  Home --> Coll[Collections designer]
+  Home --> Stats[Stats + detail]
+  Home --> Src[Sources OAuth import]
+  Home --> Rev[Revenue Connect]
+  Home --> Design[Channel design]
+`,
   },
   {
     id: 'current-cases-edge',
     pack: 'current',
-    source: 'cases-edge.md',
+    source: 'cases-edge',
     title: 'Cases — edge / gates',
     blurb: 'Payments not ready, studio logged out, radio offline badge.',
-    mermaid:
-      'flowchart TD\n  Pay[Revenue / subscribe] --> Conn{Connect ready?}\n  Conn -->|No| Block[Payments not ready]\n  Conn -->|Yes| Stripe[Checkout / payouts]\n  Studio["/dashboard"] --> Auth{Logged in?}\n  Auth -->|No| Login["/login"]\n  Radio["/radio"] --> On{Icecast up?}\n  On -->|No| Badge[Offline badge]\n  On -->|Yes| HLS[Play stream]\n',
+    mermaid: `flowchart TD
+  Pay[Revenue / subscribe] --> Conn{Connect ready?}
+  Conn -->|No| Block[Payments not ready]
+  Conn -->|Yes| Stripe[Checkout / payouts]
+  Studio["/dashboard"] --> Auth{Logged in?}
+  Auth -->|No| Login["/login"]
+  Radio["/radio"] --> On{Icecast up?}
+  On -->|No| Badge[Offline badge]
+  On -->|Yes| HLS[Play stream]
+`,
   },
   {
-    id: 'planned-cases-anonymous',
-    pack: 'planned',
-    source: 'cases-anonymous.md',
+    id: 'nuclear-cases-anonymous',
+    pack: 'nuclear',
+    source: 'cases-anonymous',
     title: 'Cases — anonymous listen',
     blurb:
-      'Nuclear: Listen hub, radio HLS, channel live vs archive, chat tab, subscribe, embed.',
-    mermaid:
-      'flowchart TD\n  L["/ Listen"] --> R["/radio always-on HLS"]\n  L --> C["/channel/:slug"]\n  R --> C\n  C --> Live{Live?}\n  Live -->|Yes| PB[Player bar live]\n  Live -->|No| Arch[Archive library + seek]\n  C --> Rail[Right rail Queue / Chat]\n  Rail --> Join[Chat join handle]\n  L --> U["/u/:username"]\n  U --> Sub["/subscribe/:user gate"]\n  Smart["/r/:slug"] --> U\n  Emb["/embed/*"] -.-> C\n',
+      'Listen hub, radio HLS, channel live vs archive, chat rail, subscribe, embed.',
+    mermaid: `flowchart TD
+  L["/ Listen"] --> R["/radio always-on HLS"]
+  L --> C["/channel/:slug"]
+  R --> C
+  C --> Live{Live?}
+  Live -->|Yes| PB[Player bar live]
+  Live -->|No| Arch[Archive library + seek]
+  C --> Rail[Right rail Queue / Chat]
+  Rail --> Join[Chat join handle]
+  L --> U["/u/:username"]
+  U --> Sub["/subscribe/:user gate"]
+  Smart["/r/:slug"] --> U
+  Emb["/embed/*"] -.-> C
+`,
   },
   {
-    id: 'planned-cases-auth',
-    pack: 'planned',
-    source: 'cases-auth.md',
+    id: 'nuclear-cases-auth',
+    pack: 'nuclear',
+    source: 'cases-auth',
     title: 'Cases — auth',
-    blurb: 'Join, verify, login, TOTP on beta host cookie.',
-    mermaid:
-      'flowchart LR\n  J["/join"] --> V["/verify"]\n  V --> LI["/login"]\n  LI --> TOTP{TOTP?}\n  TOTP -->|Yes| Code[TOTP step]\n  TOTP -->|No| Cookie["tahti_session on beta host"]\n  Code --> Cookie\n  Cookie --> L["/ Listen"]\n',
+    blurb: 'Join, verify, login, TOTP — session cookie on beta host.',
+    mermaid: `flowchart LR
+  J["/join"] --> V["/verify"]
+  V --> LI["/login"]
+  LI --> TOTP{TOTP?}
+  TOTP -->|Yes| Code[TOTP step]
+  TOTP -->|No| Cookie["session on beta host"]
+  Code --> Cookie
+  Cookie --> L["/ Listen"]
+`,
   },
   {
-    id: 'planned-cases-listener',
-    pack: 'planned',
-    source: 'cases-listener.md',
+    id: 'nuclear-cases-listener',
+    pack: 'nuclear',
+    source: 'cases-listener',
     title: 'Cases — listener / member',
     blurb: 'Library tabs, subscribe checkout, DMs, governance member vs gated.',
-    mermaid:
-      'flowchart TD\n  Auth --> Lib["/library Favorites History"]\n  Auth --> Sub["/subscribe/:artist → Stripe"]\n  Auth --> DM["/library/messages"]\n  Auth --> Mem{Member?}\n  Mem -->|Yes| Gov["/governance vote"]\n  Mem -->|No| Gate[Governance gated]\n',
+    mermaid: `flowchart TD
+  Auth --> Lib["/library Favorites History"]
+  Auth --> Sub["/subscribe/:artist → Stripe"]
+  Auth --> DM["/library/messages"]
+  Auth --> Mem{Member?}
+  Mem -->|Yes| Gov["/governance vote"]
+  Mem -->|No| Gate[Governance gated]
+`,
   },
   {
-    id: 'planned-cases-artist',
-    pack: 'planned',
-    source: 'cases-artist.md',
+    id: 'nuclear-cases-artist',
+    pack: 'nuclear',
+    source: 'cases-artist',
     title: 'Cases — artist studio',
     blurb:
-      'Studio tabs: Go Live, upload, stash, collections, stats, sources, revenue, design.',
-    mermaid:
-      'flowchart TD\n  ST["/studio"] --> Gate{Login + channel?}\n  Gate -->|No| LoginOrSetup[Login or setup pending]\n  Gate -->|Yes| Tabs[In-page tabs]\n  Tabs --> GL["Go Live wizard steps"]\n  Tabs --> Up[Upload]\n  Tabs --> Arch[Archive]\n  Tabs --> Stash[Stash]\n  Tabs --> Coll[Collections]\n  Tabs --> Stats[Stats / detail]\n  Tabs --> Rev[Revenue Connect]\n  Tabs --> Ch[Channel design]\n  ST --> Src["/sources OAuth tiles"]\n',
+      'Studio routes: Go Live, upload, stash, collections, stats, sources, revenue, design.',
+    mermaid: `flowchart TD
+  ST["/studio"] --> Gate{Login + channel?}
+  Gate -->|No| LoginOrSetup[Login or setup]
+  Gate -->|Yes| Home[Studio home]
+  Home --> GL["/studio/go-live"]
+  Home --> Up["/studio/upload"]
+  Home --> Arch["/studio/archive"]
+  Home --> Stash["/studio/stash"]
+  Home --> Coll["/studio/collections"]
+  Home --> Stats["/studio/stats"]
+  Home --> Rev["/studio/revenue"]
+  Home --> Ch["/studio/channel"]
+  Home --> Src["/sources"]
+`,
   },
   {
-    id: 'planned-cases-edge',
-    pack: 'planned',
-    source: 'cases-edge.md',
+    id: 'nuclear-cases-edge',
+    pack: 'nuclear',
+    source: 'cases-edge',
     title: 'Cases — edge / gates',
     blurb: 'Payments not ready, studio logged out, radio HLS vs offline.',
-    mermaid:
-      'flowchart TD\n  Rev["/studio/revenue"] --> Conn{Connect ready?}\n  Conn -->|No| Block[Payments not ready]\n  ST["/studio"] --> Auth{Logged in?}\n  Auth -->|No| Login["/login"]\n  Radio["/radio"] --> HLS[Player bar HLS when feed exists]\n',
+    mermaid: `flowchart TD
+  Rev["/studio/revenue"] --> Conn{Connect ready?}
+  Conn -->|No| Block[Payments not ready]
+  ST["/studio"] --> Auth{Logged in?}
+  Auth -->|No| Login["/login"]
+  Radio["/radio"] --> HLS[Player bar HLS when feed exists]
+`,
   },
 ];
 
@@ -251,8 +850,12 @@ export const FLOW_PACKS: {
 }[] = [
   {
     id: 'current',
-    label: 'Current Tahti',
-    hint: 'Production journeys (apps/web)',
+    label: 'apps/web',
+    hint: 'Canonical hosted product · docs/flows + e2e screenshots',
   },
-  { id: 'planned', label: 'Planned Nuclear', hint: 'tahti-web shell mapping' },
+  {
+    id: 'nuclear',
+    label: 'Nuclear',
+    hint: 'beta.tahti.live · same API · this client',
+  },
 ];
