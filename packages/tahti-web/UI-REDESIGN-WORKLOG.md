@@ -15,21 +15,21 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 1 | Studio home | `/studio` | **approved** | `docs/redesign-shots/studio-home-v1.png` |
 | 2 | Go Live wizard | `/studio/go-live` | **approved** | `docs/redesign-shots/studio-go-live-v1.png` |
 | 3 | Music / Archive (Library) | `/studio/archive` | **approved** | `docs/redesign-shots/studio-archive-v1.png` |
-| 4 | Archive item | `/studio/archive/$id` | **in-review** | `docs/redesign-shots/studio-archive-item-v1.png` |
+| 4 | Archive item | `/studio/archive/$id` | **approved** | `docs/redesign-shots/studio-archive-item-v1.png` |
 | 5 | Upload | `/studio/upload` | **approved** | `docs/redesign-shots/studio-upload-v1.png` |
-| 6 | Releases | `/studio/releases` | **in-review** | `docs/redesign-shots/studio-releases-v1.png` |
-| 7 | Release detail | `/studio/releases/$id` | **in-review** | (panels + Save CTA) |
-| 8 | Collections / album designer | `/studio/collections` | **in-review** | `docs/redesign-shots/studio-collections-v1.png` |
-| 9 | Collection editor | `/studio/collections/$slug` | **in-review** | |
-| 10 | Audio editor list | `/studio/editor` | **in-review** | (panels + icon row actions) |
-| 11 | Editor project | `/studio/editor/$id` | **in-review** | |
-| 12 | Schedule | `/studio/schedule` | **in-review** | `docs/redesign-shots/studio-schedule-v1.png` |
-| 13 | Stats | `/studio/stats` | **in-review** | `docs/redesign-shots/studio-stats-v1.png` |
-| 14 | Stats detail | `/studio/stats/detail` | **in-review** | (panels + range chips) |
-| 15 | Channel designer | `/studio/channel` | **in-review** | `docs/redesign-shots/studio-channel-v1.png` |
-| 16 | Shows | `/studio/shows` | **in-review** | `docs/redesign-shots/studio-shows-v1.png` |
-| 17 | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **in-review** | |
-| 18 | Playlists | `/studio/playlists`, `…/$slug` | **in-review** | `docs/redesign-shots/studio-playlists-v1.png` |
+| 6 | Releases | `/studio/releases` | **approved** | `docs/redesign-shots/studio-releases-v1.png` |
+| 7 | Release detail | `/studio/releases/$id` | **approved** | (panels + Save CTA) |
+| 8 | Collections / album designer | `/studio/collections` | **approved** | `docs/redesign-shots/studio-collections-v1.png` |
+| 9 | Collection editor | `/studio/collections/$slug` | **approved** | |
+| 10 | Audio editor list | `/studio/editor` | **approved** | (panels + icon row actions) |
+| 11 | Editor project | `/studio/editor/$id` | **approved** | |
+| 12 | Schedule | `/studio/schedule` | **approved** | `docs/redesign-shots/studio-schedule-v1.png` |
+| 13 | Stats | `/studio/stats` | **approved** | `docs/redesign-shots/studio-stats-v1.png` |
+| 14 | Stats detail | `/studio/stats/detail` | **approved** | (panels + range chips) |
+| 15 | Channel designer | `/studio/channel` | **approved** | `docs/redesign-shots/studio-channel-v1.png` |
+| 16 | Shows | `/studio/shows` | **approved** | `docs/redesign-shots/studio-shows-v1.png` |
+| 17 | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **approved** | |
+| 18 | Playlists | `/studio/playlists`, `…/$slug` | **approved** | `docs/redesign-shots/studio-playlists-v1.png` |
 | 19 | Updates / newsletter | `/studio/updates` | **approved** | `docs/redesign-shots/studio-updates-v1.png` |
 | 20 | Revenue / Connect | `/studio/revenue` | **approved** | `docs/redesign-shots/studio-revenue-v1.png` |
 | 21 | Stash | `/studio/stash` | **approved** | `docs/redesign-shots/studio-stash-v1.png` |
