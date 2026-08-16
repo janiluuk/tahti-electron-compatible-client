@@ -30,7 +30,7 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 16 | Shows | `/studio/shows` | **in-review** | `docs/redesign-shots/studio-shows-v1.png` |
 | 17 | Show detail / episode review | `/studio/shows/$id`, `…/episodes/$episodeId` | **in-review** | |
 | 18 | Playlists | `/studio/playlists`, `…/$slug` | **in-review** | `docs/redesign-shots/studio-playlists-v1.png` |
-| 19 | Updates / newsletter | `/studio/updates` | pending | |
+| 19 | Updates / newsletter | `/studio/updates` | **approved** | `docs/redesign-shots/studio-updates-v1.png` |
 | 20 | Revenue / Connect | `/studio/revenue` | pending | |
 | 21 | Stash | `/studio/stash` | pending | |
 | 22 | Sources hub | `/sources` | pending | |
@@ -264,4 +264,20 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 **Screenshots:** `listen-artist-rich-v1.png` (new — enriched artist profile), `studio-events-v1.png` (new), `map-more-v1.png` (new — export button), refreshed `listen-home-v1`, `listen-radio-v1`, `listen-artist-v1`, `studio-shows-v1`, and the rest of the atlas set against the new mock data.
 
 **Status:** in-review — awaiting comment or `approved`.
+
+### 2026-08-16 — Page 19 Updates / newsletter v1 (`in-review`)
+
+**Goal:** Bring the last un-styled studio page to the StudioPageHeader/StudioPanel shell used by Schedule and Releases; one primary action per tab.
+
+**Changes:**
+
+- `StudioPageHeader` with tab-aware primary CTA (**New post** / **New draft**) instead of a right-aligned button row
+- Tabs restyled to match Channel designer (`shadow-sm` active state, `role="tablist"`/`role="tab"`)
+- Posts and drafts lists moved into `StudioPanel` with `divide-y` rows (was ad-hoc bordered `<li>` cards), matching Releases
+- Dropped the "Source: mock/live" jargon from the subtitle
+- No behavior changes — same create/delete/send handlers and dialogs
+
+**Screenshots:** `docs/redesign-shots/studio-updates-v1.png` (Posts tab), `docs/redesign-shots/studio-updates-newsletter-v1.png` (Newsletter tab)
+
+**Status:** approved.
 
