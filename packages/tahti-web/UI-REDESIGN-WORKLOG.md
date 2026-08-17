@@ -46,11 +46,11 @@ Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, 
 | # | Page | Prod route | Status | Shot |
 |---|------|------------|--------|------|
 | A1 | Dashboard | `/admin/dashboard` → `/admin` | **approved** | `docs/redesign-shots/admin-dashboard-v1.png`, `…-expanded-v1.png` |
-| A2 | Beta applications | `/admin/beta` | **in-review** | `docs/redesign-shots/admin-beta-v1.png` |
-| A3 | Users | `/admin/users` | **in-review** | `docs/redesign-shots/admin-users-v1.png` |
-| A4 | Radio | `/admin/radio` | **in-review** | `docs/redesign-shots/admin-radio-v1.png` |
-| A5 | Radio submissions | `/admin/radio-submissions` | **in-review** | `docs/redesign-shots/admin-radio-submissions-v1.png` |
-| A6 | News | `/admin/news` | **in-review** | `docs/redesign-shots/admin-news-v1.png` |
+| A2 | Beta applications | `/admin/beta` | **approved** | `docs/redesign-shots/admin-beta-v1.png` |
+| A3 | Users | `/admin/users` | **approved** | `docs/redesign-shots/admin-users-v1.png` |
+| A4 | Radio | `/admin/radio` | **approved** | `docs/redesign-shots/admin-radio-v1.png` |
+| A5 | Radio submissions | `/admin/radio-submissions` | **approved** | `docs/redesign-shots/admin-radio-submissions-v1.png` |
+| A6 | News | `/admin/news` | **approved** | `docs/redesign-shots/admin-news-v1.png` |
 | A7 | Tahti Selects | `/admin/tahti-selects` | pending | |
 | A8 | Streams | `/admin/streams` | pending | |
 | A9 | Support | `/admin/support` | pending | |
