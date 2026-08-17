@@ -11,11 +11,16 @@ import { SOURCE_DEFS } from './api/sources';
 import { AppShell } from './components/AppShell';
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { useAuthStore } from './stores/authStore';
+import { AdminAnnouncementsView } from './views/admin/AdminAnnouncementsView';
 import { AdminBetaView } from './views/admin/AdminBetaView';
 import { AdminDashboardView } from './views/admin/AdminDashboardView';
 import { AdminNewsView } from './views/admin/AdminNewsView';
 import { AdminRadioSubmissionsView } from './views/admin/AdminRadioSubmissionsView';
 import { AdminRadioView } from './views/admin/AdminRadioView';
+import { AdminSelectsView } from './views/admin/AdminSelectsView';
+import { AdminStreamsView } from './views/admin/AdminStreamsView';
+import { AdminSupportView } from './views/admin/AdminSupportView';
+import { AdminTopListsView } from './views/admin/AdminTopListsView';
 import { AdminUsersView } from './views/admin/AdminUsersView';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
@@ -170,6 +175,36 @@ const adminNewsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/news',
   component: AdminNewsView,
+});
+
+const adminSelectsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/tahti-selects',
+  component: AdminSelectsView,
+});
+
+const adminStreamsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/streams',
+  component: AdminStreamsView,
+});
+
+const adminSupportRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/support',
+  component: AdminSupportView,
+});
+
+const adminTopListsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/top-lists',
+  component: AdminTopListsView,
+});
+
+const adminAnnouncementsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/announcements',
+  component: AdminAnnouncementsView,
 });
 
 const libraryRoute = createRoute({
@@ -757,6 +792,11 @@ const routeTree = rootRoute.addChildren([
     adminRadioRoute,
     adminRadioSubmissionsRoute,
     adminNewsRoute,
+    adminSelectsRoute,
+    adminStreamsRoute,
+    adminSupportRoute,
+    adminTopListsRoute,
+    adminAnnouncementsRoute,
     libraryRoute,
     libraryHistoryRoute,
     libraryMessagesRoute,

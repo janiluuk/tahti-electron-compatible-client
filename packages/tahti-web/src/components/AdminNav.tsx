@@ -7,6 +7,11 @@ const PRIMARY = [
   { to: '/admin/radio', label: 'Radio' },
   { to: '/admin/radio-submissions', label: 'Radio submissions' },
   { to: '/admin/news', label: 'News' },
+  { to: '/admin/tahti-selects', label: 'Selects' },
+  { to: '/admin/streams', label: 'Streams' },
+  { to: '/admin/support', label: 'Support' },
+  { to: '/admin/top-lists', label: 'Top lists' },
+  { to: '/admin/announcements', label: 'Announcements' },
 ] as const;
 
 function isActive(current: string | undefined, to: string) {

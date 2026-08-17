@@ -51,11 +51,11 @@ Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, 
 | A4 | Radio | `/admin/radio` | **approved** | `docs/redesign-shots/admin-radio-v1.png` |
 | A5 | Radio submissions | `/admin/radio-submissions` | **approved** | `docs/redesign-shots/admin-radio-submissions-v1.png` |
 | A6 | News | `/admin/news` | **approved** | `docs/redesign-shots/admin-news-v1.png` |
-| A7 | Tahti Selects | `/admin/tahti-selects` | pending | |
-| A8 | Streams | `/admin/streams` | pending | |
-| A9 | Support | `/admin/support` | pending | |
-| A10 | Top lists | `/admin/top-lists` | pending | |
-| A11 | Announcements | `/admin/announcements` | pending | |
+| A7 | Tahti Selects | `/admin/tahti-selects` | **in-review** | `docs/redesign-shots/admin-selects-v1.png` |
+| A8 | Streams | `/admin/streams` | **in-review** | `docs/redesign-shots/admin-streams-v1.png` |
+| A9 | Support | `/admin/support` | **in-review** | `docs/redesign-shots/admin-support-v1.png` |
+| A10 | Top lists | `/admin/top-lists` | **in-review** | `docs/redesign-shots/admin-top-lists-v1.png` |
+| A11 | Announcements | `/admin/announcements` | **in-review** | `docs/redesign-shots/admin-announcements-v1.png` |
 | A12 | Storage | `/admin/storage` | pending | |
 | A13 | Files | `/admin/files` | pending | |
 | A14 | Content reports | `/admin/content-reports` | pending | |
@@ -394,4 +394,22 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 **Screenshots:** `docs/redesign-shots/studio-editor-project-v1.png` (1280px), `docs/redesign-shots/studio-editor-project-wide-v1.png` (1680px, shows it scaling)
 
 **Status:** approved.
+
+### 2026-08-17 — Pages A7–A11 Tahti Selects / Streams / Support / Top lists / Announcements v1 (`in-review`)
+
+**Goal:** Finish the admin nav's first row — 11 of 22 pages now built. Same AdminGate/StudioPanel foundation as A1–A6.
+
+**A7 Tahti Selects** (`/admin/tahti-selects`): Start/stop stream as the header action; current-rotation list with up/down reorder + remove; debounced search-to-add from public archive. Dropped prod's Liquidsoap/`TAHTI_RADIO_AUDIO_URL` infra paragraph — that's ops detail, not something a board member editing rotation content needs to see.
+
+**A8 Streams** (`/admin/streams`): live-channel list, each row gets Restart/Skip/Pause/Resume/Force offline — matches prod's control set exactly, confirm dialogs kept on the destructive ones.
+
+**A9 Support** (`/admin/support`): status filter chips + ticket list. No detail page (same scope trim as Users/Beta) — ticket detail/reply isn't built yet.
+
+**A10 Top lists** (`/admin/top-lists`): three filter rows (period/dimension/sort) driving per-bucket progress-bar lists; built a small inline bar (`bg-primary` fill over `bg-background-secondary` track) since Nuclear UI doesn't have one.
+
+**A11 Announcements** (`/admin/announcements`): system on/off toggle, upload button (mirrors the stash prepare→PUT→complete pattern), per-clip enable/schedule-mode/Nth-interval/delete, preview plays through Nuclear's real player bar instead of a raw `<audio>` element like prod. No separate clip editor page (out of scope, same as the announcements/editor/[id] sub-route in prod).
+
+**Screenshots:** `docs/redesign-shots/admin-selects-v1.png`, `admin-streams-v1.png`, `admin-support-v1.png`, `admin-top-lists-v1.png`, `admin-announcements-v1.png`
+
+**Status:** in-review — awaiting comment or `approved`.
 
