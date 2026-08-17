@@ -34,6 +34,24 @@ export function MermaidDiagram({ chart, className }: Props) {
           return;
         }
         hostRef.current.innerHTML = svg;
+        // Mermaid emits width="100%" with no height, which makes an SVG
+        // (a replaced element) fill its container width and scale the
+        // whole diagram down proportionally — CSS width:auto doesn't
+        // override this, only explicit pixel dimensions do. Force the
+        // diagram to its native size (from its own viewBox) so large
+        // diagrams stay legible and scroll instead of shrinking to fit.
+        const renderedSvg = hostRef.current.querySelector('svg');
+        const viewBox = renderedSvg?.getAttribute('viewBox');
+        if (renderedSvg && viewBox) {
+          const parts = viewBox.split(/\s+/).map(Number);
+          const w = parts[2];
+          const h = parts[3];
+          if (w && h) {
+            renderedSvg.setAttribute('width', String(w));
+            renderedSvg.setAttribute('height', String(h));
+            renderedSvg.removeAttribute('style');
+          }
+        }
         setReady(true);
       } catch (err) {
         if (!cancelled) {
@@ -64,10 +82,7 @@ export function MermaidDiagram({ chart, className }: Props) {
           {chart}
         </pre>
       )}
-      <div
-        ref={hostRef}
-        className="mermaid-host overflow-x-auto [&_svg]:mx-auto [&_svg]:max-w-none"
-      />
+      <div ref={hostRef} className="mermaid-host max-h-[75vh] overflow-auto" />
     </div>
   );
 }
