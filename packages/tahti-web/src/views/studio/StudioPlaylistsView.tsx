@@ -20,6 +20,7 @@ import {
 import {
   addStudioCollectionItem,
   createStudioCollection,
+  fetchEditorSource,
   fetchStudioArchive,
   fetchStudioCollection,
   fetchStudioCollections,
@@ -37,6 +38,7 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { trackTableLabels } from '../../lib/trackTableLabels';
+import { usePlayerStore } from '../../stores/playerStore';
 
 function isPlaylist(c: StudioCollection) {
   return !c.style || c.style === 'PLAYLIST' || c.style === 'CUSTOM';
@@ -243,6 +245,8 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
   const [addArchiveId, setAddArchiveId] = useState('');
   const [addReleaseId, setAddReleaseId] = useState('');
   const [saving, setSaving] = useState(false);
+  const play = usePlayerStore((s) => s.play);
+  const enqueue = usePlayerStore((s) => s.enqueue);
 
   const reload = () => {
     void Promise.all([
@@ -291,6 +295,30 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
     }
     setMsg('Playlist settings saved.');
     reload();
+  };
+
+  const playArchiveItem = async (id: string, title: string) => {
+    const { data } = await fetchEditorSource(id);
+    play({
+      id: `archive:${id}`,
+      kind: 'archive',
+      title: data.title || title,
+      artist: 'You',
+      streamUrl: data.url,
+      protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
+    });
+  };
+
+  const enqueueArchiveItem = async (id: string, title: string) => {
+    const { data } = await fetchEditorSource(id);
+    enqueue({
+      id: `archive:${id}`,
+      kind: 'archive',
+      title: data.title || title,
+      artist: 'You',
+      streamUrl: data.url,
+      protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
+    });
   };
 
   const onReorder = (from: number, to: number) => {
@@ -398,8 +426,8 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                       displayArtist: false,
                       displayDuration: true,
                       displayDeleteButton: true,
-                      displayThumbnail: false,
-                      displayQueueControls: false,
+                      displayThumbnail: true,
+                      displayQueueControls: true,
                     }}
                     actions={{
                       onReorder,
@@ -411,6 +439,18 @@ export function StudioPlaylistEditorView({ slug }: { slug: string }) {
                         void removeStudioCollectionItem(slug, item.id).then(
                           () => reload(),
                         );
+                      },
+                      onPlayNow: (t) => {
+                        const item = items.find((i) => i.id === t.source.id);
+                        if (item?.archiveItem) {
+                          void playArchiveItem(item.archiveItem.id, t.title);
+                        }
+                      },
+                      onAddToQueue: (t) => {
+                        const item = items.find((i) => i.id === t.source.id);
+                        if (item?.archiveItem) {
+                          void enqueueArchiveItem(item.archiveItem.id, t.title);
+                        }
                       },
                     }}
                   />

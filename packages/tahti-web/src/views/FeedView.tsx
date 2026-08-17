@@ -4,12 +4,17 @@ import { useEffect, useState } from 'react';
 import { Button } from '@nuclearplayer/ui';
 
 import { fetchFeed } from '../api/client';
-import type { FeedItem } from '../api/types';
+import type { FeedItem, TahtiPlayable } from '../api/types';
+import {
+  MediaIconActions,
+  playQueueFavoriteActions,
+} from '../components/MediaIconActions';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { TrackInfoDialog, type TrackInfo } from '../components/TrackInfoDialog';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
+import { usePlayerStore } from '../stores/playerStore';
 
 function formatFeedDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -47,6 +52,8 @@ export function FeedView() {
   const [followingCount, setFollowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [infoTrack, setInfoTrack] = useState<TrackInfo | null>(null);
+  const play = usePlayerStore((s) => s.play);
+  const enqueue = usePlayerStore((s) => s.enqueue);
 
   useEffect(() => {
     if (!user) {
@@ -162,36 +169,63 @@ export function FeedView() {
                   </div>
                 )}
 
-                {item.kind === 'track' && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setInfoTrack({
-                        title: item.title,
-                        artistName: item.artist.displayName,
-                        artistUsername: item.artist.username,
-                        artworkUrl: item.bannerUrl,
-                        meta: formatFeedDate(item.date),
-                      })
-                    }
-                    className="mt-2 flex items-center gap-3 text-left"
-                  >
-                    <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-                      {item.bannerUrl ? (
-                        <img
-                          src={item.bannerUrl}
-                          alt=""
-                          className="size-full object-cover"
+                {item.kind === 'track' &&
+                  (() => {
+                    const playable: TahtiPlayable | null = item.audioUrl
+                      ? {
+                          id: `archive:${item.id}`,
+                          kind: 'archive',
+                          title: item.title,
+                          artist: item.artist.displayName,
+                          coverUrl: item.bannerUrl ?? undefined,
+                          streamUrl: item.audioUrl,
+                          protocol: 'https',
+                          channelSlug: item.channelSlug,
+                        }
+                      : null;
+                    return (
+                      <div className="mt-2 flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setInfoTrack({
+                              title: item.title,
+                              artistName: item.artist.displayName,
+                              artistUsername: item.artist.username,
+                              artworkUrl: item.bannerUrl,
+                              meta: formatFeedDate(item.date),
+                            })
+                          }
+                          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                        >
+                          <div className="bg-surface-secondary flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
+                            {item.bannerUrl ? (
+                              <img
+                                src={item.bannerUrl}
+                                alt=""
+                                className="size-full object-cover"
+                              />
+                            ) : (
+                              item.title.slice(0, 2).toUpperCase()
+                            )}
+                          </div>
+                          <span className="truncate text-sm font-medium underline-offset-2 hover:underline">
+                            {item.title}
+                          </span>
+                        </button>
+                        <MediaIconActions
+                          actions={playQueueFavoriteActions({
+                            onPlay: () => playable && play(playable),
+                            onQueue: () => playable && enqueue(playable),
+                            playDisabled: !playable,
+                            queueDisabled: !playable,
+                            playLabel: `Play ${item.title}`,
+                            queueLabel: `Queue ${item.title}`,
+                          })}
                         />
-                      ) : (
-                        item.title.slice(0, 2).toUpperCase()
-                      )}
-                    </div>
-                    <span className="text-sm font-medium underline-offset-2 hover:underline">
-                      {item.title}
-                    </span>
-                  </button>
-                )}
+                      </div>
+                    );
+                  })()}
 
                 {item.kind === 'release' &&
                   (item.smartLinkSlug ? (

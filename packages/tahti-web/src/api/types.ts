@@ -481,6 +481,8 @@ export type FeedItem =
       title: string;
       bannerUrl: string | null;
       channelSlug: string;
+      /** Present when the track is independently playable from the feed. */
+      audioUrl?: string | null;
     }
   | {
       kind: 'release';

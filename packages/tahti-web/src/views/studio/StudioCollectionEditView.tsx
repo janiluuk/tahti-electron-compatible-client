@@ -1,11 +1,17 @@
 import { Link } from '@tanstack/react-router';
-import { ChevronDownIcon, ChevronUpIcon, Trash2Icon } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  PlayIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
 
 import {
   addStudioCollectionItem,
+  fetchEditorSource,
   fetchStudioArchive,
   fetchStudioCollection,
   patchStudioCollection,
@@ -20,6 +26,7 @@ import type {
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { usePlayerStore } from '../../stores/playerStore';
 
 const STYLE_OPTIONS = [
   'ALBUM',
@@ -53,6 +60,8 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [isPublic, setIsPublic] = useState(true);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const play = usePlayerStore((s) => s.play);
 
   const reload = () => {
     void Promise.all([fetchStudioCollection(slug), fetchStudioArchive()]).then(
@@ -77,6 +86,20 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
     () => ['ALBUM', 'EP', 'SINGLE', 'COMPILATION'].includes(style),
     [style],
   );
+
+  const playArchiveItem = async (id: string, title: string) => {
+    setPlayingId(id);
+    const { data } = await fetchEditorSource(id);
+    play({
+      id: `archive:${id}`,
+      kind: 'archive',
+      title: data.title || title,
+      artist: 'You',
+      streamUrl: data.url,
+      protocol: data.url.includes('.m3u8') ? 'hls' : 'https',
+    });
+    setPlayingId(null);
+  };
 
   const move = async (index: number, dir: -1 | 1) => {
     const next = [...items];
@@ -268,6 +291,23 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                     <span className="text-foreground-secondary text-xs tabular-nums">
                       {formatDuration(item.archiveItem?.durationSec)}
                     </span>
+                    {item.archiveItem && (
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        aria-label={`Play ${item.archiveItem.title}`}
+                        title="Play"
+                        disabled={playingId === item.archiveItem.id}
+                        onClick={() =>
+                          void playArchiveItem(
+                            item.archiveItem!.id,
+                            item.archiveItem!.title,
+                          )
+                        }
+                      >
+                        <PlayIcon size={16} aria-hidden />
+                      </Button>
+                    )}
                     <Button
                       size="icon-sm"
                       variant="text"

@@ -960,6 +960,8 @@ export function mockFeed(): FeedResponse {
         title: moonlight.trackTitles[0],
         bannerUrl: moonlight.trackArtwork?.[0] ?? null,
         channelSlug: 'dj-moonlight',
+        audioUrl:
+          'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
       },
       {
         kind: 'release',
@@ -982,6 +984,8 @@ export function mockFeed(): FeedResponse {
         title: cartography.trackTitles[0],
         bannerUrl: null,
         channelSlug: 'midnight-cartography',
+        audioUrl:
+          'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
       },
       {
         kind: 'post',
