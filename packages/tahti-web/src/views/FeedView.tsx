@@ -194,6 +194,7 @@ export function FeedView() {
                               artistUsername: item.artist.username,
                               artworkUrl: item.bannerUrl,
                               meta: formatFeedDate(item.date),
+                              playable,
                             })
                           }
                           className="flex min-w-0 flex-1 items-center gap-3 text-left"

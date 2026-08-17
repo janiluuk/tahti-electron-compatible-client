@@ -1,7 +1,8 @@
 import { Link } from '@tanstack/react-router';
+import { CalendarIcon, MessageCircleIcon, MicIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Box, Button } from '@nuclearplayer/ui';
+import { Box, Button, Tabs } from '@nuclearplayer/ui';
 
 import {
   fetchRadio,
@@ -9,6 +10,7 @@ import {
   fetchRadioStation,
   TAHTI_RADIO_SLUG,
 } from '../api/client';
+import { fetchShowBookings, type StudioShowBooking } from '../api/shows';
 import type {
   PublicChannel,
   RadioNowPlaying,
@@ -22,9 +24,14 @@ import {
 } from '../components/MediaIconActions';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
+import { RadioBookingCalendar } from '../components/RadioBookingCalendar';
 import { TrackInfoDialog, type TrackInfo } from '../components/TrackInfoDialog';
+import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
+
+const UPCOMING_WINDOW_DAYS = 14;
+const UPCOMING_LIMIT = 8;
 
 function formatAgo(iso: string): string {
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
@@ -41,19 +48,55 @@ function formatAgo(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
+function formatUpcoming(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const dayDiff = Math.round(
+    (new Date(d.toDateString()).getTime() -
+      new Date(now.toDateString()).getTime()) /
+      86_400_000,
+  );
+  const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (dayDiff === 0) {
+    return `Today ${time}`;
+  }
+  if (dayDiff === 1) {
+    return `Tomorrow ${time}`;
+  }
+  return `${d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} ${time}`;
+}
+
 export function RadioView() {
   const [station, setStation] = useState<PublicChannel | null>(null);
   const [relay, setRelay] = useState<RadioNowPlaying | null>(null);
   const [recent, setRecent] = useState<RadioRecentlyPlayedItem[]>([]);
+  const [upcoming, setUpcoming] = useState<StudioShowBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [infoTrack, setInfoTrack] = useState<TrackInfo | null>(null);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
+  const user = useAuthStore((s) => s.user);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const favorited = useLibraryStore((s) =>
     s.favoriteChannels.some((c) => c.slug === TAHTI_RADIO_SLUG),
   );
+
+  const reloadUpcoming = () => {
+    const from = new Date().toISOString();
+    const to = new Date(
+      Date.now() + UPCOMING_WINDOW_DAYS * 24 * 3600_000,
+    ).toISOString();
+    void fetchShowBookings(from, to).then((r) => {
+      setUpcoming(
+        r.data
+          .filter((b) => new Date(b.startAt).getTime() > Date.now())
+          .sort((a, b) => a.startAt.localeCompare(b.startAt))
+          .slice(0, UPCOMING_LIMIT),
+      );
+    });
+  };
 
   const reload = () => {
     setLoading(true);
@@ -67,6 +110,7 @@ export function RadioView() {
       setRecent(recentRes.data);
       setLoading(false);
     });
+    reloadUpcoming();
   };
 
   useEffect(() => {
@@ -276,83 +320,156 @@ export function RadioView() {
           )}
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-xl font-bold tracking-tight">
-              Recently played
-            </h2>
-            {recent.length === 0 ? (
-              <p className="text-foreground-secondary text-sm">
-                No recent plays logged yet.
-              </p>
-            ) : (
-              <ul className="flex flex-col gap-2">
-                {recent.map((item) => {
-                  const playable: TahtiPlayable | null = item.audioUrl
-                    ? {
-                        id: `archive:${item.id}`,
-                        kind: 'archive',
-                        title: item.title,
-                        artist: item.artistName,
-                        coverUrl: item.artworkUrl ?? undefined,
-                        streamUrl: item.audioUrl,
-                        protocol: 'https',
-                      }
-                    : null;
-                  return (
-                    <li
-                      key={item.id}
-                      className="border-border flex items-center gap-3 rounded-lg border px-3 py-2"
-                    >
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setInfoTrack({
-                            title: item.title,
-                            artistName: item.artistName,
-                            artistUsername: item.artistUsername,
-                            artworkUrl: item.artworkUrl,
-                            meta: formatAgo(item.playedAt),
-                          })
-                        }
-                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                      >
-                        <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-                          {item.artworkUrl ? (
-                            <img
-                              src={item.artworkUrl}
-                              alt=""
-                              className="size-full object-cover"
-                            />
-                          ) : (
-                            item.title.slice(0, 2).toUpperCase()
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-medium underline-offset-2 hover:underline">
-                            {item.title}
-                          </div>
-                          <div className="text-foreground-secondary truncate text-xs">
-                            {item.artistName}
-                          </div>
-                        </div>
-                      </button>
-                      <span className="text-foreground-secondary hidden shrink-0 text-xs sm:inline">
-                        {formatAgo(item.playedAt)}
-                      </span>
-                      <MediaIconActions
-                        actions={playQueueFavoriteActions({
-                          onPlay: () => playable && play(playable),
-                          onQueue: () => playable && enqueue(playable),
-                          playDisabled: !playable,
-                          queueDisabled: !playable,
-                          playLabel: `Play ${item.title}`,
-                          queueLabel: `Queue ${item.title}`,
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-xl font-bold tracking-tight">Programming</h2>
+              {user && (
+                <Button
+                  size="icon-sm"
+                  variant="secondary"
+                  aria-label="Open booking calendar"
+                  title="Book a slot"
+                  onClick={() => setCalendarOpen(true)}
+                >
+                  <CalendarIcon size={16} aria-hidden />
+                </Button>
+              )}
+            </div>
+
+            <Tabs
+              listClassName="border-border border-b"
+              panelClassName="pt-3"
+              items={[
+                {
+                  id: 'up-next',
+                  label: 'Up next',
+                  content:
+                    upcoming.length === 0 ? (
+                      <p className="text-foreground-secondary text-sm">
+                        Nothing booked yet — fair rotation plays when nobody is.
+                      </p>
+                    ) : (
+                      <ul className="flex flex-col gap-2">
+                        {upcoming.map((b) => (
+                          <li
+                            key={b.id}
+                            className="border-border flex items-center gap-3 rounded-lg border px-3 py-2"
+                          >
+                            {b.showType === 'TALK' ? (
+                              <MessageCircleIcon
+                                size={16}
+                                aria-hidden
+                                className="text-foreground-secondary shrink-0"
+                              />
+                            ) : (
+                              <MicIcon
+                                size={16}
+                                aria-hidden
+                                className="text-foreground-secondary shrink-0"
+                              />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate text-sm font-medium">
+                                {b.note ?? b.displayName}
+                              </div>
+                              <Link
+                                to="/channel/$slug"
+                                params={{ slug: b.channelSlug }}
+                                className="text-foreground-secondary truncate text-xs underline-offset-2 hover:underline"
+                              >
+                                {b.displayName}
+                                {b.isMine ? ' (you)' : ''}
+                              </Link>
+                            </div>
+                            <span className="text-foreground-secondary shrink-0 text-xs tabular-nums">
+                              {formatUpcoming(b.startAt)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ),
+                },
+                {
+                  id: 'just-played',
+                  label: 'Just played',
+                  content:
+                    recent.length === 0 ? (
+                      <p className="text-foreground-secondary text-sm">
+                        No recent plays logged yet.
+                      </p>
+                    ) : (
+                      <ul className="flex flex-col gap-2">
+                        {recent.map((item) => {
+                          const playable: TahtiPlayable | null = item.audioUrl
+                            ? {
+                                id: `archive:${item.id}`,
+                                kind: 'archive',
+                                title: item.title,
+                                artist: item.artistName,
+                                coverUrl: item.artworkUrl ?? undefined,
+                                streamUrl: item.audioUrl,
+                                protocol: 'https',
+                              }
+                            : null;
+                          return (
+                            <li
+                              key={item.id}
+                              className="border-border flex items-center gap-3 rounded-lg border px-3 py-2"
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setInfoTrack({
+                                    title: item.title,
+                                    artistName: item.artistName,
+                                    artistUsername: item.artistUsername,
+                                    artworkUrl: item.artworkUrl,
+                                    meta: formatAgo(item.playedAt),
+                                    playable,
+                                  })
+                                }
+                                className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                              >
+                                <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
+                                  {item.artworkUrl ? (
+                                    <img
+                                      src={item.artworkUrl}
+                                      alt=""
+                                      className="size-full object-cover"
+                                    />
+                                  ) : (
+                                    item.title.slice(0, 2).toUpperCase()
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="truncate text-sm font-medium underline-offset-2 hover:underline">
+                                    {item.title}
+                                  </div>
+                                  <div className="text-foreground-secondary truncate text-xs">
+                                    {item.artistName}
+                                  </div>
+                                </div>
+                              </button>
+                              <span className="text-foreground-secondary hidden shrink-0 text-xs sm:inline">
+                                {formatAgo(item.playedAt)}
+                              </span>
+                              <MediaIconActions
+                                actions={playQueueFavoriteActions({
+                                  onPlay: () => playable && play(playable),
+                                  onQueue: () => playable && enqueue(playable),
+                                  playDisabled: !playable,
+                                  queueDisabled: !playable,
+                                  playLabel: `Play ${item.title}`,
+                                  queueLabel: `Queue ${item.title}`,
+                                })}
+                              />
+                            </li>
+                          );
                         })}
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+                      </ul>
+                    ),
+                },
+              ]}
+            />
           </section>
 
           <p className="text-foreground-secondary text-xs">
@@ -377,6 +494,12 @@ export function RadioView() {
         isOpen={Boolean(infoTrack)}
         onClose={() => setInfoTrack(null)}
         track={infoTrack}
+      />
+
+      <RadioBookingCalendar
+        isOpen={calendarOpen}
+        onClose={() => setCalendarOpen(false)}
+        onBooked={reloadUpcoming}
       />
     </PageFrame>
   );
