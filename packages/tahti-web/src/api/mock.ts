@@ -427,6 +427,7 @@ export function mockRadioRecentlyPlayed(): RadioRecentlyPlayedItem[] {
       artistUsername: 'northern-lights',
       artworkUrl: null,
       playedAt: new Date(now - 3 * 60_000).toISOString(),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
     },
     {
       id: 'mock-rp-2',
@@ -435,6 +436,7 @@ export function mockRadioRecentlyPlayed(): RadioRecentlyPlayedItem[] {
       artistUsername: 'midnight-cartography',
       artworkUrl: null,
       playedAt: new Date(now - 18 * 60_000).toISOString(),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
     },
     {
       id: 'mock-rp-3',
@@ -443,6 +445,7 @@ export function mockRadioRecentlyPlayed(): RadioRecentlyPlayedItem[] {
       artistUsername: 'saimaa-sessions',
       artworkUrl: null,
       playedAt: new Date(now - 42 * 60_000).toISOString(),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
     },
     {
       id: 'mock-rp-4',
@@ -451,6 +454,7 @@ export function mockRadioRecentlyPlayed(): RadioRecentlyPlayedItem[] {
       artistUsername: 'kaiku-collective',
       artworkUrl: null,
       playedAt: new Date(now - 71 * 60_000).toISOString(),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
     },
     {
       id: 'mock-rp-5',
@@ -459,6 +463,7 @@ export function mockRadioRecentlyPlayed(): RadioRecentlyPlayedItem[] {
       artistUsername: null,
       artworkUrl: null,
       playedAt: new Date(now - 96 * 60_000).toISOString(),
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
   ];
 }

@@ -27,6 +27,8 @@ type PlayerState = {
   repeatMode: RepeatMode;
   /** True after the user has started playback at least once this session. */
   hasPlayed: boolean;
+  /** Last radio/live station played — resumed automatically once a track detour finishes with nothing else queued. */
+  lastRadioPlayable: TahtiPlayable | null;
   /** Whether the bottom player bar is shown; set true on play, false via hide. */
   playerBarVisible: boolean;
   /** Set by UI; AudioEngine applies to the media element then clears. */
@@ -116,6 +118,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   shuffle: false,
   repeatMode: 'off',
   hasPlayed: false,
+  lastRadioPlayable: null,
   playerBarVisible: false,
   seekTarget: null,
   analyser: null,
@@ -126,6 +129,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const head = toQueueItem(item);
     const rest = (opts?.enqueueRest ?? []).map(toQueueItem);
     const queue = [head, ...rest.filter((r) => r.id !== head.id)];
+    const isRadioOrLive = item.kind === 'live' || item.kind === 'radio';
     recordHistory(item);
     set({
       queue,
@@ -135,8 +139,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       currentTime: 0,
       duration: 0,
       seekTarget: null,
-      isLive: item.kind === 'live' || item.kind === 'radio',
+      isLive: isRadioOrLive,
       hasPlayed: true,
+      lastRadioPlayable: isRadioOrLive ? item : get().lastRadioPlayable,
       playerBarVisible: true,
     });
   },
@@ -160,14 +165,18 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (playable) {
       recordHistory(playable);
     }
+    const isRadioOrLive =
+      playable?.kind === 'live' || playable?.kind === 'radio';
     set({
       currentId: id,
       status: 'loading',
       error: null,
       currentTime: 0,
       seekTarget: null,
-      isLive: playable?.kind === 'live' || playable?.kind === 'radio',
+      isLive: isRadioOrLive,
       hasPlayed: true,
+      lastRadioPlayable:
+        isRadioOrLive && playable ? playable : get().lastRadioPlayable,
       playerBarVisible: true,
     });
   },
@@ -235,7 +244,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   clearSeekTarget: () => set({ seekTarget: null }),
 
   next: () => {
-    const { queue, currentId, shuffle, repeatMode, isLive } = get();
+    const { queue, currentId, shuffle, repeatMode, isLive, lastRadioPlayable } =
+      get();
     if (!currentId || queue.length === 0) {
       return;
     }
@@ -263,6 +273,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }
     if (repeatMode === 'all' && !isLive && queue[0]) {
       get().playQueueIndex(queue[0].id);
+      return;
+    }
+    // Nothing left queued — if a track detour interrupted radio, resume it.
+    if (!isLive && lastRadioPlayable) {
+      get().play(lastRadioPlayable);
     }
   },
 

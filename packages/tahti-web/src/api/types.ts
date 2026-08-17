@@ -62,6 +62,8 @@ export type RadioRecentlyPlayedItem = {
   artistUsername: string | null;
   artworkUrl: string | null;
   playedAt: string;
+  /** Present when the track is independently replayable from the archive. */
+  audioUrl?: string | null;
 };
 
 /** Public archive row from GET /api/channels/:slug/items */

@@ -13,6 +13,7 @@ import type {
   PublicChannel,
   RadioNowPlaying,
   RadioRecentlyPlayedItem,
+  TahtiPlayable,
 } from '../api/types';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import {
@@ -283,49 +284,72 @@ export function RadioView() {
               </p>
             ) : (
               <ul className="flex flex-col gap-2">
-                {recent.map((item) => (
-                  <li
-                    key={item.id}
-                    className="border-border flex items-center gap-3 rounded-lg border px-3 py-2"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setInfoTrack({
-                          title: item.title,
-                          artistName: item.artistName,
-                          artistUsername: item.artistUsername,
-                          artworkUrl: item.artworkUrl,
-                          meta: formatAgo(item.playedAt),
-                        })
+                {recent.map((item) => {
+                  const playable: TahtiPlayable | null = item.audioUrl
+                    ? {
+                        id: `archive:${item.id}`,
+                        kind: 'archive',
+                        title: item.title,
+                        artist: item.artistName,
+                        coverUrl: item.artworkUrl ?? undefined,
+                        streamUrl: item.audioUrl,
+                        protocol: 'https',
                       }
-                      className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                    : null;
+                  return (
+                    <li
+                      key={item.id}
+                      className="border-border flex items-center gap-3 rounded-lg border px-3 py-2"
                     >
-                      <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
-                        {item.artworkUrl ? (
-                          <img
-                            src={item.artworkUrl}
-                            alt=""
-                            className="size-full object-cover"
-                          />
-                        ) : (
-                          item.title.slice(0, 2).toUpperCase()
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium underline-offset-2 hover:underline">
-                          {item.title}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setInfoTrack({
+                            title: item.title,
+                            artistName: item.artistName,
+                            artistUsername: item.artistUsername,
+                            artworkUrl: item.artworkUrl,
+                            meta: formatAgo(item.playedAt),
+                          })
+                        }
+                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                      >
+                        <div className="bg-surface-secondary flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-[10px] font-bold">
+                          {item.artworkUrl ? (
+                            <img
+                              src={item.artworkUrl}
+                              alt=""
+                              className="size-full object-cover"
+                            />
+                          ) : (
+                            item.title.slice(0, 2).toUpperCase()
+                          )}
                         </div>
-                        <div className="text-foreground-secondary truncate text-xs">
-                          {item.artistName}
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium underline-offset-2 hover:underline">
+                            {item.title}
+                          </div>
+                          <div className="text-foreground-secondary truncate text-xs">
+                            {item.artistName}
+                          </div>
                         </div>
-                      </div>
-                    </button>
-                    <span className="text-foreground-secondary shrink-0 text-xs">
-                      {formatAgo(item.playedAt)}
-                    </span>
-                  </li>
-                ))}
+                      </button>
+                      <span className="text-foreground-secondary hidden shrink-0 text-xs sm:inline">
+                        {formatAgo(item.playedAt)}
+                      </span>
+                      <MediaIconActions
+                        actions={playQueueFavoriteActions({
+                          onPlay: () => playable && play(playable),
+                          onQueue: () => playable && enqueue(playable),
+                          playDisabled: !playable,
+                          queueDisabled: !playable,
+                          playLabel: `Play ${item.title}`,
+                          queueLabel: `Queue ${item.title}`,
+                        })}
+                      />
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </section>
