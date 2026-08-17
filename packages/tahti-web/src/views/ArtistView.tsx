@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Card, CardGrid } from '@nuclearplayer/ui';
+import { Button, Card, CardGrid, Dialog } from '@nuclearplayer/ui';
 
 import {
   fetchMyPressKitImages,
@@ -9,7 +9,11 @@ import {
   type PublicPressKitImage,
 } from '../api/artist-settings';
 import { fetchProfile } from '../api/client';
-import type { PublicProfile, TahtiPlayable } from '../api/types';
+import type {
+  PublicProfile,
+  PublicProfileRelease,
+  TahtiPlayable,
+} from '../api/types';
 import {
   ArtistGalleryAddIcon,
   ArtistGalleryPanel,
@@ -17,6 +21,10 @@ import {
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { GlowMediaTile } from '../components/GlowMediaTile';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import {
+  releasePlayables,
+  ReleaseTracklistDialog,
+} from '../components/ReleaseTracklistDialog';
 import { isPinned } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -83,12 +91,47 @@ export function ArtistView({ username }: { username: string }) {
   const [tab, setTab] = useState<Tab>('music');
   const [galleryImages, setGalleryImages] = useState<PublicPressKitImage[]>([]);
   const [galleryLoaded, setGalleryLoaded] = useState(false);
+  const [tracklistRelease, setTracklistRelease] =
+    useState<PublicProfileRelease | null>(null);
+  const [albumPrompt, setAlbumPrompt] = useState<{
+    release: PublicProfileRelease;
+    playables: TahtiPlayable[];
+  } | null>(null);
 
   const navigate = useNavigate();
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
+
+  const playAlbum = (playables: TahtiPlayable[]) => {
+    const [head, ...rest] = playables;
+    if (head) {
+      play(head, { enqueueRest: rest });
+    }
+  };
+
+  const queueAlbum = (playables: TahtiPlayable[]) => {
+    for (const item of playables) {
+      enqueue(item);
+    }
+  };
+
+  const playOrPromptAlbum = (
+    release: PublicProfileRelease,
+    artist: string,
+    channelSlug?: string,
+  ) => {
+    const playables = releasePlayables(release, artist, channelSlug);
+    if (playables.length === 0) {
+      return;
+    }
+    if (usePlayerStore.getState().queue.length > 0) {
+      setAlbumPrompt({ release, playables });
+      return;
+    }
+    playAlbum(playables);
+  };
 
   const isOwner = Boolean(me && me.username === username);
   const hasGallery = galleryImages.length > 0;
@@ -370,7 +413,7 @@ export function ArtistView({ username }: { username: string }) {
                   </button>
                 )}
               </div>
-              <CardGrid className="grid-cols-[repeat(auto-fill,minmax(13rem,1fr))] gap-6">
+              <CardGrid className="grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-8">
                 {releaseTiles.map(({ release, playable }, i) => (
                   <GlowMediaTile
                     key={release.id}
@@ -389,8 +432,29 @@ export function ArtistView({ username }: { username: string }) {
                           }
                         : undefined
                     }
-                    onPlay={playable ? () => play(playable) : undefined}
-                    onQueue={playable ? () => enqueue(playable) : undefined}
+                    onTitleClick={() => setTracklistRelease(release)}
+                    onPlay={
+                      playable
+                        ? () =>
+                            playOrPromptAlbum(
+                              release,
+                              artist.displayName,
+                              channel?.slug,
+                            )
+                        : undefined
+                    }
+                    onQueue={
+                      playable
+                        ? () =>
+                            queueAlbum(
+                              releasePlayables(
+                                release,
+                                artist.displayName,
+                                channel?.slug,
+                              ),
+                            )
+                        : undefined
+                    }
                     onFavorite={
                       playable ? () => toggleFavoriteTrack(playable) : undefined
                     }
@@ -528,6 +592,49 @@ export function ArtistView({ username }: { username: string }) {
           />
         </div>
       )}
+
+      <ReleaseTracklistDialog
+        isOpen={Boolean(tracklistRelease)}
+        onClose={() => setTracklistRelease(null)}
+        release={tracklistRelease}
+        artistName={artist.displayName}
+        channelSlug={channel?.slug}
+      />
+
+      <Dialog.Root
+        isOpen={Boolean(albumPrompt)}
+        onClose={() => setAlbumPrompt(null)}
+      >
+        {albumPrompt && (
+          <>
+            <Dialog.Title>Play {albumPrompt.release.title}?</Dialog.Title>
+            <Dialog.Description>
+              Something&apos;s already queued — add this album to the end, or
+              play it now instead?
+            </Dialog.Description>
+            <Dialog.Actions>
+              <Dialog.Close>Cancel</Dialog.Close>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  queueAlbum(albumPrompt.playables);
+                  setAlbumPrompt(null);
+                }}
+              >
+                Queue album
+              </Button>
+              <Button
+                onClick={() => {
+                  playAlbum(albumPrompt.playables);
+                  setAlbumPrompt(null);
+                }}
+              >
+                Play now
+              </Button>
+            </Dialog.Actions>
+          </>
+        )}
+      </Dialog.Root>
     </div>
   );
 }

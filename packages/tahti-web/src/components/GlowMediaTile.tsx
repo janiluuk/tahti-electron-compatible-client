@@ -11,6 +11,7 @@ type GlowMediaTileProps = {
   onQueue?: () => void;
   onFavorite?: () => void;
   favorited?: boolean;
+  onTitleClick?: () => void;
   /** CSS color for the hover glow — defaults to the theme's primary accent. */
   glowColor?: string;
   className?: string;
@@ -27,6 +28,7 @@ export function GlowMediaTile({
   onQueue,
   onFavorite,
   favorited,
+  onTitleClick,
   glowColor,
   className,
 }: GlowMediaTileProps) {
@@ -52,6 +54,7 @@ export function GlowMediaTile({
         onQueue={onQueue}
         onFavorite={onFavorite}
         favorited={favorited}
+        onTitleClick={onTitleClick}
       />
     </div>
   );

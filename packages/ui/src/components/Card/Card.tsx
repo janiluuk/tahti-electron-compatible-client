@@ -24,6 +24,9 @@ type CardProps = {
   /** Favorite overlay on the cover. */
   onFavorite?: () => void;
   favorited?: boolean;
+  /** Click on the title text specifically — separate from `onClick`
+   * (artwork) when the two should navigate differently. */
+  onTitleClick?: () => void;
 };
 
 export const Card: FC<CardProps> = ({
@@ -42,6 +45,7 @@ export const Card: FC<CardProps> = ({
   queueDisabled,
   onFavorite,
   favorited,
+  onTitleClick,
 }) => {
   const hasOverlays = Boolean(onPlay || onQueue || onFavorite);
 
@@ -102,14 +106,27 @@ export const Card: FC<CardProps> = ({
 
       {(title || subtitle) && (
         <div className="min-w-0">
-          {title && (
-            <div
-              data-testid="card-title"
-              className="text-foreground truncate text-sm font-bold"
-            >
-              {title}
-            </div>
-          )}
+          {title &&
+            (onTitleClick ? (
+              <button
+                type="button"
+                data-testid="card-title"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTitleClick();
+                }}
+                className="text-foreground block w-full truncate text-left text-sm font-bold hover:underline"
+              >
+                {title}
+              </button>
+            ) : (
+              <div
+                data-testid="card-title"
+                className="text-foreground truncate text-sm font-bold"
+              >
+                {title}
+              </div>
+            ))}
           {subtitle && (
             <div className="text-foreground truncate text-xs opacity-60">
               {subtitle}
