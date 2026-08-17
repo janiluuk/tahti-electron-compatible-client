@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, PluginItem, Toggle } from '@nuclearplayer/ui';
+import { Button, PluginItem, Tabs, Toggle } from '@nuclearplayer/ui';
 
 import {
   BRAND_ACCENTS,
@@ -27,7 +27,6 @@ import {
   type ColorScheme,
   type VisualPreset,
 } from '../api/channel-design';
-import { useVisualizerPrefsStore } from '../stores/visualizerPrefsStore';
 
 const PRESET_META: Record<
   VisualPreset,
@@ -79,6 +78,9 @@ const PRESET_META: Record<
   },
 };
 
+const isVisualPreset = (value: string): value is VisualPreset =>
+  VISUAL_PRESETS.some((preset) => preset === value);
+
 type Props = {
   displayName: string;
   username: string;
@@ -110,13 +112,19 @@ export function ChannelDesigner({
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const isPresetEnabled = useVisualizerPrefsStore((s) => s.isEnabled);
-  const togglePreset = useVisualizerPrefsStore((s) => s.togglePreset);
+  const [lastVisualizerPreset, setLastVisualizerPreset] =
+    useState<VisualPreset>('AURORA');
 
   useEffect(() => {
     void fetchChannelVisual().then((r) => {
       setVisual(r.data);
       setScheme(parseColorScheme(r.data.colorSchemeJson));
+      if (
+        isVisualPreset(r.data.visualPreset) &&
+        r.data.visualPreset !== 'MINIMAL'
+      ) {
+        setLastVisualizerPreset(r.data.visualPreset);
+      }
       setDirty(false);
     });
   }, [reloadToken]);
@@ -176,139 +184,194 @@ export function ChannelDesigner({
     );
   }
 
+  const visualizerEnabled = visual.visualPreset !== 'MINIMAL';
+
+  const setVisualizerEnabled = (enabled: boolean) => {
+    if (
+      !enabled &&
+      isVisualPreset(visual.visualPreset) &&
+      visual.visualPreset !== 'MINIMAL'
+    ) {
+      setLastVisualizerPreset(visual.visualPreset);
+    }
+    applyLocal({
+      visualPreset: enabled ? lastVisualizerPreset : 'MINIMAL',
+    });
+  };
+
   const controls = (
     <>
-      <section className="flex flex-col gap-2">
-        <h3 className="text-foreground-secondary text-xs tracking-wide uppercase">
-          Visual preset
-        </h3>
-        <p className="text-foreground-secondary text-xs">
-          Enabled by default — toggle off ones you don&apos;t want to pick from,
-          same as the desktop player&apos;s plugin store.
-        </p>
-        <div className="flex flex-col gap-2">
-          {VISUAL_PRESETS.map((p) => {
-            const meta = PRESET_META[p];
-            const active = visual.visualPreset === p;
-            const enabled = isPresetEnabled(p);
-            return (
-              <PluginItem
-                key={p}
-                icon={<meta.Icon size={22} aria-hidden />}
-                name={p.replace(/_/g, ' ')}
-                author={active ? 'Active' : 'Visualizer'}
-                description={meta.description}
-                disabled={!enabled}
-                labels={{ by: '' }}
-                rightAccessory={
-                  <div className="flex items-center gap-2">
-                    <Toggle
-                      checked={enabled}
-                      onChange={(checked) => togglePreset(p, checked)}
-                      aria-label={`Toggle ${p} visualizer`}
-                    />
-                    <Button
-                      size="sm"
-                      variant={active ? undefined : 'secondary'}
-                      disabled={active || !enabled}
-                      onClick={() => applyLocal({ visualPreset: p })}
-                    >
-                      {active ? 'In use' : 'Use'}
-                    </Button>
+      <Tabs
+        listClassName="flex-wrap border-border border-b pb-3"
+        panelClassName="pt-2"
+        items={[
+          {
+            id: 'visualizer',
+            label: 'Visualizer',
+            content: (
+              <section className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <Toggle
+                    checked={visualizerEnabled}
+                    onChange={setVisualizerEnabled}
+                    aria-label="Use visualizer"
+                  />
+                  <span className="text-sm font-semibold">Use visualizer</span>
+                </div>
+                {visualizerEnabled && (
+                  <div className="flex flex-col gap-2">
+                    {VISUAL_PRESETS.filter(
+                      (preset) => preset !== 'MINIMAL',
+                    ).map((preset) => {
+                      const meta = PRESET_META[preset];
+                      const active = visual.visualPreset === preset;
+                      return (
+                        <PluginItem
+                          key={preset}
+                          icon={<meta.Icon size={22} aria-hidden />}
+                          name={preset.replace(/_/g, ' ')}
+                          author={active ? 'In use' : 'Visualizer'}
+                          description={meta.description}
+                          labels={{ by: '' }}
+                          className={
+                            active
+                              ? 'ring-primary bg-primary/10 ring-2 ring-inset'
+                              : undefined
+                          }
+                          rightAccessory={
+                            <Button
+                              size="sm"
+                              variant={active ? undefined : 'secondary'}
+                              disabled={active}
+                              onClick={() => {
+                                setLastVisualizerPreset(preset);
+                                applyLocal({ visualPreset: preset });
+                              }}
+                            >
+                              {active ? 'In use' : 'Use'}
+                            </Button>
+                          }
+                        />
+                      );
+                    })}
                   </div>
-                }
-              />
-            );
-          })}
-        </div>
-      </section>
+                )}
+              </section>
+            ),
+          },
+          {
+            id: 'colors',
+            label: 'Colors',
+            content: (
+              <section className="flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
+                  <h3 className="font-display text-lg font-bold tracking-tight">
+                    Brand accent
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {BRAND_ACCENTS.map((brand) => (
+                      <button
+                        key={brand.id}
+                        type="button"
+                        title={brand.label}
+                        aria-label={brand.label}
+                        aria-pressed={visual.brandAccentPreset === brand.id}
+                        onClick={() =>
+                          applyLocal(
+                            { brandAccentPreset: brand.id },
+                            {
+                              ...scheme,
+                              accent: brand.accent,
+                              highlight: brand.highlight,
+                            },
+                          )
+                        }
+                        className={`h-10 w-16 rounded-md border-2 transition-transform hover:scale-105 ${
+                          visual.brandAccentPreset === brand.id
+                            ? 'border-primary shadow-md'
+                            : 'border-transparent'
+                        }`}
+                        style={{ background: brand.gradient }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {(
+                    [
+                      ['accent', 'Accent'] as const,
+                      ['highlight', 'Highlight'] as const,
+                      ['background', 'Background'] as const,
+                      ['foreground', 'Foreground'] as const,
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label
+                      key={key}
+                      className="border-border bg-background-secondary/40 flex items-center gap-3 rounded-lg border p-3 text-sm"
+                    >
+                      <input
+                        type="color"
+                        value={scheme[key] ?? '#22D3EE'}
+                        onChange={(event) => {
+                          const next = { ...scheme, [key]: event.target.value };
+                          applyLocal({}, next);
+                        }}
+                        className="h-9 w-11 cursor-pointer rounded border-0 bg-transparent"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold">
+                          {label}
+                        </span>
+                        <code className="text-foreground-secondary text-xs">
+                          {scheme[key]}
+                        </code>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </section>
+            ),
+          },
+          {
+            id: 'header',
+            label: 'Header',
+            content: (
+              <section className="flex flex-col gap-3">
+                <h3 className="font-display text-lg font-bold tracking-tight">
+                  Header style
+                </h3>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {HEADER_STYLES.map((headerStyle) => {
+                    const active = visual.headerStyle === headerStyle;
+                    return (
+                      <button
+                        key={headerStyle}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => applyLocal({ headerStyle })}
+                        className={`rounded-lg border p-4 text-left text-sm font-semibold tracking-wide uppercase transition-colors ${
+                          active
+                            ? 'border-primary bg-primary/10 ring-primary ring-1'
+                            : 'border-border bg-background hover:bg-background-secondary text-foreground-secondary hover:text-foreground'
+                        }`}
+                      >
+                        {headerStyle.replace(/_/g, ' ')}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            ),
+          },
+        ]}
+      />
 
-      <section className="flex flex-col gap-2">
-        <h3 className="text-foreground-secondary text-xs tracking-wide uppercase">
-          Brand accent
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {BRAND_ACCENTS.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              title={b.label}
-              onClick={() =>
-                applyLocal(
-                  { brandAccentPreset: b.id },
-                  {
-                    ...scheme,
-                    accent: b.accent,
-                    highlight: b.highlight,
-                  },
-                )
-              }
-              className={`h-9 w-14 rounded-md border-2 ${
-                visual.brandAccentPreset === b.id
-                  ? 'border-primary'
-                  : 'border-transparent'
-              }`}
-              style={{ background: b.gradient }}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-2">
-        <h3 className="text-foreground-secondary text-xs tracking-wide uppercase">
-          Header style
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {HEADER_STYLES.map((h) => (
-            <button
-              key={h}
-              type="button"
-              onClick={() => applyLocal({ headerStyle: h })}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium tracking-wide uppercase ${
-                visual.headerStyle === h
-                  ? 'bg-primary text-foreground'
-                  : 'border-border text-foreground-secondary hover:text-foreground border'
-              }`}
-            >
-              {h.replace(/_/g, ' ')}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="grid gap-3 sm:grid-cols-2">
-        {(
-          [
-            ['accent', 'Accent'] as const,
-            ['highlight', 'Highlight'] as const,
-            ['background', 'Background'] as const,
-            ['foreground', 'Foreground'] as const,
-          ] as const
-        ).map(([key, label]) => (
-          <label key={key} className="flex items-center gap-2 text-sm">
-            <input
-              type="color"
-              value={scheme[key] ?? '#22D3EE'}
-              onChange={(e) => {
-                const next = { ...scheme, [key]: e.target.value };
-                applyLocal({}, next);
-              }}
-              className="h-8 w-10 cursor-pointer rounded border-0 bg-transparent"
-            />
-            <span className="text-foreground-secondary text-xs uppercase">
-              {label}
-            </span>
-            <code className="text-foreground-secondary text-xs">
-              {scheme[key]}
-            </code>
-          </label>
-        ))}
-      </section>
-
-      <Button size="sm" disabled={busy || !dirty} onClick={() => void save()}>
-        {busy ? 'Saving…' : dirty ? 'Save look' : 'Saved'}
-      </Button>
-      {msg && <p className="text-sm">{msg}</p>}
+      <div className="border-border flex flex-wrap items-center gap-3 border-t pt-4">
+        <Button size="sm" disabled={busy || !dirty} onClick={() => void save()}>
+          {busy ? 'Saving…' : dirty ? 'Save look' : 'Saved'}
+        </Button>
+        {msg && <p className="text-foreground-secondary text-sm">{msg}</p>}
+      </div>
     </>
   );
 

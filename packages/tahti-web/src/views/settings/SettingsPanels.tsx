@@ -21,16 +21,9 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-import {
-  Button,
-  Input,
-  PluginItem,
-  SectionShell,
-  Tabs,
-  Toggle,
-} from '@nuclearplayer/ui';
+import { Button, Input, PluginItem, Tabs, Toggle } from '@nuclearplayer/ui';
 
 import {
   fetchChannelMembers,
@@ -98,7 +91,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { WhatsNewPanel } from '../WhatsNewView';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
-import type { SettingsSectionId } from './settingsNav';
+import { SETTINGS_NAV, type SettingsSectionId } from './settingsNav';
 
 function euros(cents: number | string): string {
   const n = typeof cents === 'string' ? Number(cents) : cents;
@@ -122,32 +115,55 @@ export function SettingsSectionBody({
 }: {
   section: SettingsSectionId;
 }) {
+  let content: ReactNode;
+
   switch (section) {
     case 'account':
-      return <AccountPanel />;
+      content = <AccountPanel />;
+      break;
     case 'artist':
-      return <ArtistPanel />;
+      content = <ArtistPanel />;
+      break;
     case 'channel':
-      return <ChannelPanel />;
+      content = <ChannelPanel />;
+      break;
     case 'broadcast':
-      return <BroadcastPanel />;
+      content = <BroadcastPanel />;
+      break;
     case 'money':
-      return <MoneyPanel />;
+      content = <MoneyPanel />;
+      break;
     case 'themes':
-      return <ThemesPanel />;
+      content = <ThemesPanel />;
+      break;
     case 'connections':
-      return <ConnectionsPanel />;
+      content = <ConnectionsPanel />;
+      break;
     case 'integrations':
-      return <IntegrationsMcpPanel />;
+      content = <IntegrationsMcpPanel />;
+      break;
     case 'whats-new':
-      return (
-        <SectionShell title="What's new">
-          <WhatsNewPanel />
-        </SectionShell>
-      );
+      content = <WhatsNewPanel />;
+      break;
     default:
       return null;
   }
+
+  const navItem = SETTINGS_NAV.find((item) => item.id === section);
+
+  return (
+    <div className="flex flex-col gap-6">
+      <header>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+          {navItem?.label}
+        </h1>
+        <p className="text-foreground-secondary mt-1 text-sm">
+          {navItem?.description}
+        </p>
+      </header>
+      {content}
+    </div>
+  );
 }
 
 /** Nuclear desktop MCP — same stack as upstream player (not the web SPA). */
@@ -161,52 +177,50 @@ function IntegrationsMcpPanel() {
 }`;
 
   return (
-    <SectionShell title="Integrations">
-      <div className="flex flex-col gap-4 text-sm">
+    <div className="flex flex-col gap-4 text-sm">
+      <SettingsHint>
+        The original Nuclear MCP server ships in this monorepo&apos;s desktop
+        player (<code className="text-xs">@nuclearplayer/player</code>),
+        byte-identical to upstream. It is not hosted on the beta web SPA —
+        agents need the Tauri app + localhost bridge.
+      </SettingsHint>
+      <div className="border-border bg-background-secondary/40 rounded-lg border p-4">
+        <h3 className="text-foreground mb-2 font-medium">
+          Enable MCP (desktop)
+        </h3>
+        <ol className="text-foreground-secondary list-decimal space-y-1.5 pl-5">
+          <li>
+            From repo root:{' '}
+            <code className="text-xs">
+              pnpm --filter @nuclearplayer/player dev
+            </code>
+          </li>
+          <li>Settings → Integrations → Enable MCP Server</li>
+          <li>
+            Connect at{' '}
+            <code className="text-xs">http://127.0.0.1:8800/mcp</code>{' '}
+            (Streamable HTTP; ports 8800–8809)
+          </li>
+        </ol>
+      </div>
+      <div className="border-border bg-background-secondary/40 rounded-lg border p-4">
+        <h3 className="text-foreground mb-2 font-medium">Cursor / Claude</h3>
+        <pre className="bg-background overflow-x-auto rounded-md p-3 text-xs">
+          {cursorSnippet}
+        </pre>
         <SettingsHint>
-          The original Nuclear MCP server ships in this monorepo&apos;s desktop
-          player (<code className="text-xs">@nuclearplayer/player</code>),
-          byte-identical to upstream. It is not hosted on the beta web SPA —
-          agents need the Tauri app + localhost bridge.
-        </SettingsHint>
-        <div className="border-border bg-background-secondary/40 rounded-lg border p-4">
-          <h3 className="text-foreground mb-2 font-medium">
-            Enable MCP (desktop)
-          </h3>
-          <ol className="text-foreground-secondary list-decimal space-y-1.5 pl-5">
-            <li>
-              From repo root:{' '}
-              <code className="text-xs">
-                pnpm --filter @nuclearplayer/player dev
-              </code>
-            </li>
-            <li>Settings → Integrations → Enable MCP Server</li>
-            <li>
-              Connect at{' '}
-              <code className="text-xs">http://127.0.0.1:8800/mcp</code>{' '}
-              (Streamable HTTP; ports 8800–8809)
-            </li>
-          </ol>
-        </div>
-        <div className="border-border bg-background-secondary/40 rounded-lg border p-4">
-          <h3 className="text-foreground mb-2 font-medium">Cursor / Claude</h3>
-          <pre className="bg-background overflow-x-auto rounded-md p-3 text-xs">
-            {cursorSnippet}
-          </pre>
-          <SettingsHint>
-            Tools: list_methods, method_details, describe_type, call — Queue,
-            Playback, Metadata, Favorites, Playlists, Dashboard, Providers.
-          </SettingsHint>
-        </div>
-        <SettingsHint>
-          Full docs: packages/docs/integrations/mcp-server.md and
-          packages/tahti-web/docs/MCP.md. Parity:{' '}
-          <code className="text-xs">
-            node packages/tahti-web/scripts/verify-nuclear-mcp-parity.mjs
-          </code>
+          Tools: list_methods, method_details, describe_type, call — Queue,
+          Playback, Metadata, Favorites, Playlists, Dashboard, Providers.
         </SettingsHint>
       </div>
-    </SectionShell>
+      <SettingsHint>
+        Full docs: packages/docs/integrations/mcp-server.md and
+        packages/tahti-web/docs/MCP.md. Parity:{' '}
+        <code className="text-xs">
+          node packages/tahti-web/scripts/verify-nuclear-mcp-parity.mjs
+        </code>
+      </SettingsHint>
+    </div>
   );
 }
 
@@ -270,19 +284,15 @@ function AccountPanel() {
 
   if (!user) {
     return (
-      <SectionShell title="Account">
-        <div className="flex flex-col gap-4">
-          <SettingsHint>
-            Sign in to manage membership and security.
-          </SettingsHint>
-          <Button
-            size="sm"
-            onClick={() => useAuthModalStore.getState().open('login')}
-          >
-            Log in
-          </Button>
-        </div>
-      </SectionShell>
+      <div className="flex flex-col gap-4">
+        <SettingsHint>Sign in to manage membership and security.</SettingsHint>
+        <Button
+          size="sm"
+          onClick={() => useAuthModalStore.getState().open('login')}
+        >
+          Log in
+        </Button>
+      </div>
     );
   }
 
@@ -408,18 +418,16 @@ function ArtistPanel() {
 
   if (!user) {
     return (
-      <SectionShell title="Artist">
-        <SettingsHint>
-          <button
-            type="button"
-            className="underline-offset-2 hover:underline"
-            onClick={() => useAuthModalStore.getState().open('login')}
-          >
-            Sign in
-          </button>{' '}
-          to edit artist profile.
-        </SettingsHint>
-      </SectionShell>
+      <SettingsHint>
+        <button
+          type="button"
+          className="underline-offset-2 hover:underline"
+          onClick={() => useAuthModalStore.getState().open('login')}
+        >
+          Sign in
+        </button>{' '}
+        to edit artist profile.
+      </SettingsHint>
     );
   }
 
@@ -653,11 +661,9 @@ function ChannelPanel() {
 
   if (!user) {
     return (
-      <SectionShell title="Channel & design">
-        <SettingsHint>
-          Sign in with a channel to edit design and discovery.
-        </SettingsHint>
-      </SectionShell>
+      <SettingsHint>
+        Sign in with a channel to edit design and discovery.
+      </SettingsHint>
     );
   }
 
@@ -1342,7 +1348,7 @@ function ThemesPanel() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
         <SettingsHint>
-          Nuclear chrome palettes (`data-theme-id`) plus dark / light mode.
+          Choose a palette and the light or dark appearance that suits you.
         </SettingsHint>
         <div className="flex items-center gap-3">
           <Button
@@ -1499,16 +1505,14 @@ function ThemesPanel() {
 
 function ConnectionsPanel() {
   return (
-    <SectionShell title="Import sources">
-      <div className="flex flex-col gap-4">
-        <SettingsHint>
-          OAuth and cloud import live under Sources (Bandcamp, SoundCloud,
-          Drive, Mixcloud, …). Social links moved to Artist → Social links.
-        </SettingsHint>
-        <Link to="/sources">
-          <Button size="sm">Open Sources</Button>
-        </Link>
-      </div>
-    </SectionShell>
+    <div className="flex flex-col gap-4">
+      <SettingsHint>
+        OAuth and cloud import live under Sources (Bandcamp, SoundCloud, Drive,
+        Mixcloud, …). Social links moved to Artist → Social links.
+      </SettingsHint>
+      <Link to="/sources">
+        <Button size="sm">Open Sources</Button>
+      </Link>
+    </div>
   );
 }

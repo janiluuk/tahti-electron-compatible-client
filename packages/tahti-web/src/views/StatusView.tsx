@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { fetchPlatformStatus } from '../api/client';
 import type { PlatformStatus } from '../api/types';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 
 function stateClass(state: string): string {
   if (state === 'ok' || state === 'healthy') {
@@ -34,21 +35,19 @@ export function StatusView() {
   }, []);
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <Link
-        to="/more"
-        className="text-foreground-secondary text-xs hover:underline"
-      >
-        ← Tahti map
-      </Link>
-      <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Platform status
-        </h1>
-        <p className="text-foreground-secondary mt-1 text-sm">
-          Live dependency checks from <code>GET /api/v1/status</code>.
-        </p>
-      </div>
+    <PageFrame maxWidth="3xl">
+      <PageHeader
+        title="Platform status"
+        subtitle="Current health of Tahti services."
+        back={
+          <Link
+            to="/more"
+            className="text-foreground-secondary text-xs hover:underline"
+          >
+            ← Tahti map
+          </Link>
+        }
+      />
 
       {loading && (
         <p className="text-foreground-secondary text-sm">Checking…</p>
@@ -120,6 +119,6 @@ export function StatusView() {
           </p>
         </>
       )}
-    </div>
+    </PageFrame>
   );
 }

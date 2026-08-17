@@ -50,7 +50,7 @@ export function PageHeader({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h1
-            className="text-3xl font-bold tracking-tight"
+            className="font-display text-3xl font-extrabold tracking-tight"
             data-testid="page-title"
           >
             {title}

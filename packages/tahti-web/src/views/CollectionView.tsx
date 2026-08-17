@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { fetchCollection } from '../api/client';
 import type { PublicCollection, TahtiPlayable } from '../api/types';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 
 function collectionToPlayables(col: PublicCollection): TahtiPlayable[] {
@@ -68,41 +69,38 @@ export function CollectionView({
   }
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <div className="flex flex-wrap gap-3 text-xs">
-        <Link to="/" className="text-foreground-secondary hover:underline">
-          ← Listen
-        </Link>
-        <Link
-          to="/u/$username"
-          params={{ username }}
-          className="text-foreground-secondary hover:underline"
-        >
-          @{username}
-        </Link>
-      </div>
-
-      <header className="flex flex-col gap-2">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          {collection.name}
-        </h1>
-        <p className="text-foreground-secondary text-sm">
-          by{' '}
-          <Link
-            to="/u/$username"
-            params={{ username: collection.user.username }}
-            className="hover:text-foreground underline-offset-2 hover:underline"
-          >
-            {collection.user.displayName}
-          </Link>
-          {collection.collaborative ? ' (collaborative)' : ''}
-        </p>
-        {collection.description && (
-          <p className="text-foreground max-w-2xl text-sm">
-            {collection.description}
-          </p>
-        )}
-      </header>
+    <PageFrame>
+      <PageHeader
+        title={collection.name}
+        back={
+          <div className="flex flex-wrap gap-3 text-xs">
+            <Link to="/" className="text-foreground-secondary hover:underline">
+              ← Listen
+            </Link>
+            <Link
+              to="/u/$username"
+              params={{ username }}
+              className="text-foreground-secondary hover:underline"
+            >
+              @{username}
+            </Link>
+          </div>
+        }
+        subtitle={
+          <>
+            by{' '}
+            <Link
+              to="/u/$username"
+              params={{ username: collection.user.username }}
+              className="hover:text-foreground underline-offset-2 hover:underline"
+            >
+              {collection.user.displayName}
+            </Link>
+            {collection.collaborative ? ' (collaborative)' : ''}
+          </>
+        }
+        meta={collection.description}
+      />
 
       <PlayableTrackTable
         items={playables}
@@ -133,6 +131,6 @@ export function CollectionView({
           </ul>
         </section>
       )}
-    </div>
+    </PageFrame>
   );
 }

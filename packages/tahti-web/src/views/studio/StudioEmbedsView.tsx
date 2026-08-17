@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, Tabs } from '@nuclearplayer/ui';
 
 import {
   addEmbed,
@@ -11,6 +11,7 @@ import {
 } from '../../api/artist-embeds';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function StudioEmbedsView() {
   const [embeds, setEmbeds] = useState<ArtistEmbed[]>([]);
@@ -32,105 +33,134 @@ export function StudioEmbedsView() {
     <StudioGate>
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
         <StudioNav current="/studio/embeds" />
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            Embeds
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Pin SoundCloud tracks to show on your public profile. Up to{' '}
-            {MAX_ARTIST_EMBEDS}.
-          </p>
-        </div>
+        <StudioPageHeader
+          title="Embeds"
+          subtitle={`Pin up to ${MAX_ARTIST_EMBEDS} SoundCloud tracks to your public profile.`}
+        />
 
-        <section className="border-border flex flex-col gap-3 rounded-xl border p-4">
-          <h2 className="font-display text-lg font-bold">Add embed</h2>
-          <div className="flex flex-wrap items-end gap-2">
-            <Input
-              label="SoundCloud track URL"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://soundcloud.com/artist/track"
-            />
-            <Button
-              size="sm"
-              disabled={
-                !url.trim() || busy || embeds.length >= MAX_ARTIST_EMBEDS
-              }
-              onClick={() => {
-                setBusy(true);
-                void addEmbed(url.trim()).then((r) => {
-                  setBusy(false);
-                  if (!r.ok) {
-                    setMsg(r.error);
-                  } else {
-                    setUrl('');
-                    setMsg(null);
-                    reload();
-                  }
-                });
-              }}
-            >
-              Add
-            </Button>
-          </div>
-          {msg && <p className="text-sm">{msg}</p>}
-        </section>
-
-        {loading ? (
-          <p className="text-foreground-secondary text-sm">Loading…</p>
-        ) : embeds.length === 0 ? (
-          <p className="text-foreground-secondary text-sm">No embeds yet.</p>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {embeds.map((e) => (
-              <li
-                key={e.id}
-                className="border-border flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm"
-              >
-                <div className="flex items-center gap-3">
-                  {e.thumbnailUrl && (
-                    <img
-                      src={e.thumbnailUrl}
-                      alt=""
-                      className="size-12 rounded-md object-cover"
-                    />
-                  )}
-                  <div>
-                    <div className="font-medium">{e.title ?? e.url}</div>
-                    {e.authorName && (
-                      <div className="text-foreground-secondary text-xs">
-                        {e.authorName}
-                      </div>
-                    )}
-                    <a
-                      href={e.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-primary text-xs hover:underline"
-                    >
-                      {e.url}
-                    </a>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  variant="text"
-                  onClick={() => {
-                    void removeEmbed(e.id).then((r) => {
-                      if (!r.ok) {
-                        setMsg(r.error);
-                      } else {
-                        reload();
-                      }
-                    });
-                  }}
+        <Tabs
+          listClassName="border-border border-b pb-3"
+          panelClassName="pt-2"
+          items={[
+            {
+              id: 'library',
+              label: 'Pinned tracks',
+              content: (
+                <StudioPanel
+                  title="Pinned tracks"
+                  description={`${embeds.length} of ${MAX_ARTIST_EMBEDS} used`}
                 >
-                  Remove
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
+                  {loading ? (
+                    <p className="text-foreground-secondary text-sm">
+                      Loading…
+                    </p>
+                  ) : embeds.length === 0 ? (
+                    <p className="text-foreground-secondary text-sm">
+                      No embeds yet.
+                    </p>
+                  ) : (
+                    <ul className="flex flex-col gap-2">
+                      {embeds.map((embed) => (
+                        <li
+                          key={embed.id}
+                          className="border-border bg-background flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm"
+                        >
+                          <div className="flex min-w-0 items-center gap-3">
+                            {embed.thumbnailUrl && (
+                              <img
+                                src={embed.thumbnailUrl}
+                                alt=""
+                                className="size-12 shrink-0 rounded-md object-cover"
+                              />
+                            )}
+                            <div className="min-w-0">
+                              <div className="truncate font-medium">
+                                {embed.title ?? embed.url}
+                              </div>
+                              {embed.authorName && (
+                                <div className="text-foreground-secondary text-xs">
+                                  {embed.authorName}
+                                </div>
+                              )}
+                              <a
+                                href={embed.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary block truncate text-xs hover:underline"
+                              >
+                                {embed.url}
+                              </a>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="text"
+                            onClick={() => {
+                              void removeEmbed(embed.id).then((result) => {
+                                if (!result.ok) {
+                                  setMsg(result.error);
+                                } else {
+                                  reload();
+                                }
+                              });
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </StudioPanel>
+              ),
+            },
+            {
+              id: 'add',
+              label: 'Add embed',
+              content: (
+                <StudioPanel
+                  title="Add embed"
+                  description="Paste a public SoundCloud track URL."
+                >
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-wrap items-end gap-2">
+                      <Input
+                        label="SoundCloud track URL"
+                        value={url}
+                        onChange={(event) => setUrl(event.target.value)}
+                        placeholder="https://soundcloud.com/artist/track"
+                      />
+                      <Button
+                        size="sm"
+                        disabled={
+                          !url.trim() ||
+                          busy ||
+                          embeds.length >= MAX_ARTIST_EMBEDS
+                        }
+                        onClick={() => {
+                          setBusy(true);
+                          void addEmbed(url.trim()).then((result) => {
+                            setBusy(false);
+                            if (!result.ok) {
+                              setMsg(result.error);
+                            } else {
+                              setUrl('');
+                              setMsg(null);
+                              reload();
+                            }
+                          });
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                    {msg && <p className="text-sm">{msg}</p>}
+                  </div>
+                </StudioPanel>
+              ),
+            },
+          ]}
+        />
       </div>
     </StudioGate>
   );

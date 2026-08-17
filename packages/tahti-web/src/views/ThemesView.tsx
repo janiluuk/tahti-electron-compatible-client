@@ -1,21 +1,17 @@
 import { Button } from '@nuclearplayer/ui';
 
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useThemeStore } from '../stores/themeStore';
 
 export function ThemesView() {
   const { themes, themeId, dark, setTheme, setDark } = useThemeStore();
 
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
-      <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Themes
-        </h1>
-        <p className="text-foreground-secondary mt-1 text-sm">
-          Nuclear basic themes via CSS variables (<code>data-theme-id</code> +
-          dark mode).
-        </p>
-      </div>
+    <PageFrame maxWidth="2xl">
+      <PageHeader
+        title="Themes"
+        subtitle="Choose how Nuclear looks and feels."
+      />
 
       <div className="flex items-center gap-3">
         <span className="text-sm font-medium">Mode</span>
@@ -66,6 +62,6 @@ export function ThemesView() {
           );
         })}
       </div>
-    </div>
+    </PageFrame>
   );
 }

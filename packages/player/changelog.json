@@ -1,5 +1,17 @@
 [
   {
+    "date": "2026-08-17T00:00",
+    "description": "Channel appearance, account, events, embeds, and moderation are now organized into focused tabs, with clearer selected states and consistent page headings.",
+    "type": "improvement",
+    "contributors": ["jani"],
+    "tags": [
+      {
+        "label": "UI",
+        "color": "blue"
+      }
+    ]
+  },
+  {
     "date": "2026-08-10T00:00",
     "description": "Nuclear starts maximized by default",
     "type": "improvement",

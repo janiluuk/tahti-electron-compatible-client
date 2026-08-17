@@ -11,6 +11,7 @@ import {
   type ChatDm,
   type ConversationSummary,
 } from '../api/messages';
+import { PageHeader } from '../components/PageHeader';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 
@@ -66,14 +67,10 @@ export function MessagesView() {
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4">
-      <div>
-        <h1 className="font-display text-2xl font-extrabold tracking-tight">
-          Messages
-        </h1>
-        <p className="text-foreground-secondary text-xs">
-          Direct messages with artists and listeners.
-        </p>
-      </div>
+      <PageHeader
+        title="Messages"
+        subtitle="Direct messages with artists and listeners."
+      />
 
       <div className="border-border flex flex-wrap gap-2 rounded-lg border p-3">
         <Input

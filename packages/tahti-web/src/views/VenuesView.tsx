@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { fetchVenues } from '../api/client';
 import type { VenueDirectoryItem } from '../api/types';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 
 export function VenuesView() {
   const [venues, setVenues] = useState<VenueDirectoryItem[]>([]);
@@ -23,22 +24,19 @@ export function VenuesView() {
   }, []);
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Venues
-        </h1>
-        <p className="text-foreground-secondary mt-1 text-sm">
-          Verified venue directory from Tahti.{' '}
+    <PageFrame maxWidth="3xl">
+      <PageHeader
+        title="Venues"
+        subtitle="Browse verified venues in the Tahti community."
+        actions={
           <Link
             to="/venues/register"
-            className="underline-offset-2 hover:underline"
+            className="text-sm font-medium underline-offset-2 hover:underline"
           >
             Register a venue
-          </Link>{' '}
-          for board review.
-        </p>
-      </div>
+          </Link>
+        }
+      />
 
       {loading ? (
         <p className="text-foreground-secondary text-sm">Loading venues…</p>
@@ -80,6 +78,6 @@ export function VenuesView() {
       >
         Full feature map →
       </Link>
-    </div>
+    </PageFrame>
   );
 }

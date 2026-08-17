@@ -5,6 +5,7 @@ import { Button, Input } from '@nuclearplayer/ui';
 
 import { mockDirectory } from '../api/mock';
 import { ChannelChatPanel } from '../components/ChannelChatPanel';
+import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useLayoutStore } from '../stores/layoutStore';
 
 export function ChatView({ slug }: { slug?: string }) {
@@ -23,20 +24,19 @@ export function ChatView({ slug }: { slug?: string }) {
 
   if (!slug) {
     return (
-      <div className="mx-auto flex max-w-lg flex-col gap-4">
-        <Link
-          to="/more"
-          className="text-foreground-secondary text-xs hover:underline"
-        >
-          ← Tahti map
-        </Link>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          Channel chat
-        </h1>
-        <p className="text-foreground-secondary text-sm">
-          Pick a channel slug to open the public chat panel (REST history +
-          optional Centrifugo).
-        </p>
+      <PageFrame maxWidth="lg">
+        <PageHeader
+          title="Channel chat"
+          subtitle="Pick a channel to open its public chat."
+          back={
+            <Link
+              to="/more"
+              className="text-foreground-secondary text-xs hover:underline"
+            >
+              ← Tahti map
+            </Link>
+          }
+        />
         <Input
           label="Channel slug"
           value={draft}
@@ -64,40 +64,42 @@ export function ChatView({ slug }: { slug?: string }) {
             </Link>
           ))}
         </div>
-      </div>
+      </PageFrame>
     );
   }
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div>
+    <PageFrame maxWidth="lg">
+      <PageHeader
+        title={`Chat — ${slug}`}
+        back={
           <Link
             to="/chat"
             className="text-foreground-secondary text-xs hover:underline"
           >
             ← Chat picker
           </Link>
-          <h1 className="font-display mt-1 text-2xl font-extrabold tracking-tight">
-            Chat — {slug}
-          </h1>
-        </div>
-        <Link
-          to="/channel/$slug"
-          params={{ slug }}
-          className="text-foreground-secondary text-sm underline-offset-2 hover:underline"
-        >
-          Open channel
-        </Link>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => openChatRail(slug)}
-        >
-          Right-rail chat
-        </Button>
-      </div>
+        }
+        actions={
+          <>
+            <Link
+              to="/channel/$slug"
+              params={{ slug }}
+              className="text-foreground-secondary text-sm underline-offset-2 hover:underline"
+            >
+              Open channel
+            </Link>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => openChatRail(slug)}
+            >
+              Open chat rail
+            </Button>
+          </>
+        }
+      />
       <ChannelChatPanel slug={slug} />
-    </div>
+    </PageFrame>
   );
 }

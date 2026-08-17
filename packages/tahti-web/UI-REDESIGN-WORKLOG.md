@@ -489,3 +489,19 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 
 **Status:** approved. This closes out all 22 rows of the admin port.
 
+### 2026-08-17 — Studio panel consistency pass: Moderation / Events / Embeds / Upload / Channel designer + shared PageHeader
+
+**Goal:** Cross-cutting consistency pass, not a page-by-page loop entry — several studio pages still used ad-hoc `<section>`/`<h2>` chrome instead of the `StudioPageHeader`/`StudioPanel`/`Tabs` shell already established across the rest of studio, and the fan-facing `PageHeader` lagged Studio's heading weight.
+
+**Changes:**
+
+- **Studio Moderation / Events / Embeds** (`StudioModerationView`, `StudioEventsView`, `StudioEmbedsView`): raw `<section>` blocks replaced with `StudioPageHeader` + `StudioPanel`, each split into a `Tabs` view (Moderators/Chat bans, Upcoming/Add event, Pinned tracks/Add embed) instead of stacking every control on one page
+- **Studio Upload** (`StudioUploadView`): same `StudioPageHeader`/`StudioPanel` shell
+- **Channel designer visualizer picker** (`ChannelDesigner.tsx`): replaced the per-preset enable/disable toggle list (`visualizerPrefsStore.ts`, deleted) with a single "Use visualizer" toggle plus a flat pick-list of presets — the old per-preset visibility toggle was speculative config nobody had asked to hide individual presets with; the picker now just shows what's usable and which one's active. Design/24-7 Radio/Profile/Username-Domain reorganized into `Tabs`.
+- **`PageHeader`** (shared fan-facing page shell): heading now `font-display font-extrabold` to match Studio's headings, instead of a plain `font-bold`
+- **Chat / Venues / Status / Collection / Messages / Themes**: migrated onto the shared `PageFrame`/`PageHeader` for the same heading treatment and back-link pattern Studio already uses, replacing bespoke `<div>`/`<h1>` headers
+
+**Verified:** `tsc --noEmit` and `eslint` clean on `tahti-web` (pre-existing markdown/script lint errors in files untouched by this diff aside); live-screenshotted every changed route (`VITE_FORCE_MOCK=1`, mock auth) against `tahti-dark` — no visual regressions, tabs/panels render and switch correctly.
+
+**Status:** shipped — not captured into `docs/redesign-shots/` (scratch-only this pass, same as the earlier "Mobile pass" entry above).
+

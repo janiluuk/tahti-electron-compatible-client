@@ -7,6 +7,7 @@ import { Button, Input } from '@nuclearplayer/ui';
 import { uploadArchiveFile } from '../../api/studio';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 
 export function StudioUploadView() {
   const [title, setTitle] = useState('');
@@ -40,67 +41,61 @@ export function StudioUploadView() {
     <StudioGate>
       <div className="mx-auto flex max-w-lg flex-col gap-6">
         <StudioNav current="/studio/upload" />
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            Upload
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Add a track to your Music archive. MP3, WAV, FLAC, or AIFF.
-          </p>
-          <p className="text-foreground-secondary mt-2 text-xs">
-            Prefer Bandcamp, SoundCloud, or another service?{' '}
-            <Link
-              to="/sources"
-              className="text-foreground underline-offset-2 hover:underline"
-            >
-              Open Sources
+        <StudioPageHeader
+          title="Upload"
+          subtitle="Add a track to your Music archive. MP3, WAV, FLAC, or AIFF."
+          action={
+            <Link to="/sources">
+              <Button size="sm" variant="secondary">
+                Open Sources
+              </Button>
             </Link>
-          </p>
-        </div>
-        <Input
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Optional — defaults to filename"
+          }
         />
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-foreground-secondary text-xs uppercase">
-            Audio file
-          </span>
-          <input
-            type="file"
-            accept="audio/*,.flac,.wav,.mp3,.aiff"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="text-sm"
-          />
-          {file && (
-            <span className="text-foreground-secondary text-xs">
-              {file.name}
-            </span>
-          )}
-        </label>
-        {message && (
-          <p className="text-foreground-secondary text-sm">{message}</p>
-        )}
-        <div className="flex flex-wrap gap-2">
-          <Button disabled={busy || !file} onClick={() => void submit()}>
-            <UploadIcon size={16} aria-hidden className="mr-1.5" />
-            {busy ? 'Uploading…' : 'Upload'}
-          </Button>
-          {itemId && (
-            <Link to="/studio/archive/$id" params={{ id: itemId }}>
-              <Button variant="secondary">Open in Music</Button>
-            </Link>
-          )}
-        </div>
+        <StudioPanel
+          title="Audio file"
+          description="Choose a local file and give it an optional display title."
+        >
+          <div className="flex flex-col gap-4">
+            <Input
+              label="Title"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Optional — defaults to filename"
+            />
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="font-semibold">Audio file</span>
+              <input
+                type="file"
+                accept="audio/*,.flac,.wav,.mp3,.aiff"
+                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                className="border-border bg-background rounded-lg border p-3 text-sm"
+              />
+              {file && (
+                <span className="text-foreground-secondary text-xs">
+                  {file.name}
+                </span>
+              )}
+            </label>
+            {message && (
+              <p className="text-foreground-secondary text-sm">{message}</p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button disabled={busy || !file} onClick={() => void submit()}>
+                <UploadIcon size={16} aria-hidden className="mr-1.5" />
+                {busy ? 'Uploading…' : 'Upload'}
+              </Button>
+              {itemId && (
+                <Link to="/studio/archive/$id" params={{ id: itemId }}>
+                  <Button variant="secondary">Open in Music</Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </StudioPanel>
         <p className="text-foreground-secondary text-xs">
-          Prefer Bandcamp, SoundCloud, or a URL?{' '}
-          <Link to="/sources" className="hover:underline">
-            Open Sources
-          </Link>
-          {' · '}
           <Link to="/studio/archive" className="hover:underline">
-            Back to Music
+            ← Back to Music
           </Link>
         </p>
       </div>
