@@ -15,6 +15,8 @@ import {
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
+import { StatNumber } from '../../components/tahti/StatNumber';
 
 export function StudioStatsView() {
   const [summary, setSummary] = useState<StatsSummary | null>(null);
@@ -74,12 +76,10 @@ export function StudioStatsView() {
               ] as const
             ).map(([label, value]) => (
               <StudioPanel key={label} className="!p-4 sm:!p-5">
-                <div className="text-foreground-secondary text-xs uppercase">
-                  {label}
-                </div>
-                <div className="font-display mt-1 text-2xl font-bold tracking-tight">
+                <Eyebrow>{label}</Eyebrow>
+                <StatNumber className="mt-1 block">
                   {value.toLocaleString()}
-                </div>
+                </StatNumber>
               </StudioPanel>
             ))}
           </div>
