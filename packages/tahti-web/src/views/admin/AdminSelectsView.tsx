@@ -1,3 +1,4 @@
+import { PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -16,6 +17,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { usePlayerStore } from '../../stores/playerStore';
 
 function fmtDuration(sec: number | null): string {
   if (!sec) {
@@ -27,6 +29,7 @@ function fmtDuration(sec: number | null): string {
 }
 
 export function AdminSelectsView() {
+  const play = usePlayerStore((s) => s.play);
   const [items, setItems] = useState<AdminSelectsItem[]>([]);
   const [streamRunning, setStreamRunning] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -117,6 +120,27 @@ export function AdminSelectsView() {
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-1">
+                    {item.audioUrl && (
+                      <Button
+                        size="icon-sm"
+                        variant="text"
+                        aria-label={`Preview ${item.title}`}
+                        title="Preview"
+                        onClick={() => {
+                          play({
+                            id: `archive:${item.archiveItemId}`,
+                            kind: 'archive',
+                            title: item.title,
+                            artist: item.artistName,
+                            streamUrl: item.audioUrl!,
+                            protocol: 'https',
+                            channelSlug: item.channelSlug,
+                          });
+                        }}
+                      >
+                        <PlayIcon size={16} aria-hidden />
+                      </Button>
+                    )}
                     <Button
                       size="icon-sm"
                       variant="text"
@@ -191,26 +215,49 @@ export function AdminSelectsView() {
                           {item.license.replace(/_/g, ' ')}
                         </div>
                       </div>
-                      {already ? (
-                        <span className="text-foreground-secondary text-xs">
-                          In rotation
-                        </span>
-                      ) : (
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            void addToSelectsRotation(item).then((r) => {
-                              if (!r.ok) {
-                                setMsg(r.error);
-                              } else {
-                                reload();
-                              }
-                            });
-                          }}
-                        >
-                          Add
-                        </Button>
-                      )}
+                      <div className="flex shrink-0 items-center gap-1">
+                        {item.audioUrl && (
+                          <Button
+                            size="icon-sm"
+                            variant="text"
+                            aria-label={`Preview ${item.title}`}
+                            title="Preview"
+                            onClick={() => {
+                              play({
+                                id: `archive:${item.id}`,
+                                kind: 'archive',
+                                title: item.title,
+                                artist: item.artistName,
+                                streamUrl: item.audioUrl!,
+                                protocol: 'https',
+                                channelSlug: item.channelSlug,
+                              });
+                            }}
+                          >
+                            <PlayIcon size={16} aria-hidden />
+                          </Button>
+                        )}
+                        {already ? (
+                          <span className="text-foreground-secondary text-xs">
+                            In rotation
+                          </span>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              void addToSelectsRotation(item).then((r) => {
+                                if (!r.ok) {
+                                  setMsg(r.error);
+                                } else {
+                                  reload();
+                                }
+                              });
+                            }}
+                          >
+                            Add
+                          </Button>
+                        )}
+                      </div>
                     </li>
                   );
                 })

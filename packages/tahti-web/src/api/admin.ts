@@ -914,6 +914,7 @@ export type AdminSelectsItem = {
   artistName: string;
   channelSlug: string;
   addedBy: string;
+  audioUrl?: string | null;
 };
 
 export type AdminSelectsBrowseItem = {
@@ -923,6 +924,7 @@ export type AdminSelectsBrowseItem = {
   license: string;
   artistName: string;
   channelSlug: string;
+  audioUrl?: string | null;
 };
 
 let mockSelectsItems: AdminSelectsItem[] | null = null;
@@ -940,6 +942,8 @@ function selectsState(): AdminSelectsItem[] {
         artistName: 'Northern Lights',
         channelSlug: 'northern-lights',
         addedBy: 'board-jani',
+        audioUrl:
+          'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
       },
       {
         id: 'sel-2',
@@ -950,6 +954,8 @@ function selectsState(): AdminSelectsItem[] {
         artistName: 'Midnight Cartography',
         channelSlug: 'midnight-cartography',
         addedBy: 'board-jani',
+        audioUrl:
+          'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
       },
     ];
   }
@@ -965,6 +971,7 @@ function mockSelectsBrowse(): AdminSelectsBrowseItem[] {
       license: 'CC_BY',
       artistName: 'DJ Moonlight',
       channelSlug: 'dj-moonlight',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
     {
       id: 'arch-kc-1',
@@ -973,6 +980,7 @@ function mockSelectsBrowse(): AdminSelectsBrowseItem[] {
       license: 'ALL_RIGHTS_RESERVED',
       artistName: 'Kaiku Collective',
       channelSlug: 'kaiku-collective',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
     },
   ];
 }
