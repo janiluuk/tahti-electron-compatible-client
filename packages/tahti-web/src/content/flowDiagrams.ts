@@ -177,6 +177,148 @@ export const FLOW_DIAGRAMS: FlowDiagram[] = [
 `,
   },
   {
+    id: 'current-sections-full',
+    pack: 'current',
+    source:
+      'tahti-fit/flows/current/site-map.md + dashboard/admin route inventory',
+    title: 'Full section map — Listener · Artist · Admin',
+    blurb:
+      'Every page broken down to its actual sections/functions, not just its route — so you can leave a note on exactly which section belongs where. Comment box is below the diagram.',
+    mermaid: `flowchart TB
+  subgraph LISTENER["Listener surfaces"]
+    subgraph pListen["/listen"]
+      lSearch[Search]
+      lGenre[Genre chips]
+      lGrid[Channel grid]
+    end
+    subgraph pChannel["/c/:slug"]
+      cLive[Live player]
+      cArchive[Archive tracklist]
+      cChat[Chat rail]
+      cReport[Report]
+    end
+    subgraph pRadio["/radio"]
+      rSchedule[Schedule — day tabs]
+      rNow[Now playing]
+      rRecent[Recently played]
+    end
+    subgraph pProfile["/u/:username"]
+      pHome[Home — latest releases]
+      pFeed[Feed]
+      pMusic[Music — Tracks / Tahti Releases]
+      pSub[Subscribe / fan tiers]
+      pAbout[Bio + socials]
+    end
+    subgraph pCollection["/u/:username/c/:slug"]
+      colTracklist[Tracklist]
+      colCover[Cover / gallery]
+    end
+    subgraph pSmart["/r/:slug"]
+      smLinks[Platform smart-links]
+    end
+    subgraph pVenues["/venues"]
+      vDirectory[Venue directory]
+      vRegister[Register a venue]
+    end
+    subgraph pGov["/governance"]
+      govMotions[Motions]
+      govVotes[Votes]
+      govFeat[Feature requests]
+    end
+  end
+
+  subgraph ARTIST["Artist studio (/dashboard/*)"]
+    subgraph pOverview["Studio home"]
+      ovStats[Stats summary]
+      ovQuick[Quick actions]
+    end
+    subgraph pBroadcast["Broadcast"]
+      bc1[1 · Credentials]
+      bc2[2 · Test signal]
+      bc3[3 · Pre-flight + green room]
+      bc4[4 · Go live + audio check]
+      bc1 --> bc2 --> bc3 --> bc4
+    end
+    subgraph pMusicStudio["Music / Archive"]
+      muList[Track list]
+      muFilter[Search + sort toolbar]
+      muMore[Row More menu — pin / rotation / playlist / insights]
+      muEditor[Editor — Basics / Tracklist / Visuals / Sharing / Advanced tabs]
+    end
+    subgraph pUpload["Upload"]
+      upPick[Pick file]
+      upProgress[Progress + processing]
+    end
+    subgraph pCollections["Collections"]
+      colDesigner[Album / playlist designer]
+    end
+    subgraph pReleases["Releases"]
+      relSmart[Smart links]
+      relDist[Distribution]
+    end
+    subgraph pSchedule["Schedule"]
+      schBooking[Tahti Radio slot booking]
+    end
+    subgraph pStats["Stats"]
+      stOverview[Overview]
+      stDetail[Detail / range chips]
+    end
+    subgraph pChannelDesign["Channel designer"]
+      chVisual[Visual preset]
+      chHeader[Header style]
+      chAccent[Brand accent]
+      chGallery[Gallery / slideshow]
+    end
+    subgraph pRevenue["Revenue"]
+      revTiers[Fan tiers]
+      revPayouts[Payouts / Connect]
+    end
+    subgraph pStash["Stash"]
+      stashFiles[Cloud-import staging files]
+    end
+    subgraph pSettings["Settings"]
+      setAccount[Account]
+      setArtist[Artist profile]
+      setMoney[Money / fan tiers]
+      setConnections[Connections]
+    end
+  end
+
+  subgraph ADMIN["Admin (/admin/*)"]
+    aDash[Dashboard]
+    aBeta[Beta applications]
+    aUsers[Users]
+    aRadio[Radio]
+    aRadioSub[Radio submissions]
+    aNews[News]
+    aSelects[Tahti Selects]
+    aStreams[Streams]
+    aSupport[Support]
+    aTop[Top lists]
+    aAnnounce[Announcements]
+    aStorage[Storage]
+    aFiles[Files]
+    aReports[Content reports]
+    aFinancial[Financial]
+    aGov[Governance hub]
+    aFeat[Feature requests]
+    aGrants[Grants]
+    aAGM[AGM]
+    aVendors[Vendors]
+    aStatus[Status]
+    aI18n[Languages / i18n]
+  end
+
+  LISTENER -.-> ARTIST
+  ARTIST -.-> ADMIN
+
+  classDef sec fill:#f8fafc,stroke:#94a3b8,color:#334155;
+  class lSearch,lGenre,lGrid,cLive,cArchive,cChat,cReport,rSchedule,rNow,rRecent,pHome,pFeed,pMusic,pSub,pAbout,colTracklist,colCover,smLinks,vDirectory,vRegister,govMotions,govVotes,govFeat,ovStats,ovQuick,bc1,bc2,bc3,bc4,muList,muFilter,muMore,muEditor,upPick,upProgress,colDesigner,relSmart,relDist,schBooking,stOverview,stDetail,chVisual,chHeader,chAccent,chGallery,revTiers,revPayouts,stashFiles,setAccount,setArtist,setMoney,setConnections sec;
+  classDef admin fill:#fef2f2,stroke:#ef4444,color:#7f1d1d;
+  class aDash,aBeta,aUsers,aRadio,aRadioSub,aNews,aSelects,aStreams,aSupport,aTop,aAnnounce,aStorage,aFiles,aReports,aFinancial,aGov,aFeat,aGrants,aAGM,aVendors,aStatus,aI18n admin;
+`,
+  },
+  {
     id: 'current-anonymous-listener',
     pack: 'current',
     source: 'docs/flows/anonymous-listener.md',
