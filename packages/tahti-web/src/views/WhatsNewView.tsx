@@ -1,26 +1,10 @@
 import { SparklesIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Badge, cn, ViewShell } from '@nuclearplayer/ui';
+import { cn, ViewShell } from '@nuclearplayer/ui';
 
 import { fetchAnnouncements, type FetchMeta } from '../api/client';
-import type { Announcement, AnnouncementType } from '../api/types';
-
-const TYPE_LABELS: Record<AnnouncementType, string> = {
-  feature: 'Feature',
-  fix: 'Fix',
-  improvement: 'Improvement',
-  maintenance: 'Maintenance',
-  announcement: 'Announcement',
-};
-
-const TYPE_COLORS: Record<AnnouncementType, string> = {
-  feature: 'green',
-  fix: 'red',
-  improvement: 'yellow',
-  maintenance: 'orange',
-  announcement: 'cyan',
-};
+import type { Announcement } from '../api/types';
 
 function TimelineNode({ isLatest }: { isLatest?: boolean }) {
   return isLatest ? (
@@ -64,9 +48,9 @@ function TimelineEntry({
       </div>
       <div className="my-4 flex flex-1 flex-col gap-1">
         <div className="flex items-center justify-between px-1">
-          <Badge variant="pill" color={TYPE_COLORS[entry.type] as never}>
-            {TYPE_LABELS[entry.type]}
-          </Badge>
+          <span className="text-foreground-secondary text-xs font-medium">
+            {entry.authorName}
+          </span>
           <span className="text-foreground-secondary text-xs">
             {new Date(entry.publishedAt).toLocaleDateString(undefined, {
               year: 'numeric',
@@ -76,20 +60,10 @@ function TimelineEntry({
           </span>
         </div>
         <div className="border-border bg-background-secondary shadow-shadow flex-1 rounded-md border-(length:--border-width) p-4">
-          <p className="text-sm font-semibold">{entry.title}</p>
+          <p className="text-sm font-semibold">{entry.headline}</p>
           <p className="text-foreground-secondary mt-1 text-sm whitespace-pre-wrap">
-            {entry.body}
+            {entry.summary}
           </p>
-          {entry.link && (
-            <a
-              href={entry.link}
-              target="_blank"
-              rel="noreferrer"
-              className="text-primary mt-2 inline-block text-xs hover:underline"
-            >
-              Read more →
-            </a>
-          )}
         </div>
       </div>
     </div>

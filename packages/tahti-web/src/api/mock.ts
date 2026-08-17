@@ -893,25 +893,27 @@ export function mockAnnouncements(): Announcement[] {
   return [
     {
       id: '3',
-      title: 'Fan subscriptions now support tiers',
-      body: 'Artists can define multiple fan subscription tiers with custom perks and pricing.',
-      type: 'feature',
+      headline: 'Fan subscriptions now support tiers',
+      summary:
+        'Artists can define multiple fan subscription tiers with custom perks and pricing.',
+      authorName: 'Tahti team',
       publishedAt: '2026-08-05T09:00:00.000Z',
     },
     {
       id: '2',
-      title: 'Fixed HLS stalls on channel reconnect',
-      body: 'Live channels now recover cleanly after a network drop instead of freezing on the last frame.',
-      type: 'fix',
+      headline: 'Fixed HLS stalls on channel reconnect',
+      summary:
+        'Live channels now recover cleanly after a network drop instead of freezing on the last frame.',
+      authorName: 'Tahti team',
       publishedAt: '2026-07-22T14:30:00.000Z',
     },
     {
       id: '1',
-      title: 'Welcome to Tahti',
-      body: 'Search, playlists, radio, and artist studio tools are live in beta. Send feedback from Settings.',
-      type: 'announcement',
+      headline: 'Welcome to Tahti',
+      summary:
+        'Search, playlists, radio, and artist studio tools are live in beta. Send feedback from Settings.',
+      authorName: 'Tahti team',
       publishedAt: '2026-07-01T08:00:00.000Z',
-      link: 'https://tahti.live/about',
     },
   ];
 }

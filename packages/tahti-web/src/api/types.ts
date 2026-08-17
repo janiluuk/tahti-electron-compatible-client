@@ -440,21 +440,14 @@ export type GovernanceMotion = {
   tally?: { YES: number; NO: number; ABSTAIN: number };
 };
 
-export type AnnouncementType =
-  | 'feature'
-  | 'fix'
-  | 'improvement'
-  | 'maintenance'
-  | 'announcement';
-
-/** GET /api/v1/announcements — platform news published from the admin panel. */
+/** GET /api/v1/news — public homepage news feed, published from the admin
+ * News panel (`/admin/news`), most recent first. */
 export type Announcement = {
   id: string;
-  title: string;
-  body: string;
-  type: AnnouncementType;
+  headline: string;
+  summary: string;
+  authorName: string;
   publishedAt: string;
-  link?: string | null;
 };
 
 /** GET /api/me/feed — recent activity from artists the current user follows. */

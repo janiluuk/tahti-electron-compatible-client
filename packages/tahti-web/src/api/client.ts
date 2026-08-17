@@ -1595,7 +1595,7 @@ export async function fetchAnnouncements(): Promise<{
     };
   }
   try {
-    const data = await getJson<Announcement[]>('/api/v1/announcements');
+    const data = await getJson<Announcement[]>('/api/v1/news');
     return { data, meta: { source: 'api' } };
   } catch (err) {
     return withMockFallback(err, mockAnnouncements, () => []);
