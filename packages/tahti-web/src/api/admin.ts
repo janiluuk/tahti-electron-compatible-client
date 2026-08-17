@@ -1502,3 +1502,804 @@ export async function uploadAnnouncementClip(
     return { ok: false, error: err instanceof Error ? err.message : 'Failed' };
   }
 }
+
+// ── Storage ─────────────────────────────────────────────────────────────────
+
+export type AdminStorageUserRow = {
+  userId: string;
+  username: string;
+  displayName: string;
+  quotaBytes: number;
+  usedBytes: number;
+};
+
+export type AdminStorageOverview = {
+  totalQuotaBytes: number;
+  totalUsedBytes: number;
+  userCount: number;
+  users: AdminStorageUserRow[];
+};
+
+function mockStorageOverview(): AdminStorageOverview {
+  const users: AdminStorageUserRow[] = [
+    {
+      userId: 'u-1',
+      username: 'dj-moonlight',
+      displayName: 'DJ Moonlight',
+      quotaBytes: 500 * 1024 * 1024,
+      usedBytes: 412 * 1024 * 1024,
+    },
+    {
+      userId: 'u-2',
+      username: 'midnight-cartography',
+      displayName: 'Midnight Cartography',
+      quotaBytes: 500 * 1024 * 1024,
+      usedBytes: 538 * 1024 * 1024,
+    },
+    {
+      userId: 'u-3',
+      username: 'kaiku-collective',
+      displayName: 'Kaiku Collective',
+      quotaBytes: 1024 * 1024 * 1024,
+      usedBytes: 201 * 1024 * 1024,
+    },
+    {
+      userId: 'u-4',
+      username: 'northern-lights',
+      displayName: 'Northern Lights',
+      quotaBytes: 500 * 1024 * 1024,
+      usedBytes: 89 * 1024 * 1024,
+    },
+  ];
+  return {
+    totalQuotaBytes: users.reduce((s, u) => s + u.quotaBytes, 0),
+    totalUsedBytes: users.reduce((s, u) => s + u.usedBytes, 0),
+    userCount: users.length,
+    users,
+  };
+}
+
+let mockStorageState: AdminStorageOverview | null = null;
+
+export async function fetchAdminStorage(): Promise<{
+  data: AdminStorageOverview | null;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    if (!mockStorageState) {
+      mockStorageState = mockStorageOverview();
+    }
+    return {
+      data: mockStorageState,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminStorageOverview>('/api/admin/storage');
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export function setUserStorageQuota(userId: string, quotaBytes: number) {
+  if (forceMock()) {
+    const row = mockStorageState?.users.find((u) => u.userId === userId);
+    if (row) {
+      row.quotaBytes = quotaBytes;
+    }
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(
+    `/api/admin/storage/${encodeURIComponent(userId)}/quota`,
+    'PATCH',
+    {
+      quotaBytes,
+    },
+  );
+}
+
+// ── Files ───────────────────────────────────────────────────────────────────
+
+export type AdminFileRow = {
+  id: string;
+  title: string;
+  artistName: string;
+  genre: string | null;
+  contentType: string;
+  isPublic: boolean;
+  durationSec: number | null;
+  createdAt: string;
+  channelSlug: string;
+  username: string;
+  audioUrl: string | null;
+};
+
+function mockAdminFiles(): AdminFileRow[] {
+  return [
+    {
+      id: 'file-1',
+      title: 'Moonlight Drive',
+      artistName: 'DJ Moonlight',
+      genre: 'Downtempo',
+      contentType: 'TRACK',
+      isPublic: true,
+      durationSec: 312,
+      createdAt: '2026-08-10T12:00:00.000Z',
+      channelSlug: 'dj-moonlight',
+      username: 'dj-moonlight',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+    },
+    {
+      id: 'file-2',
+      title: 'Route 550 (live set)',
+      artistName: 'Midnight Cartography',
+      genre: 'Electronic',
+      contentType: 'LIVE_SET',
+      isPublic: true,
+      durationSec: 3480,
+      createdAt: '2026-08-09T18:00:00.000Z',
+      channelSlug: 'midnight-cartography',
+      username: 'midnight-cartography',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+    },
+    {
+      id: 'file-3',
+      title: 'Echo Chamber Cypher',
+      artistName: 'Kaiku Collective',
+      genre: 'Hip-hop',
+      contentType: 'TRACK',
+      isPublic: false,
+      durationSec: 201,
+      createdAt: '2026-08-05T09:00:00.000Z',
+      channelSlug: 'kaiku-collective',
+      username: 'kaiku-collective',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+    },
+    {
+      id: 'file-4',
+      title: 'Aurora Drift (unmastered)',
+      artistName: 'Northern Lights',
+      genre: null,
+      contentType: 'STASH',
+      isPublic: false,
+      durationSec: 279,
+      createdAt: '2026-08-01T09:00:00.000Z',
+      channelSlug: 'northern-lights',
+      username: 'northern-lights',
+      audioUrl: null,
+    },
+  ];
+}
+
+let mockAdminFilesState: AdminFileRow[] | null = null;
+
+export async function fetchAdminFiles(query?: string): Promise<{
+  data: AdminFileRow[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    if (!mockAdminFilesState) {
+      mockAdminFilesState = mockAdminFiles();
+    }
+    const q = query?.trim().toLowerCase();
+    const data = q
+      ? mockAdminFilesState.filter(
+          (f) =>
+            f.title.toLowerCase().includes(q) ||
+            f.artistName.toLowerCase().includes(q) ||
+            f.username.toLowerCase().includes(q),
+        )
+      : mockAdminFilesState;
+    return { data, meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
+  }
+  try {
+    const qs = new URLSearchParams({ limit: '50' });
+    if (query?.trim()) {
+      qs.set('q', query.trim());
+    }
+    const data = await getJson<{ items: AdminFileRow[] }>(
+      `/api/admin/files?${qs.toString()}`,
+    );
+    return { data: data.items, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export function deleteAdminFile(id: string) {
+  if (forceMock()) {
+    mockAdminFilesState = (mockAdminFilesState ?? mockAdminFiles()).filter(
+      (f) => f.id !== id,
+    );
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(`/api/admin/files/${encodeURIComponent(id)}`, 'DELETE');
+}
+
+// ── Content reports ─────────────────────────────────────────────────────────
+
+export type AdminContentReportStatus =
+  | 'OPEN'
+  | 'REVIEWING'
+  | 'ACTIONED'
+  | 'DISMISSED';
+
+export type AdminContentReportRow = {
+  id: string;
+  targetType:
+    | 'ARCHIVE_ITEM'
+    | 'RELEASE'
+    | 'CHANNEL'
+    | 'COLLECTION'
+    | 'MOTION_COMMENT';
+  targetId: string;
+  reason: 'COPYRIGHT' | 'HARASSMENT' | 'SPAM' | 'ILLEGAL_CONTENT' | 'OTHER';
+  details: string | null;
+  status: AdminContentReportStatus;
+  resolvedByDisplayName: string | null;
+  resolutionNote: string | null;
+  createdAt: string;
+};
+
+function mockContentReports(): AdminContentReportRow[] {
+  return [
+    {
+      id: 'rep-1',
+      targetType: 'ARCHIVE_ITEM',
+      targetId: 'arch-sub-1',
+      reason: 'COPYRIGHT',
+      details: 'Uses an unlicensed sample around 1:40.',
+      status: 'OPEN',
+      resolvedByDisplayName: null,
+      resolutionNote: null,
+      createdAt: '2026-08-15T14:00:00.000Z',
+    },
+    {
+      id: 'rep-2',
+      targetType: 'CHANNEL',
+      targetId: 'kaiku-collective',
+      reason: 'SPAM',
+      details: null,
+      status: 'REVIEWING',
+      resolvedByDisplayName: null,
+      resolutionNote: null,
+      createdAt: '2026-08-14T11:00:00.000Z',
+    },
+    {
+      id: 'rep-3',
+      targetType: 'MOTION_COMMENT',
+      targetId: 'motion-3-comment-9',
+      reason: 'HARASSMENT',
+      details: 'Personal attack in the comment thread.',
+      status: 'ACTIONED',
+      resolvedByDisplayName: 'Board — Aino',
+      resolutionNote: 'Comment removed, member warned.',
+      createdAt: '2026-08-10T08:00:00.000Z',
+    },
+  ];
+}
+
+let mockContentReportsState: AdminContentReportRow[] | null = null;
+
+export async function fetchAdminContentReports(
+  status?: AdminContentReportStatus,
+): Promise<{ data: AdminContentReportRow[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    if (!mockContentReportsState) {
+      mockContentReportsState = mockContentReports();
+    }
+    const data = status
+      ? mockContentReportsState.filter((r) => r.status === status)
+      : mockContentReportsState;
+    return { data, meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
+  }
+  try {
+    const qs = new URLSearchParams({ limit: '50' });
+    if (status) {
+      qs.set('status', status);
+    }
+    const data = await getJson<{ reports: AdminContentReportRow[] }>(
+      `/api/admin/content-reports?${qs.toString()}`,
+    );
+    return { data: data.reports, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export function resolveContentReport(
+  id: string,
+  status: 'REVIEWING' | 'ACTIONED' | 'DISMISSED',
+  note?: string,
+) {
+  if (forceMock()) {
+    const row = (mockContentReportsState ?? mockContentReports()).find(
+      (r) => r.id === id,
+    );
+    if (row) {
+      row.status = status;
+      row.resolutionNote = note ?? row.resolutionNote;
+      row.resolvedByDisplayName = 'You';
+    }
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(
+    `/api/admin/content-reports/${encodeURIComponent(id)}`,
+    'PATCH',
+    {
+      status,
+      resolutionNote: note,
+    },
+  );
+}
+
+// ── Financial ───────────────────────────────────────────────────────────────
+
+export type AdminLedgerEntry = {
+  id: string;
+  category: string;
+  amountCents: number;
+  description: string;
+  createdAt: string;
+};
+
+export type AdminFinancialOverview = {
+  entries: AdminLedgerEntry[];
+  activeFanSubCount: number;
+  mrrCents: number;
+  pendingPayouts: { count: number; totalNetCents: number };
+  failedPayouts: { count: number; totalNetCents: number };
+};
+
+export const LEDGER_CATEGORIES = [
+  'REVENUE_SUBSCRIPTION',
+  'REVENUE_DISTRIBUTION',
+  'REVENUE_GRANT_INBOUND',
+  'REVENUE_DONATION',
+  'COST_INFRASTRUCTURE',
+  'COST_DISTRIBUTION_PASSTHROUGH',
+  'COST_OPERATIONS',
+  'COST_SALARY',
+  'COST_AUDIT',
+  'COST_PROFESSIONAL_SERVICES',
+  'GRANT_DISBURSEMENT',
+  'RESERVE_TRANSFER',
+] as const;
+
+function mockFinancialOverview(): AdminFinancialOverview {
+  return {
+    entries: [
+      {
+        id: 'ledg-1',
+        category: 'REVENUE_SUBSCRIPTION',
+        amountCents: 48200,
+        description: 'Fan subscriptions — July settlement',
+        createdAt: '2026-08-02T09:00:00.000Z',
+      },
+      {
+        id: 'ledg-2',
+        category: 'COST_INFRASTRUCTURE',
+        amountCents: -21500,
+        description: 'UpCloud + fiber — August',
+        createdAt: '2026-08-01T09:00:00.000Z',
+      },
+      {
+        id: 'ledg-3',
+        category: 'COST_SALARY',
+        amountCents: -180000,
+        description: 'Ops contractor — August',
+        createdAt: '2026-08-01T09:00:00.000Z',
+      },
+      {
+        id: 'ledg-4',
+        category: 'REVENUE_DONATION',
+        amountCents: 12000,
+        description: 'Member donation drive',
+        createdAt: '2026-07-28T09:00:00.000Z',
+      },
+    ],
+    activeFanSubCount: 214,
+    mrrCents: 482000,
+    pendingPayouts: { count: 3, totalNetCents: 61200 },
+    failedPayouts: { count: 1, totalNetCents: 4200 },
+  };
+}
+
+let mockFinancialState: AdminFinancialOverview | null = null;
+
+export async function fetchAdminFinancial(): Promise<{
+  data: AdminFinancialOverview | null;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    if (!mockFinancialState) {
+      mockFinancialState = mockFinancialOverview();
+    }
+    return {
+      data: mockFinancialState,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const [ledgerRes, fansubsRes] = await Promise.all([
+      getJson<AdminLedgerEntry[]>(
+        `/api/admin/ledger?year=${new Date().getUTCFullYear()}`,
+      ),
+      getJson<{
+        activeFanSubCount: number;
+        mrrCents: number;
+        pendingPayouts: { count: number; totalNetCents: number };
+        failedPayouts: { count: number; totalNetCents: number };
+      }>('/api/admin/fansubs/overview'),
+    ]);
+    return {
+      data: { entries: ledgerRes, ...fansubsRes },
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}
+
+export function createLedgerEntry(entry: {
+  category: string;
+  amountCents: number;
+  description: string;
+}) {
+  if (forceMock()) {
+    const row: AdminLedgerEntry = {
+      id: `ledg-${Date.now()}`,
+      ...entry,
+      createdAt: new Date().toISOString(),
+    };
+    (mockFinancialState ?? mockFinancialOverview()).entries.unshift(row);
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate('/api/admin/ledger', 'POST', entry);
+}
+
+// ── Governance ──────────────────────────────────────────────────────────────
+
+export type AdminGovernanceOverview = {
+  openMotions: number;
+  pendingVenueVerifications: number;
+  lastAnnualReportYear: number | null;
+  boardResolutionsThisYear: number;
+};
+
+function mockGovernanceOverview(): AdminGovernanceOverview {
+  return {
+    openMotions: 2,
+    pendingVenueVerifications: 5,
+    lastAnnualReportYear: 2025,
+    boardResolutionsThisYear: 7,
+  };
+}
+
+export async function fetchAdminGovernanceOverview(): Promise<{
+  data: AdminGovernanceOverview;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockGovernanceOverview(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminGovernanceOverview>(
+      '/api/admin/governance/overview',
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: mockGovernanceOverview(), meta: failMeta(err) };
+  }
+}
+
+// ── Feature requests ────────────────────────────────────────────────────────
+
+export type AdminFeatureRequestStatus =
+  | 'OPEN'
+  | 'PLANNED'
+  | 'IN_PROGRESS'
+  | 'DONE'
+  | 'DECLINED'
+  | 'DUPLICATE';
+
+export type AdminFeatureRequestRow = {
+  id: string;
+  title: string;
+  description: string;
+  status: AdminFeatureRequestStatus;
+  proposerDisplayName: string;
+  proposerUsername: string;
+  voteCount: number;
+  reviewNote: string | null;
+  createdAt: string;
+};
+
+function mockFeatureRequests(): AdminFeatureRequestRow[] {
+  return [
+    {
+      id: 'fr-1',
+      title: 'Crossfade between archive tracks',
+      description: 'Smooth transition when auto-advancing the queue.',
+      status: 'OPEN',
+      proposerDisplayName: 'DJ Moonlight',
+      proposerUsername: 'dj-moonlight',
+      voteCount: 34,
+      reviewNote: null,
+      createdAt: '2026-08-01T10:00:00.000Z',
+    },
+    {
+      id: 'fr-2',
+      title: 'Bulk-tag archive items',
+      description: 'Select multiple tracks and apply a genre/tag at once.',
+      status: 'PLANNED',
+      proposerDisplayName: 'Northern Lights',
+      proposerUsername: 'northern-lights',
+      voteCount: 21,
+      reviewNote: 'Slated for the next archive sprint.',
+      createdAt: '2026-07-20T10:00:00.000Z',
+    },
+    {
+      id: 'fr-3',
+      title: 'Dark-mode-only theme toggle',
+      description: null as unknown as string,
+      status: 'DONE',
+      proposerDisplayName: 'Kaiku Collective',
+      proposerUsername: 'kaiku-collective',
+      voteCount: 12,
+      reviewNote: 'Shipped in themes settings.',
+      createdAt: '2026-06-15T10:00:00.000Z',
+    },
+  ];
+}
+
+let mockFeatureRequestsState: AdminFeatureRequestRow[] | null = null;
+
+export async function fetchAdminFeatureRequests(
+  status?: AdminFeatureRequestStatus,
+): Promise<{ data: AdminFeatureRequestRow[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    if (!mockFeatureRequestsState) {
+      mockFeatureRequestsState = mockFeatureRequests();
+    }
+    const data = status
+      ? mockFeatureRequestsState.filter((r) => r.status === status)
+      : mockFeatureRequestsState;
+    return { data, meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' } };
+  }
+  try {
+    const qs = status ? `?status=${status}` : '';
+    const data = await getJson<AdminFeatureRequestRow[]>(
+      `/api/admin/feature-requests${qs}`,
+    );
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export function updateFeatureRequestStatus(
+  id: string,
+  status: AdminFeatureRequestStatus,
+  note?: string,
+) {
+  if (forceMock()) {
+    const row = (mockFeatureRequestsState ?? mockFeatureRequests()).find(
+      (r) => r.id === id,
+    );
+    if (row) {
+      row.status = status;
+      row.reviewNote = note ?? row.reviewNote;
+    }
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(
+    `/api/admin/feature-requests/${encodeURIComponent(id)}`,
+    'PATCH',
+    {
+      status,
+      reviewNote: note,
+    },
+  );
+}
+
+// ── Grants ──────────────────────────────────────────────────────────────────
+
+export type AdminGrantYearSummary = {
+  year: number;
+  grantCount: number;
+  totalCents: number;
+};
+
+function mockGrantHistory(): AdminGrantYearSummary[] {
+  const year = new Date().getUTCFullYear();
+  return [
+    { year: year - 1, grantCount: 18, totalCents: 940000 },
+    { year: year - 2, grantCount: 14, totalCents: 710000 },
+  ];
+}
+
+export async function fetchAdminGrants(): Promise<{
+  data: AdminGrantYearSummary[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockGrantHistory(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const currentYear = new Date().getUTCFullYear();
+    const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+    const results = await Promise.all(
+      years.map(async (year) => {
+        try {
+          const data = await getJson<{
+            year: number;
+            grantCount: number;
+            totalCents: number;
+          }>(`/api/v1/transparency/grants/${year}`);
+          return data.grantCount > 0 ? data : null;
+        } catch {
+          return null;
+        }
+      }),
+    );
+    return {
+      data: results.filter((r): r is AdminGrantYearSummary => r !== null),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+// ── AGM ─────────────────────────────────────────────────────────────────────
+
+export type AdminMotion = {
+  id: string;
+  title: string;
+  state: 'DRAFT' | 'OPEN' | 'CLOSED' | 'CANCELLED';
+  advisory: boolean;
+  openAt: string;
+  closeAt: string;
+  totalVotes: number;
+};
+
+function mockAgmMotions(): AdminMotion[] {
+  return [
+    {
+      id: 'motion-1',
+      title: 'Adopt updated code of conduct',
+      state: 'OPEN',
+      advisory: true,
+      openAt: '2026-08-10T00:00:00.000Z',
+      closeAt: '2026-08-24T00:00:00.000Z',
+      totalVotes: 58,
+    },
+    {
+      id: 'motion-2',
+      title: 'Raise fan-sub artist payout share to 92%',
+      state: 'DRAFT',
+      advisory: false,
+      openAt: '2026-08-20T00:00:00.000Z',
+      closeAt: '2026-09-03T00:00:00.000Z',
+      totalVotes: 0,
+    },
+  ];
+}
+
+export async function fetchAdminAgmMotions(): Promise<{
+  data: AdminMotion[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockAgmMotions(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminMotion[]>('/api/v1/governance/motions');
+    return {
+      data: data.filter((m) => m.state === 'OPEN' || m.state === 'DRAFT'),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+// ── Vendors ─────────────────────────────────────────────────────────────────
+
+export type AdminIntegrationStatus = {
+  name: string;
+  live: boolean;
+  detail: string;
+};
+
+function mockIntegrationStatus(): AdminIntegrationStatus[] {
+  return [
+    { name: 'Mixcloud', live: true, detail: 'Archive uploads connected' },
+    { name: 'Revelator', live: false, detail: 'Stub mode — API key not set' },
+  ];
+}
+
+export async function fetchAdminIntegrationStatus(): Promise<{
+  data: AdminIntegrationStatus[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockIntegrationStatus(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{ integrations: AdminIntegrationStatus[] }>(
+      '/api/admin/integrations',
+    );
+    return { data: data.integrations, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: mockIntegrationStatus(), meta: failMeta(err) };
+  }
+}
+
+// ── Status ──────────────────────────────────────────────────────────────────
+
+export type AdminStatusCheck = {
+  state: 'up' | 'down';
+  critical: boolean;
+  latencyMs?: number;
+  detail?: string;
+};
+
+export type AdminStatusData = {
+  status: string;
+  uptimeSec: number;
+  checks: Record<string, AdminStatusCheck>;
+  ts: string;
+};
+
+function mockStatusData(): AdminStatusData {
+  return {
+    status: 'operational',
+    uptimeSec: 60 * 60 * 118,
+    ts: new Date().toISOString(),
+    checks: {
+      api: { state: 'up', critical: true, latencyMs: 42 },
+      postgres: { state: 'up', critical: true, latencyMs: 6 },
+      icecast: { state: 'up', critical: true, latencyMs: 18 },
+      minio: { state: 'up', critical: true, latencyMs: 9 },
+      redis: { state: 'up', critical: false, latencyMs: 3 },
+      email: {
+        state: 'up',
+        critical: false,
+        detail: 'Postmark bounce webhook responsive',
+      },
+    },
+  };
+}
+
+export async function fetchAdminStatus(): Promise<{
+  data: AdminStatusData | null;
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockStatusData(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<AdminStatusData>('/api/v1/status');
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: null, meta: failMeta(err) };
+  }
+}

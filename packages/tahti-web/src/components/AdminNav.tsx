@@ -12,6 +12,16 @@ const PRIMARY = [
   { to: '/admin/support', label: 'Support' },
   { to: '/admin/top-lists', label: 'Top lists' },
   { to: '/admin/announcements', label: 'Announcements' },
+  { to: '/admin/storage', label: 'Storage' },
+  { to: '/admin/files', label: 'Files' },
+  { to: '/admin/content-reports', label: 'Content reports' },
+  { to: '/admin/financial', label: 'Financial' },
+  { to: '/admin/governance', label: 'Governance' },
+  { to: '/admin/feature-requests', label: 'Feature requests' },
+  { to: '/admin/grants', label: 'Grants' },
+  { to: '/admin/agm', label: 'AGM' },
+  { to: '/admin/vendors', label: 'Vendors' },
+  { to: '/admin/status', label: 'Status' },
 ] as const;
 
 function isActive(current: string | undefined, to: string) {

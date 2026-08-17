@@ -11,17 +11,27 @@ import { SOURCE_DEFS } from './api/sources';
 import { AppShell } from './components/AppShell';
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { useAuthStore } from './stores/authStore';
+import { AdminAgmView } from './views/admin/AdminAgmView';
 import { AdminAnnouncementsView } from './views/admin/AdminAnnouncementsView';
 import { AdminBetaView } from './views/admin/AdminBetaView';
+import { AdminContentReportsView } from './views/admin/AdminContentReportsView';
 import { AdminDashboardView } from './views/admin/AdminDashboardView';
+import { AdminFeatureRequestsView } from './views/admin/AdminFeatureRequestsView';
+import { AdminFilesView } from './views/admin/AdminFilesView';
+import { AdminFinancialView } from './views/admin/AdminFinancialView';
+import { AdminGovernanceView } from './views/admin/AdminGovernanceView';
+import { AdminGrantsView } from './views/admin/AdminGrantsView';
 import { AdminNewsView } from './views/admin/AdminNewsView';
 import { AdminRadioSubmissionsView } from './views/admin/AdminRadioSubmissionsView';
 import { AdminRadioView } from './views/admin/AdminRadioView';
 import { AdminSelectsView } from './views/admin/AdminSelectsView';
+import { AdminStatusView } from './views/admin/AdminStatusView';
+import { AdminStorageView } from './views/admin/AdminStorageView';
 import { AdminStreamsView } from './views/admin/AdminStreamsView';
 import { AdminSupportView } from './views/admin/AdminSupportView';
 import { AdminTopListsView } from './views/admin/AdminTopListsView';
 import { AdminUsersView } from './views/admin/AdminUsersView';
+import { AdminVendorsView } from './views/admin/AdminVendorsView';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
 import { ChatView } from './views/ChatView';
@@ -205,6 +215,66 @@ const adminAnnouncementsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/announcements',
   component: AdminAnnouncementsView,
+});
+
+const adminStorageRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/storage',
+  component: AdminStorageView,
+});
+
+const adminFilesRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/files',
+  component: AdminFilesView,
+});
+
+const adminContentReportsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/content-reports',
+  component: AdminContentReportsView,
+});
+
+const adminFinancialRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/financial',
+  component: AdminFinancialView,
+});
+
+const adminGovernanceRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/governance',
+  component: AdminGovernanceView,
+});
+
+const adminFeatureRequestsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/feature-requests',
+  component: AdminFeatureRequestsView,
+});
+
+const adminGrantsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/grants',
+  component: AdminGrantsView,
+});
+
+const adminAgmRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/agm',
+  component: AdminAgmView,
+});
+
+const adminVendorsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/vendors',
+  component: AdminVendorsView,
+});
+
+const adminStatusRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/status',
+  component: AdminStatusView,
 });
 
 const libraryRoute = createRoute({
@@ -797,6 +867,16 @@ const routeTree = rootRoute.addChildren([
     adminSupportRoute,
     adminTopListsRoute,
     adminAnnouncementsRoute,
+    adminStorageRoute,
+    adminFilesRoute,
+    adminContentReportsRoute,
+    adminFinancialRoute,
+    adminGovernanceRoute,
+    adminFeatureRequestsRoute,
+    adminGrantsRoute,
+    adminAgmRoute,
+    adminVendorsRoute,
+    adminStatusRoute,
     libraryRoute,
     libraryHistoryRoute,
     libraryMessagesRoute,

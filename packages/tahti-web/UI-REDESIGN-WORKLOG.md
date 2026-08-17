@@ -51,21 +51,21 @@ Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, 
 | A4 | Radio | `/admin/radio` | **approved** | `docs/redesign-shots/admin-radio-v1.png` |
 | A5 | Radio submissions | `/admin/radio-submissions` | **approved** | `docs/redesign-shots/admin-radio-submissions-v1.png` |
 | A6 | News | `/admin/news` | **approved** | `docs/redesign-shots/admin-news-v1.png` |
-| A7 | Tahti Selects | `/admin/tahti-selects` | **in-review** | `docs/redesign-shots/admin-selects-v1.png` |
-| A8 | Streams | `/admin/streams` | **in-review** | `docs/redesign-shots/admin-streams-v1.png` |
-| A9 | Support | `/admin/support` | **in-review** | `docs/redesign-shots/admin-support-v1.png` |
-| A10 | Top lists | `/admin/top-lists` | **in-review** | `docs/redesign-shots/admin-top-lists-v1.png` |
-| A11 | Announcements | `/admin/announcements` | **in-review** | `docs/redesign-shots/admin-announcements-v1.png` |
-| A12 | Storage | `/admin/storage` | pending | |
-| A13 | Files | `/admin/files` | pending | |
-| A14 | Content reports | `/admin/content-reports` | pending | |
-| A15 | Financial | `/admin/financial` | pending | |
-| A16 | Governance hub | `/admin/governance` | pending | |
-| A17 | Feature requests | `/admin/feature-requests` | pending | |
-| A18 | Grants | `/admin/grants` | pending | |
-| A19 | AGM | `/admin/agm` | pending | |
-| A20 | Vendors | `/admin/settings/vendors` | pending | |
-| A21 | Status | `/admin/status` | pending | |
+| A7 | Tahti Selects | `/admin/tahti-selects` | **approved** | `docs/redesign-shots/admin-selects-v1.png` |
+| A8 | Streams | `/admin/streams` | **approved** | `docs/redesign-shots/admin-streams-v1.png` |
+| A9 | Support | `/admin/support` | **approved** | `docs/redesign-shots/admin-support-v1.png` |
+| A10 | Top lists | `/admin/top-lists` | **approved** | `docs/redesign-shots/admin-top-lists-v1.png` |
+| A11 | Announcements | `/admin/announcements` | **approved** | `docs/redesign-shots/admin-announcements-v1.png` |
+| A12 | Storage | `/admin/storage` | **in-review** | `docs/redesign-shots/admin-storage-v1.png` |
+| A13 | Files | `/admin/files` | **in-review** | `docs/redesign-shots/admin-files-v1.png` |
+| A14 | Content reports | `/admin/content-reports` | **in-review** | `docs/redesign-shots/admin-content-reports-v1.png` |
+| A15 | Financial | `/admin/financial` | **in-review** | `docs/redesign-shots/admin-financial-v1.png` |
+| A16 | Governance hub | `/admin/governance` | **in-review** | `docs/redesign-shots/admin-governance-v1.png` |
+| A17 | Feature requests | `/admin/feature-requests` | **in-review** | `docs/redesign-shots/admin-feature-requests-v1.png` |
+| A18 | Grants | `/admin/grants` | **in-review** | `docs/redesign-shots/admin-grants-v1.png` |
+| A19 | AGM | `/admin/agm` | **in-review** | `docs/redesign-shots/admin-agm-v1.png` |
+| A20 | Vendors | `/admin/settings/vendors` → `/admin/vendors` | **in-review** | `docs/redesign-shots/admin-vendors-v1.png` |
+| A21 | Status | `/admin/status` | **in-review** | `docs/redesign-shots/admin-status-v1.png` |
 | A22 | i18n languages + CSV import | (new — see Phase 0) | pending | |
 
 **i18n (Approved):** Admin creates languages + imports English-base CSV — [CUTOVER-PHASE0.md](./CUTOVER-PHASE0.md).
@@ -411,5 +411,33 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 
 **Screenshots:** `docs/redesign-shots/admin-selects-v1.png`, `admin-streams-v1.png`, `admin-support-v1.png`, `admin-top-lists-v1.png`, `admin-announcements-v1.png`
 
-**Status:** in-review — awaiting comment or `approved`.
+**Status:** approved.
+
+### 2026-08-17 — Pages A12–A21 Storage / Files / Content reports / Financial / Governance / Feature requests / Grants / AGM / Vendors / Status v1 (`in-review`)
+
+**Goal:** Close out the remaining board-admin nav — all 21 built pages now live under `/admin/*`, gated on `user.isBoard`. AdminNav grew from 11 to 21 entries.
+
+**A12 Storage** (`/admin/storage`): total used/quota/user-count summary + per-user usage list with an inline MB quota editor (mirrors prod's `QuotaEditor`). Per-user file browser (`/admin/storage/[userId]`) stays out of scope — folded into A13 instead.
+
+**A13 Files** (`/admin/files`): board-wide archive browser — debounced search by title/artist/username, public/private badge, inline play preview, delete. Prod's `_admin-files-browser.tsx` (856 lines: facets, bulk edit, saved filter presets) trimmed to single-item search + delete for v1; bulk operations deferred.
+
+**A14 Content reports** (`/admin/content-reports`): status filter chips + report list with resolve-with-note actions (start review / mark actioned / dismiss) — ported prod's flow directly, it was already simple.
+
+**A15 Financial** (`/admin/financial`): folded prod's link-only hub plus its `ledger` and `fansubs/overview` sub-pages into one page — fan-sub stats (active subs, MRR, pending/failed payouts) + ledger entries with an add-entry form. `fansubs` (per-subscriber payout retry) and `legacy-members` (Stripe migration queue) sub-pages stay out of scope.
+
+**A16 Governance** (`/admin/governance`): prod is a pure link hub to 6 sub-tools; ported as an info-card grid instead, with live counts where available (open motions, pending venue verifications, resolutions this year). Only AGM links through to a built page — Audit log, Annual report generator, Board resolutions, and Member register stay informational cards for v1 (no dedicated pages yet).
+
+**A17 Feature requests** (`/admin/feature-requests`): status filter chips + vote-ranked list with Plan/In progress/Done/Decline/Reopen actions. Dropped the "close as duplicate + merge target" flow (low-value complexity for a first pass) and the quarterly report panel.
+
+**A18 Grants** (`/admin/grants`): disbursement history table (year, recipients, total). Per-year preview/run flow (`/admin/grants/[year]`, a dry-run + irreversible disbursement trigger) stays out of scope — too high-stakes for a v1 port without a real confirm-and-audit flow.
+
+**A19 AGM** (`/admin/agm`): agenda builder ported verbatim (fully client-side in prod — add/reorder/remove/copy-to-clipboard) + open/draft motions list + the member-notification-requirements disclosure. Minutes/records links point at pages that don't exist yet in this shell, so that section was dropped rather than link to nothing.
+
+**A20 Vendors** (`/admin/settings/vendors`, mounted at `/admin/vendors` here): static critical-vendor and integration-vendor reference tables + live Mixcloud/Revelator distribution status. Dropped raw env-var names (`MIXCLOUD_CLIENT_ID` etc.) — board members need to know a DPA is required, not which env var holds the secret.
+
+**A21 Status** (`/admin/status`): service health table (state, criticality, latency, detail) with an overall operational badge — direct port, prod page was already clean.
+
+**Screenshots:** `docs/redesign-shots/admin-storage-v1.png`, `admin-files-v1.png`, `admin-content-reports-v1.png`, `admin-financial-v1.png`, `admin-governance-v1.png`, `admin-feature-requests-v1.png`, `admin-grants-v1.png`, `admin-agm-v1.png`, `admin-vendors-v1.png`, `admin-status-v1.png`
+
+**Status:** in-review — awaiting comment or `approved`. A22 (i18n languages + CSV import) is still pending and tracked separately per its Phase-0 note.
 
