@@ -88,6 +88,7 @@ import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
+import { useSettingsModalStore } from '../../stores/settingsModalStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { WhatsNewPanel } from '../WhatsNewView';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
@@ -271,6 +272,7 @@ function MembershipCheckoutButton({
 function AccountPanel() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const closeSettings = useSettingsModalStore((s) => s.close);
   const [membership, setMembership] = useState<MembershipStatus | null>(null);
 
   useEffect(() => {
@@ -374,7 +376,7 @@ function AccountPanel() {
                   )}
                 </div>
               )}
-              <Link to="/governance">
+              <Link to="/governance" onClick={closeSettings}>
                 <Button size="sm" variant="secondary">
                   Governance
                 </Button>
@@ -648,6 +650,7 @@ function ArtistPanel() {
 
 function ChannelPanel() {
   const user = useAuthStore((s) => s.user);
+  const closeSettings = useSettingsModalStore((s) => s.close);
   const channel = user?.channel;
   const [discovery, setDiscovery] = useState<DiscoveryPrefs | null>(null);
   const [slug, setSlug] = useState(channel?.slug ?? '');
@@ -681,6 +684,7 @@ function ChannelPanel() {
                 <Link
                   to="/u/$username"
                   params={{ username: user.username }}
+                  onClick={closeSettings}
                   className="underline-offset-2 hover:underline"
                 >
                   their public profile
@@ -839,6 +843,7 @@ function ChannelPanel() {
 }
 
 function BroadcastPanel() {
+  const closeSettings = useSettingsModalStore((s) => s.close);
   const [programme, setProgramme] = useState<ProgrammeView | null>(null);
   const [green, setGreen] = useState<GreenRoomPrefs | null>(null);
   const [mods, setMods] = useState<ModeratorRow[]>([]);
@@ -903,7 +908,7 @@ function BroadcastPanel() {
                   void patchProgramme({ fallbackAutoEnroll: v });
                 }}
               />
-              <Link to="/studio/schedule">
+              <Link to="/studio/schedule" onClick={closeSettings}>
                 <Button size="sm" variant="secondary">
                   Open schedule / programme
                 </Button>
@@ -956,7 +961,7 @@ function BroadcastPanel() {
                   void patchGreenRoomPrefs({ holdMusicEnabled: v });
                 }}
               />
-              <Link to="/studio/go-live">
+              <Link to="/studio/go-live" onClick={closeSettings}>
                 <Button size="sm" variant="secondary">
                   Go Live
                 </Button>
@@ -1093,6 +1098,7 @@ function BroadcastPanel() {
 
 function MoneyPanel() {
   const user = useAuthStore((s) => s.user);
+  const closeSettings = useSettingsModalStore((s) => s.close);
   const [connect, setConnect] = useState<FanConnectStatus | null>(null);
   const [grants, setGrants] = useState<GrantRow[]>([]);
   const [estimate, setEstimate] = useState<GrantEstimate | null>(null);
@@ -1187,7 +1193,7 @@ function MoneyPanel() {
                 >
                   Stripe portal
                 </Button>
-                <Link to="/studio/revenue">
+                <Link to="/studio/revenue" onClick={closeSettings}>
                   <Button size="sm" variant="text">
                     Studio revenue
                   </Button>
@@ -1252,6 +1258,7 @@ function MoneyPanel() {
                         <Link
                           to="/u/$username"
                           params={{ username: s.artist.username }}
+                          onClick={closeSettings}
                           className="font-medium underline-offset-2 hover:underline"
                         >
                           {s.artist.displayName}
@@ -1504,13 +1511,14 @@ function ThemesPanel() {
 }
 
 function ConnectionsPanel() {
+  const closeSettings = useSettingsModalStore((s) => s.close);
   return (
     <div className="flex flex-col gap-4">
       <SettingsHint>
         OAuth and cloud import live under Sources (Bandcamp, SoundCloud, Drive,
         Mixcloud, …). Social links moved to Artist → Social links.
       </SettingsHint>
-      <Link to="/sources">
+      <Link to="/sources" onClick={closeSettings}>
         <Button size="sm">Open Sources</Button>
       </Link>
     </div>
