@@ -217,20 +217,42 @@ offline.
 | space scale | 4 / 8 / 12 / 16 / 22 / 28 / 44 / 64 / 96 | generous whitespace |
 | motion | scroll-reveal fade+rise, on-air pulse, waveform animation | gate all of it behind `prefers-reduced-motion` |
 
-- [ ] Add `tahti-dark` to the `themes` package in the Phase-1-confirmed
-      format; populate every semantic token from the tables above.
-- [ ] If a semantic slot has no pitch value, derive from the nearest role —
-      never introduce an un-tokened colour.
-- [ ] If the token schema is missing a slot this needs (e.g. a distinct
-      "signal/secondary" role beyond success), add it to the schema in
-      `@nuclearplayer/ui` and give **every** existing theme a sensible
-      default so nothing else breaks.
-- [ ] Wire fonts through the design system's typography tokens/config.
-- [ ] If Tailwind is in use, expose the Tahti colours as Tailwind theme
-      colours/CSS variables (`bg-surface`, `text-accent`, …) — no arbitrary
-      hex utilities.
+- [x] Add `tahti-dark` to the `themes` package in the Phase-1-confirmed
+      format; populate every semantic token from the tables above. —
+      `packages/themes/src/basic/tahti-dark.css`, all hex converted to
+      OKLCH via `culori` (already a repo dependency) for exact-match colour
+      to the pitch. Single unconditional `:root[data-theme-id='nuclear:tahti-dark']`
+      block (no separate light variant — the pitch has none).
+- [x] If a semantic slot has no pitch value, derive from the nearest role —
+      never introduce an un-tokened colour. — `accent-yellow`/`accent-orange`
+      → amber/amber-dark, `accent-blue` → violet, `accent-cyan` → teal, so
+      every existing accent slot still resolves to a pitch colour.
+- [x] If the token schema is missing a slot this needs, add it and give
+      **every** existing theme a sensible default. — done as a separate
+      commit before this one: `radius-{card,control,input,pill}` +
+      `shadow-float` added to `packages/tailwind-config/global.css`'s
+      `@theme` + `:root`, defaulted onto the closest existing value for
+      Default/Aurora/Ember/Lagoon/Moss. Also fixed the pre-existing
+      `--border-input` gap found in Phase 1.
+- [x] Wire fonts through the design system's typography tokens/config. —
+      `--font-family` (Inter) / `--font-family-heading` (Space Grotesk) /
+      `--font-family-mono` (IBM Plex Mono) overridden in `tahti-dark.css`
+      exactly like colour vars; resolves through the existing `font-sans`
+      / `font-heading` / `font-mono` Tailwind utilities. **Not done:**
+      self-hosted font-file fallbacks — currently relies on whatever font
+      loading the browser/OS provides; Google Fonts CDN loading (used by
+      the pitch reference itself) was not wired in, per "no proprietary
+      assets" caution and because Phase 1 didn't locate an existing
+      font-loading mechanism to hook into.
+- [x] Tahti colours exposed as Tailwind theme colours/CSS variables — no
+      arbitrary hex utilities. Verified live: `bg-primary`, `text-primary`,
+      `border-primary`, `bg-background-input`, `rounded-pill` all resolve
+      correctly with `tahti-dark` active (see Phase 3 smoke-test
+      screenshot).
 
-**Status:** not started. Depends on Phase 1.
+**Status:** done, verified live (dev server + Playwright: body background,
+card borders, nav highlight all render the pitch palette; theme picker
+shows "Tahti" with the correct 4-swatch preview).
 
 ## Phase 3 — Themed primitives + Storybook stories
 
@@ -242,30 +264,60 @@ Add to `@nuclearplayer/ui` (or tahti-web shared components, whichever Phase 1
 found to be the actual pattern), all token-driven and reduced-motion aware,
 each with a Storybook story:
 
-- [ ] **Eyebrow** — mono, uppercase, tracked, accent colour.
-- [ ] **OnAirBadge** — pill + pulsing dot; static when
-      `prefers-reduced-motion`.
-- [ ] **Waveform** — renders N bars from a colour-token prop; `animated`
-      prop; used for banners, hero texture, and the live indicator.
-      Deterministic option for SSR/screenshot stability. Single-purpose per
-      placement — a banner waveform is decoration, a live-indicator
-      waveform is a status signal; don't merge their responsibilities into
-      one over-configurable component.
-- [ ] **StatNumber** — display face, large, accent — for "0%" / payout-style
-      figures.
+- [x] **Eyebrow** — mono, uppercase, tracked, accent colour. —
+      `packages/tahti-web/src/components/tahti/Eyebrow.tsx`.
+- [x] **OnAirBadge** — pill + pulsing dot; static when
+      `prefers-reduced-motion`. — `.../tahti/OnAirBadge.tsx`, uses the new
+      `rounded-pill` utility from Phase 2; pulse is Tailwind's
+      `motion-safe:` variant, so it's inert under reduced-motion with zero
+      extra JS.
+- [x] **Waveform** — renders N bars from a colour-token prop; `animated`
+      prop; deterministic (seeded, not `Math.random()`) so a given
+      `(bars, seed)` renders identically every time — SSR/screenshot
+      stable. — `.../tahti/Waveform.tsx`. Needs an explicit-height parent
+      or its own height class to render (percentage bar heights don't
+      resolve against an auto-height flex row) — defaults to `h-10`;
+      found and fixed via live smoke test, not just typecheck.
+- [x] **StatNumber** — display face, large, accent. — `.../tahti/StatNumber.tsx`.
 - [ ] Confirm base `Card`, `Button`, `Tabs`, `Field`/`Input`, `Pill`
       primitives consume the new tokens (radii, surfaces, borders, focus
-      ring) so surfaces reskin themselves once primitives are right.
+      ring) — **not verified**. The Phase 2 live check showed channel-card
+      borders rendering in amber everywhere (see screenshot note below),
+      which reads as *more* amber than the pitch's "one bold accent, stay
+      quiet elsewhere" rule — likely `Card`/similar already hardcode
+      `border-primary` regardless of theme. Needs a real look in Phase 5,
+      not assumed fixed by the token work alone.
 
-**Status:** not started. Depends on Phase 2.
+**Storybook stories: not done.** Phase 1 didn't establish whether
+`tahti-web`-local components (as opposed to `@nuclearplayer/ui`) are wired
+into the shared Storybook config at all — adding stories blind risked
+either not rendering or needing unplanned Storybook config changes. Placed
+these 4 in `tahti-web/src/components/tahti/` (not `@nuclearplayer/ui`)
+since they're Tahti-brand-specific, not general Nuclear player chrome —
+confirm that placement is right before adding stories.
+
+**Status:** primitives built and live-verified (dev server + Playwright
+screenshot: Eyebrow/OnAirBadge/Waveform/StatNumber all render correctly
+with `tahti-dark` active). Storybook stories and the base-primitive
+token-consumption check are still open.
 
 ## Phase 4 — Make `tahti-dark` selectable
 
-- [ ] `tahti-dark` is the default theme for `tahti-web`.
-- [ ] `tahti-dark` is available in the channel-designer preset list.
-- [ ] All Nuclear player themes remain intact and switchable.
+- [x] `tahti-dark` is the default theme for `tahti-web`. —
+      `themeStore.ts`'s `DEFAULT_THEME_ID` → `'nuclear:tahti-dark'`;
+      verified live (`data-theme-id="nuclear:tahti-dark"` on a fresh load,
+      no theme previously selected).
+- [ ] `tahti-dark` is available in the channel-designer preset list. — it's
+      in the OS-level theme switcher (`/settings` → Themes, confirmed
+      live) via `BUILTIN_BASIC_THEME_IDS`, but the *channel designer*
+      (artist-facing visual-preset picker, a separate tahti-web-only
+      concept per the Phase 1 note) hasn't been located/checked yet.
+- [x] All Nuclear player themes remain intact and switchable. — verified
+      live: Default/Aurora/Ember/Lagoon/Moss all still present and
+      selectable in the theme picker alongside the new "Tahti" entry.
 
-**Status:** not started. Depends on Phase 2–3.
+**Status:** mostly done — default + OS-level picker confirmed live;
+channel-designer preset list still open.
 
 ## Phase 5 — Apply across surfaces (tokens/primitives only, no one-offs)
 

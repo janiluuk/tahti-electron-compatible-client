@@ -129,6 +129,16 @@
   --radius-pill: 9999px;
 }
 
+@keyframes waveform-bar {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
 @layer base {
   body {
     @apply text-foreground bg-background cursor-default font-normal select-none;
