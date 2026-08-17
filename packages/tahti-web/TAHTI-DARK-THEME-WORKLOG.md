@@ -41,14 +41,11 @@ means a phase isn't done):
 
 ## Phase 0 — Prerequisite: land the reference file
 
-- [ ] Add the pitch reference at
+- [x] Add the pitch reference at
       `packages/tahti-web/docs/redesign-reference/tahti-live-pitch.html`.
-      **Not yet in the repo** — checked at planning time (2026-08-17), no
-      match anywhere under `tahti-nuclear/` or `tahti/`. Get the actual file
-      from the user before Phase 1 discovery starts; keep it open while
-      working.
+      Landed 2026-08-17 (from the user's local `~/Downloads`).
 
-**Status:** blocked — waiting on the reference file.
+**Status:** done.
 
 ## Phase 1 — Discovery (read-only, no code changes)
 
