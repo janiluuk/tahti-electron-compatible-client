@@ -56,17 +56,17 @@ Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, 
 | A9 | Support | `/admin/support` | **approved** | `docs/redesign-shots/admin-support-v1.png` |
 | A10 | Top lists | `/admin/top-lists` | **approved** | `docs/redesign-shots/admin-top-lists-v1.png` |
 | A11 | Announcements | `/admin/announcements` | **approved** | `docs/redesign-shots/admin-announcements-v1.png` |
-| A12 | Storage | `/admin/storage` | **in-review** | `docs/redesign-shots/admin-storage-v1.png` |
-| A13 | Files | `/admin/files` | **in-review** | `docs/redesign-shots/admin-files-v1.png` |
-| A14 | Content reports | `/admin/content-reports` | **in-review** | `docs/redesign-shots/admin-content-reports-v1.png` |
-| A15 | Financial | `/admin/financial` | **in-review** | `docs/redesign-shots/admin-financial-v1.png` |
-| A16 | Governance hub | `/admin/governance` | **in-review** | `docs/redesign-shots/admin-governance-v1.png` |
-| A17 | Feature requests | `/admin/feature-requests` | **in-review** | `docs/redesign-shots/admin-feature-requests-v1.png` |
-| A18 | Grants | `/admin/grants` | **in-review** | `docs/redesign-shots/admin-grants-v1.png` |
-| A19 | AGM | `/admin/agm` | **in-review** | `docs/redesign-shots/admin-agm-v1.png` |
-| A20 | Vendors | `/admin/settings/vendors` → `/admin/vendors` | **in-review** | `docs/redesign-shots/admin-vendors-v1.png` |
-| A21 | Status | `/admin/status` | **in-review** | `docs/redesign-shots/admin-status-v1.png` |
-| A22 | i18n languages + CSV import | (new — see Phase 0) | **in-review** | `docs/redesign-shots/admin-i18n-v1.png` |
+| A12 | Storage | `/admin/storage` | **approved** | `docs/redesign-shots/admin-storage-v1.png` |
+| A13 | Files | `/admin/files` | **approved** | `docs/redesign-shots/admin-files-v1.png` |
+| A14 | Content reports | `/admin/content-reports` | **approved** | `docs/redesign-shots/admin-content-reports-v1.png` |
+| A15 | Financial | `/admin/financial` | **approved** | `docs/redesign-shots/admin-financial-v1.png` |
+| A16 | Governance hub | `/admin/governance` | **approved** | `docs/redesign-shots/admin-governance-v1.png` |
+| A17 | Feature requests | `/admin/feature-requests` | **approved** | `docs/redesign-shots/admin-feature-requests-v1.png` |
+| A18 | Grants | `/admin/grants` | **approved** | `docs/redesign-shots/admin-grants-v1.png` |
+| A19 | AGM | `/admin/agm` | **approved** | `docs/redesign-shots/admin-agm-v1.png` |
+| A20 | Vendors | `/admin/settings/vendors` → `/admin/vendors` | **approved** | `docs/redesign-shots/admin-vendors-v1.png` |
+| A21 | Status | `/admin/status` | **approved** | `docs/redesign-shots/admin-status-v1.png` |
+| A22 | i18n languages + CSV import | (new — see Phase 0) | **approved** | `docs/redesign-shots/admin-i18n-v1.png` |
 
 **i18n (Approved):** Admin creates languages + imports English-base CSV — [CUTOVER-PHASE0.md](./CUTOVER-PHASE0.md).
 
@@ -439,7 +439,7 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 
 **Screenshots:** `docs/redesign-shots/admin-storage-v1.png`, `admin-files-v1.png`, `admin-content-reports-v1.png`, `admin-financial-v1.png`, `admin-governance-v1.png`, `admin-feature-requests-v1.png`, `admin-grants-v1.png`, `admin-agm-v1.png`, `admin-vendors-v1.png`, `admin-status-v1.png`
 
-**Status:** in-review — awaiting comment or `approved`. A22 (i18n languages + CSV import) is still pending and tracked separately per its Phase-0 note.
+**Status:** approved.
 
 ### 2026-08-17 — Mobile pass + icon-only media actions + mock-text sweep
 
@@ -487,5 +487,5 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 
 **Screenshot:** `docs/redesign-shots/admin-i18n-v1.png`
 
-**Status:** in-review — awaiting comment or `approved`. This closes out all 22 rows of the admin port.
+**Status:** approved. This closes out all 22 rows of the admin port.
 
