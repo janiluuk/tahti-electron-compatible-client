@@ -22,7 +22,7 @@ export const SettingsPanelNavItem: FC<SettingsPanelNavItemProps> = ({
     onClick={onClick}
     variant={isActive ? 'default' : 'text'}
     size="default"
-    className="justify-start gap-2"
+    className="shrink-0 justify-start gap-2"
   >
     <span>{icon}</span>
     {label}

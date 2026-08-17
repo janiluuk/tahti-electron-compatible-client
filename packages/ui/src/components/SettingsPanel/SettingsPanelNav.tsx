@@ -16,8 +16,15 @@ export const SettingsPanelNav: FC<SettingsPanelNavProps> = ({
   onTabChange,
   footer,
 }) => (
-  <nav className="border-border flex w-56 shrink-0 flex-col border-r-(length:--border-width) p-4">
-    <div className="flex flex-col gap-1">
+  // `sm:w-56!` is forced important: this codebase's compiled Tailwind
+  // output emits a second, later `.w-full{width:100%}` rule (from a
+  // separately-scanned @source root) that otherwise wins the cascade over
+  // `.sm\:w-56` at equal specificity despite appearing earlier in the
+  // file — confirmed by inspecting the built CSS, not a specificity
+  // mistake here. Without `!`, the settings nav silently stays full-width
+  // above the sm breakpoint and squeezes SettingsPanelContent to ~0.
+  <nav className="border-border flex w-full shrink-0 flex-col border-b-(length:--border-width) p-2 sm:w-56! sm:border-r-(length:--border-width) sm:border-b-0 sm:p-4">
+    <div className="flex flex-row gap-1 overflow-x-auto pr-10 sm:flex-col sm:overflow-visible sm:pr-0">
       {tabs.map((tab) => (
         <SettingsPanelNavItem
           key={tab.id}
@@ -29,6 +36,6 @@ export const SettingsPanelNav: FC<SettingsPanelNavProps> = ({
         />
       ))}
     </div>
-    {footer && <div className="mt-auto">{footer}</div>}
+    {footer && <div className="mt-2 sm:mt-auto">{footer}</div>}
   </nav>
 );
