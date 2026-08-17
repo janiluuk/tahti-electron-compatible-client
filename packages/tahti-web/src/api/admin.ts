@@ -1271,6 +1271,7 @@ export type AdminTopListEntry = {
   title: string;
   artistName: string;
   channelSlug: string;
+  audioUrl?: string | null;
 };
 
 export type AdminTopListBucket = {
@@ -1285,24 +1286,28 @@ function mockTopLists(dimension: AdminTopListDimension): AdminTopListBucket[] {
       artistName: 'DJ Moonlight',
       channelSlug: 'dj-moonlight',
       listens: 842,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
     {
       title: 'Route 550',
       artistName: 'Midnight Cartography',
       channelSlug: 'midnight-cartography',
       listens: 611,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
     },
     {
       title: 'Aurora Drift',
       artistName: 'Northern Lights',
       channelSlug: 'northern-lights',
       listens: 590,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
     },
     {
       title: 'Echo Chamber Cypher',
       artistName: 'Kaiku Collective',
       channelSlug: 'kaiku-collective',
       listens: 401,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
     },
   ];
   const bucketed =
@@ -1324,6 +1329,7 @@ function mockTopLists(dimension: AdminTopListDimension): AdminTopListBucket[] {
       title: t.title,
       artistName: t.artistName,
       channelSlug: t.channelSlug,
+      audioUrl: t.audioUrl,
     })),
   }));
 }

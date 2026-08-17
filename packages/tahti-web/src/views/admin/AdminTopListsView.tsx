@@ -1,4 +1,7 @@
+import { PlayIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+
+import { Button } from '@nuclearplayer/ui';
 
 import {
   fetchAdminTopLists,
@@ -10,6 +13,7 @@ import {
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { usePlayerStore } from '../../stores/playerStore';
 
 const PERIODS: { id: AdminTopListPeriod; label: string }[] = [
   { id: 'month', label: 'Month' },
@@ -59,6 +63,7 @@ function FilterRow<T extends string>({
 }
 
 export function AdminTopListsView() {
+  const play = usePlayerStore((s) => s.play);
   const [period, setPeriod] = useState<AdminTopListPeriod>('month');
   const [dimension, setDimension] = useState<AdminTopListDimension>('type');
   const [sort, setSort] = useState<AdminTopListSort>('desc');
@@ -111,8 +116,31 @@ export function AdminTopListsView() {
                   {bucket.entries.map((entry, i) => (
                     <div key={entry.archiveItemId} className="text-sm">
                       <div className="flex items-baseline justify-between gap-2">
-                        <span className="min-w-0 truncate">
-                          #{i + 1} {entry.title} — {entry.artistName}
+                        <span className="flex min-w-0 items-center gap-1.5">
+                          {entry.audioUrl && (
+                            <Button
+                              size="icon-sm"
+                              variant="text"
+                              aria-label={`Preview ${entry.title}`}
+                              title="Preview"
+                              onClick={() => {
+                                play({
+                                  id: `archive:${entry.archiveItemId}`,
+                                  kind: 'archive',
+                                  title: entry.title,
+                                  artist: entry.artistName,
+                                  streamUrl: entry.audioUrl!,
+                                  protocol: 'https',
+                                  channelSlug: entry.channelSlug,
+                                });
+                              }}
+                            >
+                              <PlayIcon size={14} aria-hidden />
+                            </Button>
+                          )}
+                          <span className="min-w-0 truncate">
+                            #{i + 1} {entry.title} — {entry.artistName}
+                          </span>
                         </span>
                         <span className="text-foreground-secondary shrink-0 text-xs">
                           {entry.listens}{' '}
