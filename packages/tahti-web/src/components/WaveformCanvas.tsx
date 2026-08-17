@@ -30,62 +30,73 @@ export function WaveformCanvas({
     if (!canvas) {
       return;
     }
-    const dpr = window.devicePixelRatio || 1;
-    const cssW = canvas.clientWidth || 640;
-    const cssH = 96;
-    canvas.width = Math.floor(cssW * dpr);
-    canvas.height = Math.floor(cssH * dpr);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      return;
-    }
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const w = cssW;
-    const h = cssH;
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = 'rgba(255,255,255,0.04)';
-    ctx.fillRect(0, 0, w, h);
-
-    const data =
-      peaks.length > 0 ? peaks : Array.from({ length: 128 }, () => 0.3);
-    const barW = w / data.length;
-    for (let i = 0; i < data.length; i++) {
-      const amp = Math.max(0.05, Math.min(1, data[i]!));
-      const bh = amp * (h - 8);
-      const x = i * barW;
-      const y = (h - bh) / 2;
-      ctx.fillStyle = 'rgba(120, 220, 200, 0.75)';
-      ctx.fillRect(x, y, Math.max(1, barW - 0.5), bh);
-    }
-
-    for (const cut of cuts) {
-      if (durationSec <= 0) {
-        continue;
+    function draw() {
+      if (!canvas) {
+        return;
       }
-      const x0 = (cut.start / durationSec) * w;
-      const x1 = (cut.end / durationSec) * w;
-      ctx.fillStyle = 'rgba(220, 80, 80, 0.35)';
-      ctx.fillRect(x0, 0, Math.max(2, x1 - x0), h);
+      const dpr = window.devicePixelRatio || 1;
+      const cssW = canvas.clientWidth || 640;
+      const cssH = canvas.clientHeight || 96;
+      canvas.width = Math.floor(cssW * dpr);
+      canvas.height = Math.floor(cssH * dpr);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        return;
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const w = cssW;
+      const h = cssH;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(255,255,255,0.04)';
+      ctx.fillRect(0, 0, w, h);
+
+      const data =
+        peaks.length > 0 ? peaks : Array.from({ length: 128 }, () => 0.3);
+      const barW = w / data.length;
+      for (let i = 0; i < data.length; i++) {
+        const amp = Math.max(0.05, Math.min(1, data[i]!));
+        const bh = amp * (h - 8);
+        const x = i * barW;
+        const y = (h - bh) / 2;
+        ctx.fillStyle = 'rgba(120, 220, 200, 0.75)';
+        ctx.fillRect(x, y, Math.max(1, barW - 0.5), bh);
+      }
+
+      for (const cut of cuts) {
+        if (durationSec <= 0) {
+          continue;
+        }
+        const x0 = (cut.start / durationSec) * w;
+        const x1 = (cut.end / durationSec) * w;
+        ctx.fillStyle = 'rgba(220, 80, 80, 0.35)';
+        ctx.fillRect(x0, 0, Math.max(2, x1 - x0), h);
+      }
+
+      if (selection && durationSec > 0) {
+        const x0 = (selection.start / durationSec) * w;
+        const x1 = (selection.end / durationSec) * w;
+        ctx.fillStyle = 'rgba(255, 220, 80, 0.25)';
+        ctx.fillRect(x0, 0, Math.max(2, x1 - x0), h);
+        ctx.strokeStyle = 'rgba(255, 220, 80, 0.9)';
+        ctx.strokeRect(x0, 1, Math.max(2, x1 - x0), h - 2);
+      }
+
+      if (durationSec > 0) {
+        const px = (currentTime / durationSec) * w;
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+        ctx.beginPath();
+        ctx.moveTo(px, 0);
+        ctx.lineTo(px, h);
+        ctx.stroke();
+      }
     }
 
-    if (selection && durationSec > 0) {
-      const x0 = (selection.start / durationSec) * w;
-      const x1 = (selection.end / durationSec) * w;
-      ctx.fillStyle = 'rgba(255, 220, 80, 0.25)';
-      ctx.fillRect(x0, 0, Math.max(2, x1 - x0), h);
-      ctx.strokeStyle = 'rgba(255, 220, 80, 0.9)';
-      ctx.strokeRect(x0, 1, Math.max(2, x1 - x0), h - 2);
-    }
-
-    if (durationSec > 0) {
-      const px = (currentTime / durationSec) * w;
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-      ctx.beginPath();
-      ctx.moveTo(px, 0);
-      ctx.lineTo(px, h);
-      ctx.stroke();
-    }
+    draw();
+    const observer = new ResizeObserver(draw);
+    observer.observe(canvas);
+    return () => observer.disconnect();
   }, [peaks, durationSec, currentTime, cuts, selection]);
 
   const secFromEvent = (clientX: number) => {
@@ -101,7 +112,7 @@ export function WaveformCanvas({
   return (
     <canvas
       ref={canvasRef}
-      className="border-border bg-background-secondary h-24 w-full cursor-crosshair rounded-md border"
+      className="border-border bg-background-secondary h-56 w-full cursor-crosshair rounded-md border"
       onMouseDown={(e) => {
         const sec = secFromEvent(e.clientX);
         dragRef.current = { startX: e.clientX, startSec: sec };

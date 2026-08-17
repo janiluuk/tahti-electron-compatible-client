@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router';
+import { PauseIcon, PlayIcon, SaveIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button, Input } from '@nuclearplayer/ui';
@@ -16,6 +17,7 @@ import type { EditList } from '../../api/studio-types';
 import { createDefaultEditList } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
 
 function formatTime(sec: number): string {
@@ -243,7 +245,7 @@ export function StudioProEditorView({
       return;
     }
     setUpdatedAt(result.updatedAt);
-    setMessage('Draft saved (PATCH …/editor/draft).');
+    setMessage('Draft saved.');
   };
 
   const render = async () => {
@@ -267,13 +269,13 @@ export function StudioProEditorView({
       return;
     }
     setMessage(
-      `Render queued — version ${result.versionId} (${result.status}).`,
+      `Render started — version ${result.versionId}, ${result.status.toLowerCase()}.`,
     );
   };
 
   return (
     <StudioGate>
-      <div className="mx-auto flex max-w-4xl flex-col gap-5">
+      <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-1 py-2">
         <StudioNav current="/studio/editor" />
         <div className="flex flex-wrap gap-3 text-xs">
           <Link
@@ -297,336 +299,379 @@ export function StudioProEditorView({
           </Link>
         </div>
 
-        <div>
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
-            {title || 'Pro editor'}
-          </h1>
-          <p className="text-foreground-secondary mt-1 text-sm">
-            Waveform, cut/trim, EQ/comp/limiter knobs (EditList), stems, draft +
-            render.
-          </p>
-        </div>
+        <StudioPageHeader
+          title={title || 'Pro editor'}
+          subtitle="Waveform, cuts, EQ, and mastering — save a draft or render a new version."
+        />
 
         {loading || !editList ? (
-          <p className="text-foreground-secondary text-sm">Loading editor…</p>
+          <StudioPanel>
+            <p className="text-foreground-secondary text-sm">Loading editor…</p>
+          </StudioPanel>
         ) : (
           <>
-            <WaveformCanvas
-              peaks={peaks}
-              durationSec={duration}
-              currentTime={currentTime}
-              cuts={editList.cuts}
-              selection={selection}
-              onSeek={seek}
-              onSelectRange={(start, end) => setSelection({ start, end })}
-            />
+            <StudioPanel>
+              <WaveformCanvas
+                peaks={peaks}
+                durationSec={duration}
+                currentTime={currentTime}
+                cuts={editList.cuts}
+                selection={selection}
+                onSeek={seek}
+                onSelectRange={(start, end) => setSelection({ start, end })}
+              />
 
-            <div className="text-foreground-secondary flex flex-wrap items-center gap-3 text-xs">
-              <span>
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
-              <span>Kept after cuts: {formatTime(keptDuration)}</span>
-              <span>{editList.cuts.length} cut(s)</span>
-              {selection && (
+              <div className="text-foreground-secondary mt-3 flex flex-wrap items-center gap-3 text-xs">
                 <span>
-                  Selection {formatTime(selection.start)}–
-                  {formatTime(selection.end)}
+                  {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Button size="sm" onClick={togglePlay}>
-                {playing ? 'Pause' : 'Play'}
-              </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={!selection}
-                onClick={addCutFromSelection}
-              >
-                Cut selection
-              </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={!selection}
-                onClick={trimToSelection}
-              >
-                Trim to selection
-              </Button>
-              <Button
-                size="sm"
-                variant="text"
-                disabled={editList.cuts.length === 0}
-                onClick={clearCuts}
-              >
-                Clear cuts
-              </Button>
-              <Button
-                size="sm"
-                variant="text"
-                onClick={() => setSelection(null)}
-              >
-                Clear selection
-              </Button>
-              <Button
-                size="sm"
-                variant="text"
-                onClick={() =>
-                  setMarkers((m) => [...m, currentTime].sort((a, b) => a - b))
-                }
-              >
-                Add marker @ playhead
-              </Button>
-            </div>
-
-            {markers.length > 0 && (
-              <div className="text-foreground-secondary flex flex-wrap gap-2 text-xs">
-                Markers:{' '}
-                {markers.map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    className="border-border rounded border px-1.5 py-0.5 hover:underline"
-                    onClick={() => seek(m)}
-                  >
-                    {formatTime(m)}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  className="underline"
-                  onClick={() => setMarkers([])}
-                >
-                  clear
-                </button>
+                <span>Kept after cuts: {formatTime(keptDuration)}</span>
+                <span>{editList.cuts.length} cut(s)</span>
+                {selection && (
+                  <span>
+                    Selection {formatTime(selection.start)}–
+                    {formatTime(selection.end)}
+                  </span>
+                )}
               </div>
-            )}
 
-            <div className="border-border grid gap-4 rounded-lg border p-4 md:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={editList.eq.enabled}
-                    onChange={(e) =>
-                      setEditList({
-                        ...editList,
-                        eq: { ...editList.eq, enabled: e.target.checked },
-                      })
-                    }
-                  />
-                  EQ enabled
-                </label>
-                {editList.eq.bands.map((band, i) => (
-                  <label
-                    key={band.freq}
-                    className="text-foreground-secondary text-xs"
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button size="sm" onClick={togglePlay}>
+                  {playing ? (
+                    <PauseIcon size={16} aria-hidden className="mr-1.5" />
+                  ) : (
+                    <PlayIcon size={16} aria-hidden className="mr-1.5" />
+                  )}
+                  {playing ? 'Pause' : 'Play'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!selection}
+                  onClick={addCutFromSelection}
+                >
+                  Cut selection
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!selection}
+                  onClick={trimToSelection}
+                >
+                  Trim to selection
+                </Button>
+                <Button
+                  size="sm"
+                  variant="text"
+                  disabled={editList.cuts.length === 0}
+                  onClick={clearCuts}
+                >
+                  Clear cuts
+                </Button>
+                <Button
+                  size="sm"
+                  variant="text"
+                  onClick={() => setSelection(null)}
+                >
+                  Clear selection
+                </Button>
+                <Button
+                  size="sm"
+                  variant="text"
+                  onClick={() =>
+                    setMarkers((m) => [...m, currentTime].sort((a, b) => a - b))
+                  }
+                >
+                  Add marker
+                </Button>
+              </div>
+
+              {markers.length > 0 && (
+                <div className="text-foreground-secondary mt-3 flex flex-wrap items-center gap-2 text-xs">
+                  Markers:{' '}
+                  {markers.map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className="border-border rounded border px-1.5 py-0.5 hover:underline"
+                      onClick={() => seek(m)}
+                    >
+                      {formatTime(m)}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => setMarkers([])}
                   >
-                    {band.freq} Hz gain ({band.gainDb} dB)
+                    clear
+                  </button>
+                </div>
+              )}
+            </StudioPanel>
+
+            <StudioPanel title="Mastering">
+              <div className="grid gap-6 lg:grid-cols-3">
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2 text-sm">
                     <input
-                      type="range"
-                      min={-12}
-                      max={12}
-                      step={0.5}
-                      value={band.gainDb}
-                      className="w-full"
-                      onChange={(e) => {
-                        const bands = editList.eq.bands.map((b, idx) =>
-                          idx === i
-                            ? { ...b, gainDb: Number(e.target.value) }
-                            : b,
-                        );
+                      type="checkbox"
+                      checked={editList.eq.enabled}
+                      onChange={(e) =>
                         setEditList({
                           ...editList,
-                          eq: { ...editList.eq, enabled: true, bands },
-                        });
-                      }}
+                          eq: { ...editList.eq, enabled: e.target.checked },
+                        })
+                      }
+                    />
+                    EQ
+                  </label>
+                  {editList.eq.bands.map((band, i) => (
+                    <label
+                      key={band.freq}
+                      className="text-foreground-secondary text-xs"
+                    >
+                      {band.freq} Hz gain ({band.gainDb} dB)
+                      <input
+                        type="range"
+                        min={-12}
+                        max={12}
+                        step={0.5}
+                        value={band.gainDb}
+                        className="w-full"
+                        onChange={(e) => {
+                          const bands = editList.eq.bands.map((b, idx) =>
+                            idx === i
+                              ? { ...b, gainDb: Number(e.target.value) }
+                              : b,
+                          );
+                          setEditList({
+                            ...editList,
+                            eq: { ...editList.eq, enabled: true, bands },
+                          });
+                        }}
+                      />
+                    </label>
+                  ))}
+                  <label className="text-foreground-secondary text-xs">
+                    Master gain ({editList.gainDb} dB)
+                    <input
+                      type="range"
+                      min={-24}
+                      max={12}
+                      step={0.5}
+                      value={editList.gainDb}
+                      className="w-full"
+                      onChange={(e) =>
+                        setEditList({
+                          ...editList,
+                          gainDb: Number(e.target.value),
+                        })
+                      }
                     />
                   </label>
-                ))}
-                <label className="text-foreground-secondary text-xs">
-                  Master gain ({editList.gainDb} dB)
-                  <input
-                    type="range"
-                    min={-24}
-                    max={12}
-                    step={0.5}
-                    value={editList.gainDb}
-                    className="w-full"
-                    onChange={(e) =>
-                      setEditList({
-                        ...editList,
-                        gainDb: Number(e.target.value),
-                      })
-                    }
-                  />
-                </label>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={editList.comp.enabled}
-                    onChange={(e) =>
-                      setEditList({
-                        ...editList,
-                        comp: { ...editList.comp, enabled: e.target.checked },
-                      })
-                    }
-                  />
-                  Compressor
-                </label>
-                <label className="text-foreground-secondary text-xs">
-                  Threshold ({editList.comp.thresholdDb} dB)
-                  <input
-                    type="range"
-                    min={-40}
-                    max={0}
-                    step={1}
-                    value={editList.comp.thresholdDb}
-                    className="w-full"
-                    onChange={(e) =>
-                      setEditList({
-                        ...editList,
-                        comp: {
-                          ...editList.comp,
-                          enabled: true,
-                          thresholdDb: Number(e.target.value),
-                        },
-                      })
-                    }
-                  />
-                </label>
-                <label className="text-foreground-secondary text-xs">
-                  Ratio ({editList.comp.ratio}:1)
-                  <input
-                    type="range"
-                    min={1}
-                    max={20}
-                    step={0.5}
-                    value={editList.comp.ratio}
-                    className="w-full"
-                    onChange={(e) =>
-                      setEditList({
-                        ...editList,
-                        comp: {
-                          ...editList.comp,
-                          enabled: true,
-                          ratio: Number(e.target.value),
-                        },
-                      })
-                    }
-                  />
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={editList.limiter.enabled}
-                    onChange={(e) =>
-                      setEditList({
-                        ...editList,
-                        limiter: {
-                          ...editList.limiter,
-                          enabled: e.target.checked,
-                        },
-                      })
-                    }
-                  />
-                  Limiter (ceiling {editList.limiter.ceilingDb} dB)
-                </label>
-              </div>
-            </div>
-
-            <div className="border-border flex flex-col gap-2 rounded-lg border p-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-foreground-secondary text-xs uppercase">
-                  Stems
-                </p>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    void requestArchiveStems(archiveItemId).then((r) => {
-                      if (!r.ok) {
-                        setMessage(r.error);
-                      } else {
-                        setMessage(`Stem job: ${r.status}`);
-                        void fetchArchiveStems(archiveItemId).then((s) =>
-                          setStems(s.data),
-                        );
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={editList.comp.enabled}
+                      onChange={(e) =>
+                        setEditList({
+                          ...editList,
+                          comp: {
+                            ...editList.comp,
+                            enabled: e.target.checked,
+                          },
+                        })
                       }
-                    });
-                  }}
-                >
-                  Request 2-stem split
-                </Button>
+                    />
+                    Compressor
+                  </label>
+                  <label className="text-foreground-secondary text-xs">
+                    Threshold ({editList.comp.thresholdDb} dB)
+                    <input
+                      type="range"
+                      min={-40}
+                      max={0}
+                      step={1}
+                      value={editList.comp.thresholdDb}
+                      className="w-full"
+                      onChange={(e) =>
+                        setEditList({
+                          ...editList,
+                          comp: {
+                            ...editList.comp,
+                            enabled: true,
+                            thresholdDb: Number(e.target.value),
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="text-foreground-secondary text-xs">
+                    Ratio ({editList.comp.ratio}:1)
+                    <input
+                      type="range"
+                      min={1}
+                      max={20}
+                      step={0.5}
+                      value={editList.comp.ratio}
+                      className="w-full"
+                      onChange={(e) =>
+                        setEditList({
+                          ...editList,
+                          comp: {
+                            ...editList.comp,
+                            enabled: true,
+                            ratio: Number(e.target.value),
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={editList.limiter.enabled}
+                      onChange={(e) =>
+                        setEditList({
+                          ...editList,
+                          limiter: {
+                            ...editList.limiter,
+                            enabled: e.target.checked,
+                          },
+                        })
+                      }
+                    />
+                    Limiter
+                  </label>
+                  <label className="text-foreground-secondary text-xs">
+                    Ceiling ({editList.limiter.ceilingDb} dB)
+                    <input
+                      type="range"
+                      min={-6}
+                      max={0}
+                      step={0.1}
+                      value={editList.limiter.ceilingDb}
+                      className="w-full"
+                      onChange={(e) =>
+                        setEditList({
+                          ...editList,
+                          limiter: {
+                            ...editList.limiter,
+                            enabled: true,
+                            ceilingDb: Number(e.target.value),
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                </div>
               </div>
-              {stems.length === 0 ? (
-                <p className="text-foreground-secondary text-xs">
-                  No stem jobs yet.
-                </p>
-              ) : (
-                <ul className="space-y-2 text-sm">
-                  {stems.map((job) => (
-                    <li key={job.stemSet}>
-                      {job.stemSet}: {job.status}
-                      <div className="mt-1 flex flex-wrap gap-2">
-                        {job.files?.map((f) => (
-                          <a
-                            key={f.label}
-                            href={f.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-xs underline"
-                          >
-                            {f.label}
-                          </a>
-                        ))}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+            </StudioPanel>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <StudioPanel
+                title="Stems"
+                action={
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      void requestArchiveStems(archiveItemId).then((r) => {
+                        if (!r.ok) {
+                          setMessage(r.error);
+                        } else {
+                          setMessage(`Stem job: ${r.status}`);
+                          void fetchArchiveStems(archiveItemId).then((s) =>
+                            setStems(s.data),
+                          );
+                        }
+                      });
+                    }}
+                  >
+                    Request 2-stem split
+                  </Button>
+                }
+              >
+                {stems.length === 0 ? (
+                  <p className="text-foreground-secondary text-sm">
+                    No stem jobs yet.
+                  </p>
+                ) : (
+                  <ul className="divide-border divide-y">
+                    {stems.map((job) => (
+                      <li
+                        key={job.stemSet}
+                        className="py-2 text-sm first:pt-0 last:pb-0"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span>{job.stemSet}</span>
+                          <span className="text-foreground-secondary text-xs uppercase">
+                            {job.status}
+                          </span>
+                        </div>
+                        {job.files && job.files.length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-2">
+                            {job.files.map((f) => (
+                              <a
+                                key={f.label}
+                                href={f.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs underline-offset-2 hover:underline"
+                              >
+                                {f.label}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </StudioPanel>
+
+              <StudioPanel title="Export">
+                <div className="flex flex-col gap-3">
+                  <Input
+                    label="Version label"
+                    value={versionLabel}
+                    onChange={(e) => setVersionLabel(e.target.value)}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      disabled={busy}
+                      onClick={() => void save()}
+                    >
+                      <SaveIcon size={16} aria-hidden className="mr-1.5" />
+                      Save draft
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={busy}
+                      onClick={() => void render()}
+                    >
+                      <UploadIcon size={16} aria-hidden className="mr-1.5" />
+                      Render version
+                    </Button>
+                  </div>
+                  {message && (
+                    <p
+                      className="text-foreground-secondary text-sm"
+                      role="status"
+                    >
+                      {message}
+                    </p>
+                  )}
+                </div>
+              </StudioPanel>
             </div>
-
-            <div className="border-border flex flex-col gap-3 rounded-lg border p-4">
-              <p className="text-foreground-secondary text-xs uppercase">
-                Export / render
-              </p>
-              <Input
-                label="Version label"
-                value={versionLabel}
-                onChange={(e) => setVersionLabel(e.target.value)}
-              />
-              <div className="flex flex-wrap gap-2">
-                <Button size="sm" disabled={busy} onClick={() => void save()}>
-                  Save draft
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={busy}
-                  onClick={() => void render()}
-                >
-                  Render version
-                </Button>
-              </div>
-              <p className="text-foreground-secondary text-xs">
-                Real: PATCH draft + POST render (ffmpeg job). Mock: local draft
-                store + fake version id. UpdatedAt: {updatedAt ?? 'null'}
-              </p>
-            </div>
-
-            {message && <p className="text-sm">{message}</p>}
-
-            <details className="text-foreground-secondary text-xs">
-              <summary className="cursor-pointer">EditList JSON</summary>
-              <pre className="bg-background-secondary mt-2 max-h-48 overflow-auto rounded p-2">
-                {JSON.stringify(editList, null, 2)}
-              </pre>
-            </details>
           </>
         )}
 
