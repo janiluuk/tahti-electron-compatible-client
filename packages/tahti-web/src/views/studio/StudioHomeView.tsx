@@ -10,6 +10,7 @@ import {
 } from '../../api/studio';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { useAuthStore } from '../../stores/authStore';
 
 type Counts = { archive: number; releases: number; collections: number };
@@ -17,8 +18,8 @@ type Counts = { archive: number; releases: number; collections: number };
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="font-display text-sm font-bold tracking-wide uppercase opacity-70">
-        {title}
+      <h2>
+        <Eyebrow>{title}</Eyebrow>
       </h2>
       {children}
     </section>
