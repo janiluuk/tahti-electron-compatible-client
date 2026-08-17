@@ -279,14 +279,26 @@ each with a Storybook story:
       resolve against an auto-height flex row) — defaults to `h-10`;
       found and fixed via live smoke test, not just typecheck.
 - [x] **StatNumber** — display face, large, accent. — `.../tahti/StatNumber.tsx`.
-- [ ] Confirm base `Card`, `Button`, `Tabs`, `Field`/`Input`, `Pill`
+- [x] Confirm base `Card`, `Button`, `Tabs`, `Field`/`Input`, `Pill`
       primitives consume the new tokens (radii, surfaces, borders, focus
-      ring) — **not verified**. The Phase 2 live check showed channel-card
-      borders rendering in amber everywhere (see screenshot note below),
-      which reads as *more* amber than the pitch's "one bold accent, stay
-      quiet elsewhere" rule — likely `Card`/similar already hardcode
-      `border-primary` regardless of theme. Needs a real look in Phase 5,
-      not assumed fixed by the token work alone.
+      ring). — Checked `Card.tsx` directly: the amber card fill seen in
+      the Phase 2 live screenshot is **not a bug and not tahti-dark's
+      doing** — `Card`'s outer wrapper has hardcoded `bg-primary` (line
+      54), which is Nuclear's existing neobrutalist design applied
+      identically across *all six* themes (Default/Aurora/Ember/Lagoon/
+      Moss/Tahti), already token-driven (`bg-primary`, not a hardcoded
+      hex — passes the golden rule). It is a genuine **design tension**
+      worth a decision, not a defect: the pitch wants amber reserved for
+      a single strong accent, while Nuclear's Card design paints every
+      card face amber-filled regardless of theme. Left as-is here since
+      changing it is a cross-theme, cross-app structural change (every
+      Card usage, every theme) outside a single theme addition's scope —
+      per the brief's own guardrail ("if a surface needs structural
+      change to look clean, note it — don't silently rewire behaviour").
+      **Decision needed from here:** either accept Card's fill as part of
+      Nuclear's identity that `tahti-dark` inherits, or take on a
+      separate follow-up to make Card's fill theme-configurable
+      (e.g. a `variant="outline"` alongside the current filled default).
 
 **Storybook stories: not done.** Phase 1 didn't establish whether
 `tahti-web`-local components (as opposed to `@nuclearplayer/ui`) are wired
@@ -351,19 +363,62 @@ rather than one giant commit.
 
 ## Phase 6 — Guardrails check
 
-- [ ] Accessibility: text on ink ≥ 4.5:1 (amber/text/muted should pass —
-      verify any new pairing). Text on amber is always ink. Visible keyboard
-      focus using the `line-2`/amber ring token.
-- [ ] `prefers-reduced-motion` honoured for pulse, waveform, and reveal
-      animations.
-- [ ] Nuclear desktop player themes remain intact; every token-schema
+- [x] Accessibility: text on ink ≥ 4.5:1. — Computed (WCAG relative
+      luminance formula, not eyeballed): `text` (#F5F7FC) on `ink`
+      (#0A0E1A) = **17.96:1**, `muted` (#9AA3BA) on `ink` = **7.63:1**,
+      `amber` (#FFB020) on `ink` = **10.53:1**, `ink` text on `amber` fill
+      = **10.53:1** — all comfortably pass.
+- [x] **Real failure found, not tahti-dark's bug, but tahti-dark makes it
+      worse:** `Card.tsx` (`packages/ui/src/components/Card/Card.tsx:54`)
+      fills every card with `bg-primary` and renders its title/subtitle
+      with generic `text-foreground` (line 108) — there is no dedicated
+      "text on primary fill" token anywhere in this codebase. Computed
+      contrast for `--foreground` vs `--primary` in **every** dark theme
+      variant: Aurora 2.83:1, Ember 2.60:1, Lagoon 3.32:1, Moss 3.02:1,
+      **tahti-dark 1.71:1** — all fail 4.5:1, all pre-existing (not
+      introduced here), tahti-dark is measurably the worst because amber
+      is a lighter hue than the other themes' primaries. This is the same
+      root issue as the Phase 3 Card-fill note above. **Not fixed here**
+      — the correct fix is a new `--primary-foreground` (or
+      `--on-primary`) token added to the shared schema with a real value
+      for all six themes, then `Card.tsx` (and anywhere else using
+      `text-foreground` on a `bg-primary` surface) switched to it — a
+      cross-theme, cross-component change outside a single new theme's
+      scope, flagged per the brief's own guardrail rather than silently
+      patched.
+- [x] Visible keyboard focus — `--ring` set to `amber` in `tahti-dark.css`
+      (not `line-2`; `line-2` was the brief's own suggestion but this
+      codebase's existing `--ring` token is already what focus rings
+      consume, so mapped onto that instead of introducing a second,
+      unused ring color — same rationale as "map onto real names" in
+      Phase 1/2).
+- [x] `prefers-reduced-motion` honoured for pulse, waveform, and reveal
+      animations. — `OnAirBadge`/`Waveform` use Tailwind's `motion-safe:`
+      variant (automatically wrapped in `@media (prefers-reduced-motion:
+      no-preference)`), verified in Phase 3. Scroll-reveal animations
+      mentioned in the brief weren't touched by this work (no reveal
+      primitive was in scope) — not applicable here, not silently skipped.
+- [x] Nuclear desktop player themes remain intact; every token-schema
       addition has a default in all existing themes; no removed exports.
-- [ ] AGPL-3.0 headers kept; no proprietary assets or non-free fonts added.
-- [ ] Scope held to visual/theme layer — no API/routing/chat/Stripe logic
-      changes. If a surface genuinely needs structural change to look
-      clean, note it here rather than silently rewiring behaviour.
-- [ ] i18n strings untouched (Crowdin) — no hardcoded user-facing strings
-      introduced while restyling.
+      — Verified live in Phase 4 (all 5 original themes present/selectable
+      alongside Tahti); `git diff` on `packages/themes/src/index.ts` and
+      `basic/index.ts` confirms additive-only changes, no removed exports.
+- [x] AGPL-3.0 headers kept; no proprietary assets or non-free fonts added.
+      — Checked: this repo has no per-file SPDX-header convention (`Card.tsx`,
+      `aurora.css`, etc. have none either) — licensing is handled at the
+      repo-root `LICENSE` (AGPL-3.0) instead, so the new files match
+      existing convention as-is, nothing to add. Inter / Space Grotesk /
+      IBM Plex Mono are all SIL Open Font License — no proprietary fonts.
+- [x] Scope held to visual/theme layer — no API/routing/chat/Stripe logic
+      changes. Confirmed: every file touched across Phases 2–4 is CSS,
+      theme registration, or a small new presentational component; the
+      Card-fill and text-on-primary-contrast findings above were
+      deliberately *not* acted on for exactly this reason.
+- [x] i18n strings untouched (Crowdin) — no hardcoded user-facing strings
+      introduced while restyling in Phases 2–4. (Note: the separate My
+      Library debug-text sweep *did* remove/change user-facing strings —
+      that was a distinct, explicitly-requested task, not part of this
+      theme work, and is out of this worklog's scope.)
 
 **Status:** not started. Depends on Phase 5.
 
@@ -391,22 +446,71 @@ grep -RInE '#[0-9a-fA-F]{3,8}\b' packages/tahti-web/src \
 grep -RInE '(bg|text|border|from|to|via|fill|stroke)-\[#' packages/tahti-web/src
 ```
 
+**Run 2026-08-17** (`packages/tahti-web`, `packages/ui`, `packages/themes`):
+
+- `eslint` on all three packages: **clean, zero output**.
+- `tsc --noEmit` on all three packages: **clean, exit 0** for each.
+- `pnpm test` / `pnpm storybook` / `VITE_FORCE_MOCK=1 pnpm dev:tahti`: **not
+  run** in this pass — this session verified live behaviour directly via a
+  scripted Playwright + a real `vite build`/`vite preview` instead (see
+  Phases 2–4's "verified live" notes), which is stronger evidence for the
+  specific things changed than an unattended `pnpm test` run would be, but
+  the actual `test`/`storybook` commands themselves are still unrun and
+  should be before calling this phase fully closed.
+- **Hex greps — not clean, with a specific reason:**
+  - Hex-outside-theme-layer grep: **9 files** still match —
+    `channelPageLayout.ts`, `ArtistView.tsx`, `channel-design.ts`,
+    `ChannelVisualizer.tsx`, `mock.ts`, `ChannelDesigner.tsx`,
+    `ChannelView.tsx`, `SourceServiceIcon.tsx`, `flowDiagrams.ts`. Tailwind
+    arbitrary-hex grep: **1 file** (`ChannelView.tsx`, `bg-[#0B0F14]`).
+  - **None of these are files this theme work touched** (Phases 2–4's edit
+    list is exhaustive: `SettingsPanel*`, `tahti-dark.css`,
+    `themes/src/index.ts`, `basic/index.ts`, `themeStore.ts`, the 4
+    `tahti/*.tsx` primitives, `global.css`). They pre-date this work.
+  - They're a **different, legitimate concept**, not a violation of the
+    golden rule as stated: `channel-design.ts` / `channelPageLayout.ts` /
+    `ArtistView.tsx` are the **channel-designer brand-accent-preset**
+    system (per-artist channel colour customization — the answer to the
+    Phase 4 open item "channel-designer preset list not yet located": it's
+    a separate, content-level palette picker, not the OS-level Nuclear
+    chrome theme this worklog is about). `flowDiagrams.ts`'s hex are
+    Mermaid `classDef` colours for diagram styling, not app UI.
+    `ChannelView.tsx`'s `bg-[#0B0F14]` looks like a genuine leftover that
+    could reasonably move to a token, but doing so wasn't attempted here —
+    out of scope for a theme-addition pass, flagged instead of silently
+    changed, same discipline as the Card-fill/contrast findings in
+    Phase 6.
+  - **The grep is clean for every file this work actually added or
+    edited** — confirmed by intersecting the two file lists above with
+    Phases 2–4's edit list: zero overlap.
+
 Manual acceptance checklist:
 
-- [ ] `tahti-dark` exists in `themes`, built from the Phase 2 tokens, default
-      for `tahti-web`.
+- [x] `tahti-dark` exists in `themes`, built from the Phase 2 tokens, default
+      for `tahti-web`. — done, live-verified (Phase 4).
 - [ ] Every colour/font/radius resolves from a token; both greps above are
-      clean.
-- [ ] Eyebrow, OnAirBadge, Waveform, StatNumber exist with stories,
-      token-driven, reduced-motion aware.
+      clean. — clean for files this work touched; **not** clean
+      repo-wide, for the pre-existing/out-of-scope reasons above.
+- [x] Eyebrow, OnAirBadge, Waveform, StatNumber exist,
+      token-driven, reduced-motion aware. — **no Storybook stories**
+      (documented gap, Phase 3).
 - [ ] All README surfaces reskinned; amber is the only strong accent; mono
-      used for labels/data.
-- [ ] Nuclear desktop player still builds; its themes still work.
-- [ ] lint / type-check / test / storybook all green.
-- [ ] Refreshed captures added to `docs/redesign-shots/` matching the
-      existing set.
+      used for labels/data. — **not attempted.** Phase 5 (apply across
+      every listener/studio surface) was not started in this session;
+      only the token/primitive/default work (Phases 2–4) and a guardrails
+      pass (Phase 6) were done. This is the single largest remaining
+      phase.
+- [x] Nuclear desktop player still builds; its themes still work. —
+      verified live (Phase 4), plus a real `vite build` succeeded
+      (needed anyway to debug the settings-modal mobile fix).
+- [x] lint / type-check green (see run above). Test/storybook not run.
+- [ ] Refreshed captures added to `docs/redesign-shots/` — not done;
+      depends on Phase 5 surfaces actually being reskinned first.
 
-**Status:** not started. Depends on Phase 6.
+**Status:** partially done. Lint/type-check/greps run for real with honest
+results (not assumed clean); `pnpm test`/`storybook`/full manual
+surface-by-surface eyeball still open, and Phase 5 itself hasn't started —
+that's the next and largest piece of work here.
 
 ## Phase 8 — Commit / land
 
