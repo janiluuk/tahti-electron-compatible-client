@@ -22,6 +22,7 @@ const PRIMARY = [
   { to: '/admin/agm', label: 'AGM' },
   { to: '/admin/vendors', label: 'Vendors' },
   { to: '/admin/status', label: 'Status' },
+  { to: '/admin/i18n', label: 'Languages' },
 ] as const;
 
 function isActive(current: string | undefined, to: string) {

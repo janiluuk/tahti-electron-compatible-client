@@ -21,6 +21,7 @@ import { AdminFilesView } from './views/admin/AdminFilesView';
 import { AdminFinancialView } from './views/admin/AdminFinancialView';
 import { AdminGovernanceView } from './views/admin/AdminGovernanceView';
 import { AdminGrantsView } from './views/admin/AdminGrantsView';
+import { AdminI18nView } from './views/admin/AdminI18nView';
 import { AdminNewsView } from './views/admin/AdminNewsView';
 import { AdminRadioSubmissionsView } from './views/admin/AdminRadioSubmissionsView';
 import { AdminRadioView } from './views/admin/AdminRadioView';
@@ -275,6 +276,12 @@ const adminStatusRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin/status',
   component: AdminStatusView,
+});
+
+const adminI18nRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/i18n',
+  component: AdminI18nView,
 });
 
 const libraryRoute = createRoute({
@@ -877,6 +884,7 @@ const routeTree = rootRoute.addChildren([
     adminAgmRoute,
     adminVendorsRoute,
     adminStatusRoute,
+    adminI18nRoute,
     libraryRoute,
     libraryHistoryRoute,
     libraryMessagesRoute,

@@ -66,7 +66,7 @@ Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, 
 | A19 | AGM | `/admin/agm` | **in-review** | `docs/redesign-shots/admin-agm-v1.png` |
 | A20 | Vendors | `/admin/settings/vendors` → `/admin/vendors` | **in-review** | `docs/redesign-shots/admin-vendors-v1.png` |
 | A21 | Status | `/admin/status` | **in-review** | `docs/redesign-shots/admin-status-v1.png` |
-| A22 | i18n languages + CSV import | (new — see Phase 0) | pending | |
+| A22 | i18n languages + CSV import | (new — see Phase 0) | **in-review** | `docs/redesign-shots/admin-i18n-v1.png` |
 
 **i18n (Approved):** Admin creates languages + imports English-base CSV — [CUTOVER-PHASE0.md](./CUTOVER-PHASE0.md).
 
@@ -472,4 +472,20 @@ All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fe
 **Screenshots:** `mobile-shots/music-archive-tab.png`, `mobile-shots/music-files-tab.png` (scratch, not committed).
 
 **Status:** shipped — verified via `tsc --noEmit`, `eslint`, and `vite build`.
+
+### 2026-08-17 — Page A22 Languages (i18n) v1 (`in-review`)
+
+**Goal:** Last row on the admin nav — per the Phase-0 decision log, board must be able to create a language and import a CSV whose base/source column is English. Same AdminGate/AdminNav/StudioPanel foundation as the rest of admin.
+
+**Changes:**
+
+- `AdminI18nView` (`/admin/i18n`): language list with a translated/total progress bar per row (English is the non-removable `Base`); **New language** opens a `Dialog` for code + name; each non-base row gets an **Import CSV** action that opens a native file picker
+- `api/admin.ts`: `fetchAdminLanguages`, `createAdminLanguage`, `importAdminLanguageCsv` — CSV parsing (header-row detection, `english,translation` columns) happens client-side so the imported/skipped count and progress bar update immediately in mock mode; the live-API path posts the file as `multipart/form-data` to `/api/admin/i18n/languages/:code/import` (endpoint doesn't exist yet — same "port ahead of the real API" pattern as the rest of this admin sweep)
+- `AdminNav` gained a 22nd entry, **Languages**
+
+**Verified functionally** (not just visually): created a language via the dialog, imported a 3-row CSV against Swedish's mock 214/812 baseline, confirmed it read 217/812 (27%) afterward.
+
+**Screenshot:** `docs/redesign-shots/admin-i18n-v1.png`
+
+**Status:** in-review — awaiting comment or `approved`. This closes out all 22 rows of the admin port.
 
