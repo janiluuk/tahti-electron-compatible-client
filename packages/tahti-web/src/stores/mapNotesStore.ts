@@ -48,6 +48,8 @@ type MapNotesState = {
   notesByCaseId: Record<string, string>;
   /** Submitted comments (append-only log, newest first). */
   comments: MapComment[];
+  /** Case ids marked reviewed/approved — collapsed by default in the atlas. */
+  approvedByCaseId: Record<string, boolean>;
   setDraft: (kind: MapCommentKind, targetId: string, text: string) => void;
   getDraft: (kind: MapCommentKind, targetId: string) => string;
   /** Persist a submitted comment; updates the draft to the saved text. */
@@ -55,6 +57,8 @@ type MapNotesState = {
   clearComments: () => void;
   /** Snapshot of submitted comments (exportable). */
   listComments: () => MapComment[];
+  isCaseApproved: (caseId: string) => boolean;
+  setCaseApproved: (caseId: string, approved: boolean) => void;
 };
 
 export const useMapNotesStore = create<MapNotesState>()(
@@ -63,6 +67,7 @@ export const useMapNotesStore = create<MapNotesState>()(
       draftsByKey: {},
       notesByCaseId: {},
       comments: [],
+      approvedByCaseId: {},
       setDraft: (kind, targetId, text) =>
         set((s) => {
           const key = draftKey(kind, targetId);
@@ -125,10 +130,21 @@ export const useMapNotesStore = create<MapNotesState>()(
       },
       clearComments: () => set({ comments: [] }),
       listComments: () => get().comments,
+      isCaseApproved: (caseId) => Boolean(get().approvedByCaseId[caseId]),
+      setCaseApproved: (caseId, approved) =>
+        set((s) => {
+          const next = { ...s.approvedByCaseId };
+          if (approved) {
+            next[caseId] = true;
+          } else {
+            delete next[caseId];
+          }
+          return { approvedByCaseId: next };
+        }),
     }),
     {
       name: 'tahti-web-map-notes',
-      version: 2,
+      version: 3,
       migrate: (persisted) => {
         const p = (persisted ?? {}) as Partial<MapNotesState>;
         const notesByCaseId = p.notesByCaseId ?? {};
@@ -143,12 +159,14 @@ export const useMapNotesStore = create<MapNotesState>()(
           draftsByKey,
           notesByCaseId,
           comments: Array.isArray(p.comments) ? p.comments : [],
+          approvedByCaseId: p.approvedByCaseId ?? {},
         };
       },
       partialize: (s) => ({
         draftsByKey: s.draftsByKey,
         notesByCaseId: s.notesByCaseId,
         comments: s.comments,
+        approvedByCaseId: s.approvedByCaseId,
       }),
     },
   ),
