@@ -2,6 +2,10 @@ import { useMemo, useState } from 'react';
 
 import { Button, FilterChips, Input, SectionShell } from '@nuclearplayer/ui';
 
+import {
+  MediaIconActions,
+  playQueueFavoriteActions,
+} from '../components/MediaIconActions';
 import { PageHeader } from '../components/PageHeader';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { useLibraryStore, type HistoryEntry } from '../stores/libraryStore';
@@ -11,7 +15,6 @@ type KindFilter = 'all' | 'archive' | 'live' | 'radio';
 
 export function HistoryView() {
   const history = useLibraryStore((s) => s.history);
-  const scopeKey = useLibraryStore((s) => s.scopeKey);
   const clearHistory = useLibraryStore((s) => s.clearHistory);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
@@ -53,7 +56,6 @@ export function HistoryView() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="History"
-        subtitle={`Recent plays in localStorage${scopeKey === 'anon' ? ' (anonymous)' : ' (account-scoped on this device)'}. Archive plays also best-effort POST /api/listen-events.`}
         actions={
           <>
             <Button size="sm" disabled={items.length === 0} onClick={replayAll}>
@@ -110,16 +112,12 @@ export function HistoryView() {
                     {new Date(h.playedAt).toLocaleString()}
                   </p>
                 </div>
-                <Button size="sm" variant="text" onClick={() => replayOne(h)}>
-                  Play
-                </Button>
-                <Button
-                  size="sm"
-                  variant="text"
-                  onClick={() => enqueue(h.playable)}
-                >
-                  Queue
-                </Button>
+                <MediaIconActions
+                  actions={playQueueFavoriteActions({
+                    onPlay: () => replayOne(h),
+                    onQueue: () => enqueue(h.playable),
+                  })}
+                />
               </li>
             ))}
           </ul>

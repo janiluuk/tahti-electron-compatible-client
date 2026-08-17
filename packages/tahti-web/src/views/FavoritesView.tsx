@@ -3,6 +3,10 @@ import { Link } from '@tanstack/react-router';
 import { Button, Card, CardGrid, SectionShell } from '@nuclearplayer/ui';
 
 import { fetchChannel } from '../api/client';
+import {
+  MediaIconActions,
+  playQueueFavoriteActions,
+} from '../components/MediaIconActions';
 import { PageHeader } from '../components/PageHeader';
 import { PageEmpty } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
@@ -12,19 +16,13 @@ import { usePlayerStore } from '../stores/playerStore';
 export function FavoritesView() {
   const favoriteChannels = useLibraryStore((s) => s.favoriteChannels);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
-  const syncNote = useLibraryStore((s) => s.syncNote);
-  const scopeKey = useLibraryStore((s) => s.scopeKey);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Favorites"
-        subtitle={`Browser storage namespaced by ${scopeKey === 'anon' ? 'anonymous session' : 'account'}. Channel hearts sync follow when logged in; tracks stay local.`}
-        meta={syncNote ?? undefined}
-      />
+      <PageHeader title="Favorites" />
 
       <SectionShell title="Channels">
         {favoriteChannels.length === 0 ? (
@@ -50,40 +48,28 @@ export function FavoritesView() {
                     src={ch.avatarUrl ?? undefined}
                   />
                 </Link>
-                <div className="flex flex-wrap gap-2 px-1">
-                  <Button
-                    size="sm"
-                    onClick={() => {
+                <MediaIconActions
+                  className="px-1"
+                  actions={playQueueFavoriteActions({
+                    onPlay: () => {
                       void fetchChannel(ch.slug).then(({ playable }) => {
                         if (playable) {
                           play(playable);
                         }
                       });
-                    }}
-                  >
-                    Play
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() => {
+                    },
+                    onQueue: () => {
                       void fetchChannel(ch.slug).then(({ playable }) => {
                         if (playable) {
                           enqueue(playable);
                         }
                       });
-                    }}
-                  >
-                    Queue
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="text"
-                    onClick={() => toggleFavoriteChannel(ch)}
-                  >
-                    Remove
-                  </Button>
-                </div>
+                    },
+                    onFavorite: () => toggleFavoriteChannel(ch),
+                    favorited: true,
+                    queueLabel: 'Queue channel',
+                  })}
+                />
               </div>
             ))}
           </CardGrid>
