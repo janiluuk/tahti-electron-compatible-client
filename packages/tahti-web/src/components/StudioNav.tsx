@@ -5,7 +5,7 @@ import { InPageNav } from './InPageNav';
 const PRIMARY = [
   { to: '/studio', label: 'Overview' },
   { to: '/studio/go-live', label: 'Go Live' },
-  { to: '/studio/archive', label: 'Library' },
+  { to: '/studio/archive', label: 'Music' },
   { to: '/studio/releases', label: 'Releases' },
   { to: '/studio/shows', label: 'Shows' },
 ] as const;
@@ -20,7 +20,6 @@ const MORE = [
   { to: '/studio/stats', label: 'Stats' },
   { to: '/studio/revenue', label: 'Revenue' },
   { to: '/studio/updates', label: 'Updates' },
-  { to: '/studio/stash', label: 'Stash' },
   { to: '/studio/moderation', label: 'Moderation' },
   { to: '/studio/venues', label: 'Venues' },
   { to: '/studio/events', label: 'Events' },

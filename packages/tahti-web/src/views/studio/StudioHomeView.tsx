@@ -115,11 +115,11 @@ export function StudioHomeView() {
                 </Link>
                 <Link to="/studio/archive">
                   <Card
-                    title="Library"
+                    title="Music"
                     subtitle={
                       counts.archive
                         ? `${counts.archive} items`
-                        : 'Archive & publish'
+                        : 'Archive & files'
                     }
                   />
                 </Link>
