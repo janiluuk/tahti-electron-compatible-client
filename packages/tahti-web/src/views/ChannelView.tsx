@@ -270,7 +270,7 @@ export function ChannelView({ slug }: { slug: string }) {
                 </p>
               )}
               {!subtle && (
-                <p className="mt-1 text-[10px] text-white/50">
+                <p className="mt-1 font-mono text-[10px] tracking-wide text-white/50 uppercase">
                   Preset:{' '}
                   {(channel.visualPreset ?? 'AURORA').replace(/_/g, ' ')}
                 </p>
