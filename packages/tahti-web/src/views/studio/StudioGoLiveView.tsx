@@ -31,6 +31,7 @@ import {
 } from '../../api/broadcast';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { OnAirBadge } from '../../components/tahti/OnAirBadge';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
@@ -50,11 +51,13 @@ function CopyField({ label, value }: { label: string; value: string }) {
   const [ok, setOk] = useState(false);
   return (
     <div className="border-border bg-background-secondary flex flex-col gap-1 rounded-lg border p-3">
-      <div className="text-foreground-secondary text-xs tracking-wide uppercase">
+      <div className="text-foreground-secondary font-mono text-xs tracking-wide uppercase">
         {label}
       </div>
       <div className="flex items-center gap-2">
-        <code className="text-foreground flex-1 truncate text-sm">{value}</code>
+        <code className="text-foreground flex-1 truncate font-mono text-sm">
+          {value}
+        </code>
         <Button
           size="sm"
           variant="secondary"
@@ -76,9 +79,6 @@ function CopyField({ label, value }: { label: string; value: string }) {
 }
 
 function statusTone(state: string): string {
-  if (state === 'LIVE') {
-    return 'bg-primary text-foreground';
-  }
   if (state === 'PREVIEW') {
     return 'border-border text-foreground border';
   }
@@ -258,11 +258,15 @@ export function StudioGoLiveView() {
               platforms.
             </p>
           </div>
-          <span
-            className={`rounded px-3 py-1 text-xs font-bold tracking-wide uppercase ${statusTone(channelState)}`}
-          >
-            {channelState}
-          </span>
+          {channelState === 'LIVE' ? (
+            <OnAirBadge />
+          ) : (
+            <span
+              className={`rounded px-3 py-1 text-xs font-bold tracking-wide uppercase ${statusTone(channelState)}`}
+            >
+              {channelState}
+            </span>
+          )}
         </div>
 
         <ol className="flex flex-wrap gap-2">
