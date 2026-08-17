@@ -20,7 +20,7 @@ export function PlayableTrackTable({
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
-  const isFavoriteTrack = useLibraryStore((s) => s.isFavoriteTrack);
+  const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
 
   if (items.length === 0) {
     return <p className="text-foreground-secondary text-sm">{emptyMessage}</p>;
@@ -92,7 +92,8 @@ export function PlayableTrackTable({
           },
         }}
         meta={{
-          isTrackFavorite: (track) => isFavoriteTrack(track.source.id),
+          isTrackFavorite: (track) =>
+            favoriteTracks.some((t) => t.id === track.source.id),
           ContextMenuWrapper: PlayableTrackContextMenu,
         }}
       />

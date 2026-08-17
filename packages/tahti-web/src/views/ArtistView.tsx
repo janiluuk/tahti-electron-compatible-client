@@ -88,7 +88,7 @@ export function ArtistView({ username }: { username: string }) {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
-  const isFavoriteTrack = useLibraryStore((s) => s.isFavoriteTrack);
+  const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
 
   const isOwner = Boolean(me && me.username === username);
   const hasGallery = galleryImages.length > 0;
@@ -347,7 +347,7 @@ export function ArtistView({ username }: { username: string }) {
                     onPlay={() => play(playable)}
                     onQueue={() => enqueue(playable)}
                     onFavorite={() => toggleFavoriteTrack(playable)}
-                    favorited={isFavoriteTrack(playable.id)}
+                    favorited={favoriteTracks.some((t) => t.id === playable.id)}
                   />
                 ))}
               </CardGrid>
@@ -394,7 +394,11 @@ export function ArtistView({ username }: { username: string }) {
                     onFavorite={
                       playable ? () => toggleFavoriteTrack(playable) : undefined
                     }
-                    favorited={playable ? isFavoriteTrack(playable.id) : false}
+                    favorited={
+                      playable
+                        ? favoriteTracks.some((t) => t.id === playable.id)
+                        : false
+                    }
                   />
                 ))}
               </CardGrid>

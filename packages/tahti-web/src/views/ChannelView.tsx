@@ -64,7 +64,9 @@ export function ChannelView({ slug }: { slug: string }) {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
-  const isFavoriteChannel = useLibraryStore((s) => s.isFavoriteChannel);
+  const favorited = useLibraryStore((s) =>
+    s.favoriteChannels.some((c) => c.slug === slug),
+  );
   const setChatContext = useLayoutStore((s) => s.setChatContext);
   const openChatRail = useLayoutStore((s) => s.openChatRail);
 
@@ -139,7 +141,6 @@ export function ChannelView({ slug }: { slug: string }) {
   }
 
   const live = channel.state === 'LIVE' && Boolean(channel.hlsUrl);
-  const favorited = isFavoriteChannel(slug);
   const chatOn = channel.chatEnabled !== false;
 
   const openChat = () => {

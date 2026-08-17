@@ -51,7 +51,9 @@ export function RadioView() {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
-  const isFavoriteChannel = useLibraryStore((s) => s.isFavoriteChannel);
+  const favorited = useLibraryStore((s) =>
+    s.favoriteChannels.some((c) => c.slug === TAHTI_RADIO_SLUG),
+  );
 
   const reload = () => {
     setLoading(true);
@@ -71,7 +73,6 @@ export function RadioView() {
     reload();
   }, []);
 
-  const favorited = isFavoriteChannel(TAHTI_RADIO_SLUG);
   const online = Boolean(station?.hlsUrl);
   const nowPlaying = station?.nowPlaying;
   const stationLogo =

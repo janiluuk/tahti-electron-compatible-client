@@ -40,7 +40,6 @@ export function ListenView() {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
-  const isFavoriteChannel = useLibraryStore((s) => s.isFavoriteChannel);
   const favoriteChannels = useLibraryStore((s) => s.favoriteChannels);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
   const history = useLibraryStore((s) => s.history);
@@ -371,7 +370,8 @@ export function ListenView() {
           ) : (
             <CardGrid>
               {filtered.map((ch) => {
-                const favorited = signedIn && isFavoriteChannel(ch.slug);
+                const favorited =
+                  signedIn && favoriteChannels.some((c) => c.slug === ch.slug);
                 return (
                   <Card
                     key={ch.slug}
