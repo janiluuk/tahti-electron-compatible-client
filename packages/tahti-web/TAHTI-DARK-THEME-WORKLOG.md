@@ -79,7 +79,88 @@ theme-registration API, the theme names that already exist, and the file
 where `tahti-dark` will be added. Do not proceed to Phase 2 until the Phase 2
 token table below has been confirmed against these *real* names.
 
-**Status:** not started.
+**Findings (2026-08-17):**
+
+- **Token mechanism:** plain CSS custom properties on `:root`, defined once
+  in `packages/tailwind-config/global.css`, then re-exported as Tailwind v4
+  `@theme` entries (`--color-background: var(--background)`, etc.) so
+  utilities like `bg-background` / `text-foreground` / `text-primary`
+  resolve to the CSS vars. Colours are OKLCH, not hex.
+- **Real semantic token names already in use** (map onto these, don't invent
+  parallel ones): `--background` / `--background-secondary` /
+  `--background-input`, `--foreground` / `--foreground-secondary` /
+  `--foreground-input`, `--primary`, `--border` / `--border-input` (see gap
+  below) / `--ring`, `--accent-{green,yellow,purple,blue,orange,cyan,red}`,
+  `--shadow-color` / `--shadow-x` / `--shadow-y` / `--shadow-blur`,
+  `--radius-sm` / `--radius-md` / `--radius-lg`, `--font-family` (sans) /
+  `--font-family-heading` / `--font-family-mono`, `--font-weight-normal` /
+  `-bold` / `-extra-bold`.
+- **Dark mode vs. named theme are two independent attributes:** `[data-theme='dark']`
+  toggles light/dark (a Tailwind `@custom-variant dark`, global.css:5) and
+  `[data-theme-id='nuclear:xxx']` selects a *named* theme
+  (`packages/themes/src/basic/*.css`); a named theme's CSS only overrides
+  the subset of vars it wants to change, for both
+  `[data-theme-id='x']` (light) and `[data-theme-id='x'][data-theme='dark']`
+  (dark) — see `aurora.css` as the reference pattern. Both attributes live on
+  `document.documentElement`.
+- **Theme registration/switching API:** `@nuclearplayer/themes`
+  (`packages/themes/src/index.ts` + `basic/index.ts`) exports
+  `BUILTIN_BASIC_THEME_IDS` (id list) and a `BUILT_INS: BasicThemeMeta[]`
+  array (id/name/4-swatch palette for the picker UI) — both need a new
+  entry. Switching happens via `setBasicTheme(id)` →
+  `document.documentElement.setAttribute('data-theme-id', id)`. `tahti-web`
+  wraps this in its own `src/stores/themeStore.ts` (zustand, persisted to
+  localStorage as `tahti-web-theme`), whose own `DEFAULT_THEME_ID =
+  'nuclear:default'` constant is *also* what needs updating to make
+  `tahti-dark` the tahti-web default (two defaults to change, not one:
+  `packages/themes`' registry default stays `nuclear:default` for the
+  Nuclear desktop player; `tahti-web`'s store default becomes
+  `tahti-dark`).
+- **Exact files for Phase 2:**
+  - New `packages/themes/src/basic/tahti-dark.css` (sibling of
+    `aurora.css`/`ember.css`/`lagoon.css`/`arctic-moss.css`).
+  - Register it: `packages/themes/src/index.ts` (CSS import + `BUILT_INS`
+    entry) and `packages/themes/src/basic/index.ts`
+    (`BUILTIN_BASIC_THEME_IDS`).
+  - Default-for-tahti-web: `packages/tahti-web/src/stores/themeStore.ts`'s
+    `DEFAULT_THEME_ID`.
+  - Channel-designer preset list: not yet located — search
+    `packages/tahti-web/src/views` for the channel-designer visual-preset
+    picker before starting Phase 4 (separate from the OS-level theme
+    switcher above; likely a different, tahti-web-only concept).
+- **Two real gaps to resolve in Phase 2, not invented here:**
+  1. `--color-border-input: var(--border-input)` is declared in the
+     `@theme` block but `--border-input` is **never actually defined** in
+     `:root` or `[data-theme='dark']` — pre-existing gap, not something
+     `tahti-dark` broke. Give it a value for `tahti-dark` and flag it
+     upstream; don't silently rely on it falling back to nothing.
+  2. **Shadow/radius vocabulary mismatch.** Nuclear's existing look is
+     neobrutalist: flat 0-blur offset shadows (`--shadow-x/y` + hard
+     `--border`, no blur) and 3 generic radii (`sm/md/lg` = 4/8/12px). The
+     pitch wants soft blurred elevation (`shadow-float: 0 24px 60px -30px
+     rgba(0,0,0,.8)`) and 4 *purpose-named* radii (card 16 / control 10 /
+     input 8 / pill 20). These aren't the same token shape — Phase 2 needs
+     to decide whether `tahti-dark` introduces new
+     `--shadow-float`/`--radius-card`/`--radius-control`/`--radius-pill`
+     tokens onto the shared schema (with sane defaults for the other 4
+     themes, per the golden rule) or reuses `radius-lg`≈card /
+     `radius-md`≈control / `radius-sm`≈input and drops the pill/float
+     concepts into `tahti-dark`'s own CSS only. Recommend the former (new
+     schema tokens with defaults everywhere) since the brief explicitly
+     asks for `radius-pill`/`shadow-float` as named tokens, not favours.
+  3. **Fonts are not yet theme-scoped anywhere in this codebase** — the
+     three `--font-family*` vars are set once, globally, in `:root`, with
+     no per-`data-theme-id` override in any existing `basic/*.css`. Adding
+     Space Grotesk/Inter/IBM Plex Mono as `tahti-dark`-only fonts is new
+     territory (not a "map onto an existing pattern" job) — Phase 2 should
+     scope this as: can `--font-family` etc. be overridden inside
+     `tahti-dark.css` the same way colour vars are (should just work, CSS
+     custom properties don't care that no one's done it yet), plus the
+     self-hosted-fallback font loading mechanism still needs locating.
+
+**Status:** discovery done. Ready for Phase 2 — the three gaps above are
+this phase's actual output and need a decision before token authoring
+starts, not a blocker on doing Phase 2 itself.
 
 ## Phase 2 — Token schema + fonts
 
