@@ -15,6 +15,7 @@ import {
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { StatNumber } from '../../components/tahti/StatNumber';
 
 function euros(cents: number | string): string {
   const n = typeof cents === 'string' ? Number(cents) : cents;
@@ -133,9 +134,9 @@ export function StudioRevenueView() {
 
         {estimate && (
           <StudioPanel title={`Grant estimate (${estimate.year})`}>
-            <p className="text-3xl font-bold">
+            <StatNumber className="block">
               {euros(estimate.estimateCents)}
-            </p>
+            </StatNumber>
             <p className="text-foreground-secondary mt-1 text-sm">
               {estimate.units} engagement units
               {estimate.eligible
