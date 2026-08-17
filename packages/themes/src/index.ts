@@ -16,6 +16,7 @@ import './basic/aurora.css';
 import './basic/ember.css';
 import './basic/lagoon.css';
 import './basic/arctic-moss.css';
+import './basic/tahti-dark.css';
 
 export type BasicThemeMeta = {
   id: string;
@@ -72,6 +73,16 @@ const BUILT_INS: BasicThemeMeta[] = [
       'oklch(0.97 0.008 200)',
       'oklch(0.58 0.09 175)',
       'oklch(0.20 0.02 175)',
+    ],
+  },
+  {
+    id: 'nuclear:tahti-dark',
+    name: 'Tahti',
+    palette: [
+      'oklch(0.8131 0.1650 75.04)',
+      'oklch(0.2747 0.0497 269.93)',
+      'oklch(0.7159 0.0350 268.54)',
+      'oklch(0.1663 0.0262 269.37)',
     ],
   },
 ];

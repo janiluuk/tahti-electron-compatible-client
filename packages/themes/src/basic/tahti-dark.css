@@ -1,0 +1,59 @@
+/* tahti-dark — the tahti.live pitch interface as a first-class theme.
+ * Values converted from the pitch's hex palette (culori, see
+ * TAHTI-DARK-THEME-WORKLOG.md Phase 2) onto this codebase's real semantic
+ * token names (Phase 1 discovery). Fixed dark identity — applies
+ * regardless of the separate [data-theme] light/dark toggle, since the
+ * pitch has no light variant. */
+:root[data-theme-id='nuclear:tahti-dark'] {
+  /* Core Backgrounds — ink / ink-2 / panel */
+  --background: oklch(0.1663 0.0262 269.37);
+  --background-secondary: oklch(0.2264 0.0382 269.84);
+  --background-input: oklch(0.187 0.0356 270.27);
+
+  /* Text — text / muted */
+  --foreground: oklch(0.976 0.007 268.55);
+  --foreground-secondary: oklch(0.7159 0.035 268.54);
+  --foreground-input: oklch(0.976 0.007 268.55);
+
+  /* Interactive — amber, the single bold accent */
+  --primary: oklch(0.8131 0.165 75.04);
+
+  /* Borders & focus ring — line / amber */
+  --border: oklch(0.3282 0.0565 270.74);
+  --border-input: oklch(0.3282 0.0565 270.74);
+  --ring: oklch(0.8131 0.165 75.04);
+
+  /* Accents — teal secondary/signal, coral danger, violet data,
+     amber-dark + amber cover yellow/orange so nothing outside this
+     palette leaks through. */
+  --accent-green: oklch(0.7923 0.13 183.63);
+  --accent-yellow: oklch(0.7334 0.1584 68.72);
+  --accent-purple: oklch(0.7289 0.1402 272.62);
+  --accent-blue: oklch(0.7289 0.1402 272.62);
+  --accent-orange: oklch(0.8131 0.165 75.04);
+  --accent-cyan: oklch(0.7923 0.13 183.63);
+  --accent-red: oklch(0.7088 0.1839 29.06);
+
+  /* Shadows — quiet flat shadow (pitch doesn't use the neobrutalist
+     offset look), soft elevation via shadow-float instead. */
+  --shadow-color: oklch(0 0 0);
+  --shadow-x: 0px;
+  --shadow-y: 0px;
+  --shadow-blur: 0px;
+  --shadow-float: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
+
+  /* Purpose-named radii, exact pitch values. */
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --radius-input: 8px;
+  --radius-pill: 20px;
+
+  /* Typography — display / body / mono, self-hosted-friendly fallback
+     stacks matching the existing --font-family* pattern. */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --default-font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-heading: 'Space Grotesk', var(--default-font-family);
+  --font-family-mono:
+    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+}
