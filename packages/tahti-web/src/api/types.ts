@@ -272,6 +272,8 @@ export type AuthUser = {
   tier?: string;
   avatarUrl?: string | null;
   isMember?: boolean;
+  /** Cooperative board member — gates `/admin/*`. */
+  isBoard?: boolean;
   channel?: {
     slug: string;
     state: string;

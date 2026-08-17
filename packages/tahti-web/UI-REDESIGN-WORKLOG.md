@@ -39,34 +39,34 @@ Workflow rules: one page at a time; do not advance until user approves.
 | 25 | Settings — money / fan tiers | `/settings/money` | **approved** | already Nuclear shell (no redesign needed) |
 | 26 | Settings — connections | `/settings/connections` | **approved** | already Nuclear shell (no redesign needed) |
 
-## Admin (prod `/admin/*` — not in POC yet)
+## Admin (prod `/admin/*`)
 
-Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
+Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, same as artist studio above. Inventory from prod `admin-nav`:
 
-| # | Page | Prod route | Status |
-|---|------|------------|--------|
-| A1 | Dashboard | `/admin/dashboard` | pending (stub shell later) |
-| A2 | Beta applications | `/admin/beta` | pending |
-| A3 | Users | `/admin/users` | pending |
-| A4 | Radio | `/admin/radio` | pending |
-| A5 | Radio submissions | `/admin/radio-submissions` | pending |
-| A6 | News | `/admin/news` | pending |
-| A7 | Tahti Selects | `/admin/tahti-selects` | pending |
-| A8 | Streams | `/admin/streams` | pending |
-| A9 | Support | `/admin/support` | pending |
-| A10 | Top lists | `/admin/top-lists` | pending |
-| A11 | Announcements | `/admin/announcements` | pending |
-| A12 | Storage | `/admin/storage` | pending |
-| A13 | Files | `/admin/files` | pending |
-| A14 | Content reports | `/admin/content-reports` | pending |
-| A15 | Financial | `/admin/financial` | pending |
-| A16 | Governance hub | `/admin/governance` | pending |
-| A17 | Feature requests | `/admin/feature-requests` | pending |
-| A18 | Grants | `/admin/grants` | pending |
-| A19 | AGM | `/admin/agm` | pending |
-| A20 | Vendors | `/admin/settings/vendors` | pending |
-| A21 | Status | `/admin/status` | pending |
-| A22 | i18n languages + CSV import | (new — see Phase 0) | pending |
+| # | Page | Prod route | Status | Shot |
+|---|------|------------|--------|------|
+| A1 | Dashboard | `/admin/dashboard` → `/admin` | **in-review** | `docs/redesign-shots/admin-dashboard-v1.png`, `…-expanded-v1.png` |
+| A2 | Beta applications | `/admin/beta` | pending | |
+| A3 | Users | `/admin/users` | pending | |
+| A4 | Radio | `/admin/radio` | pending | |
+| A5 | Radio submissions | `/admin/radio-submissions` | pending | |
+| A6 | News | `/admin/news` | pending | |
+| A7 | Tahti Selects | `/admin/tahti-selects` | pending | |
+| A8 | Streams | `/admin/streams` | pending | |
+| A9 | Support | `/admin/support` | pending | |
+| A10 | Top lists | `/admin/top-lists` | pending | |
+| A11 | Announcements | `/admin/announcements` | pending | |
+| A12 | Storage | `/admin/storage` | pending | |
+| A13 | Files | `/admin/files` | pending | |
+| A14 | Content reports | `/admin/content-reports` | pending | |
+| A15 | Financial | `/admin/financial` | pending | |
+| A16 | Governance hub | `/admin/governance` | pending | |
+| A17 | Feature requests | `/admin/feature-requests` | pending | |
+| A18 | Grants | `/admin/grants` | pending | |
+| A19 | AGM | `/admin/agm` | pending | |
+| A20 | Vendors | `/admin/settings/vendors` | pending | |
+| A21 | Status | `/admin/status` | pending | |
+| A22 | i18n languages + CSV import | (new — see Phase 0) | pending | |
 
 **i18n (Approved):** Admin creates languages + imports English-base CSV — [CUTOVER-PHASE0.md](./CUTOVER-PHASE0.md).
 
@@ -338,4 +338,21 @@ Port into Nuclear admin shell later. Inventory from prod `admin-nav`:
 **Screenshot:** `docs/redesign-shots/settings-artist-v1.png` (representative — Profile sub-tab with Save CTA)
 
 **Status:** approved.
+
+### 2026-08-17 — Page A1 Admin dashboard v1 (`in-review`)
+
+**Goal:** First admin page — reverses the earlier CUTOVER.md "out-of-scope" call (confirmed with user). Establish the board-gated shell + nav pattern the remaining 21 admin pages will build on.
+
+**Changes:**
+
+- New `AdminGate` component (mirrors `StudioGate`) — gates on `user.isBoard` instead of channel ownership; shows sign-in or "board access required" states
+- New `AdminNav` (mirrors `StudioNav`'s `InPageNav` chip pattern) — starts with just Dashboard, grows page-by-page
+- `isBoard?: boolean` added to `AuthUser`; new "Admin" sidebar item (shield icon), visible only when `user.isBoard`
+- `/admin` route renders `AdminDashboardView`, reusing `StudioPageHeader`/`StudioPanel` for visual consistency with the rest of the app rather than inventing new admin-specific chrome
+- Content follows the same disclosure pattern as Studio home: KPI row (active members, live now, beta queue, open tickets) + Needs action queue + System health up front; Finance YTD, live streams, queue health, cron jobs, and audit log tucked behind a "Finance, streams, queues & audit" toggle
+- `api/admin.ts`: prod's dashboard fans out to ~12 separate `/api/admin/*` calls — batched into one `fetchAdminDashboard()` for this first port, with a rich mock payload for offline demo
+
+**Screenshots:** `docs/redesign-shots/admin-dashboard-v1.png` (collapsed), `docs/redesign-shots/admin-dashboard-expanded-v1.png` (More expanded)
+
+**Status:** in-review — awaiting comment or `approved`.
 

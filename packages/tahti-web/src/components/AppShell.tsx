@@ -7,6 +7,7 @@ import {
   RadioIcon,
   RssIcon,
   SettingsIcon,
+  ShieldIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -32,6 +33,7 @@ import { MobileBottomNav, MobileDrawer } from './MobileChrome';
 import { RightRailPanel } from './RightRailPanel';
 
 function SidebarNavItems({ compact }: { compact: boolean }) {
+  const isBoard = useAuthStore((s) => Boolean(s.user?.isBoard));
   return (
     <SidebarNavigation isCompact={compact}>
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-1">
@@ -60,6 +62,13 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
           icon={<LayoutDashboardIcon size={16} />}
           label="Studio"
         />
+        {isBoard && (
+          <SidebarNavigationItem
+            to="/admin"
+            icon={<ShieldIcon size={16} />}
+            label="Admin"
+          />
+        )}
         <SidebarNavigationItem
           to="/more"
           icon={<MapIcon size={16} />}
@@ -84,6 +93,7 @@ export function AppShell() {
     setRightCollapsed,
   } = useLayoutStore();
   const refresh = useAuthStore((s) => s.refresh);
+  const isBoard = useAuthStore((s) => Boolean(s.user?.isBoard));
   const openSettings = useSettingsModalStore((s) => s.open);
 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -154,6 +164,13 @@ export function AppShell() {
                     icon={<LayoutDashboardIcon size={16} />}
                     label="Studio"
                   />
+                  {isBoard && (
+                    <SidebarNavigationItem
+                      to="/admin"
+                      icon={<ShieldIcon size={16} />}
+                      label="Admin"
+                    />
+                  )}
                   <SidebarNavigationItem
                     to="/more"
                     icon={<MapIcon size={16} />}

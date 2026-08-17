@@ -11,6 +11,7 @@ import { SOURCE_DEFS } from './api/sources';
 import { AppShell } from './components/AppShell';
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { useAuthStore } from './stores/authStore';
+import { AdminDashboardView } from './views/admin/AdminDashboardView';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
 import { ChatView } from './views/ChatView';
@@ -128,6 +129,12 @@ const feedRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/feed',
   component: FeedView,
+});
+
+const adminRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin',
+  component: AdminDashboardView,
 });
 
 const libraryRoute = createRoute({
@@ -709,6 +716,7 @@ const routeTree = rootRoute.addChildren([
     settingsRoute,
     settingsSectionRoute,
     feedRoute,
+    adminRoute,
     libraryRoute,
     libraryHistoryRoute,
     libraryMessagesRoute,

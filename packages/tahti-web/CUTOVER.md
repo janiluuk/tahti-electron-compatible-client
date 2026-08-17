@@ -28,7 +28,7 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 
 1. **Canonical URL compatibility** — prod uses `/c/:slug`, `/dashboard/*`, `/u/:user/subscribe`; POC uses `/channel/$slug`, `/studio/*`, `/subscribe/$username`. Without redirects/aliases, embeds, emails, Stripe returns, OAuth return URLs, and shared links break.
 2. **Missing / partial product surfaces** — membership purchase, password/security, venue register, distribution, radio slots, moderate, setup-channel in-app, listener dashboard, full Three.js presets, Sources OAuth polish (see FEATURES.md).
-3. **Admin & marketing split** — `/admin/*` is out-of-scope for Nuclear UI; `(marketing)` / apply / some info pages live in `apps/web` while `website/` is a separate static site. Decide hosts before deleting Next.
+3. **Admin & marketing split** — `/admin/*` is being ported into the Nuclear UI (see [`UI-REDESIGN-WORKLOG.md`](UI-REDESIGN-WORKLOG.md) admin table, A1–A22), reversing the earlier out-of-scope call; `(marketing)` / apply / some info pages live in `apps/web` while `website/` is a separate static site. Decide hosts before deleting Next.
 4. **SSR/SEO regression** — Next `sitemap.ts`, `generateMetadata`, OG cards become SPA problems unless rebuilt (prerender, edge meta, or keep a thin SSR shell).
 5. **Cookie / same-origin model** — today beta proxies `/tahti-api` → API so `tahti_session` is host-only on `beta.tahti.live`. Production must keep a **same-origin API proxy** (or deliberately set `Domain=.tahti.live`) and update `APP_URL` return paths.
 6. **Repo / AGPL / UI stack** — both trees are AGPL; decision is whether to **vend Nuclear UI into `tahti`**, keep a **git submodule/subtree**, or **publish private packages**. Brand (Nuclear chrome vs Tahti brand) is a product decision, not only a legal one.
@@ -100,7 +100,7 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 
 | Area | Prod today | Cutover stance | Action |
 |------|------------|----------------|--------|
-| Board admin `/admin/*` | Next in `apps/web` (~35 pages) | **Out-of-scope** for Nuclear UI (FEATURES) | [ ] Decide host: keep Next admin app, or temporary link-out to frozen deploy |
+| Board admin `/admin/*` | Next in `apps/web` (~35 pages) | **In progress** — porting into Nuclear UI (22-page inventory in UI-REDESIGN-WORKLOG.md) | [ ] Page-by-page port, gated on `user.isBoard` |
 | Marketing `website/` | Separate static nginx image | **Do not merge into SPA**; off-limits unless explicitly requested | [ ] Ensure apex/`/` IA: listen hub vs marketing (redirect matrix) |
 | `(marketing)` / `(info)` in apps/web | `/`, `/apply`, `/for-artists`, `/how-it-works`, … | Overlaps website + SPA | [ ] Inventory which URLs must 301 to `website/` vs port |
 | Embeds `/embed/*` | Next + `@tahti/ui` | POC has routes | [ ] Parity QA (c/r/col/u) + iframe CSP |
