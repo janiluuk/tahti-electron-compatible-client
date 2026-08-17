@@ -335,6 +335,9 @@ const sourcesRoute = createRoute({
 const sourcesTabRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/sources/$id',
+  validateSearch: (search: Record<string, unknown>): { status?: string } => ({
+    status: typeof search.status === 'string' ? search.status : undefined,
+  }),
   component: function SourcesTabRoute() {
     const { id } = sourcesTabRoute.useParams();
     const known = SOURCE_DEFS.some((d) => d.id === id);
@@ -834,10 +837,16 @@ function waitForAuthHydration(): Promise<void> {
   });
 }
 
+const OAUTH_IMPORT_STATUS_KEYS: Record<string, string> = {
+  soundcloud: 'sc',
+  bandcamp: 'bc',
+  'google-drive': 'gd',
+};
+
 const dashboardSplatAliasRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/dashboard/$',
-  beforeLoad: async ({ params }) => {
+  beforeLoad: async ({ params, search }) => {
     const splat =
       typeof params._splat === 'string'
         ? params._splat
@@ -846,9 +855,33 @@ const dashboardSplatAliasRoute = createRoute({
     // `/dashboard` index route — apply the same artist-vs-listener split
     // here instead of falling through to the `''` → `/studio` prod alias.
     if (!splat.replace(/^\/+|\/+$/g, '')) {
+      // Mixcloud's OAuth callback lands on bare `/dashboard?mixcloud=…`
+      // (prod's API redirect target) — route to its Sources tab instead.
+      const mixcloudStatus = (search as Record<string, unknown>).mixcloud;
+      if (typeof mixcloudStatus === 'string') {
+        throw redirect({
+          to: '/sources/$id',
+          params: { id: 'mixcloud' },
+          search: { status: mixcloudStatus },
+        });
+      }
       await waitForAuthHydration();
       const user = useAuthStore.getState().user;
       throw redirect({ href: user?.channel ? '/studio' : '/feed' });
+    }
+    // Prod's OAuth import callback (SoundCloud/Bandcamp/Google Drive) lands
+    // on `/dashboard/upload/import/:provider?sc=|bc=|gd=connected|error|login`
+    // — route straight to the matching Sources tab with the status intact.
+    const importMatch = /^upload\/import\/([\w-]+)/.exec(splat);
+    if (importMatch?.[1] && OAUTH_IMPORT_STATUS_KEYS[importMatch[1]]) {
+      const provider = importMatch[1];
+      const statusKey = OAUTH_IMPORT_STATUS_KEYS[provider]!;
+      const status = (search as Record<string, unknown>)[statusKey];
+      throw redirect({
+        to: '/sources/$id',
+        params: { id: provider },
+        search: typeof status === 'string' ? { status } : undefined,
+      });
     }
     throw redirect({ href: resolveDashboardRedirect(splat) });
   },

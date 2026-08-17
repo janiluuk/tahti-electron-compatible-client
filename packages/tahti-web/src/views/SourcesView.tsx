@@ -132,6 +132,34 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
     };
   }, []);
 
+  // OAuth callback landed here via /dashboard alias (see prodPathRedirects) —
+  // surface the connect/error result, then drop it from the URL.
+  useEffect(() => {
+    if (!selected) {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    const oauthStatus = params.get('status');
+    if (!oauthStatus) {
+      return;
+    }
+    const name = SOURCE_DEFS.find((d) => d.id === selected)?.name ?? selected;
+    if (oauthStatus === 'connected') {
+      setNote(`${name} connected.`);
+    } else if (oauthStatus === 'login') {
+      setNote(`Sign in to Tahti first, then connect ${name}.`);
+    } else {
+      setNote(`Could not connect ${name}. Try again.`);
+    }
+    params.delete('status');
+    const qs = params.toString();
+    window.history.replaceState(
+      null,
+      '',
+      `${window.location.pathname}${qs ? `?${qs}` : ''}`,
+    );
+  }, [selected]);
+
   useEffect(() => {
     if (!selected) {
       setStatus(null);
