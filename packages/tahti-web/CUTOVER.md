@@ -28,12 +28,12 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 
 1. **Canonical URL compatibility** — prod uses `/c/:slug`, `/dashboard/*`, `/u/:user/subscribe`; POC uses `/channel/$slug`, `/studio/*`, `/subscribe/$username`. Without redirects/aliases, embeds, emails, Stripe returns, OAuth return URLs, and shared links break.
 2. **Missing / partial product surfaces** — membership purchase, password/security, venue register, distribution, radio slots, moderate, setup-channel in-app, listener dashboard, full Three.js presets, Sources OAuth polish (see FEATURES.md).
-3. **Admin & marketing split** — `/admin/*` is being ported into the Nuclear UI (see [`UI-REDESIGN-WORKLOG.md`](UI-REDESIGN-WORKLOG.md) admin table, A1–A22), reversing the earlier out-of-scope call; `(marketing)` / apply / some info pages live in `apps/web` while `website/` is a separate static site. Decide hosts before deleting Next.
+3. **Admin & marketing split** — **Decided 2026-08-17:** the Nuclear admin port (22/22 pages, see [`UI-REDESIGN-WORKLOG.md`](UI-REDESIGN-WORKLOG.md) admin table) stays a completed side project, **not** on the cutover critical path. Production board admin keeps running the existing Next `/admin/*` on its current host (subdomain) after cutover; the listen/studio SPA does not need to serve `/admin/*` for go-live. Revisit switching admin over to Nuclear in a later, separate decision. `(marketing)` / apply / some info pages still live in `apps/web` while `website/` is a separate static site — host split for those still needs deciding.
 4. **SSR/SEO regression** — Next `sitemap.ts`, `generateMetadata`, OG cards become SPA problems unless rebuilt (prerender, edge meta, or keep a thin SSR shell).
 5. **Cookie / same-origin model** — today beta proxies `/tahti-api` → API so `tahti_session` is host-only on `beta.tahti.live`. Production must keep a **same-origin API proxy** (or deliberately set `Domain=.tahti.live`) and update `APP_URL` return paths.
-6. **Repo / AGPL / UI stack** — both trees are AGPL; decision is whether to **vend Nuclear UI into `tahti`**, keep a **git submodule/subtree**, or **publish private packages**. Brand (Nuclear chrome vs Tahti brand) is a product decision, not only a legal one.
+6. **Repo / AGPL / UI stack** — both trees are AGPL. **Decided 2026-08-17:** vend `@nuclearplayer/tahti-web` + minimal Nuclear UI packages into `tahti` (Option A, §3.1) rather than a submodule/subtree or published-package split — single deploy train. **Decided 2026-08-17:** ship the current Nuclear look as-is; no Tahti-brand token remap before cutover.
 
-**Recommended sequence:** freeze feature inventory → route alias layer → parity P0 → move package into `tahti` (or CI-vendored) → replace `tahti/web` image with nginx SPA → dual-run behind canary host → cutover → deprecate beta.
+**Recommended sequence:** freeze feature inventory → route alias layer → parity P0 → move package into `tahti` → replace `tahti/web` image with nginx SPA → dual-run behind canary host → cutover → soak → deprecate beta.
 
 ---
 
@@ -41,8 +41,8 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 
 ### P0 — must have before production DNS/NPM switch
 
-- [ ] **Decision:** monorepo placement (A: move into `tahti/apps/web` or `apps/listen`; B: keep building from `tahti-nuclear` and only swap the Docker image). See §4.
-- [ ] **Decision:** admin host after cutover (`admin.tahti.live` Next remnant vs board-only link-out to frozen Next vs rewrite later).
+- [x] **Decision:** monorepo placement — **Option A**, vend into `tahti` (`apps/web` or new `apps/listen`). See §4. Migration itself not yet started.
+- [x] **Decision:** admin host after cutover — **Next `/admin/*` stays canonical** on its current host; Nuclear's 22-page admin port stays built but unused for now, revisit later.
 - [ ] **Decision:** marketing / apply / for-artists — stay on `website/` + redirects, or port minimal pages into SPA.
 - [x] **Route compatibility layer** — permanent redirects or dual routes for `/c/*` ↔ `/channel/*`, `/dashboard/*` ↔ `/studio/*`, subscribe paths, `/listen` → `/`.
 - [ ] **API `APP_URL` + Stripe/OAuth return URLs** aligned to new paths (or aliases that match current API strings).
@@ -83,11 +83,11 @@ Beta already talks to **live** `api.tahti.live` / `chat.tahti.live` / `cdn.tahti
 ## Phase 0 — Decisions & freeze
 
 - [ ] **0.1** Freeze FEATURES.md statuses; tag a “cutover baseline” commit on `tahti-nuclear` and note matching `tahti` API SHA.
-- [ ] **0.2** Choose **placement** (see §4) and **admin strategy** (see §1.1).
-- [ ] **0.3** Choose **URL policy**: preserve prod paths as canonical (recommended) vs advertise Nuclear paths and 301 forever.
-- [ ] **0.4** Choose **brand policy**: ship Nuclear look on day one vs Tahti-skinned Nuclear components.
-- [ ] **0.5** Choose **beta fate**: keep as canary, rename to `next.tahti.live`, or sunset post-cutover.
-- [ ] **0.6** Confirm **out-of-scope** list with product (admin, marketing site, Revelator/distribution depth, etc.).
+- [x] **0.2** Choose **placement** (see §4) and **admin strategy** (see §1.1) — **decided 2026-08-17:** Option A monorepo placement; Next `/admin/*` stays canonical, Nuclear admin port shelved for now.
+- [x] **0.3** Choose **URL policy** — preserve prod paths as canonical (already implemented via `prodPathRedirects`, P0 route-compatibility box above is checked).
+- [x] **0.4** Choose **brand policy** — **decided 2026-08-17:** ship Nuclear look as-is, no Tahti-skin token remap.
+- [x] **0.5** Choose **beta fate** — **decided 2026-08-17:** sunset after a soak period post-cutover (Phase 9), not a permanent canary or rename.
+- [ ] **0.6** Confirm **out-of-scope** list with product (marketing site, Revelator/distribution depth, admin now explicitly out-of-critical-path per 0.2 above, etc.).
 - [ ] **0.7** Add pointer doc in production repo: `ops/nuclear-web-cutover.md` → this file (path or mirrored copy).
 
 ---
@@ -100,7 +100,7 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 
 | Area | Prod today | Cutover stance | Action |
 |------|------------|----------------|--------|
-| Board admin `/admin/*` | Next in `apps/web` (~35 pages) | **In progress** — porting into Nuclear UI (22-page inventory in UI-REDESIGN-WORKLOG.md) | [ ] Page-by-page port, gated on `user.isBoard` |
+| Board admin `/admin/*` | Next in `apps/web` (~35 pages) | Nuclear port **complete** (22/22 pages, gated on `user.isBoard`) but **decided out of the cutover critical path** — Next admin stays canonical after cutover | [x] Nuclear port done; [ ] no cutover action needed unless the admin-host decision is revisited |
 | Marketing `website/` | Separate static nginx image | **Do not merge into SPA**; off-limits unless explicitly requested | [ ] Ensure apex/`/` IA: listen hub vs marketing (redirect matrix) |
 | `(marketing)` / `(info)` in apps/web | `/`, `/apply`, `/for-artists`, `/how-it-works`, … | Overlaps website + SPA | [ ] Inventory which URLs must 301 to `website/` vs port |
 | Embeds `/embed/*` | Next + `@tahti/ui` | POC has routes | [ ] Parity QA (c/r/col/u) + iframe CSP |
@@ -223,12 +223,14 @@ Work from FEATURES.md; mark done there and here.
 
 ### 3.1 Monorepo placement (pick one)
 
-**Option A — Move into `tahti` (recommended for single deploy train)**
+**Option A — Move into `tahti` — DECIDED 2026-08-17, this is the path**
 
-- [ ] Copy/vend `@nuclearplayer/tahti-web` → e.g. `apps/web` (replace) or `apps/listen`
+Per the admin-host decision (§0.2 / §1.1), Next `apps/web` is **not** fully retired — it keeps serving `/admin/*` on its current host. The new SPA takes over listen/studio/everything-else as a new app.
+
+- [ ] Copy/vend `@nuclearplayer/tahti-web` → new `apps/listen` (do not replace `apps/web` in place, since it must keep serving admin)
 - [ ] Vend minimal Nuclear deps: `@nuclearplayer/ui`, `themes`, `tailwind-config`, `model` (or rename `@tahti/nuclear-ui`)
 - [ ] Wire `pnpm-workspace.yaml`, turbo lint/typecheck, Dockerfile SPA build
-- [ ] Retire Next `apps/web` (or shrink to `apps/admin`)
+- [ ] Shrink Next `apps/web` to admin-only: strip listen/studio/public routes it no longer serves once the SPA is canonical for those, keep `/admin/*`
 
 **Option B — Keep fork, ship image only**
 
@@ -443,11 +445,11 @@ Nuclear’s **MCP server** is Tauri-only (`packages/player` + `plugin-sdk/mcp`),
 
 | Risk / decision | Why it matters | Options |
 |-----------------|----------------|---------|
-| **Nuclear branding vs Tahti brand** | First-paint identity; trust | Ship Nuclear look; skin tokens; hybrid listen Nuclear / studio Tahti |
+| **Nuclear branding vs Tahti brand** | First-paint identity; trust | **Decided:** ship Nuclear look as-is |
 | **AGPL** | Both codebases already AGPL-3.0 | Ensure source offer UX; if vendoring Nuclear, keep license headers & offer |
 | **Bundle size (mermaid / three)** | Mobile listen UX | Mermaid already dynamic-import — **exclude from prod** or keep behind `/more`; lazy Three presets |
 | **URL breakages** | SEO, embeds, emails, Stripe | Canonical prod paths + aliases (strongly recommended) |
-| **Admin orphaning** | Board ops | Keep Next admin app on subdomain; schedule rewrite |
+| **Admin orphaning** | Board ops | **Decided:** keep Next admin app on its current host; Nuclear's 22-page admin port stays built but shelved — schedule a future rewrite decision separately |
 | **Marketing split** | Apex `/` ownership | Listen SPA at `app.` / `tahti.live/listen`; marketing stays `website/` |
 | **SSR loss** | Social previews, sitemap | Prerender critical routes; API-driven OG endpoint; or edge worker |
 | **Editor parity** | Artists rely on ffmpeg/waveform | Explicit MVP vs port `@tahti/audio-edit` |

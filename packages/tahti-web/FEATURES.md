@@ -11,7 +11,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | `partial` | UI or API incomplete vs prod |
 | `missing` | Not in POC |
 | `link-out` | Deep-links to production `tahti.live` |
-| `out-of-scope` | Explicitly not rebuilding (admin, etc.) |
+| `out-of-scope` | Explicitly not rebuilding (marketing `website/`, desktop-only MCP, etc.) |
 
 **Demock wave** — next items to harden against live `api.tahti.live` / beta:
 
@@ -50,17 +50,19 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 
 **Remaining / partial**
 
-- [ ] Channel chat hardening (captcha / rail parity)
-- [ ] Full Three.js visualizer preset set
+- [x] Channel chat hardening — hCaptcha wired on anonymous join (`useHcaptcha` in `ChannelChatPanel`), one shared component powers both the rail and standalone `/chat/$slug` route (parity by construction). Not yet soak-tested against a live hCaptcha site key in production.
+- [ ] Full Three.js visualizer preset set — confirmed still canvas/WebGL only, no `three` dependency (`ChannelVisualizer.tsx`)
 - [x] Stash upload / delete
-- [ ] Stats detail page (beyond summary)
-- [ ] Sources OAuth silent-mock demock polish
+- [x] Stats detail page (beyond summary) — `/studio/stats/detail` (`StudioStatsDetailView.tsx`) shipped, worklog row 14 approved
+- [ ] Sources OAuth silent-mock demock polish — start URLs are real (`oauthStartPath` → `/api/me/*/oauth/start`) and mock-connect is hard-gated behind `VITE_FORCE_MOCK` (`api/sources.ts`); **unverified**: whether the OAuth callback lands back on the SPA or still link-outs to the prod dashboard (CUTOVER.md blocker #1)
 - [x] Venue register
 - [x] Membership purchase (`/signup/payment`) — Stripe checkout + mock activate
 - [x] TOTP at login (manage/settings depth still thin)
+- [x] Account security — TOTP enroll/manage panel in Settings (`SecurityTotpPanel`); matches prod (TOTP is the only account security setting there too)
 - [x] Distribution (catalog + Revelator + Spotify profile)
 - [x] Channel moderators (`/studio/moderation`)
 - [x] Listener-only dashboard (`/dashboard` routes non-artists to `/library`)
+- [x] Board admin — all 22 pages ported, gated on `user.isBoard` (see UI-REDESIGN-WORKLOG.md admin table); several sub-pages deliberately scope-trimmed, see §6 note
 - [ ] Radio slots depth
 - [ ] Multitrack timeline editing, press-kit / invites polish
 - [ ] Production cutover for `apps/web`
@@ -74,7 +76,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Listen directory | `/listen` | `/` | `live-api` | `GET /api/v1/channels/directory` |
 | Channel live + HLS | `/c/:slug` | `/channel/$slug` | `live-api` | visualizer stage on Live tab |
 | Channel archive | `/c/:slug` | `/channel/$slug` | `live-api` | listen-events after ~15s |
-| Channel chat | `/c/:slug` | rail + `/chat/$slug` | `partial` | REST + Centrifugo; captcha when configured |
+| Channel chat | `/c/:slug` | rail + `/chat/$slug` | `live-api` | REST + Centrifugo WS; hCaptcha on anonymous join; reactions; subscriber-only gating |
 | Tahti Radio | `/radio` | `/radio` | `live-api` | |
 | Artist profile | `/u/:username` | `/u/$username` | `live-api` | Music tab: pinned tracks (max 4) above catalog; Stage pins via `PATCH /api/me/archive/:id` `{ pinned }` |
 | Collection | `/u/:user/c/:slug` | `/u/$username/c/$slug` | `live-api` | |
@@ -127,7 +129,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Pro editor | `/dashboard/editor` | `/studio/editor` | `partial` | |
 | Releases / collections | `/dashboard/releases`… | `/studio/releases`… | `live-api` | album designer on collections |
 | Schedule / programme | schedule | `/studio/schedule` | `live-api` | |
-| Stats | `/dashboard/stats` | `/studio/stats` | `partial` | no detail page |
+| Stats | `/dashboard/stats` | `/studio/stats` | `live-api` | summary + `/studio/stats/detail` range-chip detail page |
 | Channel design | channel/edit | `/channel/$slug?edit=1` + `/studio/channel` | `partial` | Inline Edit design: presets, layers drag/hide/add; layout localStorage; look via API |
 | Updates / newsletter | posts | `/studio/updates` | `live-api` | |
 | Revenue / Connect | revenue | `/studio/revenue` | `live-api` | demock wave 4; onboard/portal redirect to Stripe |
@@ -156,7 +158,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Embeds c/r/col | `/embed/*` | `/embed/*` | `live-api` | |
 | Feature map | — | `/more` | `mock-ok` | checklist + flow diagrams |
 | Screen atlas | e2e screenshots | `/more` (Screen atlas) | `mock-ok` | curated prod PNGs under `public/map/` + Nuclear routes |
-| Board admin | `/admin/*` | — | `out-of-scope` | |
+| Board admin | `/admin/*` (~35 pages Next) | `/admin/*` (22 pages) | `partial` | Gated on `user.isBoard`; wired to real admin API endpoints (`api/admin.ts`). Deliberately scope-trimmed: no Users/Support/Announcement-clip detail pages, no bulk file ops (Files), no per-subscriber payout retry / legacy-member migration (Financial), no grant run/preview flow (Grants) — see UI-REDESIGN-WORKLOG.md admin entries A3/A9/A11–A13/A15/A18 |
 | WebGL visualizer | channel page | ChannelView Live | `partial` | aurora/grid/bars POC; not full Three.js preset set |
 
 ## 7. Desktop Nuclear integrations (not web SPA)

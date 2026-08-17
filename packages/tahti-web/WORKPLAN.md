@@ -29,14 +29,15 @@
 
 ## Checklist (remaining)
 
-- [ ] Channel chat hardening
-- [ ] Full Three.js visualizer presets
-- [ ] Stash upload UI
-- [ ] Stats detail page
-- [ ] Sources OAuth demock polish
-- [ ] Venue register / membership purchase / password security
+Kept in sync with [FEATURES.md](FEATURES.md)'s "Remaining / partial" list, which has the up-to-date detail — this is the short version.
+
+- [ ] Full Three.js visualizer presets (confirmed still canvas/WebGL subset, no `three` dep)
+- [ ] Sources OAuth callback-return verification (start URLs + mock-gating confirmed done; whether the callback lands on the SPA vs prod dashboard is unverified)
+- [ ] Radio slots depth
 - [ ] Multitrack timeline + press-kit polish
 - [ ] Production cutover for `apps/web`
+
+Done since last update (was listed here as remaining, verified shipped): channel chat hardening (hCaptcha + rail parity), Stash upload UI, Stats detail page, Venue register, Membership purchase, Password/account security (TOTP panel), board admin (22/22 pages, now `partial` not `out-of-scope`).
 
 ## Verify
 
