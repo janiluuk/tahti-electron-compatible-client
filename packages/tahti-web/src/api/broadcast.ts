@@ -94,7 +94,7 @@ let mockTargets: RtmpTarget[] = [
   {
     id: 'rtmp-mock-yt',
     provider: 'YOUTUBE',
-    label: 'YouTube (mock)',
+    label: 'YouTube',
     rtmpUrl: 'rtmp://a.rtmp.youtube.com/live2',
     alwaysMirror: false,
     enabled: false,

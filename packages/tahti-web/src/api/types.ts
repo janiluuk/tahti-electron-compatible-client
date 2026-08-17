@@ -3,6 +3,9 @@ export type ChannelDirectoryItem = {
   displayName: string;
   avatarUrl: string | null;
   genres: string[];
+  /** True while actively broadcasting. Absent/false means the profile is
+   * browsable (archive/tracks) but not currently live. */
+  live?: boolean;
 };
 
 export type ChannelDirectoryResponse = {

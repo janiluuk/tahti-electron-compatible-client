@@ -159,20 +159,20 @@ export function RadioView() {
           </header>
 
           {memberLive ? (
-            <Box variant="secondary" className="text-sm">
-              <span className="mr-1" aria-hidden>
-                🔴
+            <Box variant="secondary" className="items-start gap-2 text-sm">
+              <span aria-hidden>🔴</span>
+              <span>
+                Live now on the member relay: <strong>{memberLive.name}</strong>
+                {memberLive.title ? ` — ${memberLive.title}` : null}
+                {' · '}
+                <Link
+                  to="/channel/$slug"
+                  params={{ slug: memberLive.slug }}
+                  className="underline-offset-2 hover:underline"
+                >
+                  Open {memberLive.slug}
+                </Link>
               </span>
-              Live now on the member relay: <strong>{memberLive.name}</strong>
-              {memberLive.title ? ` — ${memberLive.title}` : null}
-              {' · '}
-              <Link
-                to="/channel/$slug"
-                params={{ slug: memberLive.slug }}
-                className="underline-offset-2 hover:underline"
-              >
-                Open {memberLive.slug}
-              </Link>
             </Box>
           ) : null}
 

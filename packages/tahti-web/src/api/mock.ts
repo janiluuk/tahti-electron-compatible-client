@@ -31,6 +31,11 @@ export const DEMO_HLS =
 export const DEMO_MP3 =
   'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
 
+/** Slugs actually broadcasting in the mock world — everyone else is an
+ * artist you browse (archive/tracks), not a live station. Matches the
+ * member relay in `mockRadio()`. */
+const LIVE_SLUGS = new Set([TAHTI_RADIO_SLUG, 'northern-lights']);
+
 type StationRelease = {
   title: string;
   type: 'ALBUM' | 'EP' | 'SINGLE';
@@ -67,7 +72,7 @@ const STATION_CONTENT: Record<string, StationContent> = {
     bio: '24/7 community radio — always on while we grow the member meta-stream. Tune in and chat with listeners worldwide.',
     colorAccent: '#22D3EE',
     colorHighlight: '#A78BFA',
-    nowPlayingTitle: 'Aurora Drift (mock rotation)',
+    nowPlayingTitle: 'Aurora Drift',
     followerCount: 412,
     pronouns: 'she/her',
     trackTitles: [
@@ -97,7 +102,7 @@ const STATION_CONTENT: Record<string, StationContent> = {
     bio: 'Demo channel used for screenshot fixtures — kept intentionally minimal so UI captures stay legible.',
     colorAccent: '#22D3EE',
     colorHighlight: '#A78BFA',
-    nowPlayingTitle: 'Live set (mock HLS)',
+    nowPlayingTitle: 'Live set',
     followerCount: 58,
     trackTitles: ['Fixture Loop', 'Screenshot Pad', 'Test Tone Suite'],
     releases: [
@@ -326,6 +331,7 @@ const MOCK_DIRECTORY: ChannelDirectoryResponse = {
     displayName: s.displayName,
     avatarUrl: s.avatarUrl ?? null,
     genres: s.genres,
+    live: LIVE_SLUGS.has(slug),
   })),
   // tahti-radio is featured via fetchRadioStation on Listen — not listed here.
 };
@@ -339,17 +345,17 @@ function stationContent(slug: string): StationContent {
     STATION_CONTENT[slug] ?? {
       displayName: slug,
       genres: [],
-      bio: 'Mock channel for the Nuclear × Tahti listen POC.',
+      bio: 'Independent Tahti channel.',
       colorAccent: '#22D3EE',
       colorHighlight: '#A78BFA',
-      nowPlayingTitle: 'Live set (mock HLS)',
+      nowPlayingTitle: 'Live set',
       followerCount: 12,
-      trackTitles: ['Midnight Broadcast', 'Archive Session 02', 'Demo HLS cut'],
+      trackTitles: ['Midnight Broadcast', 'Archive Session 02', 'Late Session'],
       releases: [
         {
           title: 'First Light EP',
           type: 'EP',
-          description: 'Mock release for the listen POC.',
+          description: 'Debut release.',
         },
       ],
     }
@@ -359,10 +365,11 @@ function stationContent(slug: string): StationContent {
 export function mockChannel(slug: string): PublicChannel {
   const isRadio = slug === TAHTI_RADIO_SLUG;
   const content = stationContent(isRadio ? 'northern-lights' : slug);
+  const live = LIVE_SLUGS.has(slug);
   return {
     slug,
-    state: 'LIVE',
-    hlsUrl: DEMO_HLS,
+    state: live ? 'LIVE' : 'OFFLINE',
+    hlsUrl: live ? DEMO_HLS : null,
     chatEnabled: true,
     visualPreset: isRadio ? 'REACTIVE_GRID' : 'AURORA',
     colorSchemeJson: JSON.stringify({
@@ -385,12 +392,14 @@ export function mockChannel(slug: string): PublicChannel {
       bio: content.bio,
       avatarUrl: isRadio ? null : (content.avatarUrl ?? null),
     },
-    nowPlaying: {
-      title: isRadio ? 'Aurora Drift (mock rotation)' : content.nowPlayingTitle,
-      artistName: isRadio ? 'Northern Lights' : content.displayName,
-      artistUsername: isRadio ? 'northern-lights' : slug,
-      artworkUrl: isRadio ? null : (content.trackArtwork?.[0] ?? null),
-    },
+    nowPlaying: live
+      ? {
+          title: isRadio ? 'Aurora Drift' : content.nowPlayingTitle,
+          artistName: isRadio ? 'Northern Lights' : content.displayName,
+          artistUsername: isRadio ? 'northern-lights' : slug,
+          artworkUrl: isRadio ? null : (content.trackArtwork?.[0] ?? null),
+        }
+      : null,
   };
 }
 
@@ -402,7 +411,7 @@ export function mockRadio(): RadioNowPlaying {
       slug: 'northern-lights',
       displayName: 'Northern Lights',
       hlsUrl: DEMO_HLS,
-      title: 'Featured live (mock)',
+      title: 'Featured live',
       artworkUrl: null,
     },
   };
@@ -753,7 +762,7 @@ export function mockChatHistory(slug: string): ChatMessage[] {
     {
       id: `${slug}-m1`,
       handle: 'listener',
-      text: 'Loving this set (mock chat)',
+      text: 'Loving this set',
       ts: now - 120_000,
     },
     {
@@ -860,14 +869,14 @@ export function mockTransparencyLedger(): TransparencyLedgerEntry[] {
   return [
     {
       id: '1',
-      description: 'Member subscriptions (mock)',
+      description: 'Member subscriptions',
       category: 'REVENUE_SUBSCRIPTION',
       amountCents: '40000',
       createdAt: '2026-07-01T10:00:00.000Z',
     },
     {
       id: '2',
-      description: 'Hosting (mock)',
+      description: 'Hosting',
       category: 'COST_INFRASTRUCTURE',
       amountCents: '-15000',
       createdAt: '2026-07-02T10:00:00.000Z',

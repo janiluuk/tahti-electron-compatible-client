@@ -384,10 +384,13 @@ export function ListenView() {
                         {ch.displayName}
                       </Link>
                     }
-                    subtitle={ch.genres.slice(0, 2).join(', ') || ch.slug}
+                    subtitle={
+                      (ch.live ? 'Live · ' : '') +
+                      (ch.genres.slice(0, 2).join(', ') || ch.slug)
+                    }
                     src={ch.avatarUrl ?? undefined}
-                    onPlay={() => void playNow(ch.slug)}
-                    onQueue={() => void add(ch.slug)}
+                    onPlay={ch.live ? () => void playNow(ch.slug) : undefined}
+                    onQueue={ch.live ? () => void add(ch.slug) : undefined}
                     onFavorite={
                       signedIn
                         ? () =>

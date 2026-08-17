@@ -324,8 +324,8 @@ export async function searchSpotifyTracks(q: string): Promise<{
       data: [
         {
           id: 'sp-mock-1',
-          name: `${q} (mock)`,
-          artists: ['Mock Artist'],
+          name: q,
+          artists: ['Various Artists'],
           externalUrl: 'https://open.spotify.com/track/mock',
         },
       ],

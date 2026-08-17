@@ -375,7 +375,7 @@ export async function registerVenue(
 ): Promise<{ ok: true; slug: string } | { ok: false; error: string }> {
   if (forceMock()) {
     if (!getMockSessionUser()) {
-      return { ok: false, error: 'Log in first (mock) to register a venue.' };
+      return { ok: false, error: 'Log in first to register a venue.' };
     }
     if (input.slug.length < 2) {
       return { ok: false, error: 'Slug too short' };
@@ -602,7 +602,7 @@ export async function loginTotpRequest(
       setMockSessionUser(user);
       return { ok: true, user };
     }
-    return { ok: false, error: 'Invalid code (mock accepts 000000 or 123456)' };
+    return { ok: false, error: 'Invalid code.' };
   }
   try {
     const { data } = await requestJson<{ user: AuthUser }>(
@@ -790,7 +790,7 @@ export async function startFanSubscribe(
 > {
   if (forceMock()) {
     if (!getMockSessionUser()) {
-      return { ok: false, error: 'Log in first (mock) to activate a fan sub.' };
+      return { ok: false, error: 'Log in first to activate a fan sub.' };
     }
     const row = mockActivateSubscription(username, tierId);
     return {
@@ -1039,13 +1039,13 @@ export async function fetchEmbedRelease(id: string): Promise<{
         {
           id: `${id}-t1`,
           position: 1,
-          title: 'Track one (mock)',
+          title: 'Track one',
           hasStream: true,
         },
         {
           id: `${id}-t2`,
           position: 2,
-          title: 'Track two (mock)',
+          title: 'Track two',
           hasStream: true,
         },
       ],
@@ -1108,7 +1108,7 @@ export async function fetchEmbedRelease(id: string): Promise<{
         {
           id: `${id}-t1`,
           position: 1,
-          title: 'Track one (mock)',
+          title: 'Track one',
           hasStream: true,
         },
       ],
@@ -1120,7 +1120,7 @@ export async function fetchEmbedRelease(id: string): Promise<{
         {
           id: `archive:${id}-t1`,
           kind: 'archive',
-          title: 'Track one (mock)',
+          title: 'Track one',
           artist: data.artist.displayName,
           streamUrl: DEMO_MP3,
           protocol: 'https',
@@ -1436,7 +1436,7 @@ export type MotionComment = {
 let mockMotions: GovernanceMotion[] = [
   {
     id: 'motion-1',
-    title: 'Approve 2026 grant formula (mock)',
+    title: 'Approve 2026 grant formula',
     state: 'OPEN',
     proposer: 'Board',
     totalVotes: 3,
@@ -1446,7 +1446,7 @@ let mockMotions: GovernanceMotion[] = [
   },
   {
     id: 'motion-2',
-    title: 'Confirm annual report (mock)',
+    title: 'Confirm annual report',
     state: 'CLOSED',
     proposer: 'Board',
     totalVotes: 12,

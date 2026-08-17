@@ -20,44 +20,28 @@ export type MediaIconAction = {
 
 type Props = {
   actions: MediaIconAction[];
-  /** Shown under the icons (e.g. "Play · Queue · Favorite"). */
-  hint?: string;
   className?: string;
 };
 
 /** Compact icon controls when no artwork thumbnail is available. */
-export function MediaIconActions({ actions, hint, className }: Props) {
-  const hintText =
-    hint ??
-    actions
-      .map((a) => a.label)
-      .filter(Boolean)
-      .join(' · ');
-
+export function MediaIconActions({ actions, className }: Props) {
   return (
-    <div className={cn('flex flex-col gap-1', className)}>
-      <div className="flex flex-wrap items-center gap-1">
-        {actions.map((a) => (
-          <Button
-            key={a.id}
-            type="button"
-            size="icon-sm"
-            variant={a.variant ?? (a.id === 'play' ? 'default' : 'text')}
-            disabled={a.disabled}
-            title={a.title ?? a.label}
-            aria-label={a.label}
-            aria-pressed={a.active}
-            onClick={a.onClick}
-          >
-            {a.icon}
-          </Button>
-        ))}
-      </div>
-      {hintText ? (
-        <p className="text-foreground-secondary px-0.5 text-[10px] leading-tight tracking-wide">
-          {hintText}
-        </p>
-      ) : null}
+    <div className={cn('flex flex-wrap items-center gap-1', className)}>
+      {actions.map((a) => (
+        <Button
+          key={a.id}
+          type="button"
+          size="icon-sm"
+          variant={a.variant ?? (a.id === 'play' ? 'default' : 'text')}
+          disabled={a.disabled}
+          title={a.title ?? a.label}
+          aria-label={a.label}
+          aria-pressed={a.active}
+          onClick={a.onClick}
+        >
+          {a.icon}
+        </Button>
+      ))}
     </div>
   );
 }

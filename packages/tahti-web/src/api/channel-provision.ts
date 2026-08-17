@@ -16,7 +16,7 @@ export async function provisionChannel(): Promise<
   if (forceMock()) {
     const user = getMockSessionUser();
     if (!user) {
-      return { ok: false, error: 'Log in first (mock) to create a channel.' };
+      return { ok: false, error: 'Log in first to create a channel.' };
     }
     const slug = user.username || 'demo';
     setMockSessionUser({
