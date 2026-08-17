@@ -1,6 +1,13 @@
 import { InPageNav } from './InPageNav';
 
-const PRIMARY = [{ to: '/admin', label: 'Dashboard' }] as const;
+const PRIMARY = [
+  { to: '/admin', label: 'Dashboard' },
+  { to: '/admin/beta', label: 'Beta' },
+  { to: '/admin/users', label: 'Users' },
+  { to: '/admin/radio', label: 'Radio' },
+  { to: '/admin/radio-submissions', label: 'Radio submissions' },
+  { to: '/admin/news', label: 'News' },
+] as const;
 
 function isActive(current: string | undefined, to: string) {
   return (

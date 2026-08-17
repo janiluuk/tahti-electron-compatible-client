@@ -11,7 +11,12 @@ import { SOURCE_DEFS } from './api/sources';
 import { AppShell } from './components/AppShell';
 import { resolveDashboardRedirect } from './lib/prodPathRedirects';
 import { useAuthStore } from './stores/authStore';
+import { AdminBetaView } from './views/admin/AdminBetaView';
 import { AdminDashboardView } from './views/admin/AdminDashboardView';
+import { AdminNewsView } from './views/admin/AdminNewsView';
+import { AdminRadioSubmissionsView } from './views/admin/AdminRadioSubmissionsView';
+import { AdminRadioView } from './views/admin/AdminRadioView';
+import { AdminUsersView } from './views/admin/AdminUsersView';
 import { ArtistView } from './views/ArtistView';
 import { ChannelView } from './views/ChannelView';
 import { ChatView } from './views/ChatView';
@@ -135,6 +140,36 @@ const adminRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/admin',
   component: AdminDashboardView,
+});
+
+const adminBetaRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/beta',
+  component: AdminBetaView,
+});
+
+const adminUsersRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/users',
+  component: AdminUsersView,
+});
+
+const adminRadioRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/radio',
+  component: AdminRadioView,
+});
+
+const adminRadioSubmissionsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/radio-submissions',
+  component: AdminRadioSubmissionsView,
+});
+
+const adminNewsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/admin/news',
+  component: AdminNewsView,
 });
 
 const libraryRoute = createRoute({
@@ -717,6 +752,11 @@ const routeTree = rootRoute.addChildren([
     settingsSectionRoute,
     feedRoute,
     adminRoute,
+    adminBetaRoute,
+    adminUsersRoute,
+    adminRadioRoute,
+    adminRadioSubmissionsRoute,
+    adminNewsRoute,
     libraryRoute,
     libraryHistoryRoute,
     libraryMessagesRoute,

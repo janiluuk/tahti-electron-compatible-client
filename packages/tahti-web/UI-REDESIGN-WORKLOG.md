@@ -45,12 +45,12 @@ Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, 
 
 | # | Page | Prod route | Status | Shot |
 |---|------|------------|--------|------|
-| A1 | Dashboard | `/admin/dashboard` → `/admin` | **in-review** | `docs/redesign-shots/admin-dashboard-v1.png`, `…-expanded-v1.png` |
-| A2 | Beta applications | `/admin/beta` | pending | |
-| A3 | Users | `/admin/users` | pending | |
-| A4 | Radio | `/admin/radio` | pending | |
-| A5 | Radio submissions | `/admin/radio-submissions` | pending | |
-| A6 | News | `/admin/news` | pending | |
+| A1 | Dashboard | `/admin/dashboard` → `/admin` | **approved** | `docs/redesign-shots/admin-dashboard-v1.png`, `…-expanded-v1.png` |
+| A2 | Beta applications | `/admin/beta` | **in-review** | `docs/redesign-shots/admin-beta-v1.png` |
+| A3 | Users | `/admin/users` | **in-review** | `docs/redesign-shots/admin-users-v1.png` |
+| A4 | Radio | `/admin/radio` | **in-review** | `docs/redesign-shots/admin-radio-v1.png` |
+| A5 | Radio submissions | `/admin/radio-submissions` | **in-review** | `docs/redesign-shots/admin-radio-submissions-v1.png` |
+| A6 | News | `/admin/news` | **in-review** | `docs/redesign-shots/admin-news-v1.png` |
 | A7 | Tahti Selects | `/admin/tahti-selects` | pending | |
 | A8 | Streams | `/admin/streams` | pending | |
 | A9 | Support | `/admin/support` | pending | |
@@ -353,6 +353,26 @@ Porting into a Nuclear admin shell, gated on `user.isBoard`. Page-by-page loop, 
 - `api/admin.ts`: prod's dashboard fans out to ~12 separate `/api/admin/*` calls — batched into one `fetchAdminDashboard()` for this first port, with a rich mock payload for offline demo
 
 **Screenshots:** `docs/redesign-shots/admin-dashboard-v1.png` (collapsed), `docs/redesign-shots/admin-dashboard-expanded-v1.png` (More expanded)
+
+**Status:** approved.
+
+### 2026-08-17 — Pages A2–A6 Beta / Users / Radio / Radio submissions / News v1 (`in-review`)
+
+**Goal:** Continue the admin port — five pages in one pass, all reusing the AdminGate/AdminNav/StudioPanel foundation from A1. `AdminNav` grows to 6 entries.
+
+**A2 Beta applications** (`/admin/beta`): status filter chips (All/Pending/Approved/Rejected); Approve opens a `Dialog` for username/display name, shows the resulting setup link inline; Reject and Resend-setup-link stay inline row actions.
+
+**A3 Users** (`/admin/users`): search + tier/member selects (debounced, client-side filter under mock), divide-y list with board/suspended tags and live-state coloring. Dropped the per-row detail link and CSV export — no detail page or export endpoint exists yet, out of scope for this pass.
+
+**A4 Radio** (`/admin/radio`): Now playing, Eligible channels (Move to front / Opt out), Opted out (Re-enable), Feature history — four `StudioPanel`s matching prod 1:1.
+
+**A5 Radio submissions** (`/admin/radio-submissions`): auditing panel plays through Nuclear's real player bar (`usePlayerStore`) instead of a bespoke audio element like prod's — one less thing to build, and it's consistent with how every other page in the app plays audio. Approve/reject with an optional rejection note.
+
+**A6 News** (`/admin/news`): compose in a `Dialog` (Publish / Save as draft), list rows with inline Edit (swaps to a form in place, no separate route) / Publish-Unpublish / Delete.
+
+All five: `api/admin.ts` mock + live fetchers (`fetchAdminBetaApplications`, `fetchAdminUsers`, `fetchAdminRadio`, `fetchAdminRadioSubmissions`, `fetchAdminNews` + mutations), same forceMock()-first pattern as the rest of the app.
+
+**Screenshots:** `docs/redesign-shots/admin-beta-v1.png`, `admin-users-v1.png`, `admin-radio-v1.png`, `admin-radio-submissions-v1.png`, `admin-news-v1.png`
 
 **Status:** in-review — awaiting comment or `approved`.
 
