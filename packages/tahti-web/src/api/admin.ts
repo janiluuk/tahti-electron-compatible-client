@@ -902,3 +902,603 @@ export async function deleteNewsPost(
   }
   return mutate(`/api/admin/news/${encodeURIComponent(id)}`, 'DELETE');
 }
+
+// ── Tahti Selects ───────────────────────────────────────────────────────────
+
+export type AdminSelectsItem = {
+  id: string;
+  archiveItemId: string;
+  title: string;
+  durationSec: number | null;
+  license: string;
+  artistName: string;
+  channelSlug: string;
+  addedBy: string;
+};
+
+export type AdminSelectsBrowseItem = {
+  id: string;
+  title: string;
+  durationSec: number | null;
+  license: string;
+  artistName: string;
+  channelSlug: string;
+};
+
+let mockSelectsItems: AdminSelectsItem[] | null = null;
+let mockSelectsStreamRunning = false;
+
+function selectsState(): AdminSelectsItem[] {
+  if (!mockSelectsItems) {
+    mockSelectsItems = [
+      {
+        id: 'sel-1',
+        archiveItemId: 'arch-nl-1',
+        title: 'Aurora Drift',
+        durationSec: 372,
+        license: 'CC_BY',
+        artistName: 'Northern Lights',
+        channelSlug: 'northern-lights',
+        addedBy: 'board-jani',
+      },
+      {
+        id: 'sel-2',
+        archiveItemId: 'arch-mc-1',
+        title: 'Route 550',
+        durationSec: 541,
+        license: 'CC_BY_SA',
+        artistName: 'Midnight Cartography',
+        channelSlug: 'midnight-cartography',
+        addedBy: 'board-jani',
+      },
+    ];
+  }
+  return mockSelectsItems;
+}
+
+function mockSelectsBrowse(): AdminSelectsBrowseItem[] {
+  return [
+    {
+      id: 'arch-dj-1',
+      title: 'Moonlight Drive',
+      durationSec: 312,
+      license: 'CC_BY',
+      artistName: 'DJ Moonlight',
+      channelSlug: 'dj-moonlight',
+    },
+    {
+      id: 'arch-kc-1',
+      title: 'Echo Chamber Cypher',
+      durationSec: 254,
+      license: 'ALL_RIGHTS_RESERVED',
+      artistName: 'Kaiku Collective',
+      channelSlug: 'kaiku-collective',
+    },
+  ];
+}
+
+export async function fetchAdminSelects(): Promise<{
+  data: { items: AdminSelectsItem[]; streamRunning: boolean };
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: { items: selectsState(), streamRunning: mockSelectsStreamRunning },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{
+      items: AdminSelectsItem[];
+      streamRunning: boolean;
+    }>('/api/admin/tahti-selects');
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return {
+      data: { items: [], streamRunning: false },
+      meta: failMeta(err),
+    };
+  }
+}
+
+export async function searchAdminSelectsBrowse(
+  q: string,
+): Promise<{ data: AdminSelectsBrowseItem[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    const query = q.toLowerCase();
+    return {
+      data: mockSelectsBrowse().filter((i) =>
+        i.title.toLowerCase().includes(query),
+      ),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{ items: AdminSelectsBrowseItem[] }>(
+      `/api/admin/tahti-selects/browse?q=${encodeURIComponent(q)}`,
+    );
+    return { data: data.items, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export function addToSelectsRotation(item: AdminSelectsBrowseItem) {
+  if (forceMock()) {
+    selectsState().push({
+      id: `sel-${Date.now()}`,
+      archiveItemId: item.id,
+      title: item.title,
+      durationSec: item.durationSec,
+      license: item.license,
+      artistName: item.artistName,
+      channelSlug: item.channelSlug,
+      addedBy: 'you',
+    });
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate('/api/admin/tahti-selects', 'POST', { archiveItemId: item.id });
+}
+
+export function removeFromSelectsRotation(id: string) {
+  if (forceMock()) {
+    mockSelectsItems = selectsState().filter((i) => i.id !== id);
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(`/api/admin/tahti-selects/${encodeURIComponent(id)}`, 'DELETE');
+}
+
+export function reorderSelectsItem(id: string, direction: 'up' | 'down') {
+  if (forceMock()) {
+    const items = selectsState();
+    const idx = items.findIndex((i) => i.id === id);
+    const target = direction === 'up' ? idx - 1 : idx + 1;
+    if (idx < 0 || target < 0 || target >= items.length) {
+      return Promise.resolve({ ok: true } as const);
+    }
+    [items[idx], items[target]] = [items[target]!, items[idx]!];
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(
+    `/api/admin/tahti-selects/${encodeURIComponent(id)}/reorder`,
+    'POST',
+    { direction },
+  );
+}
+
+export function startSelectsStream() {
+  if (forceMock()) {
+    mockSelectsStreamRunning = true;
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate('/api/admin/tahti-selects/stream/start', 'POST');
+}
+
+export function stopSelectsStream() {
+  if (forceMock()) {
+    mockSelectsStreamRunning = false;
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate('/api/admin/tahti-selects/stream/stop', 'POST');
+}
+
+// ── Stream manager ──────────────────────────────────────────────────────────
+
+export type AdminLiveStreamRow = {
+  slug: string;
+  artistName: string;
+  username: string;
+  elapsedSec: number;
+  goneLiveAt: string | null;
+  hlsUrl: string | null;
+  isRotation: boolean;
+};
+
+function mockLiveStreams(): AdminLiveStreamRow[] {
+  return [
+    {
+      slug: 'northern-lights',
+      artistName: 'Northern Lights',
+      username: 'northern-lights',
+      elapsedSec: 5400,
+      goneLiveAt: '2026-08-16T20:00:00.000Z',
+      hlsUrl: 'https://stream.tahti.live/northern-lights/stream.m3u8',
+      isRotation: false,
+    },
+    {
+      slug: 'dj-moonlight',
+      artistName: 'DJ Moonlight',
+      username: 'dj-moonlight',
+      elapsedSec: 1860,
+      goneLiveAt: '2026-08-17T00:39:00.000Z',
+      hlsUrl: 'https://stream.tahti.live/dj-moonlight/stream.m3u8',
+      isRotation: false,
+    },
+  ];
+}
+
+export async function fetchAdminStreams(): Promise<{
+  data: AdminLiveStreamRow[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: mockLiveStreams(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{ streams: AdminLiveStreamRow[] }>(
+      '/api/admin/streams',
+    );
+    return { data: data.streams, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export function restartStream(slug: string) {
+  if (forceMock()) {
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(
+    `/api/admin/streams/${encodeURIComponent(slug)}/restart`,
+    'POST',
+  );
+}
+
+export function skipStreamTrack(slug: string) {
+  if (forceMock()) {
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(`/api/admin/streams/${encodeURIComponent(slug)}/skip`, 'POST');
+}
+
+export function pauseStream(slug: string) {
+  if (forceMock()) {
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(`/api/admin/streams/${encodeURIComponent(slug)}/pause`, 'POST');
+}
+
+export function resumeStream(slug: string) {
+  if (forceMock()) {
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(
+    `/api/admin/streams/${encodeURIComponent(slug)}/resume`,
+    'POST',
+  );
+}
+
+export function forceStreamOffline(slug: string) {
+  if (forceMock()) {
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(
+    `/api/admin/streams/${encodeURIComponent(slug)}/force-offline`,
+    'POST',
+  );
+}
+
+// ── Support ─────────────────────────────────────────────────────────────────
+
+export type AdminSupportStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED';
+
+export type AdminSupportTicket = {
+  id: string;
+  subject: string;
+  category: string;
+  status: AdminSupportStatus;
+  artistUsername: string | null;
+  contactEmail: string | null;
+  createdAt: string;
+};
+
+function mockSupportTickets(): AdminSupportTicket[] {
+  return [
+    {
+      id: 'tkt-1',
+      subject: 'Cannot connect OBS to multistream target',
+      category: 'broadcast',
+      status: 'OPEN',
+      artistUsername: 'dj-moonlight',
+      contactEmail: null,
+      createdAt: '2026-08-16T10:00:00.000Z',
+    },
+    {
+      id: 'tkt-2',
+      subject: 'Payout never arrived',
+      category: 'billing',
+      status: 'IN_PROGRESS',
+      artistUsername: 'midnight-cartography',
+      contactEmail: null,
+      createdAt: '2026-08-15T09:00:00.000Z',
+    },
+    {
+      id: 'tkt-3',
+      subject: 'How do I change my channel URL?',
+      category: 'general',
+      status: 'RESOLVED',
+      artistUsername: null,
+      contactEmail: 'listener@example.com',
+      createdAt: '2026-08-10T09:00:00.000Z',
+    },
+  ];
+}
+
+export async function fetchAdminSupportTickets(
+  status?: AdminSupportStatus,
+): Promise<{ data: AdminSupportTicket[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    const all = mockSupportTickets();
+    return {
+      data: status ? all.filter((t) => t.status === status) : all,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const qs = new URLSearchParams({ limit: '50' });
+    if (status) {
+      qs.set('status', status);
+    }
+    const data = await getJson<{ tickets: AdminSupportTicket[] }>(
+      `/api/admin/support/tickets?${qs.toString()}`,
+    );
+    return { data: data.tickets, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+// ── Top lists ───────────────────────────────────────────────────────────────
+
+export type AdminTopListPeriod = 'month' | 'half_year' | 'all_time';
+export type AdminTopListDimension = 'type' | 'genre';
+export type AdminTopListSort = 'desc' | 'asc';
+
+export type AdminTopListEntry = {
+  archiveItemId: string;
+  listens: number;
+  title: string;
+  artistName: string;
+  channelSlug: string;
+};
+
+export type AdminTopListBucket = {
+  bucket: string;
+  entries: AdminTopListEntry[];
+};
+
+function mockTopLists(dimension: AdminTopListDimension): AdminTopListBucket[] {
+  const tracks = [
+    {
+      title: 'Moonlight Drive',
+      artistName: 'DJ Moonlight',
+      channelSlug: 'dj-moonlight',
+      listens: 842,
+    },
+    {
+      title: 'Route 550',
+      artistName: 'Midnight Cartography',
+      channelSlug: 'midnight-cartography',
+      listens: 611,
+    },
+    {
+      title: 'Aurora Drift',
+      artistName: 'Northern Lights',
+      channelSlug: 'northern-lights',
+      listens: 590,
+    },
+    {
+      title: 'Echo Chamber Cypher',
+      artistName: 'Kaiku Collective',
+      channelSlug: 'kaiku-collective',
+      listens: 401,
+    },
+  ];
+  const bucketed =
+    dimension === 'type'
+      ? [
+          { bucket: 'Live sets', entries: tracks.slice(0, 2) },
+          { bucket: 'Archive tracks', entries: tracks.slice(2) },
+        ]
+      : [
+          { bucket: 'Electronic', entries: tracks.slice(0, 2) },
+          { bucket: 'Downtempo', entries: [tracks[1]!] },
+          { bucket: 'Hip-hop', entries: [tracks[3]!] },
+        ];
+  return bucketed.map((b) => ({
+    bucket: b.bucket,
+    entries: b.entries.map((t, i) => ({
+      archiveItemId: `${b.bucket}-${i}`,
+      listens: t.listens,
+      title: t.title,
+      artistName: t.artistName,
+      channelSlug: t.channelSlug,
+    })),
+  }));
+}
+
+export async function fetchAdminTopLists(
+  period: AdminTopListPeriod,
+  dimension: AdminTopListDimension,
+  sort: AdminTopListSort,
+): Promise<{ data: AdminTopListBucket[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    const buckets = mockTopLists(dimension).map((b) => ({
+      bucket: b.bucket,
+      entries: [...b.entries].sort((a, c) =>
+        sort === 'desc' ? c.listens - a.listens : a.listens - c.listens,
+      ),
+    }));
+    return {
+      data: buckets,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{ buckets: AdminTopListBucket[] }>(
+      `/api/admin/top-lists?period=${period}&dimension=${dimension}&sort=${sort}`,
+    );
+    return { data: data.buckets, meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+// ── Announcements ───────────────────────────────────────────────────────────
+
+export type AdminAnnouncementScheduleMode =
+  | 'AFTER_EVERY'
+  | 'EVERY_NTH'
+  | 'RANDOM';
+
+export type AdminAnnouncementClip = {
+  id: string;
+  title: string;
+  durationSec: number | null;
+  isEnabled: boolean;
+  scheduleMode: AdminAnnouncementScheduleMode;
+  everyNth: number | null;
+  audioUrl?: string | null;
+};
+
+let mockAnnouncementClips: AdminAnnouncementClip[] | null = null;
+let mockAnnouncementsSystemEnabled = true;
+
+function announcementState(): AdminAnnouncementClip[] {
+  if (!mockAnnouncementClips) {
+    mockAnnouncementClips = [
+      {
+        id: 'ann-1',
+        title: 'Welcome to Tahti',
+        durationSec: 12,
+        isEnabled: true,
+        scheduleMode: 'AFTER_EVERY',
+        everyNth: null,
+        audioUrl:
+          'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+      },
+      {
+        id: 'ann-2',
+        title: 'AGM reminder — October',
+        durationSec: 8,
+        isEnabled: false,
+        scheduleMode: 'EVERY_NTH',
+        everyNth: 6,
+        audioUrl: null,
+      },
+    ];
+  }
+  return mockAnnouncementClips;
+}
+
+export async function fetchAdminAnnouncements(): Promise<{
+  data: { clips: AdminAnnouncementClip[]; systemEnabled: boolean };
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: {
+        clips: announcementState(),
+        systemEnabled: mockAnnouncementsSystemEnabled,
+      },
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const data = await getJson<{
+      clips: AdminAnnouncementClip[];
+      systemEnabled: boolean;
+    }>('/api/admin/announcements');
+    return { data, meta: { source: 'api' } };
+  } catch (err) {
+    return {
+      data: { clips: [], systemEnabled: false },
+      meta: failMeta(err),
+    };
+  }
+}
+
+export function setAnnouncementsSystemEnabled(enabled: boolean) {
+  if (forceMock()) {
+    mockAnnouncementsSystemEnabled = enabled;
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate('/api/admin/announcements/system-enabled', 'PATCH', {
+    enabled,
+  });
+}
+
+export async function patchAnnouncementClip(
+  id: string,
+  patch: Partial<
+    Pick<AdminAnnouncementClip, 'isEnabled' | 'scheduleMode' | 'everyNth'>
+  >,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const clip = announcementState().find((c) => c.id === id);
+    if (clip) {
+      Object.assign(clip, patch);
+    }
+    return { ok: true };
+  }
+  return mutate(
+    `/api/admin/announcements/${encodeURIComponent(id)}`,
+    'PATCH',
+    patch,
+  );
+}
+
+export function deleteAnnouncementClip(id: string) {
+  if (forceMock()) {
+    mockAnnouncementClips = announcementState().filter((c) => c.id !== id);
+    return Promise.resolve({ ok: true } as const);
+  }
+  return mutate(`/api/admin/announcements/${encodeURIComponent(id)}`, 'DELETE');
+}
+
+export async function uploadAnnouncementClip(
+  file: File,
+): Promise<
+  { ok: true; clip: AdminAnnouncementClip } | { ok: false; error: string }
+> {
+  const title = file.name.replace(/\.[^.]+$/, '');
+  if (forceMock()) {
+    const clip: AdminAnnouncementClip = {
+      id: `ann-${Date.now()}`,
+      title,
+      durationSec: null,
+      isEnabled: true,
+      scheduleMode: 'AFTER_EVERY',
+      everyNth: null,
+      audioUrl: null,
+    };
+    announcementState().unshift(clip);
+    return { ok: true, clip };
+  }
+  try {
+    const prep = await sendJson<{ objectKey: string; uploadUrl: string }>(
+      '/api/admin/announcements/prepare',
+      'POST',
+      { filename: file.name, contentType: file.type, sizeBytes: file.size },
+    );
+    const put = await fetch(prep.uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type || 'application/octet-stream' },
+      body: file,
+    });
+    if (!put.ok) {
+      return { ok: false, error: `Upload failed (${put.status})` };
+    }
+    const clip = await sendJson<AdminAnnouncementClip>(
+      '/api/admin/announcements',
+      'POST',
+      { objectKey: prep.objectKey, title },
+    );
+    return { ok: true, clip };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Failed' };
+  }
+}
