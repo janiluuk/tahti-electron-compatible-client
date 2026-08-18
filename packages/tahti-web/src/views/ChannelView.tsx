@@ -19,6 +19,7 @@ import {
   playQueueFavoriteActions,
 } from '../components/MediaIconActions';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { OnAirBadge } from '../components/tahti/OnAirBadge';
 import {
   addItemType,
   CHANNEL_PAGE_ITEM_META,
@@ -469,15 +470,13 @@ export function ChannelView({ slug }: { slug: string }) {
           <h1 className="text-3xl font-bold tracking-tight">
             {channel.user.displayName}
           </h1>
-          <span
-            className={
-              live
-                ? 'bg-primary text-foreground rounded px-2 py-0.5 text-xs font-bold uppercase'
-                : 'text-foreground-secondary border-border rounded border px-2 py-0.5 text-xs uppercase'
-            }
-          >
-            {channel.state}
-          </span>
+          {live ? (
+            <OnAirBadge />
+          ) : (
+            <span className="text-foreground-secondary border-border rounded border px-2 py-0.5 text-xs uppercase">
+              {channel.state}
+            </span>
+          )}
           {isOwner && !editing && (
             <Button size="sm" variant="secondary" onClick={startEdit}>
               <span className="inline-flex items-center gap-1.5">
