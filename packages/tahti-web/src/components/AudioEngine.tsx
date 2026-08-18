@@ -129,8 +129,31 @@ export function AudioEngine() {
         audio.currentTime,
         Number.isFinite(audio.duration) ? audio.duration : 0,
       );
-    const onError = () => setStatus('error', 'Playback error');
+    // crossOrigin is required for the shared analyser (see the graph
+    // effect above) -- without it, connecting a MediaElementAudioSourceNode
+    // to a cross-origin stream still plays audio fine but the analyser
+    // reads back all-zero frequency data, so every visualizer looks dead
+    // even though sound is coming out. If the stream host doesn't
+    // actually serve CORS headers, forcing crossOrigin instead makes the
+    // browser refuse to load it -- fall back to a plain, non-CORS load
+    // so playback still works (that one source just won't visualize).
+    let triedFallback = false;
+    const onError = () => {
+      if (audio.crossOrigin && !triedFallback) {
+        triedFallback = true;
+        audio.crossOrigin = null;
+        if (isHls && hlsRef.current) {
+          hlsRef.current.loadSource(url);
+        } else {
+          audio.src = url;
+          void audio.play().catch(() => setStatus('paused'));
+        }
+        return;
+      }
+      setStatus('error', 'Playback error');
+    };
 
+    audio.crossOrigin = 'anonymous';
     audio.addEventListener('playing', onPlaying);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('ended', onEnded);
