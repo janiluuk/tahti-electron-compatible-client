@@ -386,8 +386,13 @@ export function ListenView() {
                       </Link>
                     }
                     subtitle={
-                      (ch.live ? 'Live · ' : '') +
-                      (ch.genres.slice(0, 2).join(', ') || ch.slug)
+                      <>
+                        {ch.live && <span className="text-primary">Live</span>}
+                        {ch.live && ' · '}
+                        <span className="font-mono">
+                          {ch.genres.slice(0, 2).join(', ') || ch.slug}
+                        </span>
+                      </>
                     }
                     src={ch.avatarUrl ?? undefined}
                     onPlay={ch.live ? () => void playNow(ch.slug) : undefined}
