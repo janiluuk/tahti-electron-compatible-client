@@ -30,6 +30,7 @@ import type {
 import { RELEASE_CREDIT_ROLES } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
 
 const MUSICBRAINZ_SUBMIT_URL = 'https://musicbrainz.org/release/add';
 const DISCOGS_SUBMIT_URL = 'https://www.discogs.com/search/';
@@ -815,8 +816,8 @@ export function StudioDistributionView() {
         <SpotifyProfilePanel />
 
         <section className="flex flex-col gap-3">
-          <h2 className="text-sm font-semibold tracking-wide uppercase">
-            Releases
+          <h2>
+            <Eyebrow>Releases</Eyebrow>
           </h2>
           {loading ? (
             <p className="text-foreground-secondary text-sm">Loading…</p>
@@ -837,8 +838,8 @@ export function StudioDistributionView() {
 
         {allRoyalties.length > 0 && (
           <section>
-            <h2 className="text-sm font-semibold tracking-wide uppercase">
-              All royalty reports
+            <h2>
+              <Eyebrow>All royalty reports</Eyebrow>
             </h2>
             <table className="mt-2 w-full text-left text-xs">
               <thead>
