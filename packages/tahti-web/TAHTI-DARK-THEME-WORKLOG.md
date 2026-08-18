@@ -374,42 +374,47 @@ slices already done — Studio home/Go Live/Studio stats/Revenue):
 - Listen home library section labels (Favorite channels/tracks, Recently
   played) → Eyebrow.
 - Channel page header LIVE badge → OnAirBadge.
-- Listen directory channel cards → "Live" fragment of the subtitle now
-  `text-primary` (amber), genre/slug text `font-mono`, replacing a plain
-  string subtitle. Deliberately *not* the `OnAirBadge` pill here — a
-  bordered/padded badge repeated in every tile of a dense card grid is
-  exactly the "chrome" the standing minimalism principle warns against;
-  colour + mono is enough signal at that density. `ListenView.tsx`.
+- Listen directory channel cards → genre/slug text `font-mono`; "Live"
+  fragment of the subtitle bolded (`font-semibold`). Deliberately *not*
+  the `OnAirBadge` pill here — a bordered/padded badge repeated in every
+  tile of a dense card grid is exactly the "chrome" the standing
+  minimalism principle warns against; a small amount of emphasis + mono
+  is enough signal at that density. `ListenView.tsx`.
+  - **First pass used `text-primary` (amber) for "Live" and shipped on
+    lint/typecheck alone — wrong.** Got a real Playwright screenshot
+    working (see Working notes below) and it showed the word rendered
+    completely invisible: `Card`'s outer wrapper fills the whole tile
+    with `bg-primary` (Nuclear's existing neobrutalist design, all six
+    themes — the same fill flagged in Phase 3/6), so amber text on an
+    amber tile face is amber-on-amber. Fixed to `font-semibold` (a
+    weight accent instead of a colour accent), confirmed visible in a
+    follow-up screenshot. This is exactly why the worklog requires a
+    live check per slice, not just green lint/typecheck — recorded here
+    so the lesson doesn't get re-learned.
 - Collection page "Linked releases" sub-heading → `Eyebrow`, matching the
   existing h3-level secondary-section idiom used on Listen home (Favorite
   tracks/Recently played), replacing a one-off `font-display text-lg
-  font-bold` heading. `CollectionView.tsx`.
+  font-bold` heading. `CollectionView.tsx`. Live-verified (renders
+  correctly; not on an amber `Card` face, so no analogous contrast risk).
+- Channel visualizer "subtle" header variant's hero backdrop → the
+  `bg-[#0B0F14]` leftover flagged in Phase 7 is fixed: now
+  `bg-background-input`, the closest semantic match (`ink-2` in
+  tahti-dark's own token table is explicitly "recessed background,
+  wells"). Every theme gets a real value instead of a hardcoded hex.
+  This was the **only** remaining hit in the repo-wide Tailwind
+  arbitrary-hex grep (`bg|text|border|...-\[#`) — that grep is now clean,
+  full stop, not just clean-for-files-this-work-touched.
+  `ChannelView.tsx`.
 
-  **Verification note on these two:** `eslint`/`tsc --noEmit` both clean.
-  Live/Playwright screenshot verification (the norm for every other Phase
-  5 slice above) was **not** obtained this pass — the sandbox's Playwright
-  Chromium download stalled repeatedly (consistently froze at 8.8MB despite
-  a direct `curl` of the same CDN artifact succeeding at ~24MB/s; not a
-  general network issue, cause not root-caused, gave up after multiple
-  retries) and the Chrome extension bridge for `claude-in-chrome` wasn't
-  connected either. Lower risk than the usual live-check requirement since
-  every class used (`text-primary`, `font-mono`, `Eyebrow`) is a token/
-  primitive already live-verified elsewhere in `tahti-dark` (Phases 2–3) —
-  but flagging honestly rather than claiming a screenshot check that didn't
-  happen. Get an actual screenshot of `/listen` and a collection page next
-  time a working browser is available, before checking Phase 7's manual
-  acceptance checklist for these two.
-
-**Still open, listener side:** Channel page beyond the header badge
-(archive/chat rail — largest single surface, has a known pre-existing hex
-leftover, `bg-[#0B0F14]` on the visualizer hero backdrop, flagged in
-Phase 7, not yet fixed), the public artist profile (`/u/$username` →
-`ArtistView.tsx`, 640 lines — not yet reviewed for chrome-level theming;
-note its per-artist channel-designer brand-accent hex is a separate,
-intentional customization system per the Phase 7 finding, not a
-golden-rule violation to fix here), Fan subscribe (spot-checked — already
-fully token-driven, no violation found, but tier price/CTA not yet given
-a deliberate themed treatment).
+**Still open, listener side:** Channel page beyond the header badge and
+now the fixed hero backdrop (archive/chat rail — largest single surface,
+not yet walked end-to-end for token/mono/spacing treatment), the public
+artist profile (`/u/$username` → `ArtistView.tsx`, 640 lines — not yet
+reviewed for chrome-level theming; note its per-artist channel-designer
+brand-accent hex is a separate, intentional customization system per the
+Phase 7 finding, not a golden-rule violation to fix here), Fan subscribe
+(spot-checked — already fully token-driven, no violation found, but tier
+price/CTA not yet given a deliberate themed treatment).
 
 **Status:** in progress. Depends on Phase 3–4 (done). This is the largest
 phase — splitting listener vs. studio surfaces into slices, as suggested
@@ -592,3 +597,19 @@ that's the next and largest piece of work here.
   that phase — don't start the next phase's checkboxes until the current
   one's are all checked and screenshotted/approved, same discipline as
   `UI-REDESIGN-WORKLOG.md`.
+- **Playwright in this sandbox (2026-08-18):** `npx playwright install
+  chromium` from `packages/tahti-web` hangs/stalls indefinitely — repeatedly
+  froze at a fixed 8.8MB partial download of `chromium-1148`, even though a
+  direct `curl` of the exact same CDN zip
+  (`https://playwright.download.prss.microsoft.com/dbazure/download/playwright/builds/chromium/1148/chromium-linux.zip`)
+  completes in ~7s at ~24MB/s — so it's the installer subprocess, not
+  network access. Workaround that worked: `curl` the zip directly, `unzip`
+  it into `~/.cache/ms-playwright/chromium-<rev>/`, `chmod +x
+  chrome-linux/chrome`, then `touch
+  ~/.cache/ms-playwright/chromium-<rev>/INSTALLATION_COMPLETE` (the marker
+  file `playwright-core`'s registry checks for). Then
+  `chromium.launch({ channel: 'chromium' })` (not a bare `.launch()`,
+  which wants the separate `chromium_headless_shell` build) works. The
+  `claude-in-chrome` browser extension was also not connected this session
+  as a fallback — worth checking first next time in case that path is
+  simpler.
