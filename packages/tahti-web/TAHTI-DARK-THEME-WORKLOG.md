@@ -387,11 +387,13 @@ implied (not decoratively everywhere).
 
 - [x] Match the existing capture set in `docs/redesign-shots/` (currently 77
       files) so before/after is comparable — same filenames/framing where a
-      shot already exists for that surface. — **74/77 refreshed
-      2026-08-18** (44 in the first pass below, then the 22 deferred
-      `admin-*` shots + `studio-updates-newsletter-v1.png`, then 6 more
-      dynamic-state captures — see "Admin + newsletter capture pass" and
-      "Dynamic-state capture pass" below) via a new resilient capture script,
+      shot already exists for that surface. — **77/77 refreshed
+      2026-08-18 — fully done, no deferred files left** (44 in the first
+      pass below, then the 22 deferred `admin-*` shots +
+      `studio-updates-newsletter-v1.png`, then 6 more dynamic-state
+      captures, then the final 4 Studio editor/collection/playlist
+      captures — see "Admin + newsletter capture pass", "Dynamic-state
+      capture pass", and "Last 4 captures" below) via a new resilient capture script,
       `scripts/capture-tahti-dark-refresh.mjs` (same pattern as the
       existing `scripts/capture-redesign-shots.mjs`/`capture-atlas-shots.mjs`:
       injects a mock `demo@tahti.live` session into `tahti-web-auth`
@@ -655,11 +657,10 @@ label, same reasoning as not Eyebrow-ing artist/channel names elsewhere.
 sub-heading/kicker + data-label sweep, all views), and the broader
 cross-`views`+`components`+`Admin` read-through are all complete —
 walked and either themed or confirmed already compliant, not just
-unchecked. The `docs/redesign-shots/` capture-matching checkbox is at
-74/77, with the remaining 3 named and reasoned above (Studio editor
-dynamic-ID captures, not a theming gap — those surfaces are already
-covered by the heading/kicker sweep). Nothing outstanding in this phase
-beyond those 3 files and the two cross-package findings Phase 6 already
+unchecked. The `docs/redesign-shots/` capture-matching checkbox is fully
+done — **77/77**, no deferred files left (see "Last 4 captures" above).
+Nothing outstanding in this phase beyond the two cross-package findings
+Phase 6 already
 tracks.
 
 **Broader read-through (2026-08-18), beyond Studio/Listener/Channel:**
@@ -804,14 +805,51 @@ forever — 6 of the 9 turned out tractable once actually investigated:
   track/artist and the clicked row's icon flips to pause, i.e. the
   "consistency" the filename names actually holds.
 
-**Still open, genuinely deferred:** `studio-collection-editor-play-v1.png`,
-`studio-editor-project-v1.png` / `studio-editor-project-wide-v1.png`,
-`studio-playlist-editor-play-v1.png` — these need a specific mock
-collection/playlist/project id (unlike the ones above, no single obvious
-"first item" or toggle to script blind without risking a wrong/misleading
-capture) and are lower priority: they're all Studio editor chrome
-already covered by the exhaustive Phase 5 heading/kicker sweep, so the
-capture gap is cosmetic documentation lag, not an unverified surface.
+**Last 4 captures (2026-08-18), closing out the list above:**
+
+- `studio-collection-editor-play-v1.png`: `/studio/collections/favorites-mix`
+  (the only mock collection — `fetchStudioCollection` returns it for any
+  slug in mock mode), clicked the `aria-label="Play {title}"` icon button
+  next to "Northern Lights — Live Set" (`StudioCollectionEditView.tsx`,
+  a plain list with its own `PlayIcon` button — a different component
+  from the playlist editor below, despite both routing through
+  "collections" conceptually).
+- `studio-playlist-editor-play-v1.png`: `/studio/playlists/favorites-mix`
+  (same mock collection, `isPlaylist()` accepts it since it has no
+  `style` set) — this one *does* use the shared `TrackTable`
+  (`StudioPlaylistEditorView`, defined inside `StudioPlaylistsView.tsx`),
+  so clicked the title button directly, same idiom as the artist-page
+  catalog capture above.
+- `studio-editor-project-v1.png` / `-wide-v1.png`: `/studio/editor/proj-mock-1`
+  (`proj-mock-1` is the one deterministic mock project in `studio.ts`).
+  "Wide" turned out to just mean a wider viewport (1920×1200 vs
+  1280×1400) of the same route/state — the Studio nav's tab row visibly
+  reflows to fewer lines at that width, a real, non-invented difference
+  worth two separate captures rather than one guess.
+
+**Real bug found in the capture tooling, not the app:** the playlist-editor
+capture initially came back rendering in a completely different colour
+scheme (dark maroon/rose, looking like the Ember theme) instead of
+tahti-dark's navy/amber — reproducible across relaunches. `getComputedStyle`
+confirmed the CSS was never wrong (`--primary`/`--background` resolved to
+tahti-dark's exact OKLCH values throughout); only the *rendered pixels*
+were wrong, and only after a play action started (audio graph / analyser
+setup). Dropping the `--disable-gpu` launch flag every capture script in
+this repo uses (`capture-tahti-dark-refresh.mjs` and this session's ad hoc
+scripts alike) fixed it immediately and consistently. Root cause not fully
+isolated, but the pattern — software Skia rendering silently producing
+wrong OKLCH-derived colours once a `MediaElementAudioSourceNode`/
+`AnalyserNode` is created — only reproduced with `--disable-gpu` set,
+never without it. **Flagged, not fixed repo-wide:** the shared
+`capture-tahti-dark-refresh.mjs` script still uses `--disable-gpu`
+(kept for the crash-avoidance reason it was originally added, per the
+Working notes below) — anyone re-running it for a route that starts audio
+playback should verify colours by eye or `getComputedStyle`, not just
+trust a non-error exit, until this is actually reconciled.
+
+All 4 `pnpm exec tsc --noEmit` / `eslint` clean (only image files changed,
+no code). **77/77 redesign-shots now refreshed under tahti-dark** — the
+capture-matching checkbox is fully closed, no more deferred files.
 **74/77 now refreshed.**
 
 ## Phase 6 — Guardrails check
@@ -1022,11 +1060,11 @@ Manual acceptance checklist:
       them anyway; adding that wiring is a structural change outside a
       single theme's scope, same category as the Card-fill/contrast
       Phase 6 findings — not attempted here.
-- [x] Refreshed captures added to `docs/redesign-shots/` — **74/77**, see
-      the Phase 5 capture-pass notes above for exactly which 3 remain and
-      why (Studio editor views needing a specific mock id, not a
-      themeing gap — those surfaces are already covered by the
-      heading/kicker sweep).
+- [x] Refreshed captures added to `docs/redesign-shots/` — **77/77, fully
+      done**, see the Phase 5 "Last 4 captures" note above for the final
+      batch (Studio collection/playlist editors, editor project detail at
+      two viewport widths) and the `--disable-gpu` rendering-corruption
+      lesson found while capturing them.
 
 **Status:** effectively done. Every checklist item above is real and
 re-verified as of 2026-08-18, not carried over stale from the 2026-08-17
