@@ -405,10 +405,23 @@ slices already done — Studio home/Go Live/Studio stats/Revenue):
   arbitrary-hex grep (`bg|text|border|...-\[#`) — that grep is now clean,
   full stop, not just clean-for-files-this-work-touched.
   `ChannelView.tsx`.
+- Channel archive Pinned/Catalog sub-headings → `Eyebrow`, matching the
+  same idiom as Listen home/Collection. Chat rail's "React" label →
+  `Eyebrow`; the non-live channel state pill (e.g. `OFFLINE`) and the
+  chat rail's "Live" indicator → `font-mono`, matching `OnAirBadge`'s
+  font and the "mono for labels/data" rule. Colours were left untouched
+  on both (only `font-mono` added), so no contrast risk analogous to the
+  ListenView "Live" text lesson above. `ChannelView.tsx`,
+  `ChannelChatPanel.tsx`. Live-verified: Playwright screenshot against
+  `VITE_FORCE_MOCK=1 pnpm dev:tahti` shows both "PINNED"/"CATALOG" and
+  the "OFFLINE" pill rendering correctly (mock chat has no live
+  Centrifugo connection to exercise the chat "Live" indicator itself,
+  but it's a font-only change with no colour risk).
 
-**Still open, listener side:** Channel page beyond the header badge and
-now the fixed hero backdrop (archive/chat rail — largest single surface,
-not yet walked end-to-end for token/mono/spacing treatment), the public
+**Still open, listener side:** Channel page's remaining chrome (visualizer
+hero copy, links/about blocks — spot-checked, already token-driven; the
+channel-design *editor* chrome itself, e.g. the "Channel design" header
+and drag-layer labels, not yet passed for mono treatment), the public
 artist profile (`/u/$username` → `ArtistView.tsx`, 640 lines — not yet
 reviewed for chrome-level theming; note its per-artist channel-designer
 brand-accent hex is a separate, intentional customization system per the
