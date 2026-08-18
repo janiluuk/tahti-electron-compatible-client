@@ -22,6 +22,7 @@ import type { ChannelDirectoryItem, PublicChannel } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { Eyebrow } from '../components/tahti/Eyebrow';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -182,8 +183,8 @@ export function ListenView() {
               {libraryChannels.length > 0 ? (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                      Favorite channels
+                    <h3>
+                      <Eyebrow>Favorite channels</Eyebrow>
                     </h3>
                     {favoriteChannels.length > LIBRARY_PREVIEW_CHANNELS ? (
                       <Link
@@ -228,8 +229,8 @@ export function ListenView() {
 
               {libraryTracks.length > 0 ? (
                 <div className="flex flex-col gap-2">
-                  <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                    Favorite tracks
+                  <h3>
+                    <Eyebrow>Favorite tracks</Eyebrow>
                   </h3>
                   <PlayableTrackTable
                     items={libraryTracks}
@@ -241,8 +242,8 @@ export function ListenView() {
               {recentHistory.length > 0 ? (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-foreground-secondary text-xs font-semibold tracking-wide uppercase">
-                      Recently played
+                    <h3>
+                      <Eyebrow>Recently played</Eyebrow>
                     </h3>
                     <Link
                       to="/library/history"
