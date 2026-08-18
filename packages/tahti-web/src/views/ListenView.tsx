@@ -188,7 +188,7 @@ export function ListenView() {
                     </h3>
                     {favoriteChannels.length > LIBRARY_PREVIEW_CHANNELS ? (
                       <Link
-                        to="/library"
+                        to="/library/favorites"
                         className="text-foreground-secondary text-xs underline-offset-2 hover:underline"
                       >
                         +{favoriteChannels.length - LIBRARY_PREVIEW_CHANNELS}{' '}

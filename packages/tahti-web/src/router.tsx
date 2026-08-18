@@ -287,6 +287,12 @@ const adminI18nRoute = createRoute({
 const libraryRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library',
+  component: () => <LibraryView tab="discography" />,
+});
+
+const libraryFavoritesRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/library/favorites',
   component: () => <LibraryView tab="favorites" />,
 });
 
@@ -314,7 +320,7 @@ const favoritesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/favorites',
   beforeLoad: () => {
-    throw redirect({ to: '/library' });
+    throw redirect({ to: '/library/favorites' });
   },
 });
 
@@ -919,6 +925,7 @@ const routeTree = rootRoute.addChildren([
     adminStatusRoute,
     adminI18nRoute,
     libraryRoute,
+    libraryFavoritesRoute,
     libraryHistoryRoute,
     libraryMessagesRoute,
     messagesAliasRoute,

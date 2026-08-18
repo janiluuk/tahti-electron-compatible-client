@@ -65,7 +65,7 @@ function releaseToPlayable(
 
 type Tab = 'music' | 'releases' | 'collections' | 'gallery' | 'design';
 
-function profileTrackToPlayable(
+export function profileTrackToPlayable(
   track: PublicProfile['tracks'][number],
   artist: string,
   channelSlug?: string,
