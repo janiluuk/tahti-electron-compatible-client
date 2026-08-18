@@ -19,6 +19,7 @@ import {
   playQueueFavoriteActions,
 } from '../components/MediaIconActions';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
 import {
   addItemType,
@@ -346,9 +347,7 @@ export function ChannelView({ slug }: { slug: string }) {
             <h2 className="text-xl font-bold tracking-tight">Archive</h2>
             {pinnedPlayables.length > 0 && (
               <div className="flex flex-col gap-3">
-                <h3 className="text-sm font-semibold tracking-wide uppercase">
-                  Pinned
-                </h3>
+                <Eyebrow>Pinned</Eyebrow>
                 <PlayableTrackTable
                   items={pinnedPlayables}
                   emptyMessage="No pinned tracks."
@@ -356,11 +355,7 @@ export function ChannelView({ slug }: { slug: string }) {
               </div>
             )}
             <div className="flex flex-col gap-3">
-              {pinnedPlayables.length > 0 && (
-                <h3 className="text-sm font-semibold tracking-wide uppercase">
-                  Catalog
-                </h3>
-              )}
+              {pinnedPlayables.length > 0 && <Eyebrow>Catalog</Eyebrow>}
               <PlayableTrackTable
                 items={catalogPlayables}
                 emptyMessage={
@@ -473,7 +468,7 @@ export function ChannelView({ slug }: { slug: string }) {
           {live ? (
             <OnAirBadge />
           ) : (
-            <span className="text-foreground-secondary border-border rounded border px-2 py-0.5 text-xs uppercase">
+            <span className="text-foreground-secondary border-border rounded border px-2 py-0.5 font-mono text-xs uppercase">
               {channel.state}
             </span>
           )}

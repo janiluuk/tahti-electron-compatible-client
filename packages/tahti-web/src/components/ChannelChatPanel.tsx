@@ -12,6 +12,7 @@ import { postChatReaction } from '../api/studio-extras';
 import type { ChatMessage } from '../api/types';
 import { useHcaptcha } from '../lib/useHcaptcha';
 import { useAuthStore } from '../stores/authStore';
+import { Eyebrow } from './tahti/Eyebrow';
 
 const REACTION_EMOJIS = ['🔥', '❤️', '👏', '🙌', '😮'] as const;
 
@@ -338,7 +339,7 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
       <div className="border-border flex items-center justify-between gap-2 border-b px-3 py-2">
         <div className="font-display text-sm font-bold">Chat</div>
         {isLive && (
-          <div className="text-foreground-secondary flex items-center gap-1.5 text-[10px] tracking-wide uppercase">
+          <div className="text-foreground-secondary flex items-center gap-1.5 font-mono text-[10px] tracking-wide uppercase">
             <span
               className="bg-accent-green size-1.5 rounded-full"
               aria-hidden
@@ -349,9 +350,7 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
       </div>
 
       <div className="border-border flex flex-wrap items-center gap-1 border-b px-3 py-2">
-        <span className="text-foreground-secondary mr-1 text-[10px] uppercase">
-          React
-        </span>
+        <Eyebrow className="mr-1">React</Eyebrow>
         {REACTION_EMOJIS.map((emoji) => (
           <button
             key={emoji}
