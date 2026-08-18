@@ -538,7 +538,12 @@ grep -RInE '(bg|text|border|from|to|via|fill|stroke)-\[#' packages/tahti-web/src
     could reasonably move to a token, but doing so wasn't attempted here —
     out of scope for a theme-addition pass, flagged instead of silently
     changed, same discipline as the Card-fill/contrast findings in
-    Phase 6.
+    Phase 6. **Update 2026-08-18:** fixed as a Phase 5 slice —
+    `bg-background-input`, see the Phase 5 slice log. The Tailwind
+    arbitrary-hex grep is now clean repo-wide; only the 9-file
+    hex-outside-theme-layer grep above is still open, and those remain the
+    legitimate channel-designer/Mermaid cases described here, not
+    violations.
   - **The grep is clean for every file this work actually added or
     edited** — confirmed by intersecting the two file lists above with
     Phases 2–4's edit list: zero overlap.
@@ -548,8 +553,13 @@ Manual acceptance checklist:
 - [x] `tahti-dark` exists in `themes`, built from the Phase 2 tokens, default
       for `tahti-web`. — done, live-verified (Phase 4).
 - [ ] Every colour/font/radius resolves from a token; both greps above are
-      clean. — clean for files this work touched; **not** clean
-      repo-wide, for the pre-existing/out-of-scope reasons above.
+      clean. — Tailwind arbitrary-hex grep is now **clean repo-wide**
+      (2026-08-18, `ChannelView.tsx`'s `bg-[#0B0F14]` fixed). Plain-hex
+      grep still has the 9 pre-existing, out-of-scope hits described
+      above (channel-designer brand-accent system + Mermaid diagram
+      colours) — not violations of this theme's golden rule, but the
+      checkbox stays open until that's confirmed once more, explicitly,
+      rather than assumed.
 - [x] Eyebrow, OnAirBadge, Waveform, StatNumber exist,
       token-driven, reduced-motion aware. — **no Storybook stories**
       (documented gap, Phase 3).
