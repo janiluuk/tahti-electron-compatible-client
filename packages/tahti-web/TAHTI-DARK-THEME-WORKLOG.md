@@ -357,9 +357,35 @@ implied (not decoratively everywhere).
       files) so before/after is comparable — same filenames/framing where a
       shot already exists for that surface.
 
-**Status:** not started. Depends on Phase 3–4. This is the largest phase —
-consider splitting listener vs. studio surfaces into two worklog passes
-rather than one giant commit.
+**Slices landed so far** (small, single-purpose commits, per the studio
+slices already done — Studio home/Go Live/Studio stats/Revenue):
+
+- Channel visualizer preset label → mono.
+- Go Live surface → OnAirBadge + mono RTMP fields.
+- Studio home section labels → Eyebrow.
+- Studio stats summary → StatNumber + Eyebrow.
+- Revenue grant estimate → StatNumber.
+- Studio panel consistency pass (Moderation/Events/Embeds/Upload + channel
+  designer + shared `PageHeader`).
+- Tahti Radio on-air/offline indicator → OnAirBadge + Eyebrow; also fixed
+  a real golden-rule violation found along the way (`text-amber-500`, a
+  stock Tailwind utility bypassing the OKLCH token system, used for the
+  offline state) → token-driven `text-accent-red`.
+- Listen home library section labels (Favorite channels/tracks, Recently
+  played) → Eyebrow.
+- Channel page header LIVE badge → OnAirBadge.
+
+**Still open, listener side:** Listen directory channel cards (the "Live ·
+genre" subtitle text), Channel page beyond the header badge (archive/chat
+rail — largest single surface, has a known pre-existing hex leftover,
+`bg-[#0B0F14]` on the visualizer hero backdrop, flagged in Phase 7, not
+yet fixed), profiles/collections, Fan subscribe (spot-checked — already
+fully token-driven, no violation found, but tier price/CTA not yet given
+a deliberate themed treatment).
+
+**Status:** in progress. Depends on Phase 3–4 (done). This is the largest
+phase — splitting listener vs. studio surfaces into slices, as suggested
+below, rather than one giant commit.
 
 ## Phase 6 — Guardrails check
 
