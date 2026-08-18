@@ -100,7 +100,10 @@ export function MobileBottomNav({ onOpenQueue }: MobileBottomNavProps) {
 
 type MobileDrawerProps = {
   open: boolean;
-  title: string;
+  /** Omit when the drawer's own content already renders a header
+   * (e.g. RightRailPanel's icon + "Chat" label) -- avoids a duplicate,
+   * icon-less title stacked above it. */
+  title?: string;
   onClose: () => void;
   children: ReactNode;
   side?: 'left' | 'right';
@@ -133,9 +136,13 @@ export function MobileDrawer({
         )}
       >
         <div className="border-border flex items-center justify-between border-b px-3 py-2">
-          <h2 className="font-display text-sm font-bold tracking-tight">
-            {title}
-          </h2>
+          {title ? (
+            <h2 className="font-display text-sm font-bold tracking-tight">
+              {title}
+            </h2>
+          ) : (
+            <span />
+          )}
           <Button
             size="icon-sm"
             variant="text"

@@ -14,7 +14,10 @@ import { useHcaptcha } from '../lib/useHcaptcha';
 import { useAuthStore } from '../stores/authStore';
 import { Eyebrow } from './tahti/Eyebrow';
 
-const REACTION_EMOJIS = ['🔥', '❤️', '👏', '🙌', '😮'] as const;
+// Must match the backend's CHAT_REACTION_EMOJIS whitelist exactly
+// (packages/shared/src/dto/chat.ts in the main tahti repo) -- anything
+// outside this set gets rejected server-side with "Invalid emoji".
+const REACTION_EMOJIS = ['💜', '🔥', '🎶', '🎵', '🌟', '👏', '✨'] as const;
 
 const HANDLE_KEY = 'tahti-web-chat-handle';
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';

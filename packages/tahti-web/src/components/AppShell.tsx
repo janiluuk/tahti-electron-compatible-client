@@ -246,7 +246,6 @@ export function AppShell() {
 
       <MobileDrawer
         open={mobileQueueOpen}
-        title="Chat"
         side="right"
         onClose={() => setMobileQueueOpen(false)}
       >
