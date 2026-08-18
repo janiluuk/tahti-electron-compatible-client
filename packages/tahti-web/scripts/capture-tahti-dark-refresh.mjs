@@ -27,7 +27,11 @@ async function relaunch() {
     args: ['--disable-dev-shm-usage', '--disable-gpu'],
   });
   page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  if (authed) {
+  if (boardAuthed) {
+    boardAuthed = false;
+    authed = false;
+    await boardAuthAs();
+  } else if (authed) {
     authed = false;
     await authAs();
   }
@@ -52,6 +56,33 @@ async function authAs() {
             isBoard: false,
             membershipStatus: 'ACTIVE',
             channel: { slug: 'demo', state: 'OFFLINE' },
+          },
+        },
+        version: 0,
+      }),
+    );
+  });
+}
+
+let boardAuthed = false;
+
+async function boardAuthAs() {
+  boardAuthed = true;
+  authed = true; // AdminGate re-derives from the same tahti-web-auth key.
+  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  await page.evaluate(() => {
+    localStorage.setItem(
+      'tahti-web-auth',
+      JSON.stringify({
+        state: {
+          user: {
+            id: 'mock-board-1',
+            email: 'board@tahti.live',
+            username: 'board',
+            displayName: 'Board Member',
+            isBoard: true,
+            membershipStatus: 'ACTIVE',
+            channel: null,
           },
         },
         version: 0,
@@ -106,6 +137,37 @@ const authedShots = [
   ['/studio/events', 'studio-events-v1.png'],
 ];
 
+// Board-only admin surfaces — need isBoard:true, captured under a
+// separate auth pass. Excludes filenames implying a specific dynamic
+// interaction state (admin-dashboard-expanded, admin-selects-preview,
+// admin-top-lists-preview) — reverse-engineering those risks a
+// misleading capture, same reasoning as the excluded listener/studio
+// dynamic-state shots below.
+const adminShots = [
+  ['/admin', 'admin-dashboard-v1.png'],
+  ['/admin/beta', 'admin-beta-v1.png'],
+  ['/admin/users', 'admin-users-v1.png'],
+  ['/admin/radio', 'admin-radio-v1.png'],
+  ['/admin/radio-submissions', 'admin-radio-submissions-v1.png'],
+  ['/admin/news', 'admin-news-v1.png'],
+  ['/admin/tahti-selects', 'admin-selects-v1.png'],
+  ['/admin/streams', 'admin-streams-v1.png'],
+  ['/admin/support', 'admin-support-v1.png'],
+  ['/admin/top-lists', 'admin-top-lists-v1.png'],
+  ['/admin/announcements', 'admin-announcements-v1.png'],
+  ['/admin/storage', 'admin-storage-v1.png'],
+  ['/admin/files', 'admin-files-v1.png'],
+  ['/admin/content-reports', 'admin-content-reports-v1.png'],
+  ['/admin/financial', 'admin-financial-v1.png'],
+  ['/admin/governance', 'admin-governance-v1.png'],
+  ['/admin/feature-requests', 'admin-feature-requests-v1.png'],
+  ['/admin/grants', 'admin-grants-v1.png'],
+  ['/admin/agm', 'admin-agm-v1.png'],
+  ['/admin/vendors', 'admin-vendors-v1.png'],
+  ['/admin/status', 'admin-status-v1.png'],
+  ['/admin/i18n', 'admin-i18n-v1.png'],
+];
+
 // Logged-out surfaces — capture before auth injection.
 const loggedOutShots = [
   ['/login', 'auth-login-v1.png'],
@@ -150,6 +212,12 @@ for (const [path, out] of loggedOutShots) {
 await authAs();
 
 for (const [path, out] of authedShots) {
+  await capture(path, out);
+}
+
+await boardAuthAs();
+
+for (const [path, out] of adminShots) {
   await capture(path, out);
 }
 
