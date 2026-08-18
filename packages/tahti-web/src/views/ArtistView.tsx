@@ -8,8 +8,9 @@ import {
   fetchPublicPressKitImages,
   type PublicPressKitImage,
 } from '../api/artist-settings';
-import { fetchProfile } from '../api/client';
+import { fetchChannel, fetchProfile } from '../api/client';
 import type {
+  PublicChannel,
   PublicProfile,
   PublicProfileRelease,
   TahtiPlayable,
@@ -30,7 +31,7 @@ import { Eyebrow } from '../components/tahti/Eyebrow';
 import { isPinned } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
-import { usePlayerStore } from '../stores/playerStore';
+import { playableFromQueueItem, usePlayerStore } from '../stores/playerStore';
 
 const GLOW_COLORS = [
   'var(--color-accent-purple)',
@@ -99,10 +100,16 @@ export function ArtistView({ username }: { username: string }) {
     release: PublicProfileRelease;
     playables: TahtiPlayable[];
   } | null>(null);
+  const [channelVisual, setChannelVisual] = useState<Pick<
+    PublicChannel,
+    'visualPreset' | 'colorScheme' | 'colorSchemeJson'
+  > | null>(null);
 
   const navigate = useNavigate();
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const currentId = usePlayerStore((s) => s.currentId);
+  const queue = usePlayerStore((s) => s.queue);
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
 
@@ -152,6 +159,27 @@ export function ArtistView({ username }: { username: string }) {
       cancelled = true;
     };
   }, [username]);
+
+  useEffect(() => {
+    const slug = profile?.channel?.slug;
+    if (!slug) {
+      setChannelVisual(null);
+      return;
+    }
+    let cancelled = false;
+    void fetchChannel(slug).then((res) => {
+      if (!cancelled) {
+        setChannelVisual({
+          visualPreset: res.data.visualPreset,
+          colorScheme: res.data.colorScheme,
+          colorSchemeJson: res.data.colorSchemeJson,
+        });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [profile?.channel?.slug]);
 
   useEffect(() => {
     let cancelled = false;
@@ -241,6 +269,13 @@ export function ArtistView({ username }: { username: string }) {
   }
 
   const { artist, channel, releases, collections, fanTiers } = profile;
+
+  const currentQueueItem = queue.find((q) => q.id === currentId);
+  const currentPlayable = currentQueueItem
+    ? playableFromQueueItem(currentQueueItem)
+    : null;
+  const nowPlayingHere =
+    currentPlayable?.artist === artist.displayName ? currentPlayable : null;
 
   const tabs: Array<{ id: Tab; label: string }> = [
     { id: 'music', label: 'Music' },
@@ -369,8 +404,28 @@ export function ArtistView({ username }: { username: string }) {
           <div className="border-border bg-background-input relative h-32 w-full overflow-hidden rounded-lg border sm:h-40">
             <ChannelVisualizer
               className="absolute inset-0 h-full w-full"
-              artworkUrl={artist.avatarUrl}
+              preset={channelVisual?.visualPreset}
+              colorScheme={channelVisual?.colorScheme}
+              colorSchemeJson={channelVisual?.colorSchemeJson}
+              artworkUrl={nowPlayingHere?.coverUrl ?? artist.avatarUrl}
             />
+            <div className="absolute inset-x-0 bottom-0 z-[1] bg-gradient-to-t from-black/70 to-transparent p-3">
+              {nowPlayingHere ? (
+                <>
+                  <div className="text-[10px] tracking-wide text-white/70 uppercase">
+                    Now playing
+                  </div>
+                  <div className="font-bold text-white">
+                    {nowPlayingHere.title}
+                  </div>
+                  <div className="text-sm text-white/80">
+                    {artist.displayName}
+                  </div>
+                </>
+              ) : (
+                <div className="font-bold text-white">{artist.displayName}</div>
+              )}
+            </div>
           </div>
 
           {pinnedTiles.length > 0 && (
