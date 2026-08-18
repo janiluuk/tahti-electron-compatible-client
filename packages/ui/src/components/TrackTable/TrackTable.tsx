@@ -86,6 +86,7 @@ export function TrackTable<T extends Track = Track>({
       onToggleFavorite: actions?.onToggleFavorite,
       onRemove: actions?.onRemove,
       isTrackFavorite: meta?.isTrackFavorite,
+      isCurrentTrack: meta?.isCurrentTrack,
       ContextMenuWrapper: meta?.ContextMenuWrapper,
     },
   });
@@ -174,6 +175,7 @@ export function TrackTable<T extends Track = Track>({
                     itemId={getItemId(row.original, row.index)}
                     style={{ height: rowHeight }}
                     isReorderable={isReorderable}
+                    isCurrent={meta?.isCurrentTrack?.(row.original) ?? false}
                     data-index={virtual.index}
                   />
                 )}

@@ -67,6 +67,7 @@ export type TrackTableProps<T extends Track = Track> = {
   actions: TrackTableActions<T>;
   meta?: {
     isTrackFavorite?: (track: T) => boolean;
+    isCurrentTrack?: (track: T) => boolean;
     ContextMenuWrapper?: FC<ContextMenuWrapperProps<T>>;
   };
   rowHeight?: number;

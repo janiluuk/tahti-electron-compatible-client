@@ -4,6 +4,7 @@ import { FC, forwardRef } from 'react';
 
 import { Track } from '@nuclearplayer/model';
 
+import { cn } from '../../../utils';
 import { Button } from '../../Button';
 import { useTrackTableContext } from '../TrackTableContext';
 import { ContextMenuWrapperProps } from '../types';
@@ -11,6 +12,7 @@ import { ContextMenuWrapperProps } from '../types';
 type TitleCellMeta = {
   displayQueueControls?: boolean;
   onAddToQueue?: (track: Track) => void;
+  isCurrentTrack?: (track: Track) => boolean;
   ContextMenuWrapper?: FC<ContextMenuWrapperProps>;
 };
 
@@ -71,12 +73,16 @@ export const TitleCell = <T extends Track>({
   const hasAddToQueue = Boolean(meta?.onAddToQueue);
   const hasContextMenu = Boolean(ContextMenuWrapper);
   const hasActions = hasAddToQueue || hasContextMenu;
+  const isCurrent = meta?.isCurrentTrack?.(track) ?? false;
 
   return (
     <td className="truncate px-2">
       <div className="flex items-center justify-between gap-2">
         <button
-          className="min-w-0 flex-1 cursor-pointer truncate text-left hover:underline"
+          className={cn(
+            'min-w-0 flex-1 cursor-pointer truncate text-left hover:underline',
+            isCurrent && 'text-primary font-semibold',
+          )}
           onClick={(e) => {
             e.stopPropagation();
             actions.onPlayNow?.(track);

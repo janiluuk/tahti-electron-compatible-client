@@ -19,6 +19,7 @@ export function PlayableTrackTable({
 }: Props) {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const currentId = usePlayerStore((s) => s.currentId);
   const toggleFavoriteTrack = useLibraryStore((s) => s.toggleFavoriteTrack);
   const favoriteTracks = useLibraryStore((s) => s.favoriteTracks);
 
@@ -94,6 +95,7 @@ export function PlayableTrackTable({
         meta={{
           isTrackFavorite: (track) =>
             favoriteTracks.some((t) => t.id === track.source.id),
+          isCurrentTrack: (track) => track.source.id === currentId,
           ContextMenuWrapper: PlayableTrackContextMenu,
         }}
       />

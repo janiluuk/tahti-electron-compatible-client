@@ -19,6 +19,7 @@ import {
   ArtistGalleryPanel,
 } from '../components/ArtistGalleryPanel';
 import { ChannelDesigner } from '../components/ChannelDesigner';
+import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { GlowMediaTile } from '../components/GlowMediaTile';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import {
@@ -365,6 +366,13 @@ export function ArtistView({ username }: { username: string }) {
 
       {tab === 'music' && (
         <section className="flex flex-col gap-8">
+          <div className="border-border bg-background-input relative h-32 w-full overflow-hidden rounded-lg border sm:h-40">
+            <ChannelVisualizer
+              className="absolute inset-0 h-full w-full"
+              artworkUrl={artist.avatarUrl}
+            />
+          </div>
+
           {pinnedTiles.length > 0 && (
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
