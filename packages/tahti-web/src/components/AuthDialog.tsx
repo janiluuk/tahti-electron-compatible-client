@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import { KeyRoundIcon, LogInIcon, UserPlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -124,6 +125,13 @@ export function AuthDialog() {
             autoComplete="current-password"
           />
           {error ? <p className="text-accent-red text-sm">{error}</p> : null}
+          <Link
+            to="/forgot-password"
+            onClick={handleClose}
+            className="text-foreground-secondary self-start text-xs underline-offset-2 hover:underline"
+          >
+            Forgot password?
+          </Link>
           <Dialog.Actions>
             <Button variant="text" size="sm" onClick={() => setMode('join')}>
               Join

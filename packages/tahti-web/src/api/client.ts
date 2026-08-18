@@ -734,6 +734,84 @@ export async function submitSetupPassword(
   }
 }
 
+/** POST /api/auth/forgot-password — always returns a generic message, even
+ * for unknown emails, so the endpoint can't be used to enumerate accounts. */
+export async function submitForgotPassword(email: string): Promise<string> {
+  const fallback =
+    'If an account exists for that email, we sent a link to reset your password.';
+  if (forceMock()) {
+    return fallback;
+  }
+  try {
+    const { data } = await requestJson<{ message?: string }>(
+      '/api/auth/forgot-password',
+      { method: 'POST', body: JSON.stringify({ email }) },
+    );
+    return data.message ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/** GET /api/auth/reset-password?token= — resolves the account behind a
+ * password-reset link before the user commits to a new password. */
+export async function fetchResetPasswordInfo(
+  token: string,
+): Promise<
+  | { ok: true; email: string; username: string; displayName: string }
+  | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return {
+      ok: true,
+      email: 'newartist@tahti.live',
+      username: 'newartist',
+      displayName: 'New Artist',
+    };
+  }
+  try {
+    const { data } = await requestJson<{
+      email: string;
+      username: string;
+      displayName: string;
+    }>(`/api/auth/reset-password?token=${encodeURIComponent(token)}`);
+    return { ok: true, ...data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Invalid or expired link',
+    };
+  }
+}
+
+export async function submitResetPassword(
+  token: string,
+  password: string,
+  email?: string,
+): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
+  if (forceMock()) {
+    const user = buildMockLoginUser(email || 'newartist@tahti.live');
+    setMockSessionUser(user);
+    return { ok: true, user };
+  }
+  try {
+    await requestJson<{ ok: true; user: Partial<AuthUser> }>(
+      '/api/auth/reset-password',
+      { method: 'POST', body: JSON.stringify({ token, password }) },
+    );
+    const me = await fetchAuthMe();
+    if (!me.data) {
+      return { ok: false, error: 'Password reset, but session did not start' };
+    }
+    return { ok: true, user: me.data };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Could not reset password',
+    };
+  }
+}
+
 export async function logoutRequest(): Promise<void> {
   if (forceMock()) {
     clearMockSessionUser();

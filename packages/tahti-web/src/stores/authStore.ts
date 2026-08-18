@@ -7,6 +7,8 @@ import {
   loginTotpRequest,
   logoutRequest,
   registerRequest,
+  submitForgotPassword,
+  submitResetPassword,
   submitSetupPassword,
   verifyEmailRequest,
 } from '../api/client';
@@ -35,6 +37,12 @@ type AuthState = {
   }) => Promise<string>;
   verify: (token: string) => Promise<string>;
   setupPassword: (
+    token: string,
+    password: string,
+    email?: string,
+  ) => Promise<void>;
+  forgotPassword: (email: string) => Promise<string>;
+  resetPassword: (
     token: string,
     password: string,
     email?: string,
@@ -157,6 +165,24 @@ export const useAuthStore = create<AuthState>()(
       setupPassword: async (token, password, email) => {
         set({ loading: true, error: null });
         const result = await submitSetupPassword(token, password, email);
+        if (!result.ok) {
+          set({ loading: false, error: result.error });
+          throw new Error(result.error);
+        }
+        set({ user: result.user, loading: false, error: null });
+        await afterUserChange(result.user);
+      },
+
+      forgotPassword: async (email) => {
+        set({ loading: true, error: null });
+        const message = await submitForgotPassword(email);
+        set({ loading: false });
+        return message;
+      },
+
+      resetPassword: async (token, password, email) => {
+        set({ loading: true, error: null });
+        const result = await submitResetPassword(token, password, email);
         if (!result.ok) {
           set({ loading: false, error: result.error });
           throw new Error(result.error);

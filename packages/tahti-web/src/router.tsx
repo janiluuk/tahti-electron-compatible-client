@@ -44,6 +44,7 @@ import {
   EmbedReleaseView,
 } from './views/EmbedViews';
 import { FeedView } from './views/FeedView';
+import { ForgotPasswordView } from './views/ForgotPasswordView';
 import { GovernanceView } from './views/GovernanceView';
 import { HelpArticleView, HelpHubView } from './views/HelpView';
 import { JoinView } from './views/JoinView';
@@ -53,6 +54,7 @@ import { ListenView } from './views/ListenView';
 import { LoginView } from './views/LoginView';
 import { MoreView } from './views/MoreView';
 import { RadioView } from './views/RadioView';
+import { ResetPasswordView } from './views/ResetPasswordView';
 import { SettingsView } from './views/settings/SettingsView';
 import { SetupPasswordView } from './views/SetupPasswordView';
 import { SignupPaymentView } from './views/SignupPaymentView';
@@ -290,6 +292,12 @@ const libraryRoute = createRoute({
   component: () => <LibraryView tab="discography" />,
 });
 
+const libraryCollectionsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/library/collections',
+  component: () => <LibraryView tab="collections" />,
+});
+
 const libraryFavoritesRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/favorites',
@@ -481,6 +489,18 @@ const setupPasswordRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/setup-password',
   component: SetupPasswordView,
+});
+
+const forgotPasswordRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/forgot-password',
+  component: ForgotPasswordView,
+});
+
+const resetPasswordRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/reset-password',
+  component: ResetPasswordView,
 });
 
 const loginRoute = createRoute({
@@ -931,6 +951,7 @@ const routeTree = rootRoute.addChildren([
     adminStatusRoute,
     adminI18nRoute,
     libraryRoute,
+    libraryCollectionsRoute,
     libraryFavoritesRoute,
     libraryHistoryRoute,
     libraryMessagesRoute,
@@ -959,6 +980,8 @@ const routeTree = rootRoute.addChildren([
     signupPaymentRoute,
     verifyRoute,
     setupPasswordRoute,
+    forgotPasswordRoute,
+    resetPasswordRoute,
     loginRoute,
     accountRoute,
     statusRoute,
