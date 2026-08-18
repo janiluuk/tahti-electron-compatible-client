@@ -98,6 +98,7 @@ export function StudioProEditorView({
   const [previewingSelection, setPreviewingSelection] = useState(false);
   const [masteringCollapsed, setMasteringCollapsed] = useState(false);
   const [pluginPickerOpen, setPluginPickerOpen] = useState(false);
+  const [renderPromptOpen, setRenderPromptOpen] = useState(false);
   const selectionRef = useRef(selection);
   const previewingSelectionRef = useRef(previewingSelection);
   const dragPluginRef = useRef<ProEditorPluginId | null>(null);
@@ -449,10 +450,11 @@ export function StudioProEditorView({
     setMessage('Draft saved.');
   };
 
-  const render = async () => {
+  const render = async (activate: boolean) => {
     if (!editList) {
       return;
     }
+    setRenderPromptOpen(false);
     setBusy(true);
     setMessage(null);
     const saveFirst = await saveEditorDraft(archiveItemId, editList, updatedAt);
@@ -463,6 +465,7 @@ export function StudioProEditorView({
       archiveItemId,
       editList,
       versionLabel.trim() || 'Edited mix',
+      activate,
     );
     setBusy(false);
     if (!result.ok) {
@@ -470,7 +473,9 @@ export function StudioProEditorView({
       return;
     }
     setMessage(
-      `Render started — version ${result.versionId}, ${result.status.toLowerCase()}.`,
+      activate
+        ? `Render started — version ${result.versionId} will go live, ${result.status.toLowerCase()}.`
+        : `Saved as a new revision — version ${result.versionId}, ${result.status.toLowerCase()}. The current live version is untouched; activate it from Revision history when you're ready.`,
     );
   };
 
@@ -1072,7 +1077,7 @@ export function StudioProEditorView({
                       size="sm"
                       variant="secondary"
                       disabled={busy}
-                      onClick={() => void render()}
+                      onClick={() => setRenderPromptOpen(true)}
                     >
                       <UploadIcon size={16} aria-hidden className="mr-1.5" />
                       Render version
@@ -1091,6 +1096,30 @@ export function StudioProEditorView({
             </div>
           </>
         )}
+
+        <Dialog.Root
+          isOpen={renderPromptOpen}
+          onClose={() => setRenderPromptOpen(false)}
+        >
+          <Dialog.Title>
+            Render “{versionLabel.trim() || 'Edited mix'}”
+          </Dialog.Title>
+          <Dialog.Description>
+            Overwrite replaces what&apos;s live right now. Save as a new
+            revision renders and adds it to Revision history without touching
+            the current live version — activate it there whenever you&apos;re
+            ready.
+          </Dialog.Description>
+          <Dialog.Actions>
+            <Dialog.Close>Cancel</Dialog.Close>
+            <Button variant="secondary" onClick={() => void render(false)}>
+              Save as new revision
+            </Button>
+            <Button onClick={() => void render(true)}>
+              Overwrite live version
+            </Button>
+          </Dialog.Actions>
+        </Dialog.Root>
 
         <audio ref={audioRef} preload="metadata" className="hidden" />
       </div>

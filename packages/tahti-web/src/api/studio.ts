@@ -1021,6 +1021,10 @@ export async function renderEditorDraft(
   archiveItemId: string,
   editList: EditList,
   versionLabel: string,
+  /** false = "save as new revision" -- rendered and added to Revision
+   * history, but the currently-live version keeps playing until someone
+   * activates it there. true = "overwrite" -- goes live immediately. */
+  activate = true,
 ): Promise<
   { ok: true; versionId: string; status: string } | { ok: false; error: string }
 > {
@@ -1038,7 +1042,7 @@ export async function renderEditorDraft(
       body: JSON.stringify({
         editList,
         versionLabel,
-        activate: true,
+        activate,
         format: 'flac',
       }),
     });
