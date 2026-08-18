@@ -387,10 +387,11 @@ implied (not decoratively everywhere).
 
 - [x] Match the existing capture set in `docs/redesign-shots/` (currently 77
       files) so before/after is comparable — same filenames/framing where a
-      shot already exists for that surface. — **68/77 refreshed
+      shot already exists for that surface. — **74/77 refreshed
       2026-08-18** (44 in the first pass below, then the 22 deferred
-      `admin-*` shots + `studio-updates-newsletter-v1.png` in a follow-up
-      pass — see "Admin + newsletter capture pass" below) via a new resilient capture script,
+      `admin-*` shots + `studio-updates-newsletter-v1.png`, then 6 more
+      dynamic-state captures — see "Admin + newsletter capture pass" and
+      "Dynamic-state capture pass" below) via a new resilient capture script,
       `scripts/capture-tahti-dark-refresh.mjs` (same pattern as the
       existing `scripts/capture-redesign-shots.mjs`/`capture-atlas-shots.mjs`:
       injects a mock `demo@tahti.live` session into `tahti-web-auth`
@@ -655,9 +656,10 @@ sub-heading/kicker + data-label sweep, all views), and the broader
 cross-`views`+`components`+`Admin` read-through are all complete —
 walked and either themed or confirmed already compliant, not just
 unchecked. The `docs/redesign-shots/` capture-matching checkbox is at
-68/77, with the remaining 9 named and reasoned above (dynamic-state
-captures, not a theming gap). Nothing outstanding in this phase beyond
-those 9 files and the two cross-package findings Phase 6 already
+74/77, with the remaining 3 named and reasoned above (Studio editor
+dynamic-ID captures, not a theming gap — those surfaces are already
+covered by the heading/kicker sweep). Nothing outstanding in this phase
+beyond those 3 files and the two cross-package findings Phase 6 already
 tracks.
 
 **Broader read-through (2026-08-18), beyond Studio/Listener/Channel:**
@@ -768,14 +770,49 @@ local `useState`, not URL-addressable — scripted a
 `getByRole('tab', {name: /newsletter/i}).click()`; first attempt used a
 looser `page.click('text=Newsletter')` and silently screenshotted the
 still-selected Posts tab instead, caught by eyeballing the image, not
-assumed correct from a clean run). **Now 68/77 refreshed.** Remaining 9
-un-refreshed are exactly the ones flagged as needing a specific
-interaction/ID this pass didn't attempt to reverse-engineer:
-`admin-dashboard-expanded-v1.png`, `admin-selects-preview-v1.png`,
-`admin-top-lists-preview-v1.png`, `feed-play-consistency-v1.png`,
-`listen-artist-rich-v1.png`, `studio-collection-editor-play-v1.png`,
-`studio-editor-project-v1.png`, `studio-editor-project-wide-v1.png`,
-`studio-playlist-editor-play-v1.png`.
+assumed correct from a clean run). **68/77 refreshed** after this pass.
+
+**Dynamic-state capture pass (2026-08-18), picking up the remaining 9:**
+scripted the interactions themselves rather than leaving them flagged
+forever — 6 of the 9 turned out tractable once actually investigated:
+
+- `admin-dashboard-expanded-v1.png`: the dashboard's `moreOpen` toggle
+  (`AdminDashboardView.tsx:32`, button text "Finance, streams, queues &
+  audit") reveals Finance YTD/Live now/Queue health/Cron jobs/Recent
+  audit sections. **First attempt silently wrong:** the default
+  1280x900 viewport + `fullPage: true` captured only 900px tall, missing
+  all the newly-revealed content — `AppShell.tsx:198` scrolls its main
+  content area in its own `overflow-auto` div, not the document body,
+  which Playwright's `fullPage` doesn't follow. Caught by checking the
+  actual image dimensions (not assuming `fullPage` worked), fixed with a
+  1280x2600 viewport tall enough to fit the expanded content without
+  needing to scroll.
+- `admin-selects-preview-v1.png` / `admin-top-lists-preview-v1.png`: the
+  per-row "Preview" icon button (`title="Preview"`) calls the same
+  `play()` used everywhere else — clicking it confirms it populates the
+  persistent player bar, both captured correctly (mono track/artist text
+  in the bar, amber pause icon on the clicked row).
+- `listen-artist-rich-v1.png`: the existing `listen-artist-v1.png` only
+  covers `/u/demo` (the logged-in mock user, no releases). This variant
+  needed an artist with actual content — used `/u/dj-moonlight`
+  (2 releases, 3-track catalog, the richest mock artist in `mock.ts`) so
+  Pinned/Latest releases/Catalog actually render non-empty.
+- `feed-play-consistency-v1.png`: clicked the first track-kind feed
+  item's play button (DJ Moonlight's "Moonlight Drive", `mockFeed()`'s
+  `feed-3`) and confirmed — by reading the image, not just a clean
+  script exit — that the persistent player bar picks up the same
+  track/artist and the clicked row's icon flips to pause, i.e. the
+  "consistency" the filename names actually holds.
+
+**Still open, genuinely deferred:** `studio-collection-editor-play-v1.png`,
+`studio-editor-project-v1.png` / `studio-editor-project-wide-v1.png`,
+`studio-playlist-editor-play-v1.png` — these need a specific mock
+collection/playlist/project id (unlike the ones above, no single obvious
+"first item" or toggle to script blind without risking a wrong/misleading
+capture) and are lower priority: they're all Studio editor chrome
+already covered by the exhaustive Phase 5 heading/kicker sweep, so the
+capture gap is cosmetic documentation lag, not an unverified surface.
+**74/77 now refreshed.**
 
 ## Phase 6 — Guardrails check
 
@@ -985,10 +1022,11 @@ Manual acceptance checklist:
       them anyway; adding that wiring is a structural change outside a
       single theme's scope, same category as the Card-fill/contrast
       Phase 6 findings — not attempted here.
-- [x] Refreshed captures added to `docs/redesign-shots/` — **68/77**, see
-      the Phase 5 capture-pass notes above for exactly which 9 remain and
-      why (all need a specific interaction/ID this work didn't
-      reverse-engineer, not a themeing gap).
+- [x] Refreshed captures added to `docs/redesign-shots/` — **74/77**, see
+      the Phase 5 capture-pass notes above for exactly which 3 remain and
+      why (Studio editor views needing a specific mock id, not a
+      themeing gap — those surfaces are already covered by the
+      heading/kicker sweep).
 
 **Status:** effectively done. Every checklist item above is real and
 re-verified as of 2026-08-18, not carried over stale from the 2026-08-17
