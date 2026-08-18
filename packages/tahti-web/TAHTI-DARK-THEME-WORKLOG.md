@@ -374,12 +374,40 @@ slices already done — Studio home/Go Live/Studio stats/Revenue):
 - Listen home library section labels (Favorite channels/tracks, Recently
   played) → Eyebrow.
 - Channel page header LIVE badge → OnAirBadge.
+- Listen directory channel cards → "Live" fragment of the subtitle now
+  `text-primary` (amber), genre/slug text `font-mono`, replacing a plain
+  string subtitle. Deliberately *not* the `OnAirBadge` pill here — a
+  bordered/padded badge repeated in every tile of a dense card grid is
+  exactly the "chrome" the standing minimalism principle warns against;
+  colour + mono is enough signal at that density. `ListenView.tsx`.
+- Collection page "Linked releases" sub-heading → `Eyebrow`, matching the
+  existing h3-level secondary-section idiom used on Listen home (Favorite
+  tracks/Recently played), replacing a one-off `font-display text-lg
+  font-bold` heading. `CollectionView.tsx`.
 
-**Still open, listener side:** Listen directory channel cards (the "Live ·
-genre" subtitle text), Channel page beyond the header badge (archive/chat
-rail — largest single surface, has a known pre-existing hex leftover,
-`bg-[#0B0F14]` on the visualizer hero backdrop, flagged in Phase 7, not
-yet fixed), profiles/collections, Fan subscribe (spot-checked — already
+  **Verification note on these two:** `eslint`/`tsc --noEmit` both clean.
+  Live/Playwright screenshot verification (the norm for every other Phase
+  5 slice above) was **not** obtained this pass — the sandbox's Playwright
+  Chromium download stalled repeatedly (consistently froze at 8.8MB despite
+  a direct `curl` of the same CDN artifact succeeding at ~24MB/s; not a
+  general network issue, cause not root-caused, gave up after multiple
+  retries) and the Chrome extension bridge for `claude-in-chrome` wasn't
+  connected either. Lower risk than the usual live-check requirement since
+  every class used (`text-primary`, `font-mono`, `Eyebrow`) is a token/
+  primitive already live-verified elsewhere in `tahti-dark` (Phases 2–3) —
+  but flagging honestly rather than claiming a screenshot check that didn't
+  happen. Get an actual screenshot of `/listen` and a collection page next
+  time a working browser is available, before checking Phase 7's manual
+  acceptance checklist for these two.
+
+**Still open, listener side:** Channel page beyond the header badge
+(archive/chat rail — largest single surface, has a known pre-existing hex
+leftover, `bg-[#0B0F14]` on the visualizer hero backdrop, flagged in
+Phase 7, not yet fixed), the public artist profile (`/u/$username` →
+`ArtistView.tsx`, 640 lines — not yet reviewed for chrome-level theming;
+note its per-artist channel-designer brand-accent hex is a separate,
+intentional customization system per the Phase 7 finding, not a
+golden-rule violation to fix here), Fan subscribe (spot-checked — already
 fully token-driven, no violation found, but tier price/CTA not yet given
 a deliberate themed treatment).
 
