@@ -1,4 +1,9 @@
-import { ChevronDownIcon, ListMusicIcon, XIcon } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  ListMusicIcon,
+  Maximize2Icon,
+  XIcon,
+} from 'lucide-react';
 
 import { formatArtistNames } from '@nuclearplayer/model';
 import { Button, cn, PlayerBar } from '@nuclearplayer/ui';
@@ -31,6 +36,9 @@ export function ConnectedPlayerBar() {
   const hidePlayerBar = usePlayerStore((s) => s.hidePlayerBar);
   const queueOpen = useLayoutStore((s) => s.bottomQueueOpen);
   const setBottomQueueOpen = useLayoutStore((s) => s.setBottomQueueOpen);
+  const setFullScreenPlayerOpen = useLayoutStore(
+    (s) => s.setFullScreenPlayerOpen,
+  );
 
   const current = queue.find((q) => q.id === currentId);
   const playable = current ? playableFromQueueItem(current) : null;
@@ -142,6 +150,18 @@ export function ConnectedPlayerBar() {
       }
       right={
         <div className="flex items-center gap-2">
+          {playable && (
+            <Button
+              size="icon-sm"
+              variant="text"
+              onClick={() => setFullScreenPlayerOpen(true)}
+              title="Full screen"
+              aria-label="Full screen"
+              data-testid="expand-full-screen-player"
+            >
+              <Maximize2Icon size={16} />
+            </Button>
+          )}
           <Button
             size="icon-sm"
             variant={queueOpen ? 'secondary' : 'text'}

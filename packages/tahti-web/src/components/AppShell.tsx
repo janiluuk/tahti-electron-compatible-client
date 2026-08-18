@@ -29,6 +29,7 @@ import { AudioEngine } from './AudioEngine';
 import { AuthDialog } from './AuthDialog';
 import { ConnectedPlayerBar } from './ConnectedPlayerBar';
 import { ConnectedSettingsModal } from './ConnectedSettingsModal';
+import { FullScreenPlayer } from './FullScreenPlayer';
 import { MobileBottomNav, MobileDrawer } from './MobileChrome';
 import { RightRailPanel } from './RightRailPanel';
 
@@ -212,6 +213,7 @@ export function AppShell() {
       )}
 
       <ConnectedPlayerBar />
+      <FullScreenPlayer />
       <AuthDialog />
       <ConnectedSettingsModal />
 

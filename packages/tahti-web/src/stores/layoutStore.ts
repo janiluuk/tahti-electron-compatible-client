@@ -8,6 +8,9 @@ type LayoutState = {
   rightWidth: number;
   /** Expand past | play | upcoming strip in the bottom player. */
   bottomQueueOpen: boolean;
+  /** Full-screen now-playing overlay -- deliberately not persisted, a
+   * reload should never drop the user straight into it. */
+  fullScreenPlayerOpen: boolean;
   /** Channel slug for rail chat (last chat-enabled channel). */
   chatSlug: string | null;
   /** Whether that channel allows chat. */
@@ -24,6 +27,7 @@ type LayoutState = {
   setRightCollapsed: (collapsed: boolean) => void;
   setBottomQueueOpen: (open: boolean) => void;
   toggleBottomQueue: () => void;
+  setFullScreenPlayerOpen: (open: boolean) => void;
   /** Bind channel chat context; optionally open right rail once per visit. */
   setChatContext: (opts: {
     slug: string;
@@ -43,6 +47,7 @@ export const useLayoutStore = create<LayoutState>()(
       leftWidth: 220,
       rightWidth: 340,
       bottomQueueOpen: false,
+      fullScreenPlayerOpen: false,
       chatSlug: null,
       chatEnabled: false,
       chatDisabledReason: null,
@@ -56,6 +61,8 @@ export const useLayoutStore = create<LayoutState>()(
       setBottomQueueOpen: (bottomQueueOpen) => set({ bottomQueueOpen }),
       toggleBottomQueue: () =>
         set((s) => ({ bottomQueueOpen: !s.bottomQueueOpen })),
+      setFullScreenPlayerOpen: (fullScreenPlayerOpen) =>
+        set({ fullScreenPlayerOpen }),
 
       setChatContext: ({ slug, enabled, reason, autoOpen }) => {
         const prev = get();
