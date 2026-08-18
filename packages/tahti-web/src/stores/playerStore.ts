@@ -152,7 +152,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       if (s.queue.some((q) => q.id === qi.id)) {
         return s;
       }
-      return { queue: [...s.queue, qi] };
+      return { queue: [...s.queue, qi], playerBarVisible: true };
     });
   },
 
