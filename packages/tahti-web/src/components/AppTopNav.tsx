@@ -18,6 +18,7 @@ import { cn } from '../lib/cn';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
+import { RadioScheduleOverlay } from './RadioScheduleOverlay';
 import { TahtiLogoLink } from './TahtiLogo';
 
 type AppTopNavProps = {
@@ -90,6 +91,8 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
       </div>
 
       <div className="flex min-w-0 items-center gap-1">
+        <RadioScheduleOverlay iconClassName={iconBtnClass} />
+
         {user && hasChannel ? (
           <>
             <Link
