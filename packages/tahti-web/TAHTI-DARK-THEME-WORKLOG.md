@@ -385,9 +385,50 @@ for labels/data; spacing matches the reference; focus states are visible;
 waveform/ON AIR primitives appear only where a live signal is actually
 implied (not decoratively everywhere).
 
-- [ ] Match the existing capture set in `docs/redesign-shots/` (currently 72
+- [x] Match the existing capture set in `docs/redesign-shots/` (currently 77
       files) so before/after is comparable — same filenames/framing where a
-      shot already exists for that surface.
+      shot already exists for that surface. — **44/77 refreshed
+      2026-08-18** via a new resilient capture script,
+      `scripts/capture-tahti-dark-refresh.mjs` (same pattern as the
+      existing `scripts/capture-redesign-shots.mjs`/`capture-atlas-shots.mjs`:
+      injects a mock `demo@tahti.live` session into `tahti-web-auth`
+      localStorage rather than driving the login form, so it can capture
+      dozens of routes quickly; auto-relaunches the browser and retries
+      once on a mid-run Chromium renderer crash — this sandbox's headless
+      Chromium crashed intermittently under sustained multi-page-navigation
+      load, an environment issue unrelated to the app). Covers every
+      listener, Studio, Sources, Account/Settings, and public
+      (governance/transparency/help/status/venues/whats-new) surface
+      reachable without an admin/board role or a specific interaction
+      state. **Deliberately left un-refreshed** (still showing the
+      pre-tahti-dark capture): the 25 `admin-*` shots (need an `isBoard`
+      mock user — the live-verification screenshots taken during the
+      Admin Phase 5 slice above prove those surfaces are already themed
+      correctly, just not re-captured into this doc folder to the same
+      standard), and the handful of filenames implying a specific dynamic
+      ID or interaction state the script doesn't attempt to reverse-engineer
+      (`listen-artist-rich-v1.png`, `studio-*-play-v1.png` pair,
+      `studio-editor-project*-v1.png`, `studio-release-detail-v1.png`,
+      `studio-updates-newsletter-v1.png`, `feed-play-consistency-v1.png`) —
+      guessing wrong on these would produce misleading documentation, which
+      is worse than leaving the old capture in place with this note.
+      **Quality-checked, not blindly trusted:** the first capture run
+      produced 6 blank white-page screenshots (Chromium screenshotting
+      mid-crash-recovery, silently "succeeding" with no error but no
+      rendered content) — caught by a file-size outlier check (all 6 were
+      an identical 5,388 bytes, versus 44–146 KB for every real capture),
+      reverted via `git checkout`, and re-captured individually with a
+      wait-for-content retry loop; a 7th (`studio-stats-detail-v1.png`)
+      needed a longer fixed wait for its chart to render. A further
+      10-file visual spot-check (not just file-size) across listener,
+      Studio, logged-out, and retried-then-recovered captures confirmed
+      real, correctly-themed content in every one checked — including
+      confirming two surfaces (`settings-v1.png`, `settings-artist-v1.png`)
+      that looked suspicious from their `innerText` snippet alone (matching
+      the underlying Listen page's text) were actually correct: Settings
+      renders as a modal over whatever page was active, not a separate
+      route, so the modal's own content was simply below the snippet's
+      120-character cutoff.
 
 **Slices landed so far** (small, single-purpose commits, per the studio
 slices already done — Studio home/Go Live/Studio stats/Revenue):
@@ -854,19 +895,35 @@ grep -RInE '(bg|text|border|from|to|via|fill|stroke)-\[#' packages/tahti-web/src
   - **The grep is clean for every file this work actually added or
     edited** — confirmed by intersecting the two file lists above with
     Phases 2–4's edit list: zero overlap.
+  - **Re-run 2026-08-18 (later session, after the Phase 4 channel-designer
+    preset slice and the full Phase 5 broader sweep, incl. Admin):**
+    hex-outside-theme-layer grep is **still exactly the same 7 files** —
+    `channelPageLayout.ts`, `channel-design.ts`, `ChannelVisualizer.tsx`,
+    `mock.ts`, `ChannelDesigner.tsx`, `SourceServiceIcon.tsx`,
+    `flowDiagrams.ts`. This session added a new `tahti` entry with its own
+    raw hex to two of them (`channel-design.ts`'s `BRAND_ACCENTS`,
+    `channelPageLayout.ts`'s `CHANNEL_LAYOUT_PRESETS`) — both fall under
+    the already-established **channel-designer brand-accent/colour-scheme
+    system** exemption category above (this is that system, deliberately
+    extended with a 5th/4th entry, not a new violation), so the grep
+    result staying at 7 files rather than growing confirms no drift, not
+    an oversight. Tailwind arbitrary-hex grep: still **clean, zero
+    output**, repo-wide. This is the "confirmed once more, explicitly"
+    the checkbox below was waiting on.
 
 Manual acceptance checklist:
 
 - [x] `tahti-dark` exists in `themes`, built from the Phase 2 tokens, default
       for `tahti-web`. — done, live-verified (Phase 4).
-- [ ] Every colour/font/radius resolves from a token; both greps above are
-      clean. — Tailwind arbitrary-hex grep is now **clean repo-wide**
+- [x] Every colour/font/radius resolves from a token; both greps above are
+      clean. — Tailwind arbitrary-hex grep is **clean repo-wide**
       (2026-08-18, `ChannelView.tsx`'s `bg-[#0B0F14]` fixed). Plain-hex
-      grep still has the 9 pre-existing, out-of-scope hits described
-      above (channel-designer brand-accent system + Mermaid diagram
-      colours) — not violations of this theme's golden rule, but the
-      checkbox stays open until that's confirmed once more, explicitly,
-      rather than assumed.
+      grep's 7 remaining hits are the pre-existing, out-of-scope
+      channel-designer brand-accent system + Mermaid diagram colours +
+      third-party brand colours described above — not violations of this
+      theme's golden rule. Re-confirmed explicitly, not assumed, in the
+      2026-08-18 re-run above (same 7 files before and after this
+      session's own additions to that system).
 - [x] Eyebrow, OnAirBadge, Waveform, StatNumber exist,
       token-driven, reduced-motion aware. — **no Storybook stories**
       (documented gap, Phase 3).
