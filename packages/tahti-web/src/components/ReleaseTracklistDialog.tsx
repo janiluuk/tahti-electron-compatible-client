@@ -54,6 +54,7 @@ export function ReleaseTracklistDialog({
 }) {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const currentId = usePlayerStore((s) => s.currentId);
 
   const tracks = [...(release?.tracks ?? [])].sort(
     (a, b) => a.position - b.position,
@@ -103,15 +104,26 @@ export function ReleaseTracklistDialog({
                   release,
                   channelSlug,
                 );
+                const isPlaying = Boolean(
+                  playable && playable.id === currentId,
+                );
                 return (
                   <li
                     key={track.position}
-                    className="flex items-center gap-3 py-2 first:pt-0 last:pb-0"
+                    className={`flex items-center gap-3 py-2 first:pt-0 last:pb-0 ${
+                      isPlaying
+                        ? 'bg-accent-green/10 -mx-2 rounded-lg px-2'
+                        : ''
+                    }`}
                   >
                     <span className="text-foreground-secondary w-5 shrink-0 text-xs tabular-nums">
                       {track.position}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-sm">
+                    <span
+                      className={`min-w-0 flex-1 truncate text-sm ${
+                        isPlaying ? 'text-accent-green font-semibold' : ''
+                      }`}
+                    >
                       {track.title}
                     </span>
                     {track.durationSec != null && (

@@ -80,6 +80,7 @@ export function RadioView() {
   const user = useAuthStore((s) => s.user);
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
+  const currentId = usePlayerStore((s) => s.currentId);
   const toggleFavoriteChannel = useLibraryStore((s) => s.toggleFavoriteChannel);
   const favorited = useLibraryStore((s) =>
     s.favoriteChannels.some((c) => c.slug === TAHTI_RADIO_SLUG),
@@ -256,7 +257,7 @@ export function RadioView() {
               </div>
               <div className="relative z-10 flex flex-col gap-4 p-4 sm:p-5">
                 <div>
-                  <Eyebrow>Now playing</Eyebrow>
+                  <Eyebrow tone="green">Now playing</Eyebrow>
                   {nowPlaying?.title ? (
                     <button
                       type="button"
@@ -410,10 +411,17 @@ export function RadioView() {
                                 protocol: 'https',
                               }
                             : null;
+                          const isPlaying = Boolean(
+                            playable && playable.id === currentId,
+                          );
                           return (
                             <li
                               key={item.id}
-                              className="border-border flex items-center gap-3 rounded-lg border px-3 py-2"
+                              className={`flex items-center gap-3 rounded-lg border px-3 py-2 ${
+                                isPlaying
+                                  ? 'border-accent-green bg-accent-green/10'
+                                  : 'border-border'
+                              }`}
                             >
                               <button
                                 type="button"
@@ -441,7 +449,11 @@ export function RadioView() {
                                   )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <div className="truncate text-sm font-medium underline-offset-2 hover:underline">
+                                  <div
+                                    className={`truncate text-sm font-medium underline-offset-2 hover:underline ${
+                                      isPlaying ? 'text-accent-green' : ''
+                                    }`}
+                                  >
                                     {item.title}
                                   </div>
                                   <div className="text-foreground-secondary truncate text-xs">

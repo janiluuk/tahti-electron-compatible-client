@@ -80,7 +80,9 @@ export function playQueueFavoriteActions(opts: {
       icon: (
         <HeartIcon
           size={16}
-          className={opts.favorited ? 'fill-current' : undefined}
+          className={
+            opts.favorited ? 'text-accent-red fill-current' : undefined
+          }
         />
       ),
       onClick: opts.onFavorite,
