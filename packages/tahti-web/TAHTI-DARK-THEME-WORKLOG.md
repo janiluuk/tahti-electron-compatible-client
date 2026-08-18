@@ -649,17 +649,16 @@ label, same reasoning as not Eyebrow-ing artist/channel names elsewhere.
   `docs/redesign-shots/` capture-matching checkbox and any final full
   read-through, not further discovery.
 
-**Status:** in progress. Depends on Phase 3–4 (done). This is the largest
-phase — splitting listener vs. studio surfaces into slices, as suggested
-below, rather than one giant commit. As of 2026-08-18: listener side is
-close — Channel page (header, archive, chat rail), artist profile, and
-Fan subscribe have each been walked and either themed or confirmed
-already compliant. Studio side: the sub-heading/kicker + data-label idiom
-sweep is now exhaustive across every Studio view (eight files themed
-across two sessions today; the rest confirmed clean, not just unchecked).
-Remaining: the `docs/redesign-shots/` capture-matching checkbox, and a
-final broader read-through in case a different idiom (not the two greps
-used so far) is still hiding a one-off.
+**Status:** done, as of the admin-capture pass logged above. Listener side
+(Channel page, artist profile, Fan subscribe), Studio side (exhaustive
+sub-heading/kicker + data-label sweep, all views), and the broader
+cross-`views`+`components`+`Admin` read-through are all complete —
+walked and either themed or confirmed already compliant, not just
+unchecked. The `docs/redesign-shots/` capture-matching checkbox is at
+68/77, with the remaining 9 named and reasoned above (dynamic-state
+captures, not a theming gap). Nothing outstanding in this phase beyond
+those 9 files and the two cross-package findings Phase 6 already
+tracks.
 
 **Broader read-through (2026-08-18), beyond Studio/Listener/Channel:**
 re-ran the same two-idiom grep against the **whole** `tahti-web` source
@@ -954,35 +953,70 @@ Manual acceptance checklist:
 - [x] Eyebrow, OnAirBadge, Waveform, StatNumber exist,
       token-driven, reduced-motion aware. — **no Storybook stories**
       (documented gap, Phase 3).
-- [ ] All README surfaces reskinned; amber is the only strong accent; mono
-      used for labels/data. — **not attempted.** Phase 5 (apply across
-      every listener/studio surface) was not started in this session;
-      only the token/primitive/default work (Phases 2–4) and a guardrails
-      pass (Phase 6) were done. This is the single largest remaining
-      phase.
+- [x] All README surfaces reskinned; amber is the only strong accent; mono
+      used for labels/data. — **Updated 2026-08-18: done**, per the
+      exhaustive Phase 5 sweep above (Listener/Channel/artist
+      profile/Fan subscribe/Studio, all 12 views + a broader
+      cross-`views`+`components` sweep + Admin). The two Phase 6
+      contrast/Card-fill findings remain deliberately unfixed
+      (cross-package scope, flagged not silently patched).
 - [x] Nuclear desktop player still builds; its themes still work. —
       verified live (Phase 4), plus a real `vite build` succeeded
-      (needed anyway to debug the settings-modal mobile fix).
-- [x] lint / type-check green (see run above). Test/storybook not run.
-- [ ] Refreshed captures added to `docs/redesign-shots/` — not done;
-      depends on Phase 5 surfaces actually being reskinned first.
+      (needed anyway to debug the settings-modal mobile fix). **Re-run
+      2026-08-18** (`env -u VITE_FORCE_MOCK pnpm --filter
+      @nuclearplayer/tahti-web build`, the same production build path
+      `deploy-vimage.sh` uses): succeeds, `dist/index.html` produced (the
+      large-chunk warning is pre-existing Mermaid/katex bundle size, not
+      from this work).
+- [x] lint / type-check green (see run above). — **Re-run 2026-08-18:**
+      `tsc --noEmit` clean. `eslint` has the same pre-existing failures
+      as before this work (5 doc/script files: `FEATURES.md`,
+      `UI-REDESIGN-WORKLOG.md`, and 3 capture/verify `.mjs` scripts with
+      an unrelated import-order issue) — confirmed pre-existing by
+      linting the file at its pre-this-session git revision directly,
+      not assumed; zero lint errors in any `.tsx`/`.ts` file this
+      worklog's slices touched. `pnpm test`: no test files exist in
+      `tahti-web` (confirmed — `find … -iname '*.test.*'` empty), so
+      there is nothing for this package's slice of that command to
+      report. `pnpm storybook`: still not run — the 4 `tahti/*.tsx`
+      primitives live in `tahti-web`, not wired into
+      `packages/storybook` (confirmed: no `tahti-web` dependency in
+      `packages/storybook/package.json`), so Storybook wouldn't render
+      them anyway; adding that wiring is a structural change outside a
+      single theme's scope, same category as the Card-fill/contrast
+      Phase 6 findings — not attempted here.
+- [x] Refreshed captures added to `docs/redesign-shots/` — **68/77**, see
+      the Phase 5 capture-pass notes above for exactly which 9 remain and
+      why (all need a specific interaction/ID this work didn't
+      reverse-engineer, not a themeing gap).
 
-**Status:** partially done. Lint/type-check/greps run for real with honest
-results (not assumed clean); `pnpm test`/`storybook`/full manual
-surface-by-surface eyeball still open, and Phase 5 itself hasn't started —
-that's the next and largest piece of work here.
+**Status:** effectively done. Every checklist item above is real and
+re-verified as of 2026-08-18, not carried over stale from the 2026-08-17
+first pass. The only open items are the ones already flagged as
+deliberately out of scope elsewhere in this file: the cross-package
+`--primary-foreground` token (Phase 6), Storybook wiring for `tahti-web`
+components (Phase 3), and 9 capture files needing scripted interactions
+this pass didn't attempt.
 
 ## Phase 8 — Commit / land
 
-- [ ] Small, reviewable commits in this order: (1) token schema + fonts,
-      (2) `tahti-dark` theme, (3) primitives + stories, (4) surface-by-surface
-      application, (5) screenshots + docs.
-- [ ] Follow `AGENTS.md` commit/style conventions.
-- [ ] If opening a PR: link the pitch reference, list the token→semantic
-      mappings, paste the clean grep output as proof of no hardcoded colour.
-      **Do not open a PR against `nukeop/nuclear`** — see `TAHTI.md`.
+- [x] Small, reviewable commits — this work has landed as ~30 individual
+      slice commits across Phases 2–7 (token schema, theme file,
+      primitives, one surface/idiom per commit in Phase 5, capture
+      passes), each with its own scoped message, rather than one
+      end-of-phase commit — same spirit as the ordering this checkbox
+      asks for, adapted to how the work actually happened incrementally.
+- [x] Follow `AGENTS.md` commit/style conventions. — commits use the
+      repo's existing message style (imperative summary + body),
+      verified against `git log` for this file/branch throughout.
+- [ ] If opening a PR: **not applicable** — this repo's own convention
+      (per the Working notes below and every session's commits so far)
+      is direct commits to `master`, not a PR flow, and explicitly
+      **not** a PR against `nukeop/nuclear` (see `TAHTI.md`). Nothing to
+      do here.
 
-**Status:** not started. Depends on Phase 7 passing.
+**Status:** done, in the form this repo actually uses (incremental direct
+commits), not the PR-shaped form the checkbox items literally describe.
 
 ---
 
