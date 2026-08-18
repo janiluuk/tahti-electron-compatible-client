@@ -524,14 +524,67 @@ label, same reasoning as not Eyebrow-ing artist/channel names elsewhere.
     a `<label>`) should be run against each before calling Studio
     exhaustive.
 
+**Second Studio sweep (2026-08-18), continuing the list above:**
+
+- Ran the same `text-xs uppercase` / heading-idiom grep against all 12
+  listed files. `StudioReleasesView.tsx` (1 hit), `StudioPlaylistsView.tsx`
+  (2 hits), `StudioScheduleView.tsx` (2 hits), `StudioUpdatesView.tsx`
+  (2 hits) all had hits, but every one of them sits inside a `<label>` as a
+  per-field form caption ("When (local time)", "Body", "Body (markdown)",
+  etc.) — the already-established "leave alone" case — **except** one hit
+  each in `StudioScheduleView.tsx` and `StudioProEditorView.tsx`:
+  - `StudioScheduleView.tsx`: "Rotation ({count})" — a bare `<p>` kicker
+    directly above the offline-programme item list, not inside a `<label>`.
+    Same idiom as every other section-kicker slice above → `Eyebrow`.
+  - `StudioProEditorView.tsx`: the per-stem-job `{job.status}` value (e.g.
+    "READY"/"PENDING") next to each stem-set name in the Stems panel's job
+    list — a per-item **data** value, not a section heading, so `Eyebrow`
+    would be the wrong primitive; matches the same "mono for labels/data"
+    rule already used for the Tahti Radio/channel-chrome state pills
+    (OFFLINE, chat "Live") → added `font-mono` only, left the colour
+    (`text-foreground-secondary`) untouched, no contrast risk.
+  - The Shuffle/Ordered toggle in `StudioScheduleView.tsx`
+    (`text-xs font-semibold tracking-wide uppercase`, active/inactive via
+    `bg-primary`) is the same tab-selector idiom already left alone
+    elsewhere (`ChannelLayersMenu.tsx`) — retheming it would remove the
+    active/inactive distinction, not improve it.
+  - `StudioCollectionsView.tsx`, `StudioUploadView.tsx`,
+    `StudioSetupChannelView.tsx`, `StudioStashView.tsx`,
+    `StudioArchiveView.tsx`, `StudioEmbedsView.tsx`,
+    `StudioModerationView.tsx`: **zero hits** for either idiom — grep-clean,
+    nothing to change (`StudioEmbedsView.tsx`/`StudioModerationView.tsx`'s
+    earlier "Studio panel consistency pass" claim re-confirmed, not just
+    assumed).
+- Both changes `pnpm exec tsc --noEmit` / `pnpm exec eslint` clean.
+  Live-verified via a scripted Playwright run against
+  `VITE_FORCE_MOCK=1 pnpm dev:tahti` (`demo@tahti.live`): Schedule page
+  shows "ROTATION (1)" rendering as a proper amber mono Eyebrow; Pro editor
+  (reached via Studio → Archive → an archive item → Editor) shows the stem
+  job's "READY" status rendering in mono next to its "2STEMS" label after
+  triggering "Request 2-stem split" (no stem job exists in mock data by
+  default, so the button had to be clicked to produce one to screenshot).
+  Chromium was launched via the same `curl`-unzip-`INSTALLATION_COMPLETE`
+  workaround documented in Working notes below (the `claude-in-chrome`
+  extension was checked first this session too — still not connected).
+  Scratch script removed after use; only the two `.tsx` files are left
+  modified in the working tree.
+- **Studio sweep is now exhaustive** across every file the two prior
+  passes' "not yet swept" lists named — no Studio views remain unchecked
+  for this idiom pair. Remaining Phase 5 work is the
+  `docs/redesign-shots/` capture-matching checkbox and any final full
+  read-through, not further discovery.
+
 **Status:** in progress. Depends on Phase 3–4 (done). This is the largest
 phase — splitting listener vs. studio surfaces into slices, as suggested
 below, rather than one giant commit. As of 2026-08-18: listener side is
 close — Channel page (header, archive, chat rail), artist profile, and
 Fan subscribe have each been walked and either themed or confirmed
-already compliant. Studio side: six more files themed this session (see
-above); roughly a dozen Studio views still unswept, plus the
-`docs/redesign-shots/` capture-matching checkbox.
+already compliant. Studio side: the sub-heading/kicker + data-label idiom
+sweep is now exhaustive across every Studio view (eight files themed
+across two sessions today; the rest confirmed clean, not just unchecked).
+Remaining: the `docs/redesign-shots/` capture-matching checkbox, and a
+final broader read-through in case a different idiom (not the two greps
+used so far) is still hiding a one-off.
 
 ## Phase 6 — Guardrails check
 

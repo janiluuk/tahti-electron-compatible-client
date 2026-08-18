@@ -15,6 +15,7 @@ import {
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
 
 function toLocalInput(iso: string | null): string {
   if (!iso) {
@@ -224,9 +225,9 @@ export function StudioScheduleView() {
               </div>
 
               <div>
-                <p className="text-foreground-secondary mb-2 text-xs uppercase">
+                <Eyebrow className="mb-2 block">
                   Rotation ({programme.items.length})
-                </p>
+                </Eyebrow>
                 {programme.items.length === 0 ? (
                   <p className="text-foreground-secondary text-sm">
                     No programme items yet. Build a playlist in Channel designer

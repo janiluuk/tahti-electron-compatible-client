@@ -610,7 +610,7 @@ export function StudioProEditorView({
                       >
                         <div className="flex items-center justify-between">
                           <span>{job.stemSet}</span>
-                          <span className="text-foreground-secondary text-xs uppercase">
+                          <span className="text-foreground-secondary font-mono text-xs uppercase">
                             {job.status}
                           </span>
                         </div>
