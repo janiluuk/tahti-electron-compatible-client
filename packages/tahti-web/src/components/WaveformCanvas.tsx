@@ -8,22 +8,49 @@ type Props = {
   currentTime: number;
   cuts: EditCut[];
   selection: { start: number; end: number } | null;
+  /** 0..1 visible window into the timeline — lets the canvas zoom/pan
+   * instead of always drawing the full duration. Defaults to the whole
+   * track when omitted. */
+  viewStart?: number;
+  viewEnd?: number;
+  /** Called on wheel-zoom (zoom-to-cursor, matching a scroll/trackpad
+   * "zoom the waveform" gesture) and on minimap drag-to-pan. */
+  onViewChange?: (start: number, end: number) => void;
   onSeek: (sec: number) => void;
   onSelectRange?: (start: number, end: number) => void;
 };
 
-/** Simple peaks waveform with playhead, cut regions, and click/drag selection. */
+/** Reads a theme colour token at draw time so the canvas re-themes with
+ * the rest of the app instead of hardcoding one palette. */
+function themeColor(
+  canvas: HTMLCanvasElement,
+  token: string,
+  fallback: string,
+) {
+  const v = getComputedStyle(canvas).getPropertyValue(token).trim();
+  return v || fallback;
+}
+
+const MIN_SPAN = 0.005;
+
+/** Peaks waveform with zoom (wheel, zoom-to-cursor), playhead, cut
+ * regions, and click/drag selection — all scoped to the current
+ * viewStart/viewEnd window rather than always the full track. */
 export function WaveformCanvas({
   peaks,
   durationSec,
   currentTime,
   cuts,
   selection,
+  viewStart = 0,
+  viewEnd = 1,
+  onViewChange,
   onSeek,
   onSelectRange,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef<{ startX: number; startSec: number } | null>(null);
+  const span = Math.max(MIN_SPAN, viewEnd - viewStart);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -48,48 +75,80 @@ export function WaveformCanvas({
 
       const w = cssW;
       const h = cssH;
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(255,255,255,0.04)';
-      ctx.fillRect(0, 0, w, h);
+      const barColor = themeColor(
+        canvas,
+        '--color-accent-cyan',
+        'rgba(120, 220, 200, 0.75)',
+      );
+      const selColor = themeColor(
+        canvas,
+        '--color-primary',
+        'rgba(255, 220, 80, 1)',
+      );
+      const cutColor = themeColor(
+        canvas,
+        '--color-accent-red',
+        'rgba(220, 80, 80, 1)',
+      );
 
-      const data =
-        peaks.length > 0 ? peaks : Array.from({ length: 128 }, () => 0.3);
+      ctx.clearRect(0, 0, w, h);
+
+      const all =
+        peaks.length > 0 ? peaks : Array.from({ length: 256 }, () => 0.3);
+      const startIdx = Math.floor(viewStart * all.length);
+      const endIdx = Math.max(startIdx + 1, Math.ceil(viewEnd * all.length));
+      const data = all.slice(startIdx, endIdx);
       const barW = w / data.length;
       for (let i = 0; i < data.length; i++) {
         const amp = Math.max(0.05, Math.min(1, data[i]!));
         const bh = amp * (h - 8);
         const x = i * barW;
         const y = (h - bh) / 2;
-        ctx.fillStyle = 'rgba(120, 220, 200, 0.75)';
+        ctx.fillStyle = barColor;
         ctx.fillRect(x, y, Math.max(1, barW - 0.5), bh);
       }
+
+      const toX = (sec: number) => ((sec / durationSec - viewStart) / span) * w;
 
       for (const cut of cuts) {
         if (durationSec <= 0) {
           continue;
         }
-        const x0 = (cut.start / durationSec) * w;
-        const x1 = (cut.end / durationSec) * w;
-        ctx.fillStyle = 'rgba(220, 80, 80, 0.35)';
+        const x0 = toX(cut.start);
+        const x1 = toX(cut.end);
+        if (x1 < 0 || x0 > w) {
+          continue;
+        }
+        ctx.fillStyle = cutColor;
+        ctx.globalAlpha = 0.3;
         ctx.fillRect(x0, 0, Math.max(2, x1 - x0), h);
+        ctx.globalAlpha = 1;
       }
 
       if (selection && durationSec > 0) {
-        const x0 = (selection.start / durationSec) * w;
-        const x1 = (selection.end / durationSec) * w;
-        ctx.fillStyle = 'rgba(255, 220, 80, 0.25)';
+        const x0 = toX(selection.start);
+        const x1 = toX(selection.end);
+        ctx.fillStyle = selColor;
+        ctx.globalAlpha = 0.2;
         ctx.fillRect(x0, 0, Math.max(2, x1 - x0), h);
-        ctx.strokeStyle = 'rgba(255, 220, 80, 0.9)';
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = selColor;
         ctx.strokeRect(x0, 1, Math.max(2, x1 - x0), h - 2);
       }
 
       if (durationSec > 0) {
-        const px = (currentTime / durationSec) * w;
-        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-        ctx.beginPath();
-        ctx.moveTo(px, 0);
-        ctx.lineTo(px, h);
-        ctx.stroke();
+        const px = toX(currentTime);
+        if (px >= 0 && px <= w) {
+          ctx.strokeStyle = themeColor(
+            canvas,
+            '--color-foreground',
+            'rgba(255,255,255,0.9)',
+          );
+          ctx.beginPath();
+          ctx.moveTo(px, 0);
+          ctx.lineTo(px, h);
+          ctx.stroke();
+        }
       }
     }
 
@@ -97,22 +156,34 @@ export function WaveformCanvas({
     const observer = new ResizeObserver(draw);
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [peaks, durationSec, currentTime, cuts, selection]);
+  }, [
+    peaks,
+    durationSec,
+    currentTime,
+    cuts,
+    selection,
+    viewStart,
+    viewEnd,
+    span,
+  ]);
 
+  /** Maps a client-x pixel to a timeline second, accounting for the
+   * current zoom window (not the full track). */
   const secFromEvent = (clientX: number) => {
     const canvas = canvasRef.current;
     if (!canvas || durationSec <= 0) {
       return 0;
     }
     const rect = canvas.getBoundingClientRect();
-    const t = (clientX - rect.left) / rect.width;
-    return Math.max(0, Math.min(durationSec, t * durationSec));
+    const frac = (clientX - rect.left) / rect.width;
+    const viewSec = (viewStart + frac * span) * durationSec;
+    return Math.max(0, Math.min(durationSec, viewSec));
   };
 
   return (
     <canvas
       ref={canvasRef}
-      className="border-border bg-background-secondary h-56 w-full cursor-crosshair rounded-md border"
+      className="border-border bg-background-secondary h-56 w-full cursor-crosshair touch-none rounded-md border"
       onMouseDown={(e) => {
         const sec = secFromEvent(e.clientX);
         dragRef.current = { startX: e.clientX, startSec: sec };
@@ -141,6 +212,35 @@ export function WaveformCanvas({
       }}
       onMouseLeave={() => {
         dragRef.current = null;
+      }}
+      onWheel={(e) => {
+        if (!onViewChange || durationSec <= 0) {
+          return;
+        }
+        // Own the gesture entirely: without preventDefault a trackpad's
+        // ctrl-wheel pinch falls through to the browser's native page
+        // zoom instead of zooming the waveform.
+        e.preventDefault();
+        const canvas = canvasRef.current;
+        if (!canvas) {
+          return;
+        }
+        const rect = canvas.getBoundingClientRect();
+        const cursorFrac = (e.clientX - rect.left) / rect.width;
+        const zoom = e.deltaY > 0 ? 1.15 : 0.87;
+        const newSpan = Math.min(1, Math.max(MIN_SPAN, span * zoom));
+        const center = viewStart + cursorFrac * span;
+        let ns = center - cursorFrac * newSpan;
+        let ne = ns + newSpan;
+        if (ns < 0) {
+          ne -= ns;
+          ns = 0;
+        }
+        if (ne > 1) {
+          ns -= ne - 1;
+          ne = 1;
+        }
+        onViewChange(Math.max(0, ns), Math.min(1, ne));
       }}
     />
   );

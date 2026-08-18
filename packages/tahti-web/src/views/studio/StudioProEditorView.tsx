@@ -19,6 +19,7 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
+import { WaveformMinimap } from '../../components/WaveformMinimap';
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec)) {
@@ -52,6 +53,8 @@ export function StudioProEditorView({
   const [loading, setLoading] = useState(true);
   const [stems, setStems] = useState<StemJob[]>([]);
   const [markers, setMarkers] = useState<number[]>([]);
+  const [viewStart, setViewStart] = useState(0);
+  const [viewEnd, setViewEnd] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
@@ -317,9 +320,38 @@ export function StudioProEditorView({
                 currentTime={currentTime}
                 cuts={editList.cuts}
                 selection={selection}
+                viewStart={viewStart}
+                viewEnd={viewEnd}
+                onViewChange={(start, end) => {
+                  setViewStart(start);
+                  setViewEnd(end);
+                }}
                 onSeek={seek}
                 onSelectRange={(start, end) => setSelection({ start, end })}
               />
+
+              <div className="mt-2 flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <WaveformMinimap
+                    peaks={peaks}
+                    viewStart={viewStart}
+                    viewEnd={viewEnd}
+                    onSeek={(frac) => seek(frac * duration)}
+                  />
+                </div>
+                {(viewStart > 0 || viewEnd < 1) && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setViewStart(0);
+                      setViewEnd(1);
+                    }}
+                  >
+                    Reset zoom
+                  </Button>
+                )}
+              </div>
 
               <div className="text-foreground-secondary mt-3 flex flex-wrap items-center gap-3 text-xs">
                 <span>
