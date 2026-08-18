@@ -9,6 +9,7 @@ const LEGAL_TO = {
   terms: '/terms',
   privacy: '/privacy',
   agpl: '/agpl',
+  'what-is-it': '/what-is-it',
 } as const satisfies Record<LegalPage['slug'], string>;
 
 export function LegalHubLinks() {

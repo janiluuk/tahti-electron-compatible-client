@@ -152,6 +152,12 @@ export function ListenView() {
             <Link to="/studio/go-live">
               <Button size="sm">Go Live</Button>
             </Link>
+          ) : !signedIn ? (
+            <Link to="/what-is-it">
+              <Button size="sm" variant="secondary">
+                What is tahti.live?
+              </Button>
+            </Link>
           ) : undefined
         }
       />

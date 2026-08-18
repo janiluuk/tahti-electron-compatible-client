@@ -518,6 +518,12 @@ const aboutRoute = createRoute({
   component: () => <LegalView slug="about" />,
 });
 
+const whatIsItRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/what-is-it',
+  component: () => <LegalView slug="what-is-it" />,
+});
+
 const termsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/terms',
@@ -958,6 +964,7 @@ const routeTree = rootRoute.addChildren([
     statusRoute,
     governanceRoute,
     aboutRoute,
+    whatIsItRoute,
     termsRoute,
     privacyRoute,
     agplRoute,
