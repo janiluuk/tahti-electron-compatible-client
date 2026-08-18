@@ -69,7 +69,7 @@ export type ChannelLookBundle = {
   };
 };
 
-export type ChannelLayoutPresetId = 'subtle' | 'stage' | 'full';
+export type ChannelLayoutPresetId = 'subtle' | 'stage' | 'full' | 'tahti';
 
 export type ChannelLayoutPreset = {
   id: ChannelLayoutPresetId;
@@ -166,6 +166,33 @@ export const CHANNEL_LAYOUT_PRESETS: ChannelLayoutPreset[] = [
       },
     },
   },
+  {
+    id: 'tahti',
+    name: 'Tahti / On Air',
+    description:
+      'The tahti.live look — ink background, one amber accent, waveform hero. Archive and subscribe front and center.',
+    items: [
+      item('hero', true),
+      item('actions', true),
+      item('subscribe', true),
+      item('archive', true),
+      item('about', true),
+      item('links', false),
+      item('chat', false),
+      item('textOverlay', false),
+    ],
+    look: {
+      visualPreset: 'WAVEFORM_BARS',
+      headerStyle: 'SOLID',
+      brandAccentPreset: 'tahti',
+      colorScheme: {
+        accent: '#FFB020',
+        highlight: '#35D6C4',
+        background: '#0A0E1A',
+        foreground: '#F5F7FC',
+      },
+    },
+  },
 ];
 
 export function getLayoutPreset(
@@ -228,7 +255,12 @@ export function loadChannelLayoutPresetId(
 ): ChannelLayoutPresetId | null {
   try {
     const raw = localStorage.getItem(presetStorageKey(slug));
-    if (raw === 'subtle' || raw === 'stage' || raw === 'full') {
+    if (
+      raw === 'subtle' ||
+      raw === 'stage' ||
+      raw === 'full' ||
+      raw === 'tahti'
+    ) {
       return raw;
     }
     return null;

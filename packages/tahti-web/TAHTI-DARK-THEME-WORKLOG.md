@@ -319,17 +319,49 @@ token-consumption check are still open.
       `themeStore.ts`'s `DEFAULT_THEME_ID` → `'nuclear:tahti-dark'`;
       verified live (`data-theme-id="nuclear:tahti-dark"` on a fresh load,
       no theme previously selected).
-- [ ] `tahti-dark` is available in the channel-designer preset list. — it's
+- [x] `tahti-dark` is available in the channel-designer preset list. — it's
       in the OS-level theme switcher (`/settings` → Themes, confirmed
-      live) via `BUILTIN_BASIC_THEME_IDS`, but the *channel designer*
-      (artist-facing visual-preset picker, a separate tahti-web-only
-      concept per the Phase 1 note) hasn't been located/checked yet.
+      live) via `BUILTIN_BASIC_THEME_IDS`. The *channel designer* (a
+      separate, tahti-web-only per-artist customization concept, per the
+      Phase 1 note — confirmed for real in the Phase 7 grep note: it's
+      `BRAND_ACCENTS` in `src/api/channel-design.ts` plus the one-click
+      `CHANNEL_LAYOUT_PRESETS` bundles in `src/lib/channelPageLayout.ts`)
+      now has a `tahti` entry in both: a 5th `BRAND_ACCENTS` swatch
+      (`id: 'tahti'`, amber `#FFB020` / teal `#35D6C4`, ink→amber→teal
+      gradient, same raw-hex format as the existing Aurora/Ember/Noir/
+      Violet entries — this file's hex is the legitimate per-artist
+      brand-accent exemption from the golden rule, not a violation, per
+      Phase 7) and a 4th `CHANNEL_LAYOUT_PRESETS` bundle ("Tahti / On
+      Air": hero/actions/subscribe/archive/about visible, links/chat/
+      text-overlay hidden; `visualPreset: 'WAVEFORM_BARS'`,
+      `headerStyle: 'SOLID'` — solid ink rather than a rainbow gradient,
+      since the pitch's own rule is one bold accent on a quiet base, not
+      a multi-hue gradient like Aurora/Ember/Stage/Full use;
+      `brandAccentPreset: 'tahti'`; `colorScheme` reusing the exact
+      tahti-dark pitch hex from the Phase 2 table: accent `#FFB020`,
+      highlight `#35D6C4`, background `#0A0E1A`, foreground `#F5F7FC`).
+      `ChannelLayoutPresetId` union and `loadChannelLayoutPresetId`'s
+      localStorage-value allowlist both extended to include `'tahti'`.
+      No UI-component changes needed — both pickers (`ChannelDesigner.tsx`
+      "Colors" tab, `ChannelLayersMenu.tsx` "Presets" panel) render off
+      these arrays directly. `tsc --noEmit` / `eslint` clean on both
+      files. Live-verified via scripted Playwright
+      (`VITE_FORCE_MOCK=1 pnpm dev:tahti`, `demo@tahti.live`): the new
+      "Tahti" swatch renders correctly in Studio → Channel designer →
+      Colors (5 swatches, ink/amber/teal gradient); "Tahti / On Air"
+      renders as the 4th one-click layout in the live channel page's
+      "Edit design" → Presets panel; clicking it shows "Applied 'Tahti /
+      On Air'", reorders the Layers list to exactly the configured item
+      set/order, and the Look tab's Visualizer sub-tab shows "WAVEFORM
+      BARS" correctly marked "In use". This is a genuinely different
+      concept from the OS-level `nuclear:tahti-dark` chrome theme (per-
+      artist content styling vs. app-wide chrome) — both are now covered.
 - [x] All Nuclear player themes remain intact and switchable. — verified
       live: Default/Aurora/Ember/Lagoon/Moss all still present and
       selectable in the theme picker alongside the new "Tahti" entry.
 
-**Status:** mostly done — default + OS-level picker confirmed live;
-channel-designer preset list still open.
+**Status:** done — default, OS-level picker, and channel-designer preset
+list all confirmed live.
 
 ## Phase 5 — Apply across surfaces (tokens/primitives only, no one-offs)
 
@@ -345,8 +377,8 @@ chat rail) · Tahti Radio · profiles/collections · Fan subscribe
 
 **Studio surfaces:** Studio home · Go Live (Connect → Live → Multistream;
 mono for RTMP/stream-key fields; ON AIR state) · library/upload · releases ·
-playlists & albums · Channel designer (expose `tahti-dark` as a preset) ·
-schedule · stats · revenue.
+playlists & albums · Channel designer (expose `tahti-dark` as a preset —
+done, see the Phase 4 checkbox) · schedule · stats · revenue.
 
 Per surface, verify: no raw hex; amber is the only strong accent; mono used
 for labels/data; spacing matches the reference; focus states are visible;

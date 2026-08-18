@@ -96,6 +96,13 @@ export const BRAND_ACCENTS = [
     highlight: '#EC4899',
     gradient: 'linear-gradient(135deg,#7C3AED,#A855F7,#EC4899)',
   },
+  {
+    id: 'tahti',
+    label: 'Tahti',
+    accent: '#FFB020',
+    highlight: '#35D6C4',
+    gradient: 'linear-gradient(135deg,#0A0E1A,#FFB020,#35D6C4)',
+  },
 ] as const;
 
 export type ColorScheme = {
