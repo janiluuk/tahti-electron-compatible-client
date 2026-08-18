@@ -462,17 +462,76 @@ deliberate themed treatment).
   deferred as out of scope. Nothing left to do here that isn't already
   tracked by the Phase 6 finding.
 
+**Studio fresh pass (2026-08-18), four more slices landed** — swept every
+`src/views/studio/*.tsx` file for the same two idioms already established
+above: a bare sub-heading/kicker (`<h2>`/`<p>` in a `text-xs uppercase`
+tracked style, not wrapped in a `StudioPanel`) and a stat-label+big-number
+pair. Distinguished throughout from two look-alikes that were deliberately
+**left alone**: (1) `StudioPanel`'s own `title` prop and other
+panel-title-style `<h2 className="font-display text-lg font-bold">`
+headings paired with a description right under them (`StudioGoLiveView`'s
+"OBS credentials"/"Icecast credentials", `StudioShowDetailView`'s "Review
+before approve") — structurally identical to the shared `StudioPanel`
+title idiom the earlier "Studio panel consistency pass" already decided
+not to retheme; (2) `text-xs uppercase` `<span>`/`<dt>` immediately inside
+a `<label>` or `<dt>` — these are per-field form captions ("Description",
+"Start", "Bio", "Updated", …), not section labels, and Eyebrow-ing every
+form field would be exactly the "chrome for chrome's sake" the standing
+minimalism principle warns against. Also left `StudioVenuesView`'s
+`{venue.name}` heading untouched — a proper noun/data value, not a section
+label, same reasoning as not Eyebrow-ing artist/channel names elsewhere.
+  - `StudioArchiveItemView.tsx`: "Waveform preview" / "Revision history"
+    section headings → `Eyebrow`.
+  - `StudioTrackInsightsView.tsx`: "Plays"/"Downloads" stat tiles →
+    `Eyebrow` + `StatNumber`; "Downloads by day"/"Top countries" section
+    headings → `Eyebrow`.
+  - `StudioStatsDetailView.tsx`: "Plays — last {label}" stat →
+    `Eyebrow` + `StatNumber`.
+  - `StudioDistributionView.tsx`: "Releases" / "All royalty reports"
+    section headings → `Eyebrow`.
+  - `StudioShowDetailView.tsx`: "Episode #{n}" page kicker (directly above
+    the episode `<h1>`) → `Eyebrow` — the most literal match yet for
+    Eyebrow's own stated purpose ("mono eyebrows/kickers").
+  - `StudioVenuesView.tsx`: "Bookings" section label → `Eyebrow`.
+  - All four commits live-verified individually (Playwright + a real dev
+    server, `VITE_FORCE_MOCK=1`, logged in as `demo@tahti.live`): Studio
+    archive-item detail, track insights, stats detail, distribution,
+    venues, and an actual episode-detail page (reached via Shows → a show
+    series → an episode's "Open" link — the show-series overview page is a
+    different component from the one this slice edited, worth remembering
+    next time a "Shows" URL is screenshotted) all render the mono amber
+    label correctly. `pnpm exec tsc --noEmit` and `pnpm exec eslint` both
+    clean on every file touched (one Prettier formatting fix applied via
+    `eslint --fix`, then re-verified clean).
+  - Swept but **found nothing to change** in: `StudioGoLiveView.tsx`,
+    `StudioShowsView.tsx`, `StudioEditorListView.tsx`,
+    `StudioChannelView.tsx`, `StudioReleaseDetailView.tsx`,
+    `StudioCollectionEditView.tsx`, `StudioEventsView.tsx`,
+    `StudioProEditorView.tsx`, `StudioEditorProjectView.tsx` — all their
+    `text-xs uppercase` hits are form-field captions, per the "left alone"
+    reasoning above.
+  - **Not yet swept this pass:** `StudioReleasesView.tsx`,
+    `StudioPlaylistsView.tsx`, `StudioCollectionsView.tsx`,
+    `StudioScheduleView.tsx`, `StudioUploadView.tsx`,
+    `StudioSetupChannelView.tsx`, `StudioStashView.tsx`,
+    `StudioUpdatesView.tsx`, `StudioArchiveView.tsx`, `StudioProEditorView`
+    beyond the one hit checked, `StudioEmbedsView.tsx`/
+    `StudioModerationView.tsx` (claimed done by the earlier "Studio panel
+    consistency pass" but not re-confirmed in this pass the way the
+    `ArtistView.tsx` hex-grep note turned out to need re-checking) — same
+    two-idiom grep (`text-sm font-semibold tracking-wide uppercase` /
+    `font-display text-lg font-bold` / bare `text-xs uppercase` not inside
+    a `<label>`) should be run against each before calling Studio
+    exhaustive.
+
 **Status:** in progress. Depends on Phase 3–4 (done). This is the largest
 phase — splitting listener vs. studio surfaces into slices, as suggested
 below, rather than one giant commit. As of 2026-08-18: listener side is
 close — Channel page (header, archive, chat rail), artist profile, and
 Fan subscribe have each been walked and either themed or confirmed
-already compliant. Not yet walked: Studio surfaces beyond the slices
-already listed above (worth a fresh pass to confirm the earlier "Slices
-landed so far" list is actually exhaustive for Studio, the same way the
-Phase 7 hex-grep note turned out not to be exhaustive for `ArtistView.tsx`
-until re-checked), and the `docs/redesign-shots/` capture-matching
-checkbox.
+already compliant. Studio side: six more files themed this session (see
+above); roughly a dozen Studio views still unswept, plus the
+`docs/redesign-shots/` capture-matching checkbox.
 
 ## Phase 6 — Guardrails check
 
