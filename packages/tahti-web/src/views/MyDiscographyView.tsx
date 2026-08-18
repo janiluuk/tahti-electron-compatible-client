@@ -20,6 +20,8 @@ import {
   releasePlayables,
   ReleaseTracklistDialog,
 } from '../components/ReleaseTracklistDialog';
+import { TrackEditDialog } from '../components/TrackEditDialog';
+import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
 import { profileTrackToPlayable } from './ArtistView';
@@ -78,6 +80,7 @@ export function MyDiscographyView() {
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [tracklistRelease, setTracklistRelease] =
     useState<PublicProfileRelease | null>(null);
+  const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
 
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
@@ -312,6 +315,9 @@ export function MyDiscographyView() {
         <PlayableTrackTable
           items={catalogPlayables}
           emptyMessage="No playable tracks yet."
+          onEdit={(item) =>
+            setEditingArchiveId(archiveItemIdFromPlayableId(item.id))
+          }
         />
       </SectionShell>
 
@@ -321,6 +327,18 @@ export function MyDiscographyView() {
         release={tracklistRelease}
         artistName={artist}
         channelSlug={slug}
+      />
+
+      <TrackEditDialog
+        archiveItemId={editingArchiveId}
+        onClose={() => setEditingArchiveId(null)}
+        onSaved={() => {
+          if (user?.username) {
+            void fetchProfile(user.username).then((res) =>
+              setProfile(res.data),
+            );
+          }
+        }}
       />
     </div>
   );

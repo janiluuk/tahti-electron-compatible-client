@@ -32,6 +32,10 @@ export type TrackTableActions<T extends Track = Track> = {
   onRemove?: (track: T, index: number) => void;
   onPlayAll?: () => void;
   onAddAllToQueue?: () => void;
+  /** Opens an edit affordance for a track the caller has already decided
+   * is editable -- paired with meta.canEditTrack, which gates whether
+   * the icon renders at all per-row. */
+  onEdit?: (track: T) => void;
 };
 
 export type ContextMenuWrapperProps<T extends Track = Track> = {
@@ -68,6 +72,9 @@ export type TrackTableProps<T extends Track = Track> = {
   meta?: {
     isTrackFavorite?: (track: T) => boolean;
     isCurrentTrack?: (track: T) => boolean;
+    /** Per-row gate for actions.onEdit's icon -- absent/false hides it,
+     * same as onToggleFavorite/onAddToQueue being absent hides theirs. */
+    canEditTrack?: (track: T) => boolean;
     ContextMenuWrapper?: FC<ContextMenuWrapperProps<T>>;
   };
   rowHeight?: number;

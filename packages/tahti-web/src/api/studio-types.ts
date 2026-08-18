@@ -40,6 +40,7 @@ export type StudioArchivePatch = {
   isFallback?: boolean;
   commentsEnabled?: boolean;
   pinned?: boolean;
+  bannerUrl?: string | null;
 };
 
 export type StudioReleaseTrack = {

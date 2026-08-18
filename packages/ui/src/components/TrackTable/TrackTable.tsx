@@ -85,8 +85,10 @@ export function TrackTable<T extends Track = Track>({
       onAddToQueue: actions?.onAddToQueue,
       onToggleFavorite: actions?.onToggleFavorite,
       onRemove: actions?.onRemove,
+      onEdit: actions?.onEdit,
       isTrackFavorite: meta?.isTrackFavorite,
       isCurrentTrack: meta?.isCurrentTrack,
+      canEditTrack: meta?.canEditTrack,
       ContextMenuWrapper: meta?.ContextMenuWrapper,
     },
   });

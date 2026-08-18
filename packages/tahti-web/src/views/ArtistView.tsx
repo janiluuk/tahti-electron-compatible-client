@@ -28,6 +28,8 @@ import {
   ReleaseTracklistDialog,
 } from '../components/ReleaseTracklistDialog';
 import { Eyebrow } from '../components/tahti/Eyebrow';
+import { TrackEditDialog } from '../components/TrackEditDialog';
+import { archiveItemIdFromPlayableId } from '../lib/archiveId';
 import { isPinned } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -104,6 +106,7 @@ export function ArtistView({ username }: { username: string }) {
     PublicChannel,
     'visualPreset' | 'colorScheme' | 'colorSchemeJson'
   > | null>(null);
+  const [editingArchiveId, setEditingArchiveId] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const play = usePlayerStore((s) => s.play);
@@ -538,6 +541,12 @@ export function ArtistView({ username }: { username: string }) {
                   ? 'No other tracks on this profile.'
                   : 'No playable tracks on this profile.'
               }
+              onEdit={
+                isOwner
+                  ? (item) =>
+                      setEditingArchiveId(archiveItemIdFromPlayableId(item.id))
+                  : undefined
+              }
             />
           </div>
         </section>
@@ -657,6 +666,14 @@ export function ArtistView({ username }: { username: string }) {
         release={tracklistRelease}
         artistName={artist.displayName}
         channelSlug={channel?.slug}
+      />
+
+      <TrackEditDialog
+        archiveItemId={editingArchiveId}
+        onClose={() => setEditingArchiveId(null)}
+        onSaved={() => {
+          void fetchProfile(username).then((res) => setProfile(res.data));
+        }}
       />
 
       <Dialog.Root

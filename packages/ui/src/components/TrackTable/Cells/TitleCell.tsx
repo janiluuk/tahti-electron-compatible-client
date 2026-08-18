@@ -1,5 +1,5 @@
 import { CellContext } from '@tanstack/react-table';
-import { EllipsisVertical, Plus } from 'lucide-react';
+import { EllipsisVertical, Pencil, Plus } from 'lucide-react';
 import { FC, forwardRef } from 'react';
 
 import { Track } from '@nuclearplayer/model';
@@ -12,9 +12,33 @@ import { ContextMenuWrapperProps } from '../types';
 type TitleCellMeta = {
   displayQueueControls?: boolean;
   onAddToQueue?: (track: Track) => void;
+  onEdit?: (track: Track) => void;
   isCurrentTrack?: (track: Track) => boolean;
+  canEditTrack?: (track: Track) => boolean;
   ContextMenuWrapper?: FC<ContextMenuWrapperProps>;
 };
+
+type EditButtonProps = {
+  label: string;
+  onClick: () => void;
+};
+
+const EditButton: FC<EditButtonProps> = ({ label, onClick }) => (
+  <Button
+    data-testid="edit-track-button"
+    size="icon-sm"
+    variant="text"
+    className="opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick();
+    }}
+    aria-label={label}
+    title={label}
+  >
+    <Pencil size={14} />
+  </Button>
+);
 
 type AddToQueueButtonProps = {
   label: string;
@@ -72,7 +96,8 @@ export const TitleCell = <T extends Track>({
   const track = row.original;
   const hasAddToQueue = Boolean(meta?.onAddToQueue);
   const hasContextMenu = Boolean(ContextMenuWrapper);
-  const hasActions = hasAddToQueue || hasContextMenu;
+  const canEdit = Boolean(meta?.onEdit && meta.canEditTrack?.(track));
+  const hasActions = hasAddToQueue || hasContextMenu || canEdit;
   const isCurrent = meta?.isCurrentTrack?.(track) ?? false;
 
   return (
@@ -96,6 +121,12 @@ export const TitleCell = <T extends Track>({
               <AddToQueueButton
                 label={labels.addToQueue}
                 onClick={() => meta?.onAddToQueue?.(track)}
+              />
+            )}
+            {canEdit && (
+              <EditButton
+                label="Edit track"
+                onClick={() => meta?.onEdit?.(track)}
               />
             )}
             {ContextMenuWrapper && (

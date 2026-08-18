@@ -11,11 +11,16 @@ import { PlayableTrackContextMenu } from './PlayableTrackContextMenu';
 type Props = {
   items: TahtiPlayable[];
   emptyMessage?: string;
+  /** Present only when the caller has already decided the viewer can
+   * edit these tracks (e.g. their own catalog) -- omit entirely to keep
+   * the edit icon off tables of other people's/aggregated tracks. */
+  onEdit?: (item: TahtiPlayable) => void;
 };
 
 export function PlayableTrackTable({
   items,
   emptyMessage = 'No tracks yet.',
+  onEdit,
 }: Props) {
   const play = usePlayerStore((s) => s.play);
   const enqueue = usePlayerStore((s) => s.enqueue);
@@ -91,11 +96,20 @@ export function PlayableTrackTable({
               toggleFavoriteTrack(item);
             }
           },
+          onEdit: onEdit
+            ? (track) => {
+                const item = resolve(track);
+                if (item) {
+                  onEdit(item);
+                }
+              }
+            : undefined,
         }}
         meta={{
           isTrackFavorite: (track) =>
             favoriteTracks.some((t) => t.id === track.source.id),
           isCurrentTrack: (track) => track.source.id === currentId,
+          canEditTrack: onEdit ? () => true : undefined,
           ContextMenuWrapper: PlayableTrackContextMenu,
         }}
       />
