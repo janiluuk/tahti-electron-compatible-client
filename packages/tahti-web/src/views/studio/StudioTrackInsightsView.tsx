@@ -11,6 +11,8 @@ import {
 } from '../../api/track-insights';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
+import { StatNumber } from '../../components/tahti/StatNumber';
 
 const PERIODS: InsightsPeriod[] = ['7d', '30d', 'all'];
 
@@ -86,26 +88,22 @@ export function StudioTrackInsightsView({
           <>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <div className="border-border rounded-lg border p-4">
-                <p className="text-foreground-secondary text-xs uppercase">
-                  Plays
-                </p>
-                <p className="font-display text-2xl font-bold">
+                <Eyebrow>Plays</Eyebrow>
+                <StatNumber className="mt-1 block text-2xl">
                   {insights.totalPlays.toLocaleString()}
-                </p>
+                </StatNumber>
               </div>
               <div className="border-border rounded-lg border p-4">
-                <p className="text-foreground-secondary text-xs uppercase">
-                  Downloads
-                </p>
-                <p className="font-display text-2xl font-bold">
+                <Eyebrow>Downloads</Eyebrow>
+                <StatNumber className="mt-1 block text-2xl">
                   {insights.totalDownloads.toLocaleString()}
-                </p>
+                </StatNumber>
               </div>
             </div>
 
             <section className="flex flex-col gap-2">
-              <h2 className="font-display text-lg font-bold">
-                Downloads by day
+              <h2>
+                <Eyebrow>Downloads by day</Eyebrow>
               </h2>
               {insights.daily.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
@@ -132,7 +130,9 @@ export function StudioTrackInsightsView({
             </section>
 
             <section className="flex flex-col gap-2">
-              <h2 className="font-display text-lg font-bold">Top countries</h2>
+              <h2>
+                <Eyebrow>Top countries</Eyebrow>
+              </h2>
               {insights.countries.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
                   No geo data yet.

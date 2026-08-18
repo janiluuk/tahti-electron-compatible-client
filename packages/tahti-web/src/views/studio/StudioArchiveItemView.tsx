@@ -23,6 +23,7 @@ import {
 } from '../../api/studio-types';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
 import {
   countPinnedTracks,
@@ -323,8 +324,8 @@ export function StudioArchiveItemView({ id }: { id: string }) {
             )}
 
             <section className="flex flex-col gap-3">
-              <h2 className="text-foreground-secondary text-xs tracking-wide uppercase">
-                Waveform preview
+              <h2>
+                <Eyebrow>Waveform preview</Eyebrow>
               </h2>
               <WaveformCanvas
                 peaks={peaks}
@@ -364,8 +365,8 @@ export function StudioArchiveItemView({ id }: { id: string }) {
 
             {versions.length > 0 && (
               <section className="flex flex-col gap-2">
-                <h2 className="text-foreground-secondary text-xs tracking-wide uppercase">
-                  Revision history
+                <h2>
+                  <Eyebrow>Revision history</Eyebrow>
                 </h2>
                 <p className="text-foreground-secondary text-xs">
                   Every save or quick fix creates a new version — older ones

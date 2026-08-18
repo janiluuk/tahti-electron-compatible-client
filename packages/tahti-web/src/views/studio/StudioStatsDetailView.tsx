@@ -9,6 +9,8 @@ import {
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
+import { StatNumber } from '../../components/tahti/StatNumber';
 
 const RANGES: StatsPlaysRange[] = ['7', '30', 'all'];
 
@@ -93,12 +95,10 @@ export function StudioStatsDetailView() {
         ) : (
           <>
             <StudioPanel>
-              <div className="text-foreground-secondary text-xs tracking-wide uppercase">
-                Plays — last {label}
-              </div>
-              <p className="font-display mt-1 text-3xl font-bold tracking-tight">
+              <Eyebrow>Plays — last {label}</Eyebrow>
+              <StatNumber className="mt-1 block text-3xl">
                 {data.totalPlays.toLocaleString()}
-              </p>
+              </StatNumber>
               <p className="text-foreground-secondary mt-1 text-xs">
                 {data.totalDownloads.toLocaleString()} downloads
                 {data.totalSmartLinkClicks != null
