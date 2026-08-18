@@ -19,6 +19,7 @@ import { uploadArchiveFile } from '../../api/studio';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { EpisodeSourceIcon, episodeStatusLabel } from './StudioShowsView';
 
 export function StudioShowDetailView({ id }: { id: string }) {
@@ -483,9 +484,7 @@ export function StudioEpisodeReviewView({ episodeId }: { episodeId: string }) {
         </Link>
 
         <header>
-          <p className="text-foreground-secondary text-xs tracking-wide uppercase">
-            Episode #{episode.episodeNumber}
-          </p>
+          <Eyebrow className="block">Episode #{episode.episodeNumber}</Eyebrow>
           <h1 className="font-display text-3xl font-extrabold tracking-tight">
             {episode.title}
           </h1>

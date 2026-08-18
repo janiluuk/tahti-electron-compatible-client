@@ -12,6 +12,7 @@ import {
 } from '../../api/venues-manage';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
 
 function VenueCard({
   venue,
@@ -91,9 +92,7 @@ function VenueCard({
       </div>
 
       <div className="border-border border-t pt-4">
-        <p className="text-foreground-secondary mb-2 text-xs uppercase">
-          Bookings
-        </p>
+        <Eyebrow className="mb-2 block">Bookings</Eyebrow>
         {upcoming.length === 0 ? (
           <p className="text-foreground-secondary text-sm">
             No upcoming bookings.
