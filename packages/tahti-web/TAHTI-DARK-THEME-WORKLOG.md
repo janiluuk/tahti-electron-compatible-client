@@ -418,16 +418,36 @@ slices already done — Studio home/Go Live/Studio stats/Revenue):
   Centrifugo connection to exercise the chat "Live" indicator itself,
   but it's a font-only change with no colour risk).
 
+- Public artist profile (`ArtistView.tsx`) Pinned/Latest releases/Catalog
+  sub-headings → `Eyebrow`; Collection type tag → `font-mono`. Same idiom
+  as the slice above.
+  - **Correction to the Phase 7 grep note:** that note assumed every hex
+    hit in `ArtistView.tsx` was the legitimate channel-designer
+    brand-accent system and left the file alone. Re-checked while in this
+    file for the sub-heading slice: the file's actual hex hits were
+    `GLOW_COLORS`, a 6-colour `#hex` array driving `GlowMediaTile`'s hover
+    glow on pinned-track/release tiles — unrelated to per-artist brand
+    customization, a genuine golden-rule violation. Fixed: now
+    `var(--color-accent-{purple,cyan,red,green,yellow,blue})`, tokens that
+    already have a value in all six themes (confirmed in `global.css` and
+    `tahti-dark.css`). Live-verified via Playwright hover — the glow still
+    renders in the mapped colour, chained `var()` resolution works fine
+    through `GlowMediaTile`'s `--glow-color` custom property. This was the
+    reason to **not** take a Phase 7 exemption note at face value without
+    re-deriving it — the note's file-level bucketing was right for
+    `channelPageLayout.ts`/`channel-design.ts` but wrong for this
+    particular file's specific hex use.
+
 **Still open, listener side:** Channel page's remaining chrome (visualizer
 hero copy, links/about blocks — spot-checked, already token-driven; the
 channel-design *editor* chrome itself, e.g. the "Channel design" header
-and drag-layer labels, not yet passed for mono treatment), the public
-artist profile (`/u/$username` → `ArtistView.tsx`, 640 lines — not yet
-reviewed for chrome-level theming; note its per-artist channel-designer
-brand-accent hex is a separate, intentional customization system per the
-Phase 7 finding, not a golden-rule violation to fix here), Fan subscribe
-(spot-checked — already fully token-driven, no violation found, but tier
-price/CTA not yet given a deliberate themed treatment).
+and drag-layer labels in `ChannelLayersMenu.tsx` — spot-checked, no
+violation: its tab selector uses `bg-primary` for the active state the
+same way other tab bars in this app do, converting labels to mono/Eyebrow
+there would remove that active/inactive distinction rather than improve
+it, so left as-is), Fan subscribe (spot-checked — already fully
+token-driven, no violation found, but tier price/CTA not yet given a
+deliberate themed treatment).
 
 **Status:** in progress. Depends on Phase 3–4 (done). This is the largest
 phase — splitting listener vs. studio surfaces into slices, as suggested
@@ -530,11 +550,28 @@ grep -RInE '(bg|text|border|from|to|via|fill|stroke)-\[#' packages/tahti-web/src
   the actual `test`/`storybook` commands themselves are still unrun and
   should be before calling this phase fully closed.
 - **Hex greps — not clean, with a specific reason:**
-  - Hex-outside-theme-layer grep: **9 files** still match —
+  - Hex-outside-theme-layer grep: **originally 9 files** —
     `channelPageLayout.ts`, `ArtistView.tsx`, `channel-design.ts`,
     `ChannelVisualizer.tsx`, `mock.ts`, `ChannelDesigner.tsx`,
     `ChannelView.tsx`, `SourceServiceIcon.tsx`, `flowDiagrams.ts`. Tailwind
     arbitrary-hex grep: **1 file** (`ChannelView.tsx`, `bg-[#0B0F14]`).
+    **Re-run 2026-08-18 after the Phase 5 slices above: down to 7 files**
+    — `ChannelView.tsx`'s arbitrary-hex hit and `ArtistView.tsx`'s
+    plain-hex hits (`GLOW_COLORS`, see the Phase 5 slice log) are both
+    now fixed. Remaining 7, individually re-read (not re-derived blindly
+    from the old bucketing) and confirmed as three legitimate,
+    non-overlapping categories: **channel-designer brand-accent/colour-
+    scheme system** (`channelPageLayout.ts`, `channel-design.ts`,
+    `ChannelVisualizer.tsx`, `mock.ts`, `ChannelDesigner.tsx` — per-artist
+    `accent`/`highlight`/`background`/`foreground` hex, the customization
+    system itself); **Mermaid diagram `classDef` colours**
+    (`flowDiagrams.ts` — diagram styling, not app UI); and **third-party
+    service brand colours** (`SourceServiceIcon.tsx` — Bandcamp teal,
+    SoundCloud orange, Google Drive navy, etc., identifying an external
+    service's own brand, the same reason a "Sign in with Google" button
+    keeps Google's blue rather than the host app's accent colour — not
+    previously called out as its own category, but the same "don't
+    retheme identity that isn't ours" logic applies).
   - **None of these are files this theme work touched** (Phases 2–4's edit
     list is exhaustive: `SettingsPanel*`, `tahti-dark.css`,
     `themes/src/index.ts`, `basic/index.ts`, `themeStore.ts`, the 4
