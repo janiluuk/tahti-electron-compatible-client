@@ -25,6 +25,8 @@ import {
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PageEmpty, PageLoading } from '../components/PageStates';
 import { RadioBookingCalendar } from '../components/RadioBookingCalendar';
+import { Eyebrow } from '../components/tahti/Eyebrow';
+import { OnAirBadge } from '../components/tahti/OnAirBadge';
 import { TrackInfoDialog, type TrackInfo } from '../components/TrackInfoDialog';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
@@ -184,15 +186,15 @@ export function RadioView() {
               <div className="text-foreground text-2xl font-bold tracking-tight">
                 {station.user.displayName}
               </div>
-              <div className="text-foreground-secondary text-sm">
-                @{TAHTI_RADIO_SLUG}
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="text-foreground-secondary">
+                  @{TAHTI_RADIO_SLUG}
+                </span>
                 {online ? (
-                  <span className="text-foreground-secondary ml-2 text-xs tracking-wide uppercase">
-                    · On air
-                  </span>
+                  <OnAirBadge />
                 ) : (
-                  <span className="ml-2 text-xs tracking-wide text-amber-500 uppercase">
-                    · Offline
+                  <span className="text-accent-red font-mono text-xs font-semibold tracking-wide uppercase">
+                    Offline
                   </span>
                 )}
               </div>
@@ -254,9 +256,7 @@ export function RadioView() {
               </div>
               <div className="relative z-10 flex flex-col gap-4 p-4 sm:p-5">
                 <div>
-                  <div className="text-foreground-secondary text-xs tracking-wide uppercase">
-                    Now playing
-                  </div>
+                  <Eyebrow>Now playing</Eyebrow>
                   {nowPlaying?.title ? (
                     <button
                       type="button"
