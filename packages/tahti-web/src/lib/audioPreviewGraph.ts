@@ -90,39 +90,48 @@ export function useAudioPreviewGraph(
       chainNodesRef.current.push(node);
     };
 
-    if (editList.eq.enabled) {
-      for (const band of editList.eq.bands) {
+    // Follows the user's own drag-ordered chain instead of a fixed
+    // sequence -- reordering plugins in the UI actually changes what you
+    // hear, not just their display order. loudnorm isn't representable
+    // as a single real-time node (it needs a full-pass loudness
+    // analysis), so it stays render/export-only, same as the doc note
+    // on this hook already says for the limiter approximation.
+    for (const id of editList.pluginChain ?? []) {
+      if (id === 'eq' && editList.eq.enabled) {
+        for (const band of editList.eq.bands) {
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'peaking';
+          filter.frequency.value = band.freq;
+          filter.Q.value = band.q;
+          filter.gain.value = band.gainDb;
+          connect(filter);
+        }
+      } else if (id === 'comp' && editList.comp.enabled) {
+        const comp = ctx.createDynamicsCompressor();
+        comp.threshold.value = editList.comp.thresholdDb;
+        comp.ratio.value = editList.comp.ratio;
+        comp.attack.value = editList.comp.attackMs / 1000;
+        comp.release.value = editList.comp.releaseMs / 1000;
+        connect(comp);
+        if (editList.comp.makeupDb !== 0) {
+          const makeup = ctx.createGain();
+          makeup.gain.value = Math.pow(10, editList.comp.makeupDb / 20);
+          connect(makeup);
+        }
+      } else if (id === 'limiter' && editList.limiter.enabled) {
+        const limiter = ctx.createDynamicsCompressor();
+        limiter.threshold.value = editList.limiter.ceilingDb;
+        limiter.knee.value = 0;
+        limiter.ratio.value = 20;
+        limiter.attack.value = 0.001;
+        limiter.release.value = editList.limiter.releaseMs / 1000;
+        connect(limiter);
+      } else if (id === 'filter' && editList.filter.enabled) {
         const filter = ctx.createBiquadFilter();
-        filter.type = 'peaking';
-        filter.frequency.value = band.freq;
-        filter.Q.value = band.q;
-        filter.gain.value = band.gainDb;
+        filter.type = editList.filter.mode;
+        filter.frequency.value = editList.filter.freq;
         connect(filter);
       }
-    }
-
-    if (editList.comp.enabled) {
-      const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = editList.comp.thresholdDb;
-      comp.ratio.value = editList.comp.ratio;
-      comp.attack.value = editList.comp.attackMs / 1000;
-      comp.release.value = editList.comp.releaseMs / 1000;
-      connect(comp);
-      if (editList.comp.makeupDb !== 0) {
-        const makeup = ctx.createGain();
-        makeup.gain.value = Math.pow(10, editList.comp.makeupDb / 20);
-        connect(makeup);
-      }
-    }
-
-    if (editList.limiter.enabled) {
-      const limiter = ctx.createDynamicsCompressor();
-      limiter.threshold.value = editList.limiter.ceilingDb;
-      limiter.knee.value = 0;
-      limiter.ratio.value = 20;
-      limiter.attack.value = 0.001;
-      limiter.release.value = editList.limiter.releaseMs / 1000;
-      connect(limiter);
     }
 
     const gain = ctx.createGain();

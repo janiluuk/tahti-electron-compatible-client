@@ -121,10 +121,19 @@ export type EditorProjectDetail = EditorProjectRow & {
 
 export type EditCut = { start: number; end: number };
 
+/** Addable mastering plugins in the pro editor's chain -- gain and
+ * loudness normalization are always-on quick controls, not chain
+ * members. */
+export type ProEditorPluginId = 'eq' | 'comp' | 'limiter' | 'filter';
+
 export type EditList = {
   version: 1;
   sourceDuration: number;
   cuts: EditCut[];
+  /** Order the active plugins render/process in -- a subset of the
+   * addable ProEditorPluginId set. Absent on older drafts; callers treat
+   * that the same as an empty chain. */
+  pluginChain?: ProEditorPluginId[];
   fades: Array<{
     type: 'in' | 'out';
     at: number;
@@ -297,6 +306,7 @@ export function createDefaultEditList(sourceDuration: number): EditList {
     sourceDuration: Math.max(sourceDuration, 0.001),
     cuts: [],
     fades: [],
+    pluginChain: [],
     gainDb: 0,
     eq: {
       enabled: false,
