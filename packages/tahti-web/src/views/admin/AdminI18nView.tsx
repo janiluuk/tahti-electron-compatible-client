@@ -112,7 +112,7 @@ export function AdminI18nView() {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{lang.name}</span>
-                        <span className="text-foreground-secondary text-xs uppercase">
+                        <span className="text-foreground-secondary font-mono text-xs uppercase">
                           {lang.code}
                         </span>
                         {lang.isDefault && (

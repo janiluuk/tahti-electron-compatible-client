@@ -7,6 +7,8 @@ import { fetchAdminDashboard, type AdminDashboard } from '../../api/admin';
 import { AdminGate } from '../../components/AdminGate';
 import { AdminNav } from '../../components/AdminNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
+import { Eyebrow } from '../../components/tahti/Eyebrow';
+import { StatNumber } from '../../components/tahti/StatNumber';
 
 function euros(cents: number): string {
   return `€${(cents / 100).toLocaleString('fi-FI', { minimumFractionDigits: 0 })}`;
@@ -61,12 +63,10 @@ export function AdminDashboardView() {
                 ] as const
               ).map(([label, value]) => (
                 <StudioPanel key={label} className="!p-4 sm:!p-5">
-                  <div className="text-foreground-secondary text-xs uppercase">
-                    {label}
-                  </div>
-                  <div className="font-display mt-1 text-2xl font-bold tracking-tight">
+                  <Eyebrow>{label}</Eyebrow>
+                  <StatNumber className="mt-1 block text-2xl">
                     {value.toLocaleString()}
-                  </div>
+                  </StatNumber>
                 </StudioPanel>
               ))}
             </div>

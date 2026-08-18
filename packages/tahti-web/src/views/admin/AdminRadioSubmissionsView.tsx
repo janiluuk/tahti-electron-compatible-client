@@ -208,7 +208,7 @@ export function AdminRadioSubmissionsView() {
                         {new Date(row.createdAt).toLocaleDateString()}
                       </div>
                     </button>
-                    <span className="text-foreground-secondary text-xs uppercase">
+                    <span className="text-foreground-secondary font-mono text-xs uppercase">
                       {row.status}
                     </span>
                   </li>

@@ -676,6 +676,40 @@ design → Look → Colors/Header sub-tabs show "BRAND ACCENT"/"HEADER
 STYLE", including the Tahti swatch/preset from the Phase 4 slice
 rendering correctly alongside the new headings.
 
+**Admin views (2026-08-18), previously deferred:** swept `views/admin/*`
+(21 files) with the same grep — lower priority than the fan/artist-facing
+surfaces (staff tooling, not in the README's feature list), but picked up
+as the sweep's last corner. 4 files had hits:
+
+- `AdminDashboardView.tsx`: the 4-tile KPI row ("Active members", "Live
+  now", "Beta queue", "Open tickets") was a bare label + big number pair —
+  the exact stat-tile idiom already converted everywhere else
+  (`StudioTrackInsightsView.tsx`'s Plays/Downloads, Revenue's grant
+  estimate) → `Eyebrow` + `StatNumber` (`className="mt-1 block text-2xl"`,
+  matching the existing downsized-tile convention).
+- `AdminI18nView.tsx`: each language row's code (`EN`/`FI`/`SV`) is a
+  per-item data value next to the language name, not a section heading →
+  `font-mono` only (same "mono for labels/data" rule as the stem-job
+  status and OFFLINE-pill precedents), colour left untouched.
+- `AdminRadioSubmissionsView.tsx`: each submission row's status
+  (`PENDING`) is the same per-item data-value case → `font-mono` only.
+  (A second hit in this file and two in `AdminNewsView.tsx` were
+  `<label>`-wrapped form captions — "Rejection note", "Summary" — left
+  alone per the established rule.)
+
+`tsc --noEmit` / `eslint` clean on all three edited files. Live-verified
+via scripted Playwright with an `isBoard: true` mock user injected into
+`tahti-web-auth` localStorage (bypassing the `AdminGate` role check, same
+technique the repo's own `scripts/capture-redesign-shots.mjs` uses):
+`/admin` shows all four KPI tiles rendering as amber mono labels over
+large tabular-nums numbers; `/admin/i18n` shows "EN"/"FI"/"SV" in mono
+next to each language name; `/admin/radio-submissions` shows "PENDING" in
+mono on both queued rows. This closes out the last unswept surface
+category from Phase 5's sub-heading/kicker sweep — every `.tsx` file
+under `views/` and `components/` matching the two established heading
+idioms has now been checked, not just Listener/Studio/the README's named
+surfaces.
+
 ## Phase 6 — Guardrails check
 
 - [x] Accessibility: text on ink ≥ 4.5:1. — Computed (WCAG relative
