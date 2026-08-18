@@ -387,8 +387,10 @@ implied (not decoratively everywhere).
 
 - [x] Match the existing capture set in `docs/redesign-shots/` (currently 77
       files) so before/after is comparable — same filenames/framing where a
-      shot already exists for that surface. — **44/77 refreshed
-      2026-08-18** via a new resilient capture script,
+      shot already exists for that surface. — **68/77 refreshed
+      2026-08-18** (44 in the first pass below, then the 22 deferred
+      `admin-*` shots + `studio-updates-newsletter-v1.png` in a follow-up
+      pass — see "Admin + newsletter capture pass" below) via a new resilient capture script,
       `scripts/capture-tahti-dark-refresh.mjs` (same pattern as the
       existing `scripts/capture-redesign-shots.mjs`/`capture-atlas-shots.mjs`:
       injects a mock `demo@tahti.live` session into `tahti-web-auth`
@@ -750,6 +752,31 @@ category from Phase 5's sub-heading/kicker sweep — every `.tsx` file
 under `views/` and `components/` matching the two established heading
 idioms has now been checked, not just Listener/Studio/the README's named
 surfaces.
+
+**Admin + newsletter capture pass (2026-08-18):** extended
+`scripts/capture-tahti-dark-refresh.mjs` with a `boardAuthAs()` pass
+(isBoard:true, separate from the regular demo-artist mock) and 22 of the
+24 `admin-*` filenames — excluding `admin-dashboard-expanded-v1.png` /
+`admin-*-preview-v1.png`, which imply a specific dynamic state, same
+"don't guess a misleading capture" reasoning as their listener/studio
+counterparts. Two of the 66 total captures in that run came back at the
+same 5,388-byte blank-page signature already documented above
+(`admin-announcements-v1.png`, `admin-feature-requests-v1.png`) — caught
+by the same file-size check, re-captured individually with a longer
+settle wait, confirmed real content. Also captured
+`studio-updates-newsletter-v1.png` (StudioUpdatesView's Newsletter tab is
+local `useState`, not URL-addressable — scripted a
+`getByRole('tab', {name: /newsletter/i}).click()`; first attempt used a
+looser `page.click('text=Newsletter')` and silently screenshotted the
+still-selected Posts tab instead, caught by eyeballing the image, not
+assumed correct from a clean run). **Now 68/77 refreshed.** Remaining 9
+un-refreshed are exactly the ones flagged as needing a specific
+interaction/ID this pass didn't attempt to reverse-engineer:
+`admin-dashboard-expanded-v1.png`, `admin-selects-preview-v1.png`,
+`admin-top-lists-preview-v1.png`, `feed-play-consistency-v1.png`,
+`listen-artist-rich-v1.png`, `studio-collection-editor-play-v1.png`,
+`studio-editor-project-v1.png`, `studio-editor-project-wide-v1.png`,
+`studio-playlist-editor-play-v1.png`.
 
 ## Phase 6 — Guardrails check
 
