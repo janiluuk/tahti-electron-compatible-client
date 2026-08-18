@@ -22,6 +22,7 @@
   --color-foreground-input: var(--foreground-input);
 
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
 
   --color-border: var(--border);
   --color-border-input: var(--border-input);
@@ -81,6 +82,12 @@
 
   /* Interactive Elements */
   --primary: oklch(0.8 0.12 4.56);
+  /* Text/icon colour for content placed on a --primary fill (e.g. Card's
+     title, Button's default variant) -- computed per-theme (culori
+     wcagContrast) so every theme/light/dark variant clears 4.5:1, not
+     assumed; overridden per-theme below and in packages/themes where a
+     variant's own --primary needs the other extreme to pass. */
+  --primary-foreground: oklch(0 0 0);
 
   /* Borders & Outlines */
   --border: oklch(0% 0 0);
@@ -167,6 +174,7 @@
   --foreground-input: oklch(0.93 0 0);
 
   --primary: oklch(0.5 0.1 5);
+  --primary-foreground: oklch(1 0 0);
 
   --border: oklch(0.48 0.04 5);
   --border-input: var(--border);

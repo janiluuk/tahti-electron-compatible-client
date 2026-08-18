@@ -4,15 +4,15 @@ import { ComponentProps, FC, ReactNode } from 'react';
 import { cn } from '../../utils';
 
 const boxVariants = cva(
-  'border-border text-foreground flex h-full w-full rounded-md border-(length:--border-width) p-4',
+  'border-border flex h-full w-full rounded-md border-(length:--border-width) p-4',
   {
     variants: {
       variant: {
-        primary: 'bg-primary',
-        secondary: 'bg-background',
-        tertiary: 'bg-background-secondary',
+        primary: 'bg-primary text-primary-foreground',
+        secondary: 'bg-background text-foreground',
+        tertiary: 'bg-background-secondary text-foreground',
         warning:
-          'bg-accent-orange/30 ring-accent-orange ring ring-2 ring-inset',
+          'bg-accent-orange/30 text-foreground ring-accent-orange ring ring-2 ring-inset',
       },
       shadow: {
         default: 'shadow-shadow',

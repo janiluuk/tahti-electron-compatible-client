@@ -55,7 +55,7 @@ export const Card: FC<CardProps> = ({
       role={onClick && !hasOverlays ? 'button' : undefined}
       tabIndex={onClick && !hasOverlays ? 0 : undefined}
       className={cn(
-        'text-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all',
+        'text-primary-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all',
         onClick &&
           !hasOverlays &&
           'hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none',
@@ -115,20 +115,20 @@ export const Card: FC<CardProps> = ({
                   e.stopPropagation();
                   onTitleClick();
                 }}
-                className="text-foreground block w-full truncate text-left text-sm font-bold hover:underline"
+                className="text-primary-foreground block w-full truncate text-left text-sm font-bold hover:underline"
               >
                 {title}
               </button>
             ) : (
               <div
                 data-testid="card-title"
-                className="text-foreground truncate text-sm font-bold"
+                className="text-primary-foreground truncate text-sm font-bold"
               >
                 {title}
               </div>
             ))}
           {subtitle && (
-            <div className="text-foreground truncate text-xs opacity-60">
+            <div className="text-primary-foreground truncate text-xs opacity-60">
               {subtitle}
             </div>
           )}
