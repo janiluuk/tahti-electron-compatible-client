@@ -20,6 +20,7 @@ import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
 import { WaveformMinimap } from '../../components/WaveformMinimap';
+import { useAudioPreviewGraph } from '../../lib/audioPreviewGraph';
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec)) {
@@ -55,6 +56,19 @@ export function StudioProEditorView({
   const [markers, setMarkers] = useState<number[]>([]);
   const [viewStart, setViewStart] = useState(0);
   const [viewEnd, setViewEnd] = useState(1);
+  const [previewingSelection, setPreviewingSelection] = useState(false);
+  const selectionRef = useRef(selection);
+  const previewingSelectionRef = useRef(previewingSelection);
+
+  useAudioPreviewGraph(audioRef, editList);
+
+  useEffect(() => {
+    selectionRef.current = selection;
+  }, [selection]);
+
+  useEffect(() => {
+    previewingSelectionRef.current = previewingSelection;
+  }, [previewingSelection]);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,17 +110,47 @@ export function StudioProEditorView({
     if (!audio || !sourceUrl) {
       return;
     }
+    // crossOrigin is required for the live plugin-preview graph (see
+    // useAudioPreviewGraph) -- without it, connecting a
+    // MediaElementAudioSourceNode to a cross-origin source silently
+    // zeroes all audio output, playback included, once anything touches
+    // the Web Audio graph. If the source doesn't actually serve CORS
+    // headers, setting crossOrigin instead makes the browser refuse to
+    // load it at all -- fall back to a plain, non-CORS load so playback
+    // at least still works (live preview just won't be audible for that
+    // source), same "attempt then degrade" discipline as the peaks
+    // fallback below.
+    audio.crossOrigin = 'anonymous';
     audio.src = sourceUrl;
-    const onTime = () => setCurrentTime(audio.currentTime);
+    const onTime = () => {
+      setCurrentTime(audio.currentTime);
+      if (
+        previewingSelectionRef.current &&
+        selectionRef.current &&
+        audio.currentTime >= selectionRef.current.end
+      ) {
+        audio.pause();
+        setPreviewingSelection(false);
+      }
+    };
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
+    const onError = () => {
+      if (audio.crossOrigin) {
+        audio.crossOrigin = null;
+        audio.src = sourceUrl;
+        audio.load();
+      }
+    };
     audio.addEventListener('timeupdate', onTime);
     audio.addEventListener('play', onPlay);
     audio.addEventListener('pause', onPause);
+    audio.addEventListener('error', onError);
     return () => {
       audio.removeEventListener('timeupdate', onTime);
       audio.removeEventListener('play', onPlay);
       audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('error', onError);
     };
   }, [sourceUrl]);
 
@@ -188,11 +232,23 @@ export function StudioProEditorView({
     if (!audio) {
       return;
     }
+    setPreviewingSelection(false);
     if (audio.paused) {
       void audio.play().catch(() => undefined);
     } else {
       audio.pause();
     }
+  };
+
+  const previewSelection = () => {
+    const audio = audioRef.current;
+    if (!audio || !selection) {
+      return;
+    }
+    setPreviewingSelection(true);
+    audio.currentTime = selection.start;
+    setCurrentTime(selection.start);
+    void audio.play().catch(() => undefined);
   };
 
   const addCutFromSelection = () => {
@@ -380,6 +436,16 @@ export function StudioProEditorView({
                   size="sm"
                   variant="secondary"
                   disabled={!selection}
+                  onClick={previewSelection}
+                  title="Play just the selection, through the enabled EQ/Compressor/Limiter"
+                >
+                  <PlayIcon size={16} aria-hidden className="mr-1.5" />
+                  {previewingSelection ? 'Previewing…' : 'Preview selection'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!selection}
                   onClick={addCutFromSelection}
                 >
                   Cut selection
@@ -442,7 +508,10 @@ export function StudioProEditorView({
               )}
             </StudioPanel>
 
-            <StudioPanel title="Mastering">
+            <StudioPanel
+              title="Mastering"
+              description="Enabled effects are audible live in Play and Preview selection — this is a real-time approximation for monitoring, not the final render."
+            >
               <div className="grid gap-6 lg:grid-cols-3">
                 <div className="flex flex-col gap-2">
                   <label className="flex items-center gap-2 text-sm">
