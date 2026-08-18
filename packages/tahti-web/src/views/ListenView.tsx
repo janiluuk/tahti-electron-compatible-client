@@ -387,7 +387,7 @@ export function ListenView() {
                     }
                     subtitle={
                       <>
-                        {ch.live && <span className="text-primary">Live</span>}
+                        {ch.live && <span className="font-semibold">Live</span>}
                         {ch.live && ' · '}
                         <span className="font-mono">
                           {ch.genres.slice(0, 2).join(', ') || ch.slug}
