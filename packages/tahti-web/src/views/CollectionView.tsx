@@ -5,6 +5,7 @@ import { fetchCollection } from '../api/client';
 import type { PublicCollection, TahtiPlayable } from '../api/types';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { Eyebrow } from '../components/tahti/Eyebrow';
 
 function collectionToPlayables(col: PublicCollection): TahtiPlayable[] {
   const out: TahtiPlayable[] = [];
@@ -109,7 +110,9 @@ export function CollectionView({
 
       {collection.items.some((i) => i.release && !i.archiveItem) && (
         <section className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-bold">Linked releases</h2>
+          <h2>
+            <Eyebrow>Linked releases</Eyebrow>
+          </h2>
           <ul className="text-sm">
             {collection.items
               .filter((i) => i.release)
