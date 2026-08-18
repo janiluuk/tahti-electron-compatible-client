@@ -25,18 +25,19 @@ import {
   releasePlayables,
   ReleaseTracklistDialog,
 } from '../components/ReleaseTracklistDialog';
+import { Eyebrow } from '../components/tahti/Eyebrow';
 import { isPinned } from '../lib/pinnedTracks';
 import { useAuthStore } from '../stores/authStore';
 import { useLibraryStore } from '../stores/libraryStore';
 import { usePlayerStore } from '../stores/playerStore';
 
 const GLOW_COLORS = [
-  '#a78bfa',
-  '#22d3ee',
-  '#fb7185',
-  '#34d399',
-  '#fbbf24',
-  '#60a5fa',
+  'var(--color-accent-purple)',
+  'var(--color-accent-cyan)',
+  'var(--color-accent-red)',
+  'var(--color-accent-green)',
+  'var(--color-accent-yellow)',
+  'var(--color-accent-blue)',
 ];
 
 function releaseToPlayable(
@@ -367,9 +368,7 @@ export function ArtistView({ username }: { username: string }) {
           {pinnedTiles.length > 0 && (
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-sm font-semibold tracking-wide uppercase">
-                  Pinned
-                </h2>
+                <Eyebrow>Pinned</Eyebrow>
                 {isOwner && (
                   <Link
                     to="/studio/archive"
@@ -400,9 +399,7 @@ export function ArtistView({ username }: { username: string }) {
           {releaseTiles.length > 0 && (
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-sm font-semibold tracking-wide uppercase">
-                  Latest releases
-                </h2>
+                <Eyebrow>Latest releases</Eyebrow>
                 {releases.length > releaseTiles.length && (
                   <button
                     type="button"
@@ -470,9 +467,7 @@ export function ArtistView({ username }: { username: string }) {
           )}
 
           <div className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold tracking-wide uppercase">
-              Catalog
-            </h2>
+            <Eyebrow>Catalog</Eyebrow>
             <PlayableTrackTable
               items={catalogPlayables}
               emptyMessage={
@@ -543,7 +538,7 @@ export function ArtistView({ username }: { username: string }) {
                       {col.isFeatured ? ', featured' : ''}
                     </div>
                   </div>
-                  <span className="text-foreground-secondary text-xs uppercase">
+                  <span className="text-foreground-secondary font-mono text-xs uppercase">
                     {col.type}
                   </span>
                 </li>
