@@ -222,7 +222,7 @@ export function ChannelView({ slug }: { slug: string }) {
           <div
             className={`relative aspect-[16/9] w-full overflow-hidden ${
               subtle
-                ? 'border-border/60 rounded-lg border bg-[#0B0F14]'
+                ? 'border-border/60 bg-background-input rounded-lg border'
                 : 'border-border rounded-xl border'
             }`}
           >
