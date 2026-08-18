@@ -618,6 +618,64 @@ Remaining: the `docs/redesign-shots/` capture-matching checkbox, and a
 final broader read-through in case a different idiom (not the two greps
 used so far) is still hiding a one-off.
 
+**Broader read-through (2026-08-18), beyond Studio/Listener/Channel:**
+re-ran the same two-idiom grep against the **whole** `tahti-web` source
+tree (`views/` + `components/`, not just `views/studio/*`), since Phase 5's
+own instruction is "walk every surface in the README," and the README's
+feature list also names Account, smart links, and Sources (`Listen / Radio
+/ Library / Studio / Sources / More` sidebar, per the IA table) — surfaces
+outside the Listener/Studio bullet lists above but still in scope. 34
+files had a hit; cross-checked each against the two established rules
+(bare kicker/section-heading, not paired with a description and not a
+per-item data value → `Eyebrow`; per-item data value/proper noun, or a
+title+description pair structurally matching `StudioPanel`'s own idiom,
+or an active/inactive tab-style toggle → leave alone). Six real, previously
+uncaught section-heading hits found and fixed, all outside Studio:
+
+- `SmartLinkView.tsx`: "Smart link" page-level kicker directly above the
+  `<h1>` release title (the single most literal match yet for Eyebrow's
+  own stated purpose — a page kicker above the main heading, not just a
+  sub-section label), plus "Listen here" / "Also on" / "Featured
+  collections" section headings — all four were plain
+  `text-xs uppercase`/`font-display text-lg font-bold` with no paired
+  description, same idiom as Listen home's "Favorite channels" etc.
+- `SourcesView.tsx`: "Tracks" (SoundCloud tab) and "Files" (Stash tab)
+  section headings, same bare-heading idiom.
+- `ChannelDesigner.tsx` (the Studio "Channel designer" → Look tab
+  component, shared with the live channel-page "Edit design" → Look
+  panel): "Brand accent" and "Header style" sub-tab headings.
+
+Everything else in the 34-file list was **confirmed clean by the existing
+established exceptions**, not newly invented ones: `<dt>`/`<span>` inside a
+`<label>` (form-field captions — `ChannelRadioPlaylistPanel.tsx`,
+`FanTiersEditor.tsx`, `RadioBookingCalendar.tsx`, `UploadTrackDialog.tsx`,
+`AccountView.tsx`'s definition-list `<dt>`s); a per-item data value/proper
+noun (`GovernanceView.tsx`'s `{m.title}` motion title, `HelpView.tsx`'s
+`{article.title}`, `FlowGallery.tsx`'s `{selected.title}` diagram title,
+`ReleaseTracklistDialog.tsx`'s type/year subtitle under a `Dialog.Title` —
+same "title + description right under it" shape as the `StudioPanel`
+exemption); an active/inactive tab-style selector
+(`ChannelDesigner.tsx`'s visual-preset/header-style option buttons); or a
+data-table `<thead>` row (`StatusView.tsx`, `TransparencyView.tsx` — a
+different idiom than a prose section heading, no established precedent
+for Eyebrow-ing table headers, not rethemed here to avoid inventing a
+new pattern mid-sweep). Admin-only surfaces (`views/admin/*`) were left
+unswept this pass — staff tooling, not named in the README's feature
+list or IA table the way Account/Sources/Studio/Listen are, lower
+priority than the fan/artist-facing surfaces actually in scope.
+`Eyebrow` imports added to all three edited files following the existing
+per-directory relative-path convention (`../components/tahti/Eyebrow`
+from `views/`, `./tahti/Eyebrow` from `components/`, matching
+`ChannelChatPanel.tsx`'s existing import). `tsc --noEmit` / `eslint`
+clean on all three (one import-order autofix needed, applied and
+re-verified). Live-verified via scripted Playwright
+(`VITE_FORCE_MOCK=1 pnpm dev:tahti`): `/r/dj-moonlight-release-2` shows
+all four SmartLink eyebrows rendering correctly; `/sources/soundcloud`
+and `/sources/stash` show "TRACKS"/"FILES"; the live channel page's Edit
+design → Look → Colors/Header sub-tabs show "BRAND ACCENT"/"HEADER
+STYLE", including the Tahti swatch/preset from the Phase 4 slice
+rendering correctly alongside the new headings.
+
 ## Phase 6 — Guardrails check
 
 - [x] Accessibility: text on ink ≥ 4.5:1. — Computed (WCAG relative

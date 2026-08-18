@@ -27,6 +27,7 @@ import {
   type ColorScheme,
   type VisualPreset,
 } from '../api/channel-design';
+import { Eyebrow } from './tahti/Eyebrow';
 
 const PRESET_META: Record<
   VisualPreset,
@@ -265,9 +266,7 @@ export function ChannelDesigner({
             content: (
               <section className="flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
-                  <h3 className="font-display text-lg font-bold tracking-tight">
-                    Brand accent
-                  </h3>
+                  <Eyebrow>Brand accent</Eyebrow>
                   <div className="flex flex-wrap gap-2">
                     {BRAND_ACCENTS.map((brand) => (
                       <button
@@ -337,9 +336,7 @@ export function ChannelDesigner({
             label: 'Header',
             content: (
               <section className="flex flex-col gap-3">
-                <h3 className="font-display text-lg font-bold tracking-tight">
-                  Header style
-                </h3>
+                <Eyebrow>Header style</Eyebrow>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {HEADER_STYLES.map((headerStyle) => {
                     const active = visual.headerStyle === headerStyle;

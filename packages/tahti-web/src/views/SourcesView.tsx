@@ -46,6 +46,7 @@ import {
   SourceServiceIcon,
   sourceTileSubtitle,
 } from '../components/SourceServiceIcon';
+import { Eyebrow } from '../components/tahti/Eyebrow';
 import { useAuthModalStore } from '../stores/authModalStore';
 import { useAuthStore } from '../stores/authStore';
 import { usePlayerStore } from '../stores/playerStore';
@@ -432,7 +433,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
 
           {selected === 'soundcloud' && status?.connected && (
             <section className="flex flex-col gap-3">
-              <h2 className="font-display text-lg font-bold">Tracks</h2>
+              <Eyebrow>Tracks</Eyebrow>
               {scTracks.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
                   No tracks returned.
@@ -543,7 +544,7 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
 
           {selected === 'stash' && (
             <section className="flex flex-col gap-3">
-              <h2 className="font-display text-lg font-bold">Files</h2>
+              <Eyebrow>Files</Eyebrow>
               {stash.length === 0 ? (
                 <p className="text-foreground-secondary text-sm">
                   Stash is empty.

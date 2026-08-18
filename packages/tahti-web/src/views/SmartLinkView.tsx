@@ -9,6 +9,7 @@ import type {
   TahtiPlayable,
 } from '../api/types';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { Eyebrow } from '../components/tahti/Eyebrow';
 import { usePlayerStore } from '../stores/playerStore';
 
 export function SmartLinkView({ slug }: { slug: string }) {
@@ -86,9 +87,7 @@ export function SmartLinkView({ slug }: { slug: string }) {
       </Link>
 
       <header className="flex flex-col gap-2">
-        <p className="text-foreground-secondary text-xs uppercase">
-          Smart link
-        </p>
+        <Eyebrow>Smart link</Eyebrow>
         <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {data.release.title}
         </h1>
@@ -112,7 +111,7 @@ export function SmartLinkView({ slug }: { slug: string }) {
       {playables.length > 0 ? (
         <section className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="font-display text-lg font-bold">Listen here</h2>
+            <Eyebrow>Listen here</Eyebrow>
             <Button
               size="sm"
               onClick={() => {
@@ -136,7 +135,7 @@ export function SmartLinkView({ slug }: { slug: string }) {
 
       {targets.length > 0 && (
         <section className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-bold">Also on</h2>
+          <Eyebrow>Also on</Eyebrow>
           <ul className="flex flex-col gap-1 text-sm">
             {targets.map(([name, url]) => (
               <li key={name}>
@@ -156,9 +155,7 @@ export function SmartLinkView({ slug }: { slug: string }) {
 
       {data.featuredCollections.length > 0 && (
         <section className="flex flex-col gap-3">
-          <h2 className="font-display text-lg font-bold">
-            Featured collections
-          </h2>
+          <Eyebrow>Featured collections</Eyebrow>
           <CardGrid>
             {data.featuredCollections.map((col) => (
               <Link
