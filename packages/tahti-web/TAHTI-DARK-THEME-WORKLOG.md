@@ -449,9 +449,30 @@ it, so left as-is), Fan subscribe (spot-checked — already fully
 token-driven, no violation found, but tier price/CTA not yet given a
 deliberate themed treatment).
 
+- **Fan subscribe (`SubscribeView.tsx`), re-checked with a specific eye on
+  tier price/CTA:** already fully token-driven — tier price uses
+  `text-primary` (amber), card uses `border-border`/`bg-background`, no
+  raw hex. The Subscribe button is the shared `Button` `default` variant
+  (`bg-primary text-foreground`) — this **is** the same pre-existing
+  contrast gap already flagged in Phase 6 (`--primary-foreground`/
+  `--on-primary` token missing repo-wide, `Card.tsx`/`Button.tsx` both
+  affected, worst in `tahti-dark` at 1.71:1), not a new finding specific
+  to this surface, and not something a Fan-subscribe-only change can fix
+  without the same cross-package `@nuclearplayer/ui` change already
+  deferred as out of scope. Nothing left to do here that isn't already
+  tracked by the Phase 6 finding.
+
 **Status:** in progress. Depends on Phase 3–4 (done). This is the largest
 phase — splitting listener vs. studio surfaces into slices, as suggested
-below, rather than one giant commit.
+below, rather than one giant commit. As of 2026-08-18: listener side is
+close — Channel page (header, archive, chat rail), artist profile, and
+Fan subscribe have each been walked and either themed or confirmed
+already compliant. Not yet walked: Studio surfaces beyond the slices
+already listed above (worth a fresh pass to confirm the earlier "Slices
+landed so far" list is actually exhaustive for Studio, the same way the
+Phase 7 hex-grep note turned out not to be exhaustive for `ArtistView.tsx`
+until re-checked), and the `docs/redesign-shots/` capture-matching
+checkbox.
 
 ## Phase 6 — Guardrails check
 
