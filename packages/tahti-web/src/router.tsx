@@ -46,6 +46,7 @@ import {
 import { FeedView } from './views/FeedView';
 import { ForgotPasswordView } from './views/ForgotPasswordView';
 import { GovernanceView } from './views/GovernanceView';
+import { GreenRoomView } from './views/GreenRoomView';
 import { HelpArticleView, HelpHubView } from './views/HelpView';
 import { JoinView } from './views/JoinView';
 import { LegalView } from './views/LegalView';
@@ -452,6 +453,15 @@ const subscribeRoute = createRoute({
   },
 });
 
+const greenRoomRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/u/$username/green-room',
+  component: function GreenRoomRoute() {
+    const { username } = greenRoomRoute.useParams();
+    return <GreenRoomView username={username} />;
+  },
+});
+
 const transparencyRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/transparency',
@@ -477,6 +487,24 @@ const joinRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/join',
   component: JoinView,
+});
+
+/** Legacy /apply and /signup URLs — land on Join, which already explains
+ * whether registration is open, rather than 404ing an inbound link. */
+const applyRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/apply',
+  beforeLoad: () => {
+    throw redirect({ to: '/join' });
+  },
+});
+
+const signupRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/signup',
+  beforeLoad: () => {
+    throw redirect({ to: '/join' });
+  },
 });
 
 const signupPaymentRoute = createRoute({
@@ -992,10 +1020,13 @@ const routeTree = rootRoute.addChildren([
     chatIndexRoute,
     chatSlugRoute,
     subscribeRoute,
+    greenRoomRoute,
     transparencyRoute,
     helpRoute,
     helpSlugRoute,
     joinRoute,
+    applyRoute,
+    signupRoute,
     signupPaymentRoute,
     verifyRoute,
     setupPasswordRoute,
