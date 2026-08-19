@@ -161,6 +161,10 @@ export type CollectionArchiveItem = {
   bannerUrl?: string | null;
   audioUrl?: string | null;
   channel?: { slug: string } | null;
+  /** Set for items Tahti references but never hosts (EMBED_ONLY) — the
+   * provider's widget supplies the audio and artwork. */
+  embedProvider?: 'HEARTHIS' | 'MIXCLOUD' | 'SPOTIFY' | null;
+  embedUri?: string | null;
 };
 
 export type CollectionItem = {

@@ -2,10 +2,16 @@ import { Link } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 
 import { fetchCollection } from '../api/client';
-import type { PublicCollection, TahtiPlayable } from '../api/types';
+import type {
+  CollectionArchiveItem,
+  PublicCollection,
+  TahtiPlayable,
+} from '../api/types';
+import { EmbedTrackRow } from '../components/EmbedTrackRow';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import { Eyebrow } from '../components/tahti/Eyebrow';
+import type { EmbedProvider } from '../lib/embedSrc';
 
 function collectionToPlayables(col: PublicCollection): TahtiPlayable[] {
   const out: TahtiPlayable[] = [];
@@ -59,6 +65,28 @@ export function CollectionView({
     [collection],
   );
 
+  // Items Tahti references but never hosts — only the provider's own
+  // widget can play them, so they can't go through the track table.
+  const embedItems = useMemo(() => {
+    if (!collection) {
+      return [];
+    }
+    const out: { archive: CollectionArchiveItem; provider: EmbedProvider }[] =
+      [];
+    for (const item of collection.items) {
+      const archive = item.archiveItem;
+      if (
+        archive &&
+        !archive.audioUrl &&
+        archive.embedProvider &&
+        archive.embedUri
+      ) {
+        out.push({ archive, provider: archive.embedProvider });
+      }
+    }
+    return out;
+  }, [collection]);
+
   if (loading) {
     return (
       <p className="text-foreground-secondary text-sm">Loading collection…</p>
@@ -103,10 +131,31 @@ export function CollectionView({
         meta={collection.description}
       />
 
-      <PlayableTrackTable
-        items={playables}
-        emptyMessage="No playable archive items in this collection (embed-only rows stay silent)."
-      />
+      {playables.length > 0 && <PlayableTrackTable items={playables} />}
+
+      {embedItems.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2>
+            <Eyebrow>Elsewhere</Eyebrow>
+          </h2>
+          <ul className="flex flex-col gap-2">
+            {embedItems.map(({ archive, provider }) => (
+              <EmbedTrackRow
+                key={archive.id}
+                title={archive.title}
+                provider={provider}
+                embedUri={archive.embedUri!}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {playables.length === 0 && embedItems.length === 0 && (
+        <p className="text-foreground-secondary text-sm">
+          No tracks in this collection yet.
+        </p>
+      )}
 
       {collection.items.some((i) => i.release && !i.archiveItem) && (
         <section className="flex flex-col gap-2">

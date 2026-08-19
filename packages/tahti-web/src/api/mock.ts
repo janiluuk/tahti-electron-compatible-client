@@ -617,19 +617,38 @@ export function mockCollection(
       username,
       displayName: mockChannel(username).user.displayName,
     },
-    items: archive.slice(0, 2).map((a, i) => ({
-      id: `col-item-${a.id}`,
-      position: i,
-      archiveItem: {
-        id: a.id,
-        title: a.title,
-        durationSec: a.durationSec,
-        bannerUrl: a.bannerUrl,
-        audioUrl: a.audioUrl,
-        channel: { slug: username },
+    items: [
+      ...archive.slice(0, 2).map((a, i) => ({
+        id: `col-item-${a.id}`,
+        position: i,
+        archiveItem: {
+          id: a.id,
+          title: a.title,
+          durationSec: a.durationSec,
+          bannerUrl: a.bannerUrl,
+          audioUrl: a.audioUrl,
+          channel: { slug: username },
+        },
+        release: null,
+      })),
+      // Embed-only row: Tahti stores just the reference, so the provider's
+      // own widget supplies the audio and cover art.
+      {
+        id: 'col-item-hearthis-mock',
+        position: 2,
+        archiveItem: {
+          id: 'archive-hearthis-mock',
+          title: 'Deep Space Transmission (hearthis.at)',
+          durationSec: 2280,
+          bannerUrl: null,
+          audioUrl: null,
+          channel: { slug: username },
+          embedProvider: 'HEARTHIS' as const,
+          embedUri: '1234567',
+        },
+        release: null,
       },
-      release: null,
-    })),
+    ],
     links: {
       page: `https://tahti.live/u/${username}/c/${slug}`,
       rss: `/api/v1/collections/${slug}/rss.xml`,

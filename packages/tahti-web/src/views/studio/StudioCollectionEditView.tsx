@@ -32,6 +32,11 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
+import {
+  EMBED_PROVIDER_HEIGHT,
+  EMBED_PROVIDER_LABEL,
+  embedSrcFor,
+} from '../../lib/embedSrc';
 import { usePlayerStore } from '../../stores/playerStore';
 
 const STYLE_OPTIONS = [
@@ -143,6 +148,10 @@ function TrackRow({
 }) {
   const { peaks } = useTrackPeaks(item.archiveItem?.id, isExpanded);
   const durationSec = item.archiveItem?.durationSec ?? 0;
+  // EMBED_ONLY items have no audio of ours to play or draw a waveform from.
+  const embedProvider = item.archiveItem?.embedProvider ?? null;
+  const embedUri = item.archiveItem?.embedUri ?? null;
+  const isEmbed = Boolean(embedProvider && embedUri);
 
   return (
     <li
@@ -161,10 +170,15 @@ function TrackRow({
         >
           {trackTitle(item)}
         </span>
+        {isEmbed && (
+          <span className="text-foreground-secondary shrink-0 font-mono text-[10px] tracking-wide uppercase">
+            {EMBED_PROVIDER_LABEL[embedProvider!]}
+          </span>
+        )}
         <span className="text-foreground-secondary text-xs tabular-nums">
           {formatDuration(durationSec)}
         </span>
-        {item.archiveItem && (
+        {item.archiveItem && !isEmbed && (
           <Button
             size="icon-sm"
             variant="text"
@@ -185,8 +199,14 @@ function TrackRow({
           <Button
             size="icon-sm"
             variant="text"
-            aria-label={isExpanded ? 'Collapse waveform' : 'Expand waveform'}
-            title={isExpanded ? 'Collapse' : 'Expand'}
+            aria-label={
+              isExpanded
+                ? 'Collapse'
+                : isEmbed
+                  ? 'Show player'
+                  : 'Expand waveform'
+            }
+            title={isExpanded ? 'Collapse' : isEmbed ? 'Show player' : 'Expand'}
             onClick={onToggleExpand}
           >
             {isExpanded ? (
@@ -225,7 +245,22 @@ function TrackRow({
         </Button>
       </div>
 
-      {isExpanded && item.archiveItem && (
+      {isExpanded && isEmbed && (
+        <div className="px-2 pb-3">
+          <iframe
+            title={trackTitle(item)}
+            src={embedSrcFor(embedProvider!, embedUri!) ?? ''}
+            width="100%"
+            height={EMBED_PROVIDER_HEIGHT[embedProvider!]}
+            style={{ border: 0, display: 'block' }}
+            allow="autoplay; encrypted-media"
+            loading="lazy"
+            className="border-border overflow-hidden rounded-lg border"
+          />
+        </div>
+      )}
+
+      {isExpanded && item.archiveItem && !isEmbed && (
         <div className="px-2 pb-3">
           {durationSec > 0 && peaks.length > 0 ? (
             <div className="border-border bg-background h-24 overflow-hidden rounded-lg border">
@@ -322,7 +357,9 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
   };
 
   const togglePlayItem = (item: StudioCollectionItem) => {
-    if (!item.archiveItem) {
+    // EMBED_ONLY items have no Tahti-hosted audio — playing them through
+    // the normal path would just fail or fall back to something else.
+    if (!item.archiveItem || item.archiveItem.embedProvider) {
       return;
     }
     const isThisCurrent = currentId === `archive:${item.archiveItem.id}`;
