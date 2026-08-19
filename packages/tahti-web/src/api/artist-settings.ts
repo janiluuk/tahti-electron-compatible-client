@@ -289,7 +289,10 @@ export async function fetchGreenRoomAccess(
         channelState: 'PREVIEW',
         greenRoomEnabled: true,
         joinedAt: new Date().toISOString(),
-        hlsUrl: null,
+        // Non-null so the actual "you're in, here's the preview" state is
+        // reachable offline — with null the mock could only ever render
+        // the "waiting for preview" branch.
+        hlsUrl: 'https://stream.tahti.live/mock/green-room.m3u8',
         artistUsername: channelSlug,
         artistDisplayName: 'Northern Lights',
       },
