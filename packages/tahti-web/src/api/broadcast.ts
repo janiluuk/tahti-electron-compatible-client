@@ -388,6 +388,66 @@ export function liveChannelPlayable(
   };
 }
 
+export type RecentBroadcast = {
+  id: string;
+  title?: string | null;
+  source?: string;
+  startedAt: string;
+  endedAt?: string | null;
+  archiveItemId: string | null;
+  archiveItemTitle?: string;
+  archiveItemStatus?: string;
+  durationSec?: number;
+};
+
+const mockRecordings: RecentBroadcast[] = [
+  {
+    id: 'rec-1',
+    title: 'Friday night set',
+    source: 'RTMP',
+    startedAt: new Date(Date.now() - 2 * 86_400_000).toISOString(),
+    endedAt: new Date(Date.now() - 2 * 86_400_000 + 3600_000).toISOString(),
+    archiveItemId: 'arc-1',
+    archiveItemTitle: 'Friday night set',
+    archiveItemStatus: 'READY',
+    durationSec: 3600,
+  },
+  {
+    id: 'rec-2',
+    title: null,
+    source: 'BROWSER',
+    startedAt: new Date(Date.now() - 6 * 86_400_000).toISOString(),
+    endedAt: new Date(Date.now() - 6 * 86_400_000 + 1800_000).toISOString(),
+    archiveItemId: null,
+    durationSec: 1800,
+  },
+];
+
+/** Every completed show recording, newest first — recordings made while
+ * going live, whether or not they've been promoted into a published
+ * archive item yet. */
+export async function fetchRecentBroadcasts(
+  limit = 50,
+): Promise<{ data: RecentBroadcast[]; meta: FetchMeta }> {
+  if (forceMock()) {
+    return {
+      data: mockRecordings,
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{ broadcasts?: RecentBroadcast[] }>(
+      `/api/me/broadcasts/recent?limit=${limit}`,
+    );
+    return { data: data.broadcasts ?? [], meta: { source: 'api' } };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return { data: mockRecordings, meta: failMeta(err) };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
+  }
+}
+
 export function formatUsageMinutes(usage: BroadcastUsage): string {
   if (usage.unlimited) {
     return 'Unlimited this week';

@@ -80,6 +80,7 @@ import {
   StudioPlaylistsView,
 } from './views/studio/StudioPlaylistsView';
 import { StudioProEditorView } from './views/studio/StudioProEditorView';
+import { StudioRecordingsView } from './views/studio/StudioRecordingsView';
 import { StudioReleaseDetailView } from './views/studio/StudioReleaseDetailView';
 import { StudioReleasesView } from './views/studio/StudioReleasesView';
 import { StudioRevenueView } from './views/studio/StudioRevenueView';
@@ -626,6 +627,12 @@ const studioArchiveRoute = createRoute({
   component: StudioArchiveView,
 });
 
+const studioRecordingsRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/studio/recordings',
+  component: StudioRecordingsView,
+});
+
 const studioArchiveItemRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/studio/archive/$id',
@@ -1047,6 +1054,7 @@ const routeTree = rootRoute.addChildren([
     studioSetupChannelRoute,
     studioGoLiveRoute,
     studioArchiveRoute,
+    studioRecordingsRoute,
     studioArchiveItemRoute,
     studioArchiveEditorRoute,
     studioReleasesRoute,

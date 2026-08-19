@@ -3,6 +3,7 @@ import {
   BarChart3Icon,
   CalendarIcon,
   DiscAlbumIcon,
+  DiscIcon,
   FolderLockIcon,
   LayoutTemplateIcon,
   LibraryBigIcon,
@@ -293,6 +294,13 @@ export function StudioHomeView() {
                       label="Sources"
                       subtitle="Import services"
                       color="var(--accent-red)"
+                    />
+                    <StudioActionTile
+                      to="/studio/recordings"
+                      icon={DiscIcon}
+                      label="Recordings"
+                      subtitle="Past broadcasts"
+                      color="var(--accent-blue)"
                     />
                   </CardGrid>
                 </div>
