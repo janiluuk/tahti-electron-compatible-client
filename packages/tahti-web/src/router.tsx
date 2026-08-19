@@ -292,6 +292,12 @@ const libraryRoute = createRoute({
   component: () => <LibraryView tab="discography" />,
 });
 
+const libraryReleasesRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/library/releases',
+  component: () => <LibraryView tab="releases" />,
+});
+
 const libraryCollectionsRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/library/collections',
@@ -951,6 +957,7 @@ const routeTree = rootRoute.addChildren([
     adminStatusRoute,
     adminI18nRoute,
     libraryRoute,
+    libraryReleasesRoute,
     libraryCollectionsRoute,
     libraryFavoritesRoute,
     libraryHistoryRoute,

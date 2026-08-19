@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import {
   ClockIcon,
+  DiscAlbumIcon,
   HeartIcon,
   LibraryBigIcon,
   MessageCircleIcon,
@@ -14,8 +15,15 @@ import { HistoryView } from './HistoryView';
 import { MessagesView } from './MessagesView';
 import { MyCollectionsView } from './MyCollectionsView';
 import { MyDiscographyView } from './MyDiscographyView';
+import { MyReleasesView } from './MyReleasesView';
 
-type Tab = 'discography' | 'collections' | 'favorites' | 'history' | 'messages';
+type Tab =
+  | 'discography'
+  | 'releases'
+  | 'collections'
+  | 'favorites'
+  | 'history'
+  | 'messages';
 
 const ITEMS: {
   id: Tab;
@@ -28,6 +36,12 @@ const ITEMS: {
     to: '/library',
     label: 'Everything',
     icon: <LibraryBigIcon size={16} aria-hidden />,
+  },
+  {
+    id: 'releases',
+    to: '/library/releases',
+    label: 'Releases',
+    icon: <DiscAlbumIcon size={16} aria-hidden />,
   },
   {
     id: 'collections',
@@ -84,6 +98,7 @@ export function LibraryView({ tab = 'discography' }: { tab?: Tab }) {
 
         <div className="min-w-0 flex-1">
           {tab === 'discography' && <MyDiscographyView />}
+          {tab === 'releases' && <MyReleasesView />}
           {tab === 'collections' && <MyCollectionsView />}
           {tab === 'favorites' && <FavoritesView />}
           {tab === 'history' && <HistoryView />}
