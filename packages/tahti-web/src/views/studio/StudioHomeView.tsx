@@ -1,7 +1,25 @@
 import { Link } from '@tanstack/react-router';
+import {
+  BarChart3Icon,
+  CalendarIcon,
+  DiscAlbumIcon,
+  FolderLockIcon,
+  LayoutTemplateIcon,
+  LibraryBigIcon,
+  ListMusicIcon,
+  MicIcon,
+  NewspaperIcon,
+  PlugIcon,
+  RadioIcon,
+  RocketIcon,
+  ScissorsIcon,
+  UploadCloudIcon,
+  WalletIcon,
+  type LucideIcon,
+} from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button, Card, CardGrid } from '@nuclearplayer/ui';
+import { CardGrid } from '@nuclearplayer/ui';
 
 import {
   fetchStudioArchive,
@@ -23,6 +41,48 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
       </h2>
       {children}
     </section>
+  );
+}
+
+/** Colour-coded, icon-first nav tile — the label sits in a translucent
+ * strip over the icon (opacity layer) so it stays legible regardless of
+ * the tile's background colour, instead of plain text below an artwork
+ * square like the music Card component. */
+function StudioActionTile({
+  to,
+  icon: Icon,
+  label,
+  subtitle,
+  color,
+}: {
+  to: string;
+  icon: LucideIcon;
+  label: string;
+  subtitle?: string;
+  color: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className="group border-border relative flex aspect-[4/3] flex-col overflow-hidden rounded-xl border shadow-sm transition-transform hover:-translate-y-0.5"
+      style={{ background: color }}
+    >
+      <div className="relative z-10 bg-black/45 px-3 py-2 backdrop-blur-sm">
+        <div className="truncate text-sm font-bold text-white">{label}</div>
+        {subtitle ? (
+          <div className="truncate text-[11px] text-white/75">{subtitle}</div>
+        ) : null}
+      </div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Icon
+          size={40}
+          absoluteStrokeWidth
+          strokeWidth={1.5}
+          className="text-white/90 transition-transform group-hover:scale-110"
+          aria-hidden
+        />
+      </div>
+    </Link>
   );
 }
 
@@ -86,84 +146,118 @@ export function StudioHomeView() {
               </p>
             )}
           </div>
-          {channel && (
-            <Link to="/studio/go-live">
-              <Button>Go Live</Button>
-            </Link>
-          )}
         </header>
 
         {!channel ? null : (
           <>
             <Group title="Broadcast">
               <CardGrid>
-                <Link to="/studio/go-live">
-                  <Card title="Go Live" subtitle="Keys, signal, on-air" />
-                </Link>
-                <Link to="/studio/schedule">
-                  <Card title="Schedule" subtitle="Next show & programme" />
-                </Link>
+                <StudioActionTile
+                  to="/studio/go-live"
+                  icon={RadioIcon}
+                  label="Go Live"
+                  subtitle="Keys, signal, on-air"
+                  color="var(--accent-red)"
+                />
+                <StudioActionTile
+                  to="/studio/schedule"
+                  icon={CalendarIcon}
+                  label="Schedule"
+                  subtitle="Next show & programme"
+                  color="var(--accent-blue)"
+                />
               </CardGrid>
             </Group>
 
             <Group title="Music">
               <CardGrid>
-                <Link to="/studio/shows">
-                  <Card title="Shows" subtitle="Episodes & slots" />
-                </Link>
-                <Link to="/studio/playlists">
-                  <Card title="Playlists" subtitle="Public & collab" />
-                </Link>
-                <Link to="/studio/archive">
-                  <Card
-                    title="Music"
-                    subtitle={
-                      counts.archive
-                        ? `${counts.archive} items`
-                        : 'Archive & files'
-                    }
-                  />
-                </Link>
-                <Link to="/studio/upload">
-                  <Card title="Upload" subtitle="Add audio" />
-                </Link>
-                <Link to="/studio/collections">
-                  <Card
-                    title="Albums"
-                    subtitle={
-                      counts.collections
-                        ? `${counts.collections} collections`
-                        : 'Design & order tracks'
-                    }
-                  />
-                </Link>
-                <Link to="/studio/releases">
-                  <Card
-                    title="Releases"
-                    subtitle={
-                      counts.releases
-                        ? `${counts.releases} releases`
-                        : 'Share releases'
-                    }
-                  />
-                </Link>
+                <StudioActionTile
+                  to="/studio/shows"
+                  icon={MicIcon}
+                  label="Shows"
+                  subtitle="Episodes & slots"
+                  color="var(--accent-purple)"
+                />
+                <StudioActionTile
+                  to="/studio/playlists"
+                  icon={ListMusicIcon}
+                  label="Playlists"
+                  subtitle="Public & collab"
+                  color="var(--accent-cyan)"
+                />
+                <StudioActionTile
+                  to="/studio/archive"
+                  icon={LibraryBigIcon}
+                  label="Music"
+                  subtitle={
+                    counts.archive
+                      ? `${counts.archive} items`
+                      : 'Archive & files'
+                  }
+                  color="var(--accent-orange)"
+                />
+                <StudioActionTile
+                  to="/studio/upload"
+                  icon={UploadCloudIcon}
+                  label="Upload"
+                  subtitle="Add audio"
+                  color="var(--accent-green)"
+                />
+                <StudioActionTile
+                  to="/studio/collections"
+                  icon={DiscAlbumIcon}
+                  label="Albums"
+                  subtitle={
+                    counts.collections
+                      ? `${counts.collections} collections`
+                      : 'Design & order tracks'
+                  }
+                  color="var(--accent-yellow)"
+                />
+                <StudioActionTile
+                  to="/studio/releases"
+                  icon={RocketIcon}
+                  label="Releases"
+                  subtitle={
+                    counts.releases
+                      ? `${counts.releases} releases`
+                      : 'Share releases'
+                  }
+                  color="var(--primary)"
+                />
               </CardGrid>
             </Group>
 
             <Group title="Audience & channel">
               <CardGrid>
-                <Link to="/studio/updates">
-                  <Card title="Updates" subtitle="Posts & newsletter" />
-                </Link>
-                <Link to="/studio/stats">
-                  <Card title="Stats" subtitle="Plays & downloads" />
-                </Link>
-                <Link to="/studio/revenue">
-                  <Card title="Revenue" subtitle="Connect & grants" />
-                </Link>
-                <Link to="/studio/channel">
-                  <Card title="Channel look" subtitle="Design & domain" />
-                </Link>
+                <StudioActionTile
+                  to="/studio/updates"
+                  icon={NewspaperIcon}
+                  label="Updates"
+                  subtitle="Posts & newsletter"
+                  color="var(--accent-blue)"
+                />
+                <StudioActionTile
+                  to="/studio/stats"
+                  icon={BarChart3Icon}
+                  label="Stats"
+                  subtitle="Plays & downloads"
+                  color="var(--accent-cyan)"
+                />
+                <StudioActionTile
+                  to="/studio/revenue"
+                  icon={WalletIcon}
+                  label="Revenue"
+                  subtitle="Connect & grants"
+                  color="var(--accent-green)"
+                />
+                <StudioActionTile
+                  to="/studio/channel"
+                  icon={LayoutTemplateIcon}
+                  label="Channel look"
+                  subtitle="Design & domain"
+                  color="var(--accent-purple)"
+                />
               </CardGrid>
             </Group>
 
@@ -179,15 +273,27 @@ export function StudioHomeView() {
               {showMore && (
                 <div className="mt-3">
                   <CardGrid>
-                    <Link to="/studio/editor">
-                      <Card title="Editor" subtitle="Trim & process" />
-                    </Link>
-                    <Link to="/studio/stash">
-                      <Card title="Stash" subtitle="Private files" />
-                    </Link>
-                    <Link to="/sources">
-                      <Card title="Sources" subtitle="Import services" />
-                    </Link>
+                    <StudioActionTile
+                      to="/studio/editor"
+                      icon={ScissorsIcon}
+                      label="Editor"
+                      subtitle="Trim & process"
+                      color="var(--accent-orange)"
+                    />
+                    <StudioActionTile
+                      to="/studio/stash"
+                      icon={FolderLockIcon}
+                      label="Stash"
+                      subtitle="Private files"
+                      color="var(--accent-yellow)"
+                    />
+                    <StudioActionTile
+                      to="/sources"
+                      icon={PlugIcon}
+                      label="Sources"
+                      subtitle="Import services"
+                      color="var(--accent-red)"
+                    />
                   </CardGrid>
                 </div>
               )}
