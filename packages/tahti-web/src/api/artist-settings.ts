@@ -263,6 +263,70 @@ export async function patchDiscoveryPrefs(
   }
 }
 
+/** Guest-side view of an artist's green room — the invite-only preview
+ * stream that runs before a broadcast goes public. */
+export type GreenRoomAccess = {
+  hasAccess: boolean;
+  channelState: 'OFFLINE' | 'PREVIEW' | 'LIVE';
+  greenRoomEnabled: boolean;
+  joinedAt: string | null;
+  hlsUrl: string | null;
+  artistUsername: string;
+  artistDisplayName: string;
+};
+
+export async function fetchGreenRoomAccess(
+  channelSlug: string,
+): Promise<
+  | { ok: true; data: GreenRoomAccess }
+  | { ok: false; needsLogin: boolean; error: string }
+> {
+  if (forceMock()) {
+    return {
+      ok: true,
+      data: {
+        hasAccess: true,
+        channelState: 'PREVIEW',
+        greenRoomEnabled: true,
+        joinedAt: new Date().toISOString(),
+        hlsUrl: null,
+        artistUsername: channelSlug,
+        artistDisplayName: 'Northern Lights',
+      },
+    };
+  }
+  try {
+    const { data } = await requestJson<GreenRoomAccess>(
+      `/api/me/green-room/${encodeURIComponent(channelSlug)}`,
+    );
+    return { ok: true, data };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '';
+    return {
+      ok: false,
+      needsLogin: /401|unauthor/i.test(message),
+      error: message || 'Could not load green room access',
+    };
+  }
+}
+
+export async function joinGreenRoom(
+  channelSlug: string,
+): Promise<GreenRoomAccess | null> {
+  if (forceMock()) {
+    return null;
+  }
+  try {
+    const { data } = await requestJson<GreenRoomAccess>(
+      `/api/me/green-room/${encodeURIComponent(channelSlug)}/join`,
+      { method: 'POST' },
+    );
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchGreenRoomPrefs(): Promise<{
   data: GreenRoomPrefs;
   meta: FetchMeta;

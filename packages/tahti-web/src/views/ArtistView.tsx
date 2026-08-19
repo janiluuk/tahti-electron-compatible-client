@@ -349,6 +349,15 @@ export function ArtistView({ username }: { username: string }) {
           >
             Subscribe
           </Link>
+          {channel && (
+            <Link
+              to="/u/$username/green-room"
+              params={{ username: artist.username }}
+              className="text-foreground-secondary underline-offset-2 hover:underline"
+            >
+              Green room
+            </Link>
+          )}
           {isOwner && (
             <Link
               to="/studio/channel"
