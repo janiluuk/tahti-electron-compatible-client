@@ -54,6 +54,7 @@ import { LibraryView } from './views/LibraryView';
 import { ListenView } from './views/ListenView';
 import { LoginView } from './views/LoginView';
 import { MoreView } from './views/MoreView';
+import { OnboardingView } from './views/OnboardingView';
 import { RadioView } from './views/RadioView';
 import { ResetPasswordView } from './views/ResetPasswordView';
 import { SettingsView } from './views/settings/SettingsView';
@@ -154,6 +155,12 @@ const feedRoute = createRoute({
   getParentRoute: () => appLayoutRoute,
   path: '/feed',
   component: FeedView,
+});
+
+const onboardingRoute = createRoute({
+  getParentRoute: () => appLayoutRoute,
+  path: '/onboarding',
+  component: OnboardingView,
 });
 
 const adminRoute = createRoute({
@@ -981,6 +988,7 @@ const routeTree = rootRoute.addChildren([
     settingsRoute,
     settingsSectionRoute,
     feedRoute,
+    onboardingRoute,
     adminRoute,
     adminBetaRoute,
     adminUsersRoute,

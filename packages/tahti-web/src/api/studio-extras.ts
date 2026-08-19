@@ -432,6 +432,11 @@ export type ProfileFields = {
   pronouns: string | null;
   chatEnabled: boolean;
   artistKind?: 'SINGLE' | 'COLLECTIVE';
+  /** ISO 3166-1 alpha-2, e.g. 'FI'. */
+  countryCode?: string | null;
+  defaultLocation?: string | null;
+  showFollowers?: boolean;
+  showFollowing?: boolean;
 };
 
 let mockProfile: ProfileFields = {
@@ -443,6 +448,10 @@ let mockProfile: ProfileFields = {
   pronouns: null,
   chatEnabled: true,
   artistKind: 'SINGLE',
+  countryCode: null,
+  defaultLocation: null,
+  showFollowers: true,
+  showFollowing: true,
 };
 
 export async function fetchMeProfile(): Promise<{
@@ -470,7 +479,16 @@ export async function patchMeProfile(
   patch: Partial<
     Pick<
       ProfileFields,
-      'displayName' | 'bio' | 'tipJarUrl' | 'pronouns' | 'chatEnabled'
+      | 'displayName'
+      | 'bio'
+      | 'tipJarUrl'
+      | 'pronouns'
+      | 'chatEnabled'
+      | 'artistKind'
+      | 'countryCode'
+      | 'defaultLocation'
+      | 'showFollowers'
+      | 'showFollowing'
     >
   >,
 ): Promise<{ ok: true; data: ProfileFields } | { ok: false; error: string }> {

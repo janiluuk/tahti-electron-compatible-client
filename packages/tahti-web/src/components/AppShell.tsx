@@ -1,4 +1,4 @@
-import { Outlet } from '@tanstack/react-router';
+import { Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import {
   GaugeIcon,
   LayoutDashboardIcon,
@@ -25,6 +25,7 @@ import { cn } from '../lib/cn';
 import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 import { useSettingsModalStore } from '../stores/settingsModalStore';
+import { hasSeenOnboarding } from '../views/OnboardingView';
 import { AppTopNav } from './AppTopNav';
 import { AudioEngine } from './AudioEngine';
 import { AuthDialog } from './AuthDialog';
@@ -96,7 +97,10 @@ export function AppShell() {
   } = useLayoutStore();
   const refresh = useAuthStore((s) => s.refresh);
   const isBoard = useAuthStore((s) => Boolean(s.user?.isBoard));
+  const userId = useAuthStore((s) => s.user?.id);
   const openSettings = useSettingsModalStore((s) => s.open);
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [mobileQueueOpen, setMobileQueueOpen] = useState(false);
@@ -104,6 +108,17 @@ export function AppShell() {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  // First sign-in of the session: send a new user through onboarding once.
+  // Skips/finishes mark the flag, so this never fires again for them.
+  useEffect(() => {
+    if (!userId || pathname === '/onboarding') {
+      return;
+    }
+    if (!hasSeenOnboarding(userId)) {
+      void navigate({ to: '/onboarding' });
+    }
+  }, [userId, pathname, navigate]);
 
   useEffect(() => {
     if (!isMobile) {

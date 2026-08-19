@@ -62,6 +62,10 @@ export type DiscoveryPrefs = {
   allowRadioPickup: boolean;
   showOnListenHome: boolean;
   genreTags: string;
+  /** Favorited tracks/channels visible on the public profile. */
+  showFavorites: boolean;
+  /** Notify followers (feed + optional email) when a release goes public. */
+  announceReleases: boolean;
 };
 
 export type GreenRoomPrefs = {
@@ -116,6 +120,8 @@ let mockDiscovery: DiscoveryPrefs = {
   allowRadioPickup: true,
   showOnListenHome: true,
   genreTags: 'ambient, live',
+  showFavorites: true,
+  announceReleases: true,
 };
 
 let mockGreenRoom: GreenRoomPrefs = {
