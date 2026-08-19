@@ -1,5 +1,12 @@
 export type LegalPage = {
-  slug: 'about' | 'terms' | 'privacy' | 'agpl' | 'what-is-it';
+  slug:
+    | 'about'
+    | 'terms'
+    | 'privacy'
+    | 'agpl'
+    | 'what-is-it'
+    | 'how-it-works'
+    | 'for-artists';
   title: string;
   description: string;
   productionPath: string;
@@ -251,6 +258,76 @@ export const LEGAL_PAGES: LegalPage[] = [
         heading: 'Close',
         paragraphs: [
           "Don't imagine it, come through the door. The beta is running now; the invite round opens in weeks. Join it.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'how-it-works',
+    title: 'How Tahti works',
+    description:
+      'Not a features list — a walkthrough. What actually happens when you listen, and what actually happens when you broadcast. Every number below is the same number published on the transparency page.',
+    productionPath: '/how-it-works',
+    sections: [
+      {
+        heading: 'For listeners',
+        paragraphs: [
+          "You don't need an account to listen. You never will — that's constitutional, not a growth-hack limit that gets tightened later.",
+          'Find a channel. Browse who’s on air, tune into an artist’s 24/7 channel (live blends straight into their archive when they’re offline), or listen to Tahti Radio, a fair-rotation meta-stream of the whole community. No algorithm decides what you hear next — there is no "recommended for you" on Tahti, by design.',
+          "Hear it in full quality, free. Every listener gets FLAC 16/44 lossless audio on a member artist's channel, whether or not you or the artist pay for anything. Most platforms cap free listeners at 128 kbps or lower. Tahti doesn't gate audio quality at the listener tier — that's constitutional too.",
+          'Support an artist directly, if you want to. Fan subscriptions run €1–€100/month — the artist sets the price — straight from you to them.',
+          'Stay anonymous. Listening, downloading, and chatting all work without an account. Where an account exists (subscribing costs money, so billing needs one), IP hashes rotate daily — we cannot tell that the same listener came back yesterday. No tracking beyond what the product strictly needs to run, no cookies for analytics, no ads, ever.',
+        ],
+      },
+      {
+        heading: 'For artists',
+        paragraphs: [
+          'The free tier is a complete product, not a trial. Everything below works whether or not you ever pay Tahti a cent.',
+          'Create your channel. Your own handle.tahti.live and /c/your-slug — set up in minutes from the dashboard.',
+          "Broadcast, and keep an archive that never goes dark. Go live from OBS, Mixxx, Traktor, or straight from the browser. When you're offline, your channel plays your archive on a seamless loop — listeners never hit a dead page. Free tier broadcasts at MP3 192 kbps; members and their listeners get FLAC lossless.",
+          "Get paid two ways. Fan subscriptions keep 98% for you — the 2% operational fee covers Stripe and support, and any surplus it generates rolls into next year's grant pool rather than becoming Tahti's profit. Separately, 90% of the platform's entire annual operating surplus is distributed to artists as grants, split by engagement units — downloads and fan-sub euros, not passive plays — so an artist whose audience actually cares gets more than one who just racks up listener-hours.",
+          'Distribute everywhere else too. A smart link with DSP buttons for Spotify, Apple Music, Bandcamp, and more. One-form delivery to Spotify/Apple/Tidal via Revelator, plus direct Mixcloud publishing.',
+          'Get a real vote, not a feedback form. Every artist member votes at the AGM. The board is elected from the membership. The roadmap is public, and it changes based on what members actually approve — not founder discretion.',
+        ],
+      },
+      {
+        heading: 'The money, transparently',
+        paragraphs: [
+          "This isn't a marketing summary of the numbers — it's the same rule the board operates under, published in the org's own constitution:",
+          'Fan-subscriptions: 98% to the artist, 2% operational fee, 0% Tahti profit.',
+          'Annual surplus: 90% distributed to artists as grants, 10% held in an operating reserve capped at 6 months of costs — anything above that cap goes back to artists too.',
+          'No venture capital, no equity, no exit. Tahti ry is a Finnish nonprofit association (yhdistys) — it legally cannot become a for-profit company without dissolving the membership.',
+          'Every euro in and out is published, monthly, in an append-only ledger — not a once-a-year PDF.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'for-artists',
+    title: 'Tahti for artists',
+    description:
+      'Broadcast independently. Get paid fairly. A nonprofit broadcasting platform where you keep your audience, earn through fan-subs and annual grants, and own your archive — AGPL-licensed and governed by its artist members.',
+    productionPath: '/for-artists',
+    sections: [
+      {
+        heading: 'Everything you need',
+        paragraphs: [
+          'Broadcast live. OBS, Mixxx, Traktor, or browser ingest. FLAC lossless for members, MP3 192 kbps on the free tier — both better than most commercial streaming services.',
+          'Your archive, always on. 24/7 channel with seamless live-to-archive transitions. Listeners tune in and keep listening even when you are offline.',
+          'Earn through fan-subs. Listeners can support you directly at €1–€100/month — you set the price. 98% goes to you; 2% rolls into the grant pool for the whole community.',
+          'Annual artist grants. 90% of platform surplus is distributed to artists every year based on engagement units — a fair formula, not an algorithm favouring the loudest.',
+          'Smart links & distribution. One release smart link with DSP buttons for Spotify, Apple Music, Bandcamp, and more. Distribute via Revelator with a single form.',
+          'Newsletter built in. Send updates directly to listeners who opt in — no third-party email tool required, no per-send fees.',
+          'Real analytics. Plays, downloads, completion rates, top countries, and your running grant estimate. No listener counts as headline metrics — the constitution forbids vanity numbers.',
+          'Member-governed nonprofit. You get a vote. The board is elected by artist members. The roadmap is public. Every euro in and out is published. No shareholders, no exit.',
+        ],
+      },
+      {
+        heading: 'What it costs',
+        paragraphs: [
+          'Free tier — MP3 192 kbps live and archive, unlimited broadcasts, archive hosting, smart links, newsletter, analytics, fan-subs, grant eligibility. Everything. Free.',
+          'Tahti ry membership (€40/year) — financial support for the cooperative, plus FLAC lossless streaming for you and your listeners, Stash file storage, and a vote at the AGM.',
+          'There is no "freemium" catch. The free tier is a complete product. Membership funds the grant pool and unlocks lossless audio — you are supporting the org, not buying a subscription product.',
         ],
       },
     ],

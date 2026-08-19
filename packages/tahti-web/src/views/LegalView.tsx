@@ -10,6 +10,8 @@ const LEGAL_TO = {
   privacy: '/privacy',
   agpl: '/agpl',
   'what-is-it': '/what-is-it',
+  'how-it-works': '/how-it-works',
+  'for-artists': '/for-artists',
 } as const satisfies Record<LegalPage['slug'], string>;
 
 export function LegalHubLinks() {
