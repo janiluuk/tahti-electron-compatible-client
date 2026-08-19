@@ -7,9 +7,11 @@ import {
   PauseIcon,
   PencilIcon,
   PlayIcon,
+  PlusIcon,
   Trash2Icon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Input } from '@nuclearplayer/ui';
 
@@ -287,7 +289,6 @@ function TrackRow({
 export function StudioCollectionEditView({ slug }: { slug: string }) {
   const [col, setCol] = useState<StudioCollection | null>(null);
   const [archive, setArchive] = useState<StudioArchiveItem[]>([]);
-  const [message, setMessage] = useState<string | null>(null);
   const [addId, setAddId] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -384,12 +385,15 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
       slug,
       next.map((i) => i.id),
     );
-    setMessage(result.ok ? 'Tracklist reordered.' : result.error);
+    if (result.ok) {
+      toast.success('Tracklist reordered.');
+    } else {
+      toast.error(result.error);
+    }
   };
 
   const saveMeta = async () => {
     setSaving(true);
-    setMessage(null);
     const result = await patchStudioCollection(slug, {
       name: name.trim() || slug,
       description: description.trim() || null,
@@ -398,7 +402,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
     });
     setSaving(false);
     if (!result.ok) {
-      setMessage(result.error);
+      toast.error(result.error);
       return;
     }
     setCol((c) =>
@@ -411,7 +415,7 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
           }
         : result.data,
     );
-    setMessage('Album details saved.');
+    toast.success('Album details saved.');
   };
 
   return (
@@ -471,12 +475,12 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                       }
                       void uploadCollectionCover(slug, file).then((r) => {
                         if (!r.ok) {
-                          setMessage(r.error);
+                          toast.error(r.error);
                           return;
                         }
                         setCoverUrl(r.coverUrl);
                         setCol((c) => (c ? { ...c, coverUrl: r.coverUrl } : c));
-                        setMessage('Cover uploaded.');
+                        toast.success('Cover uploaded.');
                       });
                     }}
                   />
@@ -663,45 +667,41 @@ export function StudioCollectionEditView({ slug }: { slug: string }) {
                 })}
               </ul>
 
-              <div className="mt-4 flex flex-wrap items-end gap-2">
-                <label className="flex min-w-[200px] flex-1 flex-col gap-1 text-sm">
-                  <span className="text-foreground-secondary text-xs uppercase">
-                    Add archive track
-                  </span>
-                  <select
-                    value={addId}
-                    onChange={(e) => setAddId(e.target.value)}
-                    className="border-border bg-background rounded-md border px-3 py-2"
-                  >
-                    <option value="">Select…</option>
-                    {archive.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.title}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              <div className="border-border mt-4 flex items-center gap-2 border-t pt-4">
+                <select
+                  value={addId}
+                  onChange={(e) => setAddId(e.target.value)}
+                  aria-label={`Add a track to this ${isAlbumLike ? 'album' : 'collection'}`}
+                  className="border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 text-sm"
+                >
+                  <option value="">Add a track…</option>
+                  {archive.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.title}
+                    </option>
+                  ))}
+                </select>
                 <Button
-                  size="sm"
+                  size="icon"
                   disabled={!addId}
+                  aria-label={`Add to ${isAlbumLike ? 'album' : 'collection'}`}
+                  title={`Add to ${isAlbumLike ? 'album' : 'collection'}`}
                   onClick={() => {
                     void addStudioCollectionItem(slug, addId).then((r) => {
-                      setMessage(r.ok ? 'Track added.' : r.error);
                       if (r.ok) {
+                        toast.success('Track added.');
                         setAddId('');
                         reload();
+                      } else {
+                        toast.error(r.error);
                       }
                     });
                   }}
                 >
-                  Add to {isAlbumLike ? 'album' : 'collection'}
+                  <PlusIcon size={16} aria-hidden />
                 </Button>
               </div>
             </StudioPanel>
-
-            {message && (
-              <p className="text-foreground-secondary text-sm">{message}</p>
-            )}
           </>
         )}
       </div>
