@@ -77,6 +77,9 @@ async function setLocalStorage(p) {
   await p.evaluate(
     ({ auth, rightCollapsed }) => {
       localStorage.setItem('tahti-web-auth', JSON.stringify(auth));
+      // Mark this mock user as already onboarded -- otherwise every
+      // authenticated shot gets hijacked by a redirect to /onboarding.
+      localStorage.setItem(`tahti-web-onboarded:${auth.state.user.id}`, '1');
       localStorage.setItem(
         'tahti-web-layout',
         JSON.stringify({
