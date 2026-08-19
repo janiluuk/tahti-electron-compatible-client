@@ -22,6 +22,41 @@ const REACTION_EMOJIS = ['💜', '🔥', '🎶', '🎵', '🌟', '👏', '✨'] 
 const HANDLE_KEY = 'tahti-web-chat-handle';
 const forceMock = () => import.meta.env.VITE_FORCE_MOCK === '1';
 
+// Chat is anonymous/handle-based -- there's no avatarUrl to show, so each
+// handle gets a deterministic initial-letter avatar instead. Cycling through
+// theme accent tokens (not arbitrary hex) keeps it consistent with the rest
+// of the app's palette.
+const AVATAR_COLORS = [
+  'var(--accent-red)',
+  'var(--accent-green)',
+  'var(--accent-blue)',
+  'var(--accent-purple)',
+  'var(--accent-cyan)',
+  'var(--accent-yellow)',
+  'var(--accent-orange)',
+  'var(--primary)',
+] as const;
+
+function avatarColorFor(handle: string): string {
+  let hash = 0;
+  for (let i = 0; i < handle.length; i++) {
+    hash = (hash * 31 + handle.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length]!;
+}
+
+function ChatAvatar({ handle }: { handle: string }) {
+  return (
+    <span
+      className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-black/80"
+      style={{ background: avatarColorFor(handle) }}
+      aria-hidden
+    >
+      {handle.trim().charAt(0).toUpperCase() || '?'}
+    </span>
+  );
+}
+
 type LiveMode = 'live' | 'rest' | 'mock';
 
 function centrifugoWsUrl(): string | null {
@@ -399,19 +434,22 @@ export function ChannelChatPanel({ slug, compact, rail }: Props) {
           </p>
         )}
         {messages.map((m) => (
-          <div key={m.id} className="leading-snug">
-            <span
-              className={
-                m.channelRole === 'owner'
-                  ? 'text-primary font-semibold'
-                  : m.supporter
-                    ? 'text-foreground font-semibold'
-                    : 'text-foreground-secondary font-medium'
-              }
-            >
-              {m.handle}
-            </span>
-            <span className="text-foreground"> {m.text}</span>
+          <div key={m.id} className="flex items-start gap-1.5 leading-snug">
+            <ChatAvatar handle={m.handle} />
+            <p className="min-w-0">
+              <span
+                className={
+                  m.channelRole === 'owner'
+                    ? 'text-primary font-semibold'
+                    : m.supporter
+                      ? 'text-foreground font-semibold'
+                      : 'text-foreground-secondary font-medium'
+                }
+              >
+                {m.handle}
+              </span>
+              <span className="text-foreground"> {m.text}</span>
+            </p>
           </div>
         ))}
       </div>
