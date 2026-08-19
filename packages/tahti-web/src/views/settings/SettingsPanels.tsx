@@ -89,6 +89,7 @@ import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
 import { GenrePicker } from '../../components/GenrePicker';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
+import { COUNTRIES } from '../../lib/countries';
 import {
   formatGenreTags,
   MAX_GENRES,
@@ -607,6 +608,65 @@ function ArtistPanel() {
                   setProfile({ ...profile, pronouns: e.target.value })
                 }
               />
+              <label className="flex flex-col gap-1.5 text-sm">
+                <span className="text-foreground text-sm font-semibold">
+                  I am a…
+                </span>
+                <div className="flex gap-2">
+                  {(
+                    [
+                      ['SINGLE', 'Solo artist'],
+                      ['COLLECTIVE', 'Band / collective'],
+                    ] as const
+                  ).map(([kind, label]) => (
+                    <button
+                      key={kind}
+                      type="button"
+                      aria-pressed={(profile.artistKind ?? 'SINGLE') === kind}
+                      onClick={() =>
+                        setProfile({ ...profile, artistKind: kind })
+                      }
+                      className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                        (profile.artistKind ?? 'SINGLE') === kind
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border text-foreground-secondary hover:text-foreground'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </label>
+              <label className="flex flex-col gap-1.5 text-sm">
+                <span className="text-foreground text-sm font-semibold">
+                  Country
+                </span>
+                <select
+                  value={profile.countryCode ?? ''}
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      countryCode: e.target.value || null,
+                    })
+                  }
+                  className="border-border bg-background rounded-md border px-3 py-2 text-sm"
+                >
+                  <option value="">Prefer not to say</option>
+                  {COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Input
+                label="City / location"
+                value={profile.defaultLocation ?? ''}
+                onChange={(e) =>
+                  setProfile({ ...profile, defaultLocation: e.target.value })
+                }
+                description="Optional — shown on your public profile"
+              />
               <Input
                 label="Tip jar URL"
                 value={profile.tipJarUrl ?? ''}
@@ -645,6 +705,9 @@ function ArtistPanel() {
                     chatEnabled: profile.chatEnabled,
                     showFollowers: profile.showFollowers,
                     showFollowing: profile.showFollowing,
+                    artistKind: profile.artistKind,
+                    countryCode: profile.countryCode,
+                    defaultLocation: profile.defaultLocation?.trim() || null,
                   }).then((r) => {
                     setBusy(false);
                     setMsg(r.ok ? 'Artist info saved.' : r.error);
