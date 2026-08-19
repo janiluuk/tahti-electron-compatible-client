@@ -412,21 +412,45 @@ export function ArtistView({ username }: { username: string }) {
               colorSchemeJson={channelVisual?.colorSchemeJson}
               artworkUrl={nowPlayingHere?.coverUrl ?? artist.avatarUrl}
             />
-            <div className="absolute inset-x-0 bottom-0 z-[1] bg-gradient-to-t from-black/70 to-transparent p-3">
+            {nowPlayingHere ? (
+              <span className="absolute top-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.16em] text-white uppercase backdrop-blur-sm">
+                <span
+                  className="bg-accent-green size-1.5 rounded-full motion-safe:animate-pulse"
+                  aria-hidden
+                />
+                Now playing
+              </span>
+            ) : null}
+
+            <div className="absolute inset-x-0 bottom-0 z-[1] flex items-end gap-3 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-3 sm:gap-4 sm:p-4">
               {nowPlayingHere ? (
                 <>
-                  <div className="text-[10px] tracking-wide text-white/70 uppercase">
-                    Now playing
+                  <div className="size-12 shrink-0 overflow-hidden rounded-md bg-white/10 shadow-lg ring-1 ring-white/15 sm:size-14">
+                    {nowPlayingHere.coverUrl ? (
+                      <img
+                        src={nowPlayingHere.coverUrl}
+                        alt=""
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center text-xs font-bold text-white/70">
+                        {nowPlayingHere.title.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
                   </div>
-                  <div className="font-bold text-white">
-                    {nowPlayingHere.title}
-                  </div>
-                  <div className="text-sm text-white/80">
-                    {artist.displayName}
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-base leading-tight font-bold text-white sm:text-lg">
+                      {nowPlayingHere.title}
+                    </div>
+                    <div className="mt-0.5 truncate text-sm text-white/75">
+                      {artist.displayName}
+                    </div>
                   </div>
                 </>
               ) : (
-                <div className="font-bold text-white">{artist.displayName}</div>
+                <div className="truncate text-base leading-tight font-bold text-white sm:text-lg">
+                  {artist.displayName}
+                </div>
               )}
             </div>
           </div>
