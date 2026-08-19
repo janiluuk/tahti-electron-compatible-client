@@ -87,7 +87,14 @@ import {
 import type { FanSubscriptionRow, MembershipStatus } from '../../api/types';
 import { ChannelDesigner } from '../../components/ChannelDesigner';
 import { FanTiersEditor } from '../../components/FanTiersEditor';
+import { GenrePicker } from '../../components/GenrePicker';
 import { SecurityTotpPanel } from '../../components/SecurityTotpPanel';
+import {
+  formatGenreTags,
+  MAX_GENRES,
+  normalizeGenresForPicker,
+  parseGenreTags,
+} from '../../lib/genres';
 import { useAuthModalStore } from '../../stores/authModalStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useSettingsModalStore } from '../../stores/settingsModalStore';
@@ -613,6 +620,18 @@ function ArtistPanel() {
                 value={profile.chatEnabled}
                 onChange={(v) => setProfile({ ...profile, chatEnabled: v })}
               />
+              <SettingsToggle
+                label="Show followers"
+                description="Follower count is visible on your public profile."
+                value={profile.showFollowers ?? true}
+                onChange={(v) => setProfile({ ...profile, showFollowers: v })}
+              />
+              <SettingsToggle
+                label="Show following"
+                description="Who you follow is visible on your public profile."
+                value={profile.showFollowing ?? true}
+                onChange={(v) => setProfile({ ...profile, showFollowing: v })}
+              />
               <Button
                 size="sm"
                 disabled={busy}
@@ -624,6 +643,8 @@ function ArtistPanel() {
                     tipJarUrl: profile.tipJarUrl?.trim() || null,
                     pronouns: profile.pronouns?.trim() || null,
                     chatEnabled: profile.chatEnabled,
+                    showFollowers: profile.showFollowers,
+                    showFollowing: profile.showFollowing,
                   }).then((r) => {
                     setBusy(false);
                     setMsg(r.ok ? 'Artist info saved.' : r.error);
@@ -866,15 +887,42 @@ function ChannelPanel() {
                   void patchDiscoveryPrefs({ showOnListenHome: v });
                 }}
               />
-              <Input
-                label="Genre tags"
-                description="Comma-separated labels for discovery."
-                value={discovery.genreTags}
-                onChange={(e) =>
-                  setDiscovery({ ...discovery, genreTags: e.target.value })
-                }
-                onBlur={() => {
-                  void patchDiscoveryPrefs({ genreTags: discovery.genreTags });
+              <label className="flex flex-col gap-2">
+                <span className="text-foreground text-sm font-semibold">
+                  Genres
+                </span>
+                <span className="text-foreground-secondary text-sm select-none">
+                  Up to {MAX_GENRES} — helps listeners find you.
+                </span>
+                <GenrePicker
+                  value={normalizeGenresForPicker(
+                    parseGenreTags(discovery.genreTags),
+                  )}
+                  onChange={(genres) => {
+                    const genreTags = formatGenreTags(genres);
+                    setDiscovery({ ...discovery, genreTags });
+                    void patchDiscoveryPrefs({ genreTags });
+                  }}
+                />
+              </label>
+              <SettingsToggle
+                label="Show favourites"
+                description="Your favourited tracks and channels are visible on your public profile."
+                value={discovery.showFavorites}
+                onChange={(v) => {
+                  const next = { ...discovery, showFavorites: v };
+                  setDiscovery(next);
+                  void patchDiscoveryPrefs({ showFavorites: v });
+                }}
+              />
+              <SettingsToggle
+                label="Announce releases"
+                description="Followers get a notification (and optional email) when you publish a release."
+                value={discovery.announceReleases}
+                onChange={(v) => {
+                  const next = { ...discovery, announceReleases: v };
+                  setDiscovery(next);
+                  void patchDiscoveryPrefs({ announceReleases: v });
                 }}
               />
             </div>

@@ -13,7 +13,12 @@ import { provisionChannel } from '../api/channel-provision';
 import { fetchMeProfile, patchMeProfile } from '../api/studio-extras';
 import { GenrePicker } from '../components/GenrePicker';
 import { COUNTRIES } from '../lib/countries';
-import { formatGenreTags, MAX_GENRES, parseGenreTags } from '../lib/genres';
+import {
+  formatGenreTags,
+  MAX_GENRES,
+  normalizeGenresForPicker,
+  parseGenreTags,
+} from '../lib/genres';
 import { useAuthStore } from '../stores/authStore';
 
 const ONBOARDED_KEY_PREFIX = 'tahti-web-onboarded:';
@@ -79,7 +84,7 @@ export function OnboardingView() {
         setShowFollowing(profile.data.showFollowing ?? true);
         setSlug(user.channel?.slug ?? user.username);
         setGenres(
-          parseGenreTags(discovery.data.genreTags).slice(0, MAX_GENRES),
+          normalizeGenresForPicker(parseGenreTags(discovery.data.genreTags)),
         );
         setShowFavorites(discovery.data.showFavorites ?? true);
         setAnnounceReleases(discovery.data.announceReleases ?? true);
