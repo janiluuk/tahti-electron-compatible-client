@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { usePlayerStore } from '../stores/playerStore';
 
+/** Keys match the backend's ColorSchemeSchema (bg/accent/text/muted/
+ * highlight) so a scheme round-trips through save/fetch unchanged. */
 export type VisualColorScheme = {
   accent?: string;
   highlight?: string;
-  background?: string;
-  foreground?: string;
+  bg?: string;
+  text?: string;
   muted?: string;
 };
 
@@ -26,8 +28,8 @@ function parseScheme(
   const fallback = {
     accent: '#22D3EE',
     highlight: '#A78BFA',
-    background: '#0B1220',
-    foreground: '#F8FAFC',
+    bg: '#0B1220',
+    text: '#F8FAFC',
     muted: '#64748B',
   };
   let parsed: VisualColorScheme = {};
@@ -41,8 +43,8 @@ function parseScheme(
   return {
     accent: scheme?.accent ?? parsed.accent ?? fallback.accent,
     highlight: scheme?.highlight ?? parsed.highlight ?? fallback.highlight,
-    background: scheme?.background ?? parsed.background ?? fallback.background,
-    foreground: scheme?.foreground ?? parsed.foreground ?? fallback.foreground,
+    bg: scheme?.bg ?? parsed.bg ?? fallback.bg,
+    text: scheme?.text ?? parsed.text ?? fallback.text,
     muted: scheme?.muted ?? parsed.muted ?? fallback.muted,
   };
 }
@@ -336,7 +338,7 @@ export function ChannelVisualizer({
         className={className}
         aria-hidden
         style={{
-          background: `radial-gradient(ellipse at 30% 20%, ${scheme.highlight}33, transparent 55%), radial-gradient(ellipse at 70% 80%, ${scheme.accent}22, ${scheme.background})`,
+          background: `radial-gradient(ellipse at 30% 20%, ${scheme.highlight}33, transparent 55%), radial-gradient(ellipse at 70% 80%, ${scheme.accent}22, ${scheme.bg})`,
         }}
       />
     );
@@ -349,7 +351,7 @@ export function ChannelVisualizer({
       style={{
         position: 'relative',
         overflow: 'hidden',
-        background: scheme.background,
+        background: scheme.bg,
       }}
     >
       {artworkUrl && (

@@ -1,9 +1,12 @@
 import {
   AudioLines,
+  CheckIcon,
   Cloud,
   Droplets,
   Flashlight,
   Grid3x3,
+  Loader2Icon,
+  SaveIcon,
   Slash,
   Sparkles,
   Spline,
@@ -13,12 +16,15 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, PluginItem, Tabs, Toggle } from '@nuclearplayer/ui';
 
 import {
   BRAND_ACCENTS,
+  DEFAULT_COLOR_SCHEME,
   fetchChannelVisual,
+  fillColorScheme,
   HEADER_STYLES,
   parseColorScheme,
   patchChannelVisual,
@@ -110,7 +116,6 @@ export function ChannelDesigner({
 }: Props) {
   const [visual, setVisual] = useState<ChannelVisual | null>(null);
   const [scheme, setScheme] = useState<ColorScheme>({});
-  const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [lastVisualizerPreset, setLastVisualizerPreset] =
@@ -133,8 +138,8 @@ export function ChannelDesigner({
   const previewStyle = useMemo(() => {
     const accent = scheme.accent ?? '#22D3EE';
     const highlight = scheme.highlight ?? '#A78BFA';
-    const bg = scheme.background ?? '#0B1220';
-    const fg = scheme.foreground ?? '#F8FAFC';
+    const bg = scheme.bg ?? '#0B1220';
+    const fg = scheme.text ?? '#F8FAFC';
     const brand = BRAND_ACCENTS.find((b) => b.id === visual?.brandAccentPreset);
     const gradient =
       visual?.headerStyle === 'SOLID'
@@ -160,22 +165,21 @@ export function ChannelDesigner({
       return;
     }
     setBusy(true);
-    setMsg(null);
     const result = await patchChannelVisual({
       visualPreset: visual.visualPreset,
       headerStyle: visual.headerStyle,
       brandAccentPreset: visual.brandAccentPreset,
-      colorScheme: scheme,
+      colorScheme: fillColorScheme(scheme),
     });
     setBusy(false);
     if (!result.ok) {
-      setMsg(result.error);
+      toast.error(result.error);
       return;
     }
     setVisual(result.data);
     setScheme(parseColorScheme(result.data.colorSchemeJson));
     setDirty(false);
-    setMsg('Look saved — public channel will pick this up.');
+    toast.success('Look saved — public channel will pick this up.');
     onSaved?.();
   };
 
@@ -300,8 +304,9 @@ export function ChannelDesigner({
                     [
                       ['accent', 'Accent'] as const,
                       ['highlight', 'Highlight'] as const,
-                      ['background', 'Background'] as const,
-                      ['foreground', 'Foreground'] as const,
+                      ['bg', 'Background'] as const,
+                      ['text', 'Foreground'] as const,
+                      ['muted', 'Muted'] as const,
                     ] as const
                   ).map(([key, label]) => (
                     <label
@@ -310,7 +315,7 @@ export function ChannelDesigner({
                     >
                       <input
                         type="color"
-                        value={scheme[key] ?? '#22D3EE'}
+                        value={scheme[key] ?? DEFAULT_COLOR_SCHEME[key]}
                         onChange={(event) => {
                           const next = { ...scheme, [key]: event.target.value };
                           applyLocal({}, next);
@@ -364,10 +369,24 @@ export function ChannelDesigner({
       />
 
       <div className="border-border flex flex-wrap items-center gap-3 border-t pt-4">
-        <Button size="sm" disabled={busy || !dirty} onClick={() => void save()}>
-          {busy ? 'Saving…' : dirty ? 'Save look' : 'Saved'}
+        <Button
+          size="icon"
+          variant="secondary"
+          disabled={busy || !dirty}
+          aria-label={
+            busy ? 'Saving look…' : dirty ? 'Save look' : 'Look saved'
+          }
+          title={busy ? 'Saving…' : dirty ? 'Save look' : 'Saved'}
+          onClick={() => void save()}
+        >
+          {busy ? (
+            <Loader2Icon size={16} className="animate-spin" aria-hidden />
+          ) : dirty ? (
+            <SaveIcon size={16} aria-hidden />
+          ) : (
+            <CheckIcon size={16} aria-hidden />
+          )}
         </Button>
-        {msg && <p className="text-foreground-secondary text-sm">{msg}</p>}
       </div>
     </>
   );

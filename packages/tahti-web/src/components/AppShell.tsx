@@ -16,6 +16,7 @@ import {
   PlayerWorkspace,
   SidebarNavigation,
   SidebarNavigationItem,
+  Toaster,
 } from '@nuclearplayer/ui';
 
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -216,6 +217,7 @@ export function AppShell() {
       <FullScreenPlayer />
       <AuthDialog />
       <ConnectedSettingsModal />
+      <Toaster position="bottom-right" richColors closeButton />
 
       <MobileDrawer
         open={mobileNavOpen}

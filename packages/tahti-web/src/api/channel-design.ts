@@ -105,12 +105,31 @@ export const BRAND_ACCENTS = [
   },
 ] as const;
 
+/** Keys must match the backend's ColorSchemeSchema exactly (bg/accent/text/
+ * muted/highlight, all 6-digit hex) -- when a colorScheme is included in a
+ * PATCH at all, every key is required, so callers must fill defaults for
+ * anything the user hasn't touched before sending (see save() below). */
 export type ColorScheme = {
   accent?: string;
   highlight?: string;
-  background?: string;
-  foreground?: string;
+  bg?: string;
+  text?: string;
+  muted?: string;
 };
+
+export const DEFAULT_COLOR_SCHEME: Required<ColorScheme> = {
+  accent: '#22D3EE',
+  highlight: '#A78BFA',
+  bg: '#0B1220',
+  text: '#F8FAFC',
+  muted: '#64748B',
+};
+
+/** Fills every key with a default so the object always satisfies the
+ * backend's all-required ColorSchemeSchema before it's sent in a PATCH. */
+export function fillColorScheme(scheme: ColorScheme): Required<ColorScheme> {
+  return { ...DEFAULT_COLOR_SCHEME, ...scheme };
+}
 
 export type ChannelVisual = {
   visualPreset: VisualPreset | string;
@@ -129,8 +148,9 @@ let mockVisual: ChannelVisual = {
   colorSchemeJson: JSON.stringify({
     accent: '#22D3EE',
     highlight: '#A78BFA',
-    background: '#0B1220',
-    foreground: '#F8FAFC',
+    bg: '#0B1220',
+    text: '#F8FAFC',
+    muted: '#64748B',
   }),
   headerStyle: 'GRADIENT',
   brandAccentPreset: 'aurora',
@@ -142,22 +162,12 @@ let mockVisual: ChannelVisual = {
 
 export function parseColorScheme(json: string | null | undefined): ColorScheme {
   if (!json) {
-    return {
-      accent: '#22D3EE',
-      highlight: '#A78BFA',
-      background: '#0B1220',
-      foreground: '#F8FAFC',
-    };
+    return { ...DEFAULT_COLOR_SCHEME };
   }
   try {
     return JSON.parse(json) as ColorScheme;
   } catch {
-    return {
-      accent: '#22D3EE',
-      highlight: '#A78BFA',
-      background: '#0B1220',
-      foreground: '#F8FAFC',
-    };
+    return { ...DEFAULT_COLOR_SCHEME };
   }
 }
 
