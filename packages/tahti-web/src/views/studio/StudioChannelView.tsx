@@ -1,7 +1,8 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, Toggle } from '@nuclearplayer/ui';
 
 import {
   checkSlugAvailable,
@@ -37,7 +38,6 @@ export function StudioChannelView() {
   const [slugNote, setSlugNote] = useState<string | null>(null);
   const [domain, setDomain] = useState('');
   const [domainInfo, setDomainInfo] = useState<string | null>(null);
-  const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -54,7 +54,6 @@ export function StudioChannelView() {
 
   const saveProfile = async () => {
     setBusy(true);
-    setMsg(null);
     const result = await patchMeProfile({
       displayName: displayName.trim(),
       bio: bio.trim() || null,
@@ -64,11 +63,11 @@ export function StudioChannelView() {
     });
     setBusy(false);
     if (!result.ok) {
-      setMsg(result.error);
+      toast.error(result.error);
       return;
     }
     setProfile(result.data);
-    setMsg('Profile saved.');
+    toast.success('Profile saved.');
   };
 
   return (
@@ -177,10 +176,10 @@ export function StudioChannelView() {
                     onChange={(e) => setTipJarUrl(e.target.value)}
                   />
                   <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
+                    <Toggle
                       checked={chatEnabled}
-                      onChange={(e) => setChatEnabled(e.target.checked)}
+                      onChange={setChatEnabled}
+                      aria-label="Public channel chat enabled"
                     />
                     Public channel chat enabled
                   </label>
@@ -225,7 +224,12 @@ export function StudioChannelView() {
                   size="sm"
                   onClick={() => {
                     void updateChannelSlug(slug.trim()).then((r) => {
-                      setSlugNote(r.ok ? `Renamed to ${r.slug}` : r.error);
+                      if (r.ok) {
+                        setSlugNote(null);
+                        toast.success(`Renamed to ${r.slug}`);
+                      } else {
+                        toast.error(r.error);
+                      }
                     });
                   }}
                 >
@@ -258,12 +262,14 @@ export function StudioChannelView() {
                   onClick={() => {
                     void setCustomDomain(domain.trim()).then((r) => {
                       if (!r.ok) {
-                        setDomainInfo(r.error);
-                      } else {
-                        setDomainInfo(
-                          `Add TXT ${r.txtHost} = ${r.txtRecord}, then Verify.`,
-                        );
+                        toast.error(r.error);
+                        return;
                       }
+                      // Stays inline, not a toast: these are DNS records the
+                      // user has to read and copy into their registrar.
+                      setDomainInfo(
+                        `Add TXT ${r.txtHost} = ${r.txtRecord}, then Verify.`,
+                      );
                     });
                   }}
                 >
@@ -274,13 +280,15 @@ export function StudioChannelView() {
                   variant="secondary"
                   onClick={() => {
                     void verifyCustomDomain().then((r) => {
-                      setDomainInfo(
-                        r.ok
-                          ? r.verified
-                            ? 'Verified!'
-                            : 'Not verified yet'
-                          : r.error,
-                      );
+                      if (!r.ok) {
+                        toast.error(r.error);
+                      } else if (r.verified) {
+                        toast.success('Domain verified.');
+                      } else {
+                        toast.warning(
+                          'Not verified yet — DNS may still be propagating.',
+                        );
+                      }
                     });
                   }}
                 >
@@ -295,8 +303,6 @@ export function StudioChannelView() {
             </StudioPanel>
           </div>
         )}
-
-        {msg && <p className="text-sm">{msg}</p>}
       </div>
     </StudioGate>
   );

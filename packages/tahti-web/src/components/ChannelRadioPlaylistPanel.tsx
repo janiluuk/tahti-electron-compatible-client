@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { ListMusicIcon, PlusIcon, RadioIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button, Input, Toggle } from '@nuclearplayer/ui';
 
@@ -26,7 +27,6 @@ export function ChannelRadioPlaylistPanel() {
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
 
   const reload = () => {
     void Promise.all([fetchProgramme(), fetchStudioCollections()]).then(
@@ -47,19 +47,18 @@ export function ChannelRadioPlaylistPanel() {
 
   const toggleRadio = async (on: boolean) => {
     setBusy(true);
-    setMsg(null);
     const r = await patchProgramme({ fallbackEnabled: on });
     setBusy(false);
     if (!r.ok) {
-      setMsg(r.error);
+      toast.error(r.error);
       return;
     }
     setProgramme(r.data);
+    toast.success(on ? '24/7 radio enabled.' : '24/7 radio turned off.');
   };
 
   const applySelected = async (slug: string) => {
     setBusy(true);
-    setMsg(null);
     const { data } = await fetchStudioCollection(slug);
     const ids = (data.items ?? [])
       .map((i) => i.archiveItemId)
@@ -70,12 +69,12 @@ export function ChannelRadioPlaylistPanel() {
     });
     setBusy(false);
     if (!r.ok) {
-      setMsg(r.error);
+      toast.error(r.error);
       return;
     }
     setProgramme(r.data);
     setSelectedSlug(slug);
-    setMsg(
+    toast.success(
       `24/7 uses “${data.name}” (${Math.min(ids.length, MAX_RADIO_PLAYLIST_ITEMS)} tracks).`,
     );
   };
@@ -92,14 +91,14 @@ export function ChannelRadioPlaylistPanel() {
     });
     setBusy(false);
     if (!created.ok) {
-      setMsg(created.error);
+      toast.error(created.error);
       return;
     }
     setCreating(false);
     setNewName('');
     setPlaylists((prev) => [created.data, ...prev]);
     setSelectedSlug(created.data.slug);
-    setMsg(
+    toast.success(
       `Created “${created.data.name}”. Add tracks in Playlists, then Apply.`,
     );
   };
@@ -210,8 +209,6 @@ export function ChannelRadioPlaylistPanel() {
             )}
         </div>
       )}
-
-      {msg && <p className="text-foreground-secondary mt-3 text-xs">{msg}</p>}
     </section>
   );
 }
