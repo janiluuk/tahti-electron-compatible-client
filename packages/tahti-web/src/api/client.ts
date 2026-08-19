@@ -1680,4 +1680,79 @@ export async function fetchAnnouncements(): Promise<{
   }
 }
 
+// Signed-in listener's own newsletter subscription toggle per artist —
+// notifications (+ optional email) for that artist's newsletters, events,
+// and other activity. Anonymous visitors use a separate email-capture form
+// (double opt-in) instead, since there's no account to toggle.
+const mockNewsletterSubs = new Set<string>();
+
+export async function fetchNewsletterSubscription(
+  artistUsername: string,
+): Promise<{ subscribed: boolean }> {
+  if (forceMock()) {
+    return { subscribed: mockNewsletterSubs.has(artistUsername) };
+  }
+  try {
+    return await getJson<{ subscribed: boolean }>(
+      `/api/me/newsletter/subscription/${encodeURIComponent(artistUsername)}`,
+    );
+  } catch {
+    return { subscribed: false };
+  }
+}
+
+export async function setNewsletterSubscription(
+  artistUsername: string,
+  subscribed: boolean,
+): Promise<{ ok: true; subscribed: boolean } | { ok: false; error: string }> {
+  if (forceMock()) {
+    if (subscribed) {
+      mockNewsletterSubs.add(artistUsername);
+    } else {
+      mockNewsletterSubs.delete(artistUsername);
+    }
+    return { ok: true, subscribed };
+  }
+  try {
+    const { data } = await requestJson<{ subscribed: boolean }>(
+      `/api/me/newsletter/subscription/${encodeURIComponent(artistUsername)}`,
+      { method: subscribed ? 'POST' : 'DELETE' },
+    );
+    return { ok: true, subscribed: data.subscribed };
+  } catch (err) {
+    return {
+      ok: false,
+      error:
+        err instanceof Error ? err.message : 'Could not update subscription',
+    };
+  }
+}
+
+/** Anonymous visitor path — double opt-in, no account needed. */
+export async function subscribeNewsletterByEmail(
+  email: string,
+  artistUsername: string,
+): Promise<
+  { ok: true; alreadySubscribed: boolean } | { ok: false; error: string }
+> {
+  if (forceMock()) {
+    return { ok: true, alreadySubscribed: false };
+  }
+  try {
+    const { data } = await requestJson<{ status?: string }>(
+      '/api/newsletter/subscribe',
+      { method: 'POST', body: JSON.stringify({ email, artistUsername }) },
+    );
+    return {
+      ok: true,
+      alreadySubscribed: data.status === 'already_subscribed',
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Subscription failed',
+    };
+  }
+}
+
 export { archiveItemToPlayable };

@@ -22,6 +22,7 @@ import {
 import { ChannelDesigner } from '../components/ChannelDesigner';
 import { ChannelVisualizer } from '../components/ChannelVisualizer';
 import { GlowMediaTile } from '../components/GlowMediaTile';
+import { NewsletterSubscribeToggle } from '../components/NewsletterSubscribeToggle';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
 import {
   releasePlayables,
@@ -357,6 +358,12 @@ export function ArtistView({ username }: { username: string }) {
             >
               Green room
             </Link>
+          )}
+          {!isOwner && (
+            <NewsletterSubscribeToggle
+              artistUsername={artist.username}
+              artistDisplayName={artist.displayName}
+            />
           )}
           {isOwner && (
             <Link
