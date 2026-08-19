@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { ListMusicIcon, PlusIcon, RadioIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, Input, Toggle } from '@nuclearplayer/ui';
 
 import {
   createStudioCollection,
@@ -120,11 +120,11 @@ export function ChannelRadioPlaylistPanel() {
           </p>
         </div>
         <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
+          <Toggle
             checked={on}
             disabled={busy || !programme}
-            onChange={(e) => void toggleRadio(e.target.checked)}
+            onChange={(checked) => void toggleRadio(checked)}
+            aria-label="24/7 radio"
           />
           {on ? 'On' : 'Off'}
         </label>
