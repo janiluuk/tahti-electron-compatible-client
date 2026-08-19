@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import {
+  ArrowDownToLineIcon,
+  ArrowUpFromLineIcon,
   Bell,
   Cast,
   Compass,
@@ -141,7 +143,7 @@ export function SettingsSectionBody({
       content = <ConnectionsPanel />;
       break;
     case 'integrations':
-      content = <IntegrationsMcpPanel />;
+      content = <ImportExportPanel />;
       break;
     case 'whats-new':
       content = <WhatsNewPanel />;
@@ -167,60 +169,188 @@ export function SettingsSectionBody({
   );
 }
 
-/** Nuclear desktop MCP — same stack as upstream player (not the web SPA). */
-function IntegrationsMcpPanel() {
-  const cursorSnippet = `{
-  "mcpServers": {
-    "nuclear": {
-      "url": "http://127.0.0.1:8800/mcp"
-    }
-  }
-}`;
+type ServiceEntry = {
+  id: string;
+  label: string;
+  note: string;
+  color: string;
+  to: string;
+};
 
+// Mirrors SOURCE_DEFS (api/sources.ts) minus upload/stash/broadcast/radio,
+// which aren't external services to import *from*.
+const IMPORT_SERVICES: ServiceEntry[] = [
+  {
+    id: 'bandcamp',
+    label: 'Bandcamp',
+    note: 'Connect and import albums into your catalog.',
+    color: 'var(--accent-cyan)',
+    to: '/sources/bandcamp',
+  },
+  {
+    id: 'soundcloud',
+    label: 'SoundCloud',
+    note: 'OAuth connect, queue server-side import to your archive.',
+    color: 'var(--accent-orange)',
+    to: '/sources/soundcloud',
+  },
+  {
+    id: 'google-drive',
+    label: 'Google Drive',
+    note: 'Import audio files via cloud-import jobs.',
+    color: 'var(--accent-blue)',
+    to: '/sources/google-drive',
+  },
+  {
+    id: 'mixcloud',
+    label: 'Mixcloud',
+    note: 'Rescue mixes into your archive, or publish back out.',
+    color: 'var(--accent-purple)',
+    to: '/sources/mixcloud',
+  },
+  {
+    id: 'spotify',
+    label: 'Spotify',
+    note: 'Search tracks to add into mixed-source collections.',
+    color: 'var(--accent-green)',
+    to: '/sources/spotify',
+  },
+  {
+    id: 'url',
+    label: 'URL / DSP paste',
+    note: 'Paste a link from any DSP to seed a smart-link target.',
+    color: 'var(--accent-yellow)',
+    to: '/sources/url',
+  },
+];
+
+// The DSP set a Tahti release actually reaches (same list the public smart
+// link page buttons use). Spotify/Apple/Tidal/Deezer/Amazon/YouTube go out
+// through one Revelator submission; Bandcamp/SoundCloud/Mixcloud are
+// reached by connecting them as a source instead.
+const EXPORT_SERVICES: ServiceEntry[] = [
+  {
+    id: 'spotify',
+    label: 'Spotify',
+    note: 'One-form delivery via Revelator DSP delivery.',
+    color: 'var(--accent-green)',
+    to: '/studio/distribution',
+  },
+  {
+    id: 'apple',
+    label: 'Apple Music',
+    note: 'One-form delivery via Revelator DSP delivery.',
+    color: 'var(--foreground-secondary)',
+    to: '/studio/distribution',
+  },
+  {
+    id: 'tidal',
+    label: 'Tidal',
+    note: 'One-form delivery via Revelator DSP delivery.',
+    color: 'var(--accent-blue)',
+    to: '/studio/distribution',
+  },
+  {
+    id: 'deezer',
+    label: 'Deezer',
+    note: 'One-form delivery via Revelator DSP delivery.',
+    color: 'var(--primary)',
+    to: '/studio/distribution',
+  },
+  {
+    id: 'amazon',
+    label: 'Amazon Music',
+    note: 'One-form delivery via Revelator DSP delivery.',
+    color: 'var(--accent-cyan)',
+    to: '/studio/distribution',
+  },
+  {
+    id: 'youtube',
+    label: 'YouTube Music',
+    note: 'One-form delivery via Revelator DSP delivery.',
+    color: 'var(--accent-red)',
+    to: '/studio/distribution',
+  },
+  {
+    id: 'bandcamp',
+    label: 'Bandcamp',
+    note: 'Connect it as a source to publish there directly.',
+    color: 'var(--accent-cyan)',
+    to: '/sources/bandcamp',
+  },
+  {
+    id: 'soundcloud',
+    label: 'SoundCloud',
+    note: 'Connect it as a source to publish there directly.',
+    color: 'var(--accent-orange)',
+    to: '/sources/soundcloud',
+  },
+  {
+    id: 'mixcloud',
+    label: 'Mixcloud',
+    note: 'Connect it as a source to publish your mixes directly.',
+    color: 'var(--accent-purple)',
+    to: '/sources/mixcloud',
+  },
+];
+
+function ServiceRow({ service }: { service: ServiceEntry }) {
+  const closeSettings = useSettingsModalStore((s) => s.close);
   return (
-    <div className="flex flex-col gap-4 text-sm">
-      <SettingsHint>
-        The original Nuclear MCP server ships in this monorepo&apos;s desktop
-        player (<code className="text-xs">@nuclearplayer/player</code>),
-        byte-identical to upstream. It is not hosted on the beta web SPA —
-        agents need the Tauri app + localhost bridge.
-      </SettingsHint>
-      <div className="border-border bg-background-secondary/40 rounded-lg border p-4">
-        <h3 className="text-foreground mb-2 font-medium">
-          Enable MCP (desktop)
+    <li className="border-border flex items-center gap-3 rounded-lg border px-3 py-2">
+      <span
+        className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-black/80"
+        style={{ background: service.color }}
+        aria-hidden
+      >
+        {service.label.charAt(0)}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium">{service.label}</div>
+        <div className="text-foreground-secondary truncate text-xs">
+          {service.note}
+        </div>
+      </div>
+      <Link to={service.to} onClick={closeSettings}>
+        <Button size="sm" variant="secondary">
+          Open
+        </Button>
+      </Link>
+    </li>
+  );
+}
+
+/** Where a release's audience actually comes from and goes to — the
+ * services you can pull music in from, and the services a release
+ * distributes out to. Replaces the old desktop-only MCP docs, which
+ * described a capability this web SPA can't offer (see chat history:
+ * MCP needs Tauri IPC into a local process, not reachable from here). */
+function ImportExportPanel() {
+  return (
+    <div className="flex flex-col gap-6 text-sm">
+      <section className="flex flex-col gap-2">
+        <h3 className="flex items-center gap-1.5 font-medium">
+          <ArrowUpFromLineIcon size={14} aria-hidden />
+          Export releases
         </h3>
-        <ol className="text-foreground-secondary list-decimal space-y-1.5 pl-5">
-          <li>
-            From repo root:{' '}
-            <code className="text-xs">
-              pnpm --filter @nuclearplayer/player dev
-            </code>
-          </li>
-          <li>Settings → Integrations → Enable MCP Server</li>
-          <li>
-            Connect at{' '}
-            <code className="text-xs">http://127.0.0.1:8800/mcp</code>{' '}
-            (Streamable HTTP; ports 8800–8809)
-          </li>
-        </ol>
-      </div>
-      <div className="border-border bg-background-secondary/40 rounded-lg border p-4">
-        <h3 className="text-foreground mb-2 font-medium">Cursor / Claude</h3>
-        <pre className="bg-background overflow-x-auto rounded-md p-3 text-xs">
-          {cursorSnippet}
-        </pre>
-        <SettingsHint>
-          Tools: list_methods, method_details, describe_type, call — Queue,
-          Playback, Metadata, Favorites, Playlists, Dashboard, Providers.
-        </SettingsHint>
-      </div>
-      <SettingsHint>
-        Full docs: packages/docs/integrations/mcp-server.md and
-        packages/tahti-web/docs/MCP.md. Parity:{' '}
-        <code className="text-xs">
-          node packages/tahti-web/scripts/verify-nuclear-mcp-parity.mjs
-        </code>
-      </SettingsHint>
+        <ul className="flex flex-col gap-2">
+          {EXPORT_SERVICES.map((s) => (
+            <ServiceRow key={`export-${s.id}`} service={s} />
+          ))}
+        </ul>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h3 className="flex items-center gap-1.5 font-medium">
+          <ArrowDownToLineIcon size={14} aria-hidden />
+          Import music
+        </h3>
+        <ul className="flex flex-col gap-2">
+          {IMPORT_SERVICES.map((s) => (
+            <ServiceRow key={`import-${s.id}`} service={s} />
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

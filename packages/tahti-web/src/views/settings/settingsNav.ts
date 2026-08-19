@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  Bot,
+  ArrowLeftRight,
   Link2,
   Paintbrush,
   Palette,
@@ -74,9 +74,9 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   },
   {
     id: 'integrations',
-    label: 'Integrations',
-    description: 'Nuclear MCP (desktop AI control)',
-    Icon: Bot,
+    label: 'Import & export',
+    description: 'Bring music in, send releases out',
+    Icon: ArrowLeftRight,
   },
   {
     id: 'whats-new',
@@ -86,10 +86,11 @@ export const SETTINGS_NAV: SettingsNavItem[] = [
   },
 ];
 
-/** Sections visible without signing in (prefs + announcements). */
+/** Sections visible without signing in (prefs + announcements). Import &
+ * export links into Studio/Sources, which all require an account, so it
+ * stays sign-in-only rather than showing dead-end links while signed out. */
 export const PUBLIC_SETTINGS_SECTION_IDS: readonly SettingsSectionId[] = [
   'themes',
-  'integrations',
   'whats-new',
 ];
 
