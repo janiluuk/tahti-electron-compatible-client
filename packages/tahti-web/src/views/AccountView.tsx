@@ -5,6 +5,7 @@ import { Button, Tabs } from '@nuclearplayer/ui';
 
 import { fetchMembership, fetchMySubscriptions } from '../api/client';
 import type { FanSubscriptionRow, MembershipStatus } from '../api/types';
+import { ClientCapabilityNotice } from '../components/ClientCapabilityNotice';
 import { PageFrame, PageHeader } from '../components/PageHeader';
 import { useAuthStore } from '../stores/authStore';
 
@@ -80,6 +81,26 @@ export function AccountView() {
       />
 
       {loading && <p className="text-foreground-secondary text-sm">Loading…</p>}
+
+      <ClientCapabilityNotice
+        kind="not-in-client"
+        title="Purchase / change password"
+        action={
+          <a
+            href="https://tahti.live/signup/payment"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button size="sm" variant="text">
+              Membership checkout on tahti.live
+            </Button>
+          </a>
+        }
+      >
+        Stripe membership purchase (<code>/signup/payment</code>) and password
+        change / setup-password are not available in this client. Membership
+        status below is read-only from the API.
+      </ClientCapabilityNotice>
 
       <Tabs
         listClassName="border-border border-b pb-3"

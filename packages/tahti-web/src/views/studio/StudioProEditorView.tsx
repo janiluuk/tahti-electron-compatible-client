@@ -27,6 +27,7 @@ import {
 } from '../../api/studio';
 import type { EditList, ProEditorPluginId } from '../../api/studio-types';
 import { createDefaultEditList } from '../../api/studio-types';
+import { ClientCapabilityNotice } from '../../components/ClientCapabilityNotice';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
@@ -509,6 +510,15 @@ export function StudioProEditorView({
           title={title || 'Pro editor'}
           subtitle="Waveform, cuts, EQ, and mastering — save a draft or render a new version."
         />
+
+        <ClientCapabilityNotice kind="partial" title="Editor scope">
+          This is the lite pro editor (cut/trim, FX knobs, stems request). Full
+          multitrack timeline parity with production stays on the backlog — see{' '}
+          <Link to="/more" className="underline-offset-2 hover:underline">
+            Tahti map
+          </Link>
+          .
+        </ClientCapabilityNotice>
 
         {loading || !editList ? (
           <StudioPanel>

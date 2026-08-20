@@ -13,6 +13,7 @@ import type { ReactNode } from 'react';
 import { Button } from '@nuclearplayer/ui';
 
 import { cn } from '../lib/cn';
+import { useAuthStore } from '../stores/authStore';
 import { useLayoutStore } from '../stores/layoutStore';
 
 const NAV = [
@@ -21,12 +22,14 @@ const NAV = [
     label: 'Listen',
     icon: GaugeIcon,
     match: (p: string) => p === '/',
+    boardOnly: false,
   },
   {
     to: '/radio',
     label: 'Radio',
     icon: RadioIcon,
     match: (p: string) => p.startsWith('/radio'),
+    boardOnly: false,
   },
   {
     to: '/library',
@@ -34,12 +37,14 @@ const NAV = [
     icon: LibraryIcon,
     match: (p: string) =>
       p.startsWith('/library') || p.startsWith('/favorites'),
+    boardOnly: false,
   },
   {
     to: '/studio',
     label: 'Studio',
     icon: LayoutDashboardIcon,
     match: (p: string) => p.startsWith('/studio'),
+    boardOnly: false,
   },
   {
     to: '/more',
@@ -49,6 +54,7 @@ const NAV = [
       p.startsWith('/more') ||
       p.startsWith('/settings') ||
       p.startsWith('/sources'),
+    boardOnly: true,
   },
 ] as const;
 
@@ -59,15 +65,17 @@ type MobileBottomNavProps = {
 /** Fixed bottom tab bar for phone layouts. */
 export function MobileBottomNav({ onOpenQueue }: MobileBottomNavProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isBoard = useAuthStore((s) => Boolean(s.user?.isBoard));
   const toggleBottomQueue = useLayoutStore((s) => s.toggleBottomQueue);
   const openQueue = onOpenQueue ?? toggleBottomQueue;
+  const items = NAV.filter((item) => !item.boardOnly || isBoard);
 
   return (
     <nav
       className="border-border bg-background z-40 flex shrink-0 items-stretch justify-around border-t px-1 pt-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] md:hidden"
       aria-label="Primary"
     >
-      {NAV.map((item) => {
+      {items.map((item) => {
         const Icon = item.icon;
         const active = item.match(pathname);
         return (
