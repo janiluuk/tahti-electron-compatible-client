@@ -199,67 +199,118 @@ export const MediaArtwork: FC<MediaArtworkProps> = ({
         />
       )}
 
-      {hasPlay && (
-        <div
-          className={cn(
-            'pointer-events-none absolute inset-0 flex items-center justify-center',
-            overlayReveal,
-          )}
-        >
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="default"
-            disabled={playDisabled}
-            title={playLabel}
-            aria-label={playLabel}
-            data-testid="media-artwork-play"
+      {/* Small (row-context) artwork: play + queue/favorite sit together,
+          centered, so the queue action reads as "next to play" rather than
+          pinned to a far corner like on the larger grid-card sizes below. */}
+      {size === 'sm' ? (
+        (hasPlay || hasSecondary) && (
+          <div
             className={cn(
-              'pointer-events-auto rounded-full shadow-md',
-              size === 'sm' ? 'size-7' : size === 'md' ? 'size-9' : 'size-11',
+              'pointer-events-none absolute inset-0 flex items-center justify-center gap-0.5',
+              overlayReveal,
             )}
-            onClick={(e) => {
-              stop(e);
-              onPlay?.();
-            }}
           >
-            <Play size={iconPx} className="translate-x-px fill-current" />
-          </Button>
-        </div>
-      )}
-
-      {hasSecondary && (
-        <div
-          className={cn(
-            'pointer-events-none absolute top-1 right-1 z-[1] flex flex-col gap-0.5',
-            overlayReveal,
-            size === 'sm' && 'top-0.5 right-0.5',
-          )}
-        >
-          {secondary.map((action) => (
-            <Button
-              key={action.id}
-              type="button"
-              size="icon-sm"
-              variant="secondary"
-              disabled={action.disabled}
-              title={action.label}
-              aria-label={action.label}
-              aria-pressed={action.active}
-              data-testid={`media-artwork-${action.id}`}
+            {hasPlay && (
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="default"
+                disabled={playDisabled}
+                title={playLabel}
+                aria-label={playLabel}
+                data-testid="media-artwork-play"
+                className="pointer-events-auto size-7 rounded-full shadow-md"
+                onClick={(e) => {
+                  stop(e);
+                  onPlay?.();
+                }}
+              >
+                <Play size={iconPx} className="translate-x-px fill-current" />
+              </Button>
+            )}
+            {secondary.map((action) => (
+              <Button
+                key={action.id}
+                type="button"
+                size="icon-sm"
+                variant="secondary"
+                disabled={action.disabled}
+                title={action.label}
+                aria-label={action.label}
+                aria-pressed={action.active}
+                data-testid={`media-artwork-${action.id}`}
+                className="pointer-events-auto size-5 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                onClick={(e) => {
+                  stop(e);
+                  action.onClick();
+                }}
+              >
+                {action.icon}
+              </Button>
+            ))}
+          </div>
+        )
+      ) : (
+        <>
+          {hasPlay && (
+            <div
               className={cn(
-                'pointer-events-auto rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm',
-                size === 'sm' ? 'size-5' : 'size-7',
+                'pointer-events-none absolute inset-0 flex items-center justify-center',
+                overlayReveal,
               )}
-              onClick={(e) => {
-                stop(e);
-                action.onClick();
-              }}
             >
-              {action.icon}
-            </Button>
-          ))}
-        </div>
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="default"
+                disabled={playDisabled}
+                title={playLabel}
+                aria-label={playLabel}
+                data-testid="media-artwork-play"
+                className={cn(
+                  'pointer-events-auto rounded-full shadow-md',
+                  size === 'md' ? 'size-9' : 'size-11',
+                )}
+                onClick={(e) => {
+                  stop(e);
+                  onPlay?.();
+                }}
+              >
+                <Play size={iconPx} className="translate-x-px fill-current" />
+              </Button>
+            </div>
+          )}
+
+          {hasSecondary && (
+            <div
+              className={cn(
+                'pointer-events-none absolute top-1 right-1 z-[1] flex flex-col gap-0.5',
+                overlayReveal,
+              )}
+            >
+              {secondary.map((action) => (
+                <Button
+                  key={action.id}
+                  type="button"
+                  size="icon-sm"
+                  variant="secondary"
+                  disabled={action.disabled}
+                  title={action.label}
+                  aria-label={action.label}
+                  aria-pressed={action.active}
+                  data-testid={`media-artwork-${action.id}`}
+                  className="pointer-events-auto size-7 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                  onClick={(e) => {
+                    stop(e);
+                    action.onClick();
+                  }}
+                >
+                  {action.icon}
+                </Button>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

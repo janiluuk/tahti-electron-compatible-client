@@ -2,7 +2,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, Tabs, Toggle } from '@nuclearplayer/ui';
+import { Button, Input, Select, Tabs, Toggle } from '@nuclearplayer/ui';
+import type { SelectOption } from '@nuclearplayer/ui';
 
 import {
   fetchDiscoveryPrefs,
@@ -40,6 +41,14 @@ export function hasSeenOnboarding(userId: string): boolean {
 }
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
+
+const PRONOUN_OPTIONS: SelectOption[] = [
+  { id: 'she/her', label: 'she/her' },
+  { id: 'he/him', label: 'he/him' },
+  { id: 'they/them', label: 'they/them' },
+  { id: 'she/they', label: 'she/they' },
+  { id: 'he/they', label: 'he/they' },
+];
 
 export function OnboardingView() {
   const navigate = useNavigate();
@@ -205,65 +214,69 @@ export function OnboardingView() {
                 id: 'profile',
                 label: 'Profile',
                 content: (
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    <div className="flex flex-col gap-4">
-                      <Input
-                        label="Display name"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                      />
-                      <Input
-                        label="Pronouns"
-                        value={pronouns}
-                        onChange={(e) => setPronouns(e.target.value)}
-                        description="Optional"
-                      />
-                      <label className="flex flex-col gap-1.5 text-sm">
-                        <span className="text-foreground-secondary text-xs uppercase">
-                          I am a…
-                        </span>
-                        <div className="flex gap-2">
-                          {(
-                            [
-                              ['SINGLE', 'Solo artist'],
-                              ['COLLECTIVE', 'Band / collective'],
-                            ] as const
-                          ).map(([kind, label]) => (
-                            <button
-                              key={kind}
-                              type="button"
-                              aria-pressed={artistKind === kind}
-                              onClick={() => setArtistKind(kind)}
-                              className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                                artistKind === kind
-                                  ? 'border-primary bg-primary/10 text-primary'
-                                  : 'border-border text-foreground-secondary hover:text-foreground'
-                              }`}
-                            >
-                              {label}
-                            </button>
-                          ))}
-                        </div>
-                      </label>
+                  <div className="flex flex-col gap-6">
+                    <label className="flex flex-col gap-1.5 text-sm">
+                      <span className="text-foreground-secondary text-xs uppercase">
+                        I am a…
+                      </span>
+                      <div className="flex gap-2">
+                        {(
+                          [
+                            ['SINGLE', 'Solo artist'],
+                            ['COLLECTIVE', 'Band / collective'],
+                          ] as const
+                        ).map(([kind, label]) => (
+                          <button
+                            key={kind}
+                            type="button"
+                            aria-pressed={artistKind === kind}
+                            onClick={() => setArtistKind(kind)}
+                            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                              artistKind === kind
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-border text-foreground-secondary hover:text-foreground'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
                       {artistKind === 'COLLECTIVE' && (
                         <p className="text-foreground-secondary text-xs">
                           You can invite full band members later from Studio →
                           Artist → Members.
                         </p>
                       )}
-                    </div>
-                    <label className="flex flex-col gap-1.5 text-sm">
-                      <span className="text-foreground-secondary text-xs uppercase">
-                        Bio
-                      </span>
-                      <textarea
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        rows={9}
-                        placeholder="Tell listeners what you do…"
-                        className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 text-sm outline-none"
-                      />
                     </label>
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="flex flex-col gap-4">
+                        <Input
+                          label="Display name"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                        />
+                        <Select
+                          label="Pronouns"
+                          value={pronouns}
+                          onValueChange={setPronouns}
+                          placeholder="Prefer not to say"
+                          options={PRONOUN_OPTIONS}
+                          className="max-w-[9.5rem] px-2 py-1 text-xs"
+                        />
+                      </div>
+                      <label className="flex flex-col gap-1.5 text-sm">
+                        <span className="text-foreground-secondary text-xs uppercase">
+                          Bio
+                        </span>
+                        <textarea
+                          value={bio}
+                          onChange={(e) => setBio(e.target.value)}
+                          rows={9}
+                          placeholder="Tell listeners what you do…"
+                          className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 text-sm outline-none"
+                        />
+                      </label>
+                    </div>
                   </div>
                 ),
               },

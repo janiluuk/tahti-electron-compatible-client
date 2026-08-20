@@ -45,9 +45,9 @@ export function SortableRow<T extends Track = Track>({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'border-border bg-background-secondary group border-b-(length:--border-width) select-none',
+        'border-border group border-b-(length:--border-width) select-none',
+        row.index % 2 === 0 ? 'bg-background-secondary' : 'bg-background',
         {
-          '': !isDragging,
           'z-50': isDragging,
           'cursor-grab': isReorderable,
           'border-l-primary bg-primary/10 border-l-2': isCurrent,
