@@ -27,9 +27,9 @@ import {
   fetchStudioCollections,
   fetchStudioReleases,
 } from '../../api/studio';
+import { ClientCapabilityNotice } from '../../components/ClientCapabilityNotice';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { ClientCapabilityNotice } from '../../components/ClientCapabilityNotice';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -327,7 +327,10 @@ export function StudioHomeView() {
               )}
             </div>
 
-            <ClientCapabilityNotice kind="not-in-client" title="Not in this client">
+            <ClientCapabilityNotice
+              kind="not-in-client"
+              title="Not in this client"
+            >
               <ul className="mt-1 list-inside list-disc space-y-1">
                 {NOT_IN_CLIENT.map((item) => (
                   <li key={item.title}>

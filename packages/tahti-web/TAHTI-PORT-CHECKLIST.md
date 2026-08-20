@@ -29,7 +29,7 @@ Ordered by listener/artist value × API readiness:
 2. [x] **Stats plays detail** — `GET /api/me/stats/plays` time series on `/studio/stats`
 3. [x] **Account security (TOTP)** — `/api/me/totp/*` in Settings → Account
 4. [x] **Venue register** — `POST /api/v1/venues` at `/venues/register`
-5. [~] **Channel chat hardening** — fail closed on join failure in prod (no silent mock-send); captcha rail parity still open
+5. **Channel chat hardening** — fail closed on join failure in prod (no silent mock-send); captcha rail parity still open
 6. [ ] **Sources OAuth polish** — live connect is href-only; in-app connect is mock; live Preview disabled
 7. [ ] **Stash share links** — `POST /api/me/stash/:id/share` + revoke (UI: disabled Share + callout on `/studio/stash`)
 8. [ ] **Membership purchase** — `/signup/payment` Stripe checkout (Account callout)

@@ -27,9 +27,9 @@ import {
 } from '../../api/studio';
 import type { EditList, ProEditorPluginId } from '../../api/studio-types';
 import { createDefaultEditList } from '../../api/studio-types';
+import { ClientCapabilityNotice } from '../../components/ClientCapabilityNotice';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
-import { ClientCapabilityNotice } from '../../components/ClientCapabilityNotice';
 import { StudioPageHeader, StudioPanel } from '../../components/StudioPanel';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
 import { WaveformMinimap } from '../../components/WaveformMinimap';
