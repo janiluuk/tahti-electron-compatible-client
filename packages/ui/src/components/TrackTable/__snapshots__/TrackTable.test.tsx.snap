@@ -200,7 +200,7 @@ exports[`TrackTable > (Snapshot) Basic 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -217,10 +217,16 @@ exports[`TrackTable > (Snapshot) Basic 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 1"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -268,7 +274,7 @@ exports[`TrackTable > (Snapshot) Basic 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -285,10 +291,16 @@ exports[`TrackTable > (Snapshot) Basic 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 2"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -336,7 +348,7 @@ exports[`TrackTable > (Snapshot) Basic 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -353,10 +365,16 @@ exports[`TrackTable > (Snapshot) Basic 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 3"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -608,7 +626,7 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
               aria-describedby="DndDescribedBy-0"
               aria-disabled="false"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none cursor-grab"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary cursor-grab"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -625,10 +643,16 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 1"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -676,7 +700,7 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
               aria-describedby="DndDescribedBy-0"
               aria-disabled="false"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none cursor-grab"
+              class="border-border group border-b-(length:--border-width) select-none bg-background cursor-grab"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -693,10 +717,16 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 2"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -744,7 +774,7 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
               aria-describedby="DndDescribedBy-0"
               aria-disabled="false"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none cursor-grab"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary cursor-grab"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -761,10 +791,16 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 3"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -812,7 +848,7 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
               aria-describedby="DndDescribedBy-0"
               aria-disabled="false"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none cursor-grab"
+              class="border-border group border-b-(length:--border-width) select-none bg-background cursor-grab"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -829,10 +865,16 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 4"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -880,7 +922,7 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
               aria-describedby="DndDescribedBy-0"
               aria-disabled="false"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none cursor-grab"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary cursor-grab"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -897,10 +939,16 @@ exports[`TrackTable > (Snapshot) DragAndDrop 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 5"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -1169,7 +1217,7 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -1186,10 +1234,16 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 1"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -1237,7 +1291,7 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -1254,10 +1308,16 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 2"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -1305,7 +1365,7 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -1322,10 +1382,16 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 3"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -1373,7 +1439,7 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -1390,10 +1456,16 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 4"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -1441,7 +1513,7 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -1458,10 +1530,16 @@ exports[`TrackTable > (Snapshot) Filtering 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 5"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -1716,7 +1794,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -1733,10 +1811,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 1"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -1784,7 +1868,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -1801,10 +1885,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 2"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -1852,7 +1942,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -1869,10 +1959,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 3"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -1920,7 +2016,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -1937,10 +2033,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 4"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -1988,7 +2090,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2005,10 +2107,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 5"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2056,7 +2164,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2073,10 +2181,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 6"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2124,7 +2238,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2141,10 +2255,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 7"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2192,7 +2312,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2209,10 +2329,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 8"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2260,7 +2386,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2277,10 +2403,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 9"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2328,7 +2460,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2345,10 +2477,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 10"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2396,7 +2534,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2413,10 +2551,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 11"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2464,7 +2608,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2481,10 +2625,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 12"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2532,7 +2682,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2549,10 +2699,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 13"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2600,7 +2756,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2617,10 +2773,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 14"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2668,7 +2830,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2685,10 +2847,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 15"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2736,7 +2904,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2753,10 +2921,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 16"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2804,7 +2978,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2821,10 +2995,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 17"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2872,7 +3052,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2889,10 +3069,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 18"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -2940,7 +3126,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -2957,10 +3143,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 19"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -3008,7 +3200,7 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                 aria-describedby=""
                 aria-disabled="true"
                 aria-roledescription="sortable"
-                class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                class="border-border group border-b-(length:--border-width) select-none bg-background"
                 data-testid="track-row"
                 role="button"
                 style="height: 42px;"
@@ -3025,10 +3217,16 @@ exports[`TrackTable > (Snapshot) LargeDataset 1`] = `
                   <div
                     class="flex w-full justify-center"
                   >
-                    <img
-                      class="w-10 min-w-10"
-                      src="https://i.imgur.com/4euOws2.jpg"
-                    />
+                    <div
+                      class="group relative overflow-hidden size-10 min-w-10"
+                      data-testid="media-artwork"
+                    >
+                      <img
+                        alt="Track 20"
+                        class="absolute inset-0 h-full w-full object-cover"
+                        src="https://i.imgur.com/4euOws2.jpg"
+                      />
+                    </div>
                   </div>
                 </td>
                 <td
@@ -3099,7 +3297,7 @@ exports[`TrackTable > (Snapshot) Toolbar 1`] = `
     >
       <div>
         <button
-          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
+          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
           data-headlessui-state=""
           data-testid="play-all-button"
           type="button"
@@ -3344,7 +3542,7 @@ exports[`TrackTable > (Snapshot) Toolbar 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -3361,10 +3559,16 @@ exports[`TrackTable > (Snapshot) Toolbar 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 1"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -3412,7 +3616,7 @@ exports[`TrackTable > (Snapshot) Toolbar 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -3429,10 +3633,16 @@ exports[`TrackTable > (Snapshot) Toolbar 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 2"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td
@@ -3480,7 +3690,7 @@ exports[`TrackTable > (Snapshot) Toolbar 1`] = `
               aria-describedby=""
               aria-disabled="true"
               aria-roledescription="sortable"
-              class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+              class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
               data-testid="track-row"
               role="button"
               style="height: 42px;"
@@ -3497,10 +3707,16 @@ exports[`TrackTable > (Snapshot) Toolbar 1`] = `
                 <div
                   class="flex w-full justify-center"
                 >
-                  <img
-                    class="w-10 min-w-10"
-                    src="https://i.imgur.com/4euOws2.jpg"
-                  />
+                  <div
+                    class="group relative overflow-hidden size-10 min-w-10"
+                    data-testid="media-artwork"
+                  >
+                    <img
+                      alt="Track 3"
+                      class="absolute inset-0 h-full w-full object-cover"
+                      src="https://i.imgur.com/4euOws2.jpg"
+                    />
+                  </div>
                 </div>
               </td>
               <td

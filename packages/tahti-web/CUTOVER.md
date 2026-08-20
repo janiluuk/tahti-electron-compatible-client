@@ -100,13 +100,13 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 
 | Area | Prod today | Cutover stance | Action |
 |------|------------|----------------|--------|
-| Board admin `/admin/*` | Next in `apps/web` (~35 pages) | Nuclear port **complete** (22/22 pages, gated on `user.isBoard`) but **decided out of the cutover critical path** — Next admin stays canonical after cutover | [x] Nuclear port done; [ ] no cutover action needed unless the admin-host decision is revisited |
-| Marketing `website/` | Separate static nginx image | **Do not merge into SPA**; off-limits unless explicitly requested | [ ] Ensure apex/`/` IA: listen hub vs marketing (redirect matrix) |
-| `(marketing)` / `(info)` in apps/web | `/`, `/apply`, `/for-artists`, `/how-it-works`, … | Overlaps website + SPA | [ ] Inventory which URLs must 301 to `website/` vs port |
-| Embeds `/embed/*` | Next + `@tahti/ui` | POC has routes | [ ] Parity QA (c/r/col/u) + iframe CSP |
-| SSR / SEO | Next sitemap + metadata | SPA gap | [ ] Plan prerender/meta (§7) |
-| i18n | Essentially EN-only both sides | No hard gap | [ ] Explicit non-goal or future track |
-| Accessibility | Mixed | Not systematically ported | [ ] Audit P1 |
+| Board admin `/admin/*` | Next in `apps/web` (~35 pages) | Nuclear port **complete** (22/22 pages, gated on `user.isBoard`) but **decided out of the cutover critical path** — Next admin stays canonical after cutover | DONE Nuclear port; TODO no cutover action needed unless the admin-host decision is revisited |
+| Marketing `website/` | Separate static nginx image | **Do not merge into SPA**; off-limits unless explicitly requested | TODO Ensure apex/`/` IA: listen hub vs marketing (redirect matrix) |
+| `(marketing)` / `(info)` in apps/web | `/`, `/apply`, `/for-artists`, `/how-it-works`, … | Overlaps website + SPA | TODO Inventory which URLs must 301 to `website/` vs port |
+| Embeds `/embed/*` | Next + `@tahti/ui` | POC has routes | TODO Parity QA (c/r/col/u) + iframe CSP |
+| SSR / SEO | Next sitemap + metadata | SPA gap | TODO Plan prerender/meta (§7) |
+| i18n | Essentially EN-only both sides | No hard gap | TODO Explicit non-goal or future track |
+| Accessibility | Mixed | Not systematically ported | TODO Audit P1 |
 
 ### 1.2 Feature matrix (summary — detail in FEATURES.md)
 
@@ -136,19 +136,19 @@ Track against [`FEATURES.md`](FEATURES.md) and `tahti/docs/flows/site-map.md`. U
 
 | Prod | POC | Cutover need |
 |------|-----|--------------|
-| `/` marketing or listen | `/` listen hub | [ ] Redirect matrix with `website/` |
-| `/listen` | `/` | [ ] Alias `/listen` |
-| `/c/:slug` | `/channel/$slug` | [x] **P0** redirect alias |
-| `/dashboard/*` | `/studio/*` | [x] **P0** aliases (`prodPathRedirects`) |
-| `/u/:user/subscribe` | `/subscribe/$username` | [x] **P0** alias |
-| `/dashboard/messages` | `/library/messages` | [x] Alias |
-| `/listen` | `/` | [x] Alias |
-| `/dashboard/setup-channel` | `/studio/setup-channel` | [x] In-app provision |
-| `/signup/*` | — | [ ] Port or keep Next island |
-| `/admin/*` | — | [ ] Host decision |
-| `/apply` | — | [ ] website or port |
-| `/v/:slug` venues public? | `/venues` list | [ ] Confirm venue public pages |
-| `/more`, `/themes` | POC-only / Nuclear | [ ] Prod: hide or keep as power-user |
+| `/` marketing or listen | `/` listen hub | TODO Redirect matrix with `website/` |
+| `/listen` | `/` | TODO Alias `/listen` |
+| `/c/:slug` | `/channel/$slug` | DONE **P0** redirect alias |
+| `/dashboard/*` | `/studio/*` | DONE **P0** aliases (`prodPathRedirects`) |
+| `/u/:user/subscribe` | `/subscribe/$username` | DONE **P0** alias |
+| `/dashboard/messages` | `/library/messages` | DONE Alias |
+| `/listen` | `/` | DONE Alias |
+| `/dashboard/setup-channel` | `/studio/setup-channel` | DONE In-app provision |
+| `/signup/*` | — | TODO Port or keep Next island |
+| `/admin/*` | — | TODO Host decision |
+| `/apply` | — | TODO website or port |
+| `/v/:slug` venues public? | `/venues` list | TODO Confirm venue public pages |
+| `/more`, `/themes` | POC-only / Nuclear | TODO Prod: hide or keep as power-user |
 
 ### 1.4 Client-only / non-API state
 

@@ -4,7 +4,7 @@
  * Expects /home/jani/workspace/nuclear (or NUCLEAR_UPSTREAM) next to tahti-nuclear.
  */
 import { createHash } from 'node:crypto';
-import { readFileSync, existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 

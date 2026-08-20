@@ -83,13 +83,9 @@ describe('HistoryRow', () => {
       />,
     );
 
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Paranoid Android' }),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Add to favorites' }),
-    );
-    await userEvent.click(screen.getByRole('button', { name: 'Add to queue' }));
+    await userEvent.click(screen.getByTestId('history-row-title'));
+    await userEvent.click(screen.getByTestId('history-row-favorite'));
+    await userEvent.click(screen.getByTestId('history-row-add-to-queue'));
 
     expect(onPlayNow).toHaveBeenCalledTimes(1);
     expect(onToggleFavorite).toHaveBeenCalledTimes(1);

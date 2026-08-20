@@ -36,7 +36,7 @@ export function TrackTable<T extends Track = Track>({
   classes,
   display,
   features,
-  actions,
+  actions = {},
   meta,
   rowHeight = DEFAULT_ROW_HEIGHT,
   overscan = DEFAULT_OVERSCAN,

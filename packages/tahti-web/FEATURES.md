@@ -32,7 +32,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 5. [x] Email verify route — `/verify` (+ join deep-link)
 6. [x] Fan-sub tier editor — Settings → Money (`/api/me/fan-tiers`)
 
-### Checklist — shipped vs remaining
+## Checklist — shipped vs remaining
 
 **Shipped (beta)**
 
