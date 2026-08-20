@@ -76,6 +76,7 @@ export type IntegrationId =
   | 'mixcloud'
   | 'url'
   | 'spotify'
+  | 'hearthis'
   | 'broadcast'
   | 'radio';
 
@@ -159,6 +160,14 @@ export const SOURCE_DEFS: SourceDef[] = [
     kind: 'search',
   },
   {
+    id: 'hearthis',
+    name: 'hearthis.at',
+    description:
+      "Search hearthis.at's public catalogue and queue tracks as provider-hosted embeds.",
+    oauthStartPath: null,
+    kind: 'search',
+  },
+  {
     id: 'broadcast',
     name: 'From broadcast',
     description:
@@ -184,7 +193,13 @@ export function oauthStartUrl(path: string): string {
 export async function fetchConnectionStatus(
   id: IntegrationId,
 ): Promise<{ data: ConnectionStatus; meta: FetchMeta }> {
-  if (id === 'upload' || id === 'url' || id === 'broadcast' || id === 'radio') {
+  if (
+    id === 'upload' ||
+    id === 'url' ||
+    id === 'broadcast' ||
+    id === 'radio' ||
+    id === 'hearthis'
+  ) {
     return {
       data: { connected: true, configured: true },
       meta: { source: forceMock() ? 'mock' : 'api' },
@@ -340,6 +355,64 @@ export async function searchSpotifyTracks(q: string): Promise<{
   } catch (err) {
     return { data: [], meta: failMeta(err) };
   }
+}
+
+export type HearthisTrack = {
+  id: string;
+  url: string;
+  title: string;
+  username: string;
+  durationSec: number;
+  coverUrl?: string | null;
+  streamUrl?: string | null;
+};
+
+/** Backed by the same public read API the main Tahti app's collection
+ * editor uses (apps/api /api/v1/imports/hearthis/search) — embed-only,
+ * Tahti never fetches or re-hosts the audio. */
+export async function searchHearthisTracks(q: string): Promise<{
+  data: HearthisTrack[];
+  meta: FetchMeta;
+}> {
+  if (forceMock()) {
+    return {
+      data: [
+        {
+          id: 'ht-mock-1',
+          url: 'https://hearthis.at/mockartist/deep-space-transmission/',
+          title: q ? `${q} (hearthis.at)` : 'Deep Space Transmission',
+          username: 'mockartist',
+          durationSec: 214,
+          coverUrl: null,
+          streamUrl: DEMO_MP3,
+        },
+      ],
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{ tracks: HearthisTrack[] }>(
+      `/api/v1/imports/hearthis/search?q=${encodeURIComponent(q)}`,
+    );
+    return { data: data.tracks ?? [], meta: { source: 'api' } };
+  } catch (err) {
+    return { data: [], meta: failMeta(err) };
+  }
+}
+
+export function playableFromHearthis(t: HearthisTrack): TahtiPlayable {
+  return {
+    id: `hearthis:${t.id}`,
+    kind: 'archive',
+    title: t.title,
+    artist: t.username || 'hearthis.at',
+    coverUrl: t.coverUrl ?? undefined,
+    // Not every track is downloadable — fall back to the POC demo stream,
+    // same as the Spotify/SoundCloud preview rows below.
+    streamUrl: t.streamUrl || DEMO_MP3,
+    protocol: 'https',
+    sourceProvider: 'hearthis',
+  };
 }
 
 export type StashFile = {

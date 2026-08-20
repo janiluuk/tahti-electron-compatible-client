@@ -31,11 +31,14 @@ import {
   fetchStashFiles,
   importSoundcloudTracks,
   oauthStartUrl,
+  playableFromHearthis,
   playableFromSoundcloud,
   playableFromSpotify,
+  searchHearthisTracks,
   searchSpotifyTracks,
   SOURCE_DEFS,
   type ConnectionStatus,
+  type HearthisTrack,
   type IntegrationId,
   type SoundcloudTrack,
   type SpotifySearchTrack,
@@ -102,6 +105,9 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
   const [stash, setStash] = useState<StashFile[]>([]);
   const [spotifyQ, setSpotifyQ] = useState('');
   const [spotifyHits, setSpotifyHits] = useState<SpotifySearchTrack[]>([]);
+  const [hearthisQ, setHearthisQ] = useState('');
+  const [hearthisHits, setHearthisHits] = useState<HearthisTrack[]>([]);
+  const [hearthisBusy, setHearthisBusy] = useState(false);
   const [urlPaste, setUrlPaste] = useState('');
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -536,6 +542,82 @@ export function SourcesView({ tabId }: { tabId?: IntegrationId }) {
                         {t.artists?.join(', ')}
                       </div>
                     </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {selected === 'hearthis' && (
+            <section className="flex flex-col gap-3">
+              <div className="flex flex-wrap gap-2">
+                <input
+                  className="border-border bg-background text-foreground min-w-[200px] flex-1 rounded border px-2 py-1.5 text-sm"
+                  value={hearthisQ}
+                  onChange={(e) => setHearthisQ(e.target.value)}
+                  placeholder="Search hearthis.at's catalogue"
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === 'Enter' &&
+                      hearthisQ.trim() &&
+                      !hearthisBusy
+                    ) {
+                      setHearthisBusy(true);
+                      void searchHearthisTracks(hearthisQ.trim()).then((r) => {
+                        setHearthisBusy(false);
+                        setHearthisHits(r.data);
+                      });
+                    }
+                  }}
+                />
+                <Button
+                  size="sm"
+                  disabled={!hearthisQ.trim() || hearthisBusy}
+                  onClick={() => {
+                    setHearthisBusy(true);
+                    void searchHearthisTracks(hearthisQ.trim()).then((r) => {
+                      setHearthisBusy(false);
+                      setHearthisHits(r.data);
+                    });
+                  }}
+                >
+                  <SearchIcon size={16} aria-hidden className="mr-1.5" />
+                  {hearthisBusy ? 'Searching…' : 'Search'}
+                </Button>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {hearthisHits.map((t) => (
+                  <li
+                    key={t.id}
+                    className="border-border flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2"
+                  >
+                    <MediaArtwork
+                      size="sm"
+                      src={t.coverUrl}
+                      alt={t.title}
+                      imageReveal={false}
+                      onPlay={() => play(playableFromHearthis(t))}
+                      playLabel="Preview"
+                      onQueue={() => enqueue(playableFromHearthis(t))}
+                      queueLabel="Queue"
+                      className="border-border shrink-0 rounded border"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">
+                        {t.title}
+                      </div>
+                      <div className="text-foreground-secondary truncate text-xs">
+                        {t.username}
+                      </div>
+                    </div>
+                    <a
+                      href={t.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-foreground-secondary shrink-0 text-xs underline-offset-2 hover:underline"
+                    >
+                      hearthis.at ↗
+                    </a>
                   </li>
                 ))}
               </ul>

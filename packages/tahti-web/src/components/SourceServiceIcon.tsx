@@ -1,5 +1,6 @@
 import {
   Archive,
+  AudioWaveform,
   Link2,
   Radio,
   RadioTower,
@@ -28,6 +29,9 @@ const TILE: Record<
   mixcloud: { bg: '#5000ff', fg: '#fff', brand: 'mc' },
   url: { bg: '#334155', fg: '#f8fafc', Icon: Link2 },
   spotify: { bg: '#1db954', fg: '#fff', brand: 'sp' },
+  // hearthis.at's own embed widget color (see hcolor in lib/embedSrc.ts) —
+  // no distinctive wordmark to draw, so a plain waveform glyph stands in.
+  hearthis: { bg: '#55acee', fg: '#fff', Icon: AudioWaveform },
   broadcast: { bg: '#0ea5e9', fg: '#fff', Icon: Radio },
   radio: { bg: '#7c3aed', fg: '#fff', Icon: RadioTower },
 };
@@ -151,6 +155,8 @@ export function sourceTileSubtitle(id: IntegrationId): string {
       return 'DSP paste';
     case 'spotify':
       return 'Search & queue';
+    case 'hearthis':
+      return 'Search & embed';
     case 'broadcast':
       return 'Live captures';
     case 'radio':
