@@ -35,22 +35,49 @@ export function formatGenreTags(genres: string[]): string {
   return genres.join(', ');
 }
 
-/** Maps free-text genre tags onto the picker's preset list: matches
- * case-insensitively, dedupes, and drops anything that isn't a preset
- * (older data may have free-typed genres, or different casing, from
- * before the picker existed) -- otherwise a legacy tag like "ambient"
- * would sit in the value array occupying a cap slot with no visible,
- * clickable chip a user could ever remove it with. */
+/** Capitalizes a genre consistently, word by word (hyphenated segments
+ * counted separately, "&" left as-is) -- e.g. "drum & bass" -> "Drum &
+ * Bass", "hip-hop" -> "Hip-Hop". Used everywhere a genre is displayed
+ * or stored so free-typed and preset genres read the same way. */
+export function capitalizeGenre(raw: string): string {
+  return raw
+    .trim()
+    .replace(/\s+/g, ' ')
+    .split(' ')
+    .map((word) =>
+      word
+        .split('-')
+        .map((part) =>
+          part === '' || part === '&'
+            ? part
+            : part[0]!.toUpperCase() + part.slice(1).toLowerCase(),
+        )
+        .join('-'),
+    )
+    .join(' ');
+}
+
+/** Maps free-text genre tags onto the picker's preset list where
+ * possible (case-insensitively), and capitalizes anything else instead
+ * of dropping it -- older data, or a genre a user previously typed in
+ * before this normalization existed, still shows up as a removable
+ * chip rather than silently vanishing. */
 export function normalizeGenresForPicker(raw: string[]): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const tag of raw) {
+    const trimmed = tag.trim();
+    if (!trimmed) {
+      continue;
+    }
     const preset = PRESET_GENRES.find(
-      (g) => g.toLowerCase() === tag.trim().toLowerCase(),
+      (g) => g.toLowerCase() === trimmed.toLowerCase(),
     );
-    if (preset && !seen.has(preset)) {
-      seen.add(preset);
-      out.push(preset);
+    const value = preset ?? capitalizeGenre(trimmed);
+    const key = value.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      out.push(value);
     }
     if (out.length >= MAX_GENRES) {
       break;

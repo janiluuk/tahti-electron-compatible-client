@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 
-import { Button, Dialog, Input, Textarea } from '@nuclearplayer/ui';
+import {
+  Button,
+  CreatableCombobox,
+  Dialog,
+  Input,
+  Textarea,
+} from '@nuclearplayer/ui';
 
 import { fetchStudioArchiveItem, patchStudioArchiveItem } from '../api/studio';
 import type {
   StudioArchiveItem,
   StudioArchivePatch,
 } from '../api/studio-types';
+import { capitalizeGenre, PRESET_GENRES } from '../lib/genres';
 
 type Tab = 'info' | 'visuals';
 
@@ -46,7 +53,7 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
       setForm({
         title: res.data.title,
         description: res.data.description ?? '',
-        genre: res.data.genre ?? '',
+        genre: res.data.genre ? capitalizeGenre(res.data.genre) : '',
         license: res.data.license ?? '',
         isPublic: res.data.isPublic ?? true,
         bannerUrl: res.data.bannerUrl ?? '',
@@ -124,10 +131,12 @@ export function TrackEditDialog({ archiveItemId, onClose, onSaved }: Props) {
                 />
               </label>
               <div className="grid grid-cols-2 gap-3">
-                <Input
+                <CreatableCombobox
                   label="Genre"
+                  options={[...PRESET_GENRES]}
                   value={form.genre ?? ''}
-                  onChange={(e) => setForm({ ...form, genre: e.target.value })}
+                  onValueChange={(genre) => setForm({ ...form, genre })}
+                  normalize={capitalizeGenre}
                 />
                 <Input
                   label="License"

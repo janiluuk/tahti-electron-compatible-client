@@ -4,6 +4,7 @@ export * from './Box';
 export * from './Button';
 export * from './Card';
 export * from './CardsRow';
+export * from './Combobox';
 export * from './CopyButton';
 export * from './Dialog';
 export * from './FavoriteButton';

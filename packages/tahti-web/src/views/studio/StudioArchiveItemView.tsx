@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
-import { Button, Input } from '@nuclearplayer/ui';
+import { Button, CreatableCombobox, Input } from '@nuclearplayer/ui';
 
 import {
   activateArchiveVersion,
@@ -25,6 +25,7 @@ import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { Eyebrow } from '../../components/tahti/Eyebrow';
 import { WaveformCanvas } from '../../components/WaveformCanvas';
+import { capitalizeGenre, PRESET_GENRES } from '../../lib/genres';
 import {
   countPinnedTracks,
   isPinned,
@@ -89,7 +90,7 @@ export function StudioArchiveItemView({ id }: { id: string }) {
       setItem(res.data);
       setTitle(res.data.title);
       setDescription(res.data.description ?? '');
-      setGenre(res.data.genre ?? '');
+      setGenre(res.data.genre ? capitalizeGenre(res.data.genre) : '');
       setIsPublic(res.data.isPublic !== false);
     });
     void fetchStudioArchive().then((res) => {
@@ -304,10 +305,12 @@ export function StudioArchiveItemView({ id }: { id: string }) {
                   className="border-border bg-background focus:border-primary rounded-md border px-3 py-2 outline-none"
                 />
               </label>
-              <Input
+              <CreatableCombobox
                 label="Genre"
+                options={[...PRESET_GENRES]}
                 value={genre}
-                onChange={(e) => setGenre(e.target.value)}
+                onValueChange={setGenre}
+                normalize={capitalizeGenre}
               />
               <label className="flex items-center gap-2 text-sm">
                 <input
