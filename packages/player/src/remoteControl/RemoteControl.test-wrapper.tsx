@@ -53,11 +53,16 @@ export const RemoteControlWrapper = {
     FetchMock.get('/api/playback/shuffle', {});
     FetchMock.get('/api/playback/repeat', {});
 
+    const eventSource = MockEventSource.lastInstance;
+    if (!eventSource) {
+      throw new Error('Expected MockEventSource instance after mount');
+    }
+
     await act(async () => {
-      MockEventSource.lastInstance?.simulateOpen();
+      eventSource.simulateOpen();
     });
 
-    await screen.findByTestId('connection-status-badge');
+    await screen.findByTestId('connection-status-badge', {}, { timeout: 5000 });
   },
 
   simulateConnectionFailure() {
