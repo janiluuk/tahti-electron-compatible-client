@@ -65,7 +65,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
             class="flex flex-row items-center gap-2"
           >
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
               data-headlessui-state=""
               type="button"
             >
@@ -88,7 +88,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
               </svg>
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
               data-disabled=""
               data-headlessui-state="disabled"
               disabled=""
@@ -253,25 +253,28 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
         transition="[object Object]"
       >
         <span
-          class="mb-4 flex flex-row items-center justify-end"
+          class="flex flex-row items-center mb-2 justify-end"
         >
           <button
-            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center top-2 px-2 right-1"
+            aria-label="Collapse panel"
+            aria-pressed="true"
+            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
             data-headlessui-state=""
             data-testid="sidebar-toggle-left"
+            title="Collapse panel"
             type="button"
           >
             <svg
               aria-hidden="true"
               class="lucide lucide-panel-left"
               fill="none"
-              height="24"
+              height="14"
               stroke="currentColor"
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="2"
+              stroke-width="2.25"
               viewBox="0 0 24 24"
-              width="24"
+              width="14"
               xmlns="http://www.w3.org/2000/svg"
             >
               <rect
@@ -330,7 +333,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Dashboard
                     </span>
@@ -374,7 +377,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Favorite albums
                     </span>
@@ -421,7 +424,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Favorite tracks
                     </span>
@@ -463,7 +466,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Favorite artists
                     </span>
@@ -512,7 +515,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Playlists
                     </span>
@@ -555,7 +558,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       History
                     </span>
@@ -610,7 +613,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Sources
                     </span>
@@ -651,7 +654,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                   </svg>
                 </div>
                 <span
-                  class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                  class="text-sm whitespace-nowrap"
                 >
                   Preferences
                 </span>
@@ -799,7 +802,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                         >
                           <div>
                             <button
-                              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
+                              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
                               data-headlessui-state=""
                               data-testid="play-all-button"
                               type="button"
@@ -962,7 +965,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                                   aria-describedby=""
                                   aria-disabled="true"
                                   aria-roledescription="sortable"
-                                  class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                                  class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                                   data-testid="track-row"
                                   role="button"
                                   style="height: 42px;"
@@ -1002,10 +1005,88 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                                     <div
                                       class="flex w-full justify-center"
                                     >
-                                      <img
-                                        class="w-10 min-w-10"
-                                        src="https://img/track.jpg"
-                                      />
+                                      <div
+                                        class="group relative overflow-hidden size-10 min-w-10 cursor-pointer"
+                                        data-testid="media-artwork"
+                                      >
+                                        <img
+                                          alt="Smells Like Cheap Spirit"
+                                          class="absolute inset-0 h-full w-full object-cover"
+                                          src="https://img/track.jpg"
+                                        />
+                                        <div
+                                          aria-hidden="true"
+                                          class="pointer-events-none absolute inset-0 bg-black/0 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:bg-black/45 [@media(hover:hover)_and_(pointer:fine)]:group-hover:bg-black/45 [@media(hover:none)]:bg-black/35"
+                                        />
+                                        <div
+                                          class="pointer-events-none absolute inset-0 flex items-center justify-center gap-0.5 opacity-100 transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100"
+                                        >
+                                          <button
+                                            aria-label="Play"
+                                            class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-7 rounded-full shadow-md"
+                                            data-headlessui-state=""
+                                            data-testid="media-artwork-play"
+                                            title="Play"
+                                            type="button"
+                                          >
+                                            <svg
+                                              aria-hidden="true"
+                                              class="lucide lucide-play translate-x-px fill-current"
+                                              fill="none"
+                                              height="14"
+                                              stroke="currentColor"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              viewBox="0 0 24 24"
+                                              width="14"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                              <path
+                                                d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"
+                                              />
+                                            </svg>
+                                          </button>
+                                          <button
+                                            aria-label="Add to queue"
+                                            class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-5 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                                            data-headlessui-state=""
+                                            data-testid="media-artwork-queue"
+                                            title="Add to queue"
+                                            type="button"
+                                          >
+                                            <svg
+                                              aria-hidden="true"
+                                              class="lucide lucide-list-plus"
+                                              fill="none"
+                                              height="12"
+                                              stroke="currentColor"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              viewBox="0 0 24 24"
+                                              width="12"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                              <path
+                                                d="M11 12H3"
+                                              />
+                                              <path
+                                                d="M16 6H3"
+                                              />
+                                              <path
+                                                d="M16 18H3"
+                                              />
+                                              <path
+                                                d="M18 9v6"
+                                              />
+                                              <path
+                                                d="M21 12h-6"
+                                              />
+                                            </svg>
+                                          </button>
+                                        </div>
+                                      </div>
                                     </div>
                                   </td>
                                   <td
@@ -1033,7 +1114,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                                       >
                                         <button
                                           aria-label="Add to queue"
-                                          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-0 transition-none group-hover:opacity-100"
+                                          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                           data-headlessui-state=""
                                           data-testid="add-to-queue-button"
                                           type="button"
@@ -1063,7 +1144,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                                           aria-expanded="false"
                                           aria-haspopup="menu"
                                           aria-label="Track options"
-                                          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-0 transition-none group-hover:opacity-100"
+                                          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                           data-headlessui-state=""
                                           data-state="closed"
                                           data-testid="track-context-menu-button"
@@ -1167,65 +1248,70 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                   class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 pr-2 pb-4 mx-4"
                   role="grid"
                 >
-                  <button
-                    class="cursor-pointer rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none h-auto flex w-42 flex-col items-stretch gap-2 p-2 text-left"
-                    data-headlessui-state=""
+                  <div
+                    class="text-primary-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none"
                     data-testid="card"
-                    type="button"
+                    role="button"
+                    tabindex="0"
                   >
                     <div
-                      class="border-border text-foreground flex h-full rounded-md border-(length:--border-width) bg-primary shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
+                      class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
                     >
                       <div
-                        class="overflow-hidden absolute inset-0"
+                        class="group overflow-hidden absolute inset-0 size-full"
+                        data-testid="media-artwork"
                       >
-                        <img
-                          alt="Hello World LP"
-                          class="h-full w-full object-cover"
-                          decoding="async"
-                          loading="lazy"
-                          src="https://img/debut.jpg"
-                        />
                         <div
-                          class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                          class="overflow-hidden absolute inset-0"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="lucide lucide-cassette-tape opacity-20"
-                            fill="none"
-                            height="96"
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="0.5"
-                            viewBox="0 0 24 24"
-                            width="96"
-                            xmlns="http://www.w3.org/2000/svg"
+                          <img
+                            alt="Hello World LP"
+                            class="h-full w-full object-cover"
+                            decoding="async"
+                            loading="lazy"
+                            src="https://img/debut.jpg"
+                          />
+                          <div
+                            class="pointer-events-none absolute inset-0 flex items-center justify-center"
                           >
-                            <rect
-                              height="16"
-                              rx="2"
-                              width="20"
-                              x="2"
-                              y="4"
-                            />
-                            <circle
-                              cx="8"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="M8 12h8"
-                            />
-                            <circle
-                              cx="16"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
-                            />
-                          </svg>
+                            <svg
+                              aria-hidden="true"
+                              class="lucide lucide-cassette-tape opacity-20"
+                              fill="none"
+                              height="96"
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="0.5"
+                              viewBox="0 0 24 24"
+                              width="96"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                height="16"
+                                rx="2"
+                                width="20"
+                                x="2"
+                                y="4"
+                              />
+                              <circle
+                                cx="8"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="M8 12h8"
+                              />
+                              <circle
+                                cx="16"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
+                              />
+                            </svg>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1233,18 +1319,18 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
                       class="min-w-0"
                     >
                       <div
-                        class="text-foreground truncate text-sm font-bold"
+                        class="text-primary-foreground truncate text-sm font-bold"
                         data-testid="card-title"
                       >
                         Hello World LP
                       </div>
                       <div
-                        class="text-foreground truncate text-xs opacity-60"
+                        class="text-primary-foreground truncate text-xs opacity-60"
                       >
                         Test Artist
                       </div>
                     </div>
-                  </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1257,25 +1343,28 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
         transition="[object Object]"
       >
         <span
-          class="mb-4 flex flex-row items-center justify-start"
+          class="flex flex-row items-center mb-2 justify-start"
         >
           <button
-            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center top-2 px-2 left-1"
+            aria-label="Collapse panel"
+            aria-pressed="true"
+            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
             data-headlessui-state=""
             data-testid="sidebar-toggle-right"
+            title="Collapse panel"
             type="button"
           >
             <svg
               aria-hidden="true"
               class="lucide lucide-panel-right"
               fill="none"
-              height="24"
+              height="14"
               stroke="currentColor"
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="2"
+              stroke-width="2.25"
               viewBox="0 0 24 24"
-              width="24"
+              width="14"
               xmlns="http://www.w3.org/2000/svg"
             >
               <rect
@@ -1383,7 +1472,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
       class="bg-background-secondary border-border flex h-16 items-center border-t-(length:--border-width) px-4"
     >
       <div
-        class="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4"
+        class="grid w-full grid-cols-[minmax(0,1fr)_minmax(0,2.5fr)_minmax(0,1fr)] items-center gap-4"
       >
         <div
           class="min-w-0"
@@ -1439,7 +1528,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
           </div>
         </div>
         <div
-          class="justify-self-center"
+          class="flex w-full min-w-0 justify-center"
         >
           <div
             class="flex items-center justify-center gap-2"
@@ -1509,7 +1598,7 @@ exports[`Artist view > with bio provider > (Snapshot) renders the artist view 1`
               </svg>
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
               data-headlessui-state=""
               data-testid="player-play-button"
               type="button"
@@ -1783,7 +1872,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
             class="flex flex-row items-center gap-2"
           >
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
               data-headlessui-state=""
               type="button"
             >
@@ -1806,7 +1895,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
               </svg>
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-8 justify-center"
               data-disabled=""
               data-headlessui-state="disabled"
               disabled=""
@@ -1971,25 +2060,28 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
         transition="[object Object]"
       >
         <span
-          class="mb-4 flex flex-row items-center justify-end"
+          class="flex flex-row items-center mb-2 justify-end"
         >
           <button
-            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center top-2 px-2 right-1"
+            aria-label="Collapse panel"
+            aria-pressed="true"
+            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
             data-headlessui-state=""
             data-testid="sidebar-toggle-left"
+            title="Collapse panel"
             type="button"
           >
             <svg
               aria-hidden="true"
               class="lucide lucide-panel-left"
               fill="none"
-              height="24"
+              height="14"
               stroke="currentColor"
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="2"
+              stroke-width="2.25"
               viewBox="0 0 24 24"
-              width="24"
+              width="14"
               xmlns="http://www.w3.org/2000/svg"
             >
               <rect
@@ -2048,7 +2140,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Dashboard
                     </span>
@@ -2092,7 +2184,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Favorite albums
                     </span>
@@ -2139,7 +2231,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Favorite tracks
                     </span>
@@ -2181,7 +2273,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Favorite artists
                     </span>
@@ -2230,7 +2322,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Playlists
                     </span>
@@ -2273,7 +2365,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       History
                     </span>
@@ -2328,7 +2420,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                       </svg>
                     </div>
                     <span
-                      class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                      class="text-sm whitespace-nowrap"
                     >
                       Sources
                     </span>
@@ -2369,7 +2461,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                   </svg>
                 </div>
                 <span
-                  class="text-sm whitespace-nowrap transition-opacity duration-150 opacity-100"
+                  class="text-sm whitespace-nowrap"
                 >
                   Preferences
                 </span>
@@ -2693,7 +2785,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                         >
                           <div>
                             <button
-                              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
+                              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
                               data-headlessui-state=""
                               data-testid="play-all-button"
                               type="button"
@@ -2856,7 +2948,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                                   aria-describedby=""
                                   aria-disabled="true"
                                   aria-roledescription="sortable"
-                                  class="border-border bg-background-secondary group border-b-(length:--border-width) select-none"
+                                  class="border-border group border-b-(length:--border-width) select-none bg-background-secondary"
                                   data-testid="track-row"
                                   role="button"
                                   style="height: 42px;"
@@ -2896,10 +2988,88 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                                     <div
                                       class="flex w-full justify-center"
                                     >
-                                      <img
-                                        class="w-10 min-w-10"
-                                        src="https://img/track.jpg"
-                                      />
+                                      <div
+                                        class="group relative overflow-hidden size-10 min-w-10 cursor-pointer"
+                                        data-testid="media-artwork"
+                                      >
+                                        <img
+                                          alt="Strobe"
+                                          class="absolute inset-0 h-full w-full object-cover"
+                                          src="https://img/track.jpg"
+                                        />
+                                        <div
+                                          aria-hidden="true"
+                                          class="pointer-events-none absolute inset-0 bg-black/0 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:bg-black/45 [@media(hover:hover)_and_(pointer:fine)]:group-hover:bg-black/45 [@media(hover:none)]:bg-black/35"
+                                        />
+                                        <div
+                                          class="pointer-events-none absolute inset-0 flex items-center justify-center gap-0.5 opacity-100 transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100"
+                                        >
+                                          <button
+                                            aria-label="Play"
+                                            class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-7 rounded-full shadow-md"
+                                            data-headlessui-state=""
+                                            data-testid="media-artwork-play"
+                                            title="Play"
+                                            type="button"
+                                          >
+                                            <svg
+                                              aria-hidden="true"
+                                              class="lucide lucide-play translate-x-px fill-current"
+                                              fill="none"
+                                              height="14"
+                                              stroke="currentColor"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              viewBox="0 0 24 24"
+                                              width="14"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                              <path
+                                                d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"
+                                              />
+                                            </svg>
+                                          </button>
+                                          <button
+                                            aria-label="Add to queue"
+                                            class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-5 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                                            data-headlessui-state=""
+                                            data-testid="media-artwork-queue"
+                                            title="Add to queue"
+                                            type="button"
+                                          >
+                                            <svg
+                                              aria-hidden="true"
+                                              class="lucide lucide-list-plus"
+                                              fill="none"
+                                              height="12"
+                                              stroke="currentColor"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              stroke-width="2"
+                                              viewBox="0 0 24 24"
+                                              width="12"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                              <path
+                                                d="M11 12H3"
+                                              />
+                                              <path
+                                                d="M16 6H3"
+                                              />
+                                              <path
+                                                d="M16 18H3"
+                                              />
+                                              <path
+                                                d="M18 9v6"
+                                              />
+                                              <path
+                                                d="M21 12h-6"
+                                              />
+                                            </svg>
+                                          </button>
+                                        </div>
+                                      </div>
                                     </div>
                                   </td>
                                   <td
@@ -2927,7 +3097,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                                       >
                                         <button
                                           aria-label="Add to queue"
-                                          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-0 transition-none group-hover:opacity-100"
+                                          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                           data-headlessui-state=""
                                           data-testid="add-to-queue-button"
                                           type="button"
@@ -2957,7 +3127,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                                           aria-expanded="false"
                                           aria-haspopup="menu"
                                           aria-label="Track options"
-                                          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-0 transition-none group-hover:opacity-100"
+                                          class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                           data-headlessui-state=""
                                           data-state="closed"
                                           data-testid="track-context-menu-button"
@@ -3044,65 +3214,68 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                   class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 pb-4 px-4"
                   role="grid"
                 >
-                  <button
-                    class="cursor-pointer rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none h-auto flex w-42 flex-col items-stretch gap-2 p-2 text-left"
-                    data-headlessui-state=""
+                  <div
+                    class="text-primary-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all"
                     data-testid="card"
-                    type="button"
                   >
                     <div
-                      class="border-border text-foreground flex h-full rounded-md border-(length:--border-width) bg-primary shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
+                      class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
                     >
                       <div
-                        class="overflow-hidden absolute inset-0"
+                        class="group overflow-hidden absolute inset-0 size-full"
+                        data-testid="media-artwork"
                       >
-                        <img
-                          alt="mau5trap selects"
-                          class="h-full w-full object-cover"
-                          decoding="async"
-                          loading="lazy"
-                          src="https://img/playlist1.jpg"
-                        />
                         <div
-                          class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                          class="overflow-hidden absolute inset-0"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="lucide lucide-cassette-tape opacity-20"
-                            fill="none"
-                            height="96"
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="0.5"
-                            viewBox="0 0 24 24"
-                            width="96"
-                            xmlns="http://www.w3.org/2000/svg"
+                          <img
+                            alt="mau5trap selects"
+                            class="h-full w-full object-cover"
+                            decoding="async"
+                            loading="lazy"
+                            src="https://img/playlist1.jpg"
+                          />
+                          <div
+                            class="pointer-events-none absolute inset-0 flex items-center justify-center"
                           >
-                            <rect
-                              height="16"
-                              rx="2"
-                              width="20"
-                              x="2"
-                              y="4"
-                            />
-                            <circle
-                              cx="8"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="M8 12h8"
-                            />
-                            <circle
-                              cx="16"
-                              cy="10"
-                              r="2"
-                            />
-                            <path
-                              d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
-                            />
-                          </svg>
+                            <svg
+                              aria-hidden="true"
+                              class="lucide lucide-cassette-tape opacity-20"
+                              fill="none"
+                              height="96"
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="0.5"
+                              viewBox="0 0 24 24"
+                              width="96"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                height="16"
+                                rx="2"
+                                width="20"
+                                x="2"
+                                y="4"
+                              />
+                              <circle
+                                cx="8"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="M8 12h8"
+                              />
+                              <circle
+                                cx="16"
+                                cy="10"
+                                r="2"
+                              />
+                              <path
+                                d="m6 20 .7-2.9A1.4 1.4 0 0 1 8.1 16h7.8a1.4 1.4 0 0 1 1.4 1l.7 3"
+                              />
+                            </svg>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -3110,13 +3283,13 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
                       class="min-w-0"
                     >
                       <div
-                        class="text-foreground truncate text-sm font-bold"
+                        class="text-primary-foreground truncate text-sm font-bold"
                         data-testid="card-title"
                       >
                         mau5trap selects
                       </div>
                     </div>
-                  </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3129,25 +3302,28 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
         transition="[object Object]"
       >
         <span
-          class="mb-4 flex flex-row items-center justify-start"
+          class="flex flex-row items-center mb-2 justify-start"
         >
           <button
-            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center top-2 px-2 left-1"
+            aria-label="Collapse panel"
+            aria-pressed="true"
+            class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y bg-background text-foreground border-(length:--border-width) hover:shadow-none justify-center size-7 transition-all opacity-100"
             data-headlessui-state=""
             data-testid="sidebar-toggle-right"
+            title="Collapse panel"
             type="button"
           >
             <svg
               aria-hidden="true"
               class="lucide lucide-panel-right"
               fill="none"
-              height="24"
+              height="14"
               stroke="currentColor"
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="2"
+              stroke-width="2.25"
               viewBox="0 0 24 24"
-              width="24"
+              width="14"
               xmlns="http://www.w3.org/2000/svg"
             >
               <rect
@@ -3255,7 +3431,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
       class="bg-background-secondary border-border flex h-16 items-center border-t-(length:--border-width) px-4"
     >
       <div
-        class="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4"
+        class="grid w-full grid-cols-[minmax(0,1fr)_minmax(0,2.5fr)_minmax(0,1fr)] items-center gap-4"
       >
         <div
           class="min-w-0"
@@ -3311,7 +3487,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
           </div>
         </div>
         <div
-          class="justify-self-center"
+          class="flex w-full min-w-0 justify-center"
         >
           <div
             class="flex items-center justify-center gap-2"
@@ -3381,7 +3557,7 @@ exports[`Artist view > with social stats provider > (Snapshot) renders the artis
               </svg>
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none size-10 justify-center"
               data-headlessui-state=""
               data-testid="player-play-button"
               type="button"

@@ -129,20 +129,21 @@ exports[`FavoriteAlbums view > (Snapshot) renders with albums 1`] = `
               class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-4 pr-2 pb-4"
               role="grid"
             >
-              <button
-                class="cursor-pointer rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none h-auto flex w-42 flex-col items-stretch gap-2 p-2 text-left"
-                data-headlessui-state=""
+              <div
+                class="text-primary-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none"
                 data-testid="card"
-                type="button"
+                role="button"
+                tabindex="0"
               >
                 <div
-                  class="border-border text-foreground flex h-full rounded-md border-(length:--border-width) bg-primary shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
+                  class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
                 >
                   <div
-                    class="overflow-hidden absolute inset-0"
+                    class="group overflow-hidden absolute inset-0 size-full"
+                    data-testid="media-artwork"
                   >
                     <div
-                      class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                      class="bg-background-secondary absolute inset-0 flex items-center justify-center"
                     >
                       <svg
                         aria-hidden="true"
@@ -188,27 +189,28 @@ exports[`FavoriteAlbums view > (Snapshot) renders with albums 1`] = `
                   class="min-w-0"
                 >
                   <div
-                    class="text-foreground truncate text-sm font-bold"
+                    class="text-primary-foreground truncate text-sm font-bold"
                     data-testid="card-title"
                   >
                     Album album-1
                   </div>
                 </div>
-              </button>
-              <button
-                class="cursor-pointer rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none h-auto flex w-42 flex-col items-stretch gap-2 p-2 text-left"
-                data-headlessui-state=""
+              </div>
+              <div
+                class="text-primary-foreground bg-primary border-border shadow-shadow flex w-42 flex-col items-stretch gap-2 rounded-md border-(length:--border-width) p-2 text-left transition-all hover:translate-x-shadow-x hover:translate-y-shadow-y cursor-pointer hover:shadow-none"
                 data-testid="card"
-                type="button"
+                role="button"
+                tabindex="0"
               >
                 <div
-                  class="border-border text-foreground flex h-full rounded-md border-(length:--border-width) bg-primary shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
+                  class="border-border flex h-full rounded-md border-(length:--border-width) bg-primary text-primary-foreground shadow-none relative aspect-square w-full items-center justify-center overflow-hidden p-0"
                 >
                   <div
-                    class="overflow-hidden absolute inset-0"
+                    class="group overflow-hidden absolute inset-0 size-full"
+                    data-testid="media-artwork"
                   >
                     <div
-                      class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                      class="bg-background-secondary absolute inset-0 flex items-center justify-center"
                     >
                       <svg
                         aria-hidden="true"
@@ -254,13 +256,13 @@ exports[`FavoriteAlbums view > (Snapshot) renders with albums 1`] = `
                   class="min-w-0"
                 >
                   <div
-                    class="text-foreground truncate text-sm font-bold"
+                    class="text-primary-foreground truncate text-sm font-bold"
                     data-testid="card-title"
                   >
                     Album album-2
                   </div>
                 </div>
-              </button>
+              </div>
             </div>
           </div>
         </div>

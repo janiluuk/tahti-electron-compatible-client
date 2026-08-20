@@ -398,7 +398,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                         aria-describedby="DndDescribedBy-0"
                         aria-disabled="false"
                         aria-roledescription="sortable"
-                        class="border-border bg-background-secondary group border-b-(length:--border-width) select-none cursor-grab"
+                        class="border-border group border-b-(length:--border-width) select-none bg-background-secondary cursor-grab"
                         data-testid="track-row"
                         role="button"
                         style="height: 42px;"
@@ -438,9 +438,114 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                           <div
                             class="flex w-full justify-center"
                           >
-                            <img
-                              class="w-10 min-w-10"
-                            />
+                            <div
+                              class="group relative overflow-hidden size-10 min-w-10 cursor-pointer"
+                              data-testid="media-artwork"
+                            >
+                              <div
+                                class="bg-background-secondary absolute inset-0 flex items-center justify-center"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="lucide lucide-music opacity-20"
+                                  fill="none"
+                                  height="16"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="3"
+                                  viewBox="0 0 24 24"
+                                  width="16"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M9 18V5l12-2v13"
+                                  />
+                                  <circle
+                                    cx="6"
+                                    cy="18"
+                                    r="3"
+                                  />
+                                  <circle
+                                    cx="18"
+                                    cy="16"
+                                    r="3"
+                                  />
+                                </svg>
+                              </div>
+                              <div
+                                aria-hidden="true"
+                                class="pointer-events-none absolute inset-0 bg-black/0 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:bg-black/45 [@media(hover:hover)_and_(pointer:fine)]:group-hover:bg-black/45 [@media(hover:none)]:bg-black/35"
+                              />
+                              <div
+                                class="pointer-events-none absolute inset-0 flex items-center justify-center gap-0.5 opacity-100 transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100"
+                              >
+                                <button
+                                  aria-label="Play"
+                                  class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-7 rounded-full shadow-md"
+                                  data-headlessui-state=""
+                                  data-testid="media-artwork-play"
+                                  title="Play"
+                                  type="button"
+                                >
+                                  <svg
+                                    aria-hidden="true"
+                                    class="lucide lucide-play translate-x-px fill-current"
+                                    fill="none"
+                                    height="14"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                    width="14"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"
+                                    />
+                                  </svg>
+                                </button>
+                                <button
+                                  aria-label="Add to queue"
+                                  class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-5 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                                  data-headlessui-state=""
+                                  data-testid="media-artwork-queue"
+                                  title="Add to queue"
+                                  type="button"
+                                >
+                                  <svg
+                                    aria-hidden="true"
+                                    class="lucide lucide-list-plus"
+                                    fill="none"
+                                    height="12"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                    width="12"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M11 12H3"
+                                    />
+                                    <path
+                                      d="M16 6H3"
+                                    />
+                                    <path
+                                      d="M16 18H3"
+                                    />
+                                    <path
+                                      d="M18 9v6"
+                                    />
+                                    <path
+                                      d="M21 12h-6"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </td>
                         <td
@@ -468,7 +573,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                             >
                               <button
                                 aria-label="Add to queue"
-                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-0 transition-none group-hover:opacity-100"
+                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                 data-headlessui-state=""
                                 data-testid="add-to-queue-button"
                                 type="button"
@@ -498,7 +603,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                                 aria-expanded="false"
                                 aria-haspopup="menu"
                                 aria-label="Track options"
-                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-0 transition-none group-hover:opacity-100"
+                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                 data-headlessui-state=""
                                 data-state="closed"
                                 data-testid="track-context-menu-button"
@@ -592,7 +697,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                         aria-describedby="DndDescribedBy-0"
                         aria-disabled="false"
                         aria-roledescription="sortable"
-                        class="border-border bg-background-secondary group border-b-(length:--border-width) select-none cursor-grab"
+                        class="border-border group border-b-(length:--border-width) select-none bg-background cursor-grab"
                         data-testid="track-row"
                         role="button"
                         style="height: 42px;"
@@ -632,9 +737,114 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                           <div
                             class="flex w-full justify-center"
                           >
-                            <img
-                              class="w-10 min-w-10"
-                            />
+                            <div
+                              class="group relative overflow-hidden size-10 min-w-10 cursor-pointer"
+                              data-testid="media-artwork"
+                            >
+                              <div
+                                class="bg-background-secondary absolute inset-0 flex items-center justify-center"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="lucide lucide-music opacity-20"
+                                  fill="none"
+                                  height="16"
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="3"
+                                  viewBox="0 0 24 24"
+                                  width="16"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M9 18V5l12-2v13"
+                                  />
+                                  <circle
+                                    cx="6"
+                                    cy="18"
+                                    r="3"
+                                  />
+                                  <circle
+                                    cx="18"
+                                    cy="16"
+                                    r="3"
+                                  />
+                                </svg>
+                              </div>
+                              <div
+                                aria-hidden="true"
+                                class="pointer-events-none absolute inset-0 bg-black/0 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:bg-black/45 [@media(hover:hover)_and_(pointer:fine)]:group-hover:bg-black/45 [@media(hover:none)]:bg-black/35"
+                              />
+                              <div
+                                class="pointer-events-none absolute inset-0 flex items-center justify-center gap-0.5 opacity-100 transition-opacity [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100 [@media(hover:hover)_and_(pointer:fine)]:group-focus-within:opacity-100"
+                              >
+                                <button
+                                  aria-label="Play"
+                                  class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-7 rounded-full shadow-md"
+                                  data-headlessui-state=""
+                                  data-testid="media-artwork-play"
+                                  title="Play"
+                                  type="button"
+                                >
+                                  <svg
+                                    aria-hidden="true"
+                                    class="lucide lucide-play translate-x-px fill-current"
+                                    fill="none"
+                                    height="14"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                    width="14"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"
+                                    />
+                                  </svg>
+                                </button>
+                                <button
+                                  aria-label="Add to queue"
+                                  class="inline-flex cursor-pointer items-center whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none justify-center pointer-events-auto size-5 rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm"
+                                  data-headlessui-state=""
+                                  data-testid="media-artwork-queue"
+                                  title="Add to queue"
+                                  type="button"
+                                >
+                                  <svg
+                                    aria-hidden="true"
+                                    class="lucide lucide-list-plus"
+                                    fill="none"
+                                    height="12"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                    width="12"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M11 12H3"
+                                    />
+                                    <path
+                                      d="M16 6H3"
+                                    />
+                                    <path
+                                      d="M16 18H3"
+                                    />
+                                    <path
+                                      d="M18 9v6"
+                                    />
+                                    <path
+                                      d="M21 12h-6"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </td>
                         <td
@@ -662,7 +872,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                             >
                               <button
                                 aria-label="Add to queue"
-                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-0 transition-none group-hover:opacity-100"
+                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                 data-headlessui-state=""
                                 data-testid="add-to-queue-button"
                                 type="button"
@@ -692,7 +902,7 @@ exports[`PlaylistDetail view > (Snapshot) renders playlist detail with tracks 1`
                                 aria-expanded="false"
                                 aria-haspopup="menu"
                                 aria-label="Track options"
-                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-0 transition-none group-hover:opacity-100"
+                                class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent size-8 justify-center opacity-100 transition-none [@media(hover:hover)_and_(pointer:fine)]:opacity-0 [@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100"
                                 data-headlessui-state=""
                                 data-state="closed"
                                 data-testid="track-context-menu-button"

@@ -33,7 +33,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
       transition="[object Object]"
     >
       <div
-        class="border-border bg-background shadow-shadow relative rounded-md border-(length:--border-width) flex h-[80vh] max-h-[900px] w-[80vw] max-w-6xl p-0"
+        class="border-border bg-background shadow-shadow relative rounded-md border-(length:--border-width) flex h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col overflow-hidden p-0 sm:h-[80vh] sm:max-h-[900px] sm:w-[80vw] sm:max-w-6xl sm:flex-row"
         data-headlessui-state="open"
         data-open=""
         id="headlessui-dialog-panel-:ra:"
@@ -67,13 +67,13 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
           </svg>
         </button>
         <nav
-          class="border-border flex w-56 shrink-0 flex-col border-r-(length:--border-width) p-4"
+          class="border-border flex w-full shrink-0 flex-col border-b-(length:--border-width) p-2 sm:w-56! sm:border-r-(length:--border-width) sm:border-b-0 sm:p-4"
         >
           <div
-            class="flex flex-col gap-1"
+            class="flex flex-row gap-1 overflow-x-auto pr-10 sm:flex-col sm:overflow-visible sm:pr-0"
           >
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 justify-start gap-2"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 shrink-0 justify-start gap-2"
               data-headlessui-state=""
               data-testid="settings-tab-general"
               type="button"
@@ -113,7 +113,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
               General
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 justify-start gap-2"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 shrink-0 justify-start gap-2"
               data-headlessui-state=""
               data-testid="settings-tab-shortcuts"
               type="button"
@@ -168,7 +168,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
               Key Shortcuts
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 justify-start gap-2"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 shrink-0 justify-start gap-2"
               data-headlessui-state=""
               data-testid="settings-tab-plugins"
               type="button"
@@ -202,7 +202,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
               Plugins
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none h-10 px-4 py-2 justify-start gap-2"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none h-10 px-4 py-2 shrink-0 justify-start gap-2"
               data-headlessui-state="hover"
               data-hover=""
               data-testid="settings-tab-themes"
@@ -254,7 +254,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
               Themes
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 justify-start gap-2"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 shrink-0 justify-start gap-2"
               data-headlessui-state=""
               data-testid="settings-tab-logs"
               type="button"
@@ -290,7 +290,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
               Logs
             </button>
             <button
-              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 justify-start gap-2"
+              class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-transparent h-10 px-4 py-2 shrink-0 justify-start gap-2"
               data-headlessui-state=""
               data-testid="settings-tab-whats-new"
               type="button"
@@ -329,7 +329,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
             </button>
           </div>
           <div
-            class="mt-auto"
+            class="mt-2 sm:mt-auto"
           >
             <div
               class="flex flex-col items-center gap-2"
@@ -472,7 +472,7 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
                       <button
                         aria-controls="headlessui-tabs-panel-:rg:"
                         aria-selected="true"
-                        class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none h-10 px-4 py-2"
+                        class="inline-flex cursor-pointer items-center rounded-md whitespace-nowrap transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 text-primary-foreground bg-primary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y border-(length:--border-width) hover:shadow-none h-10 px-4 py-2"
                         data-headlessui-state=""
                         data-selected=""
                         id="headlessui-tabs-tab-:rc:"
@@ -714,6 +714,42 @@ exports[`Themes view > (Snapshot) renders the themes view 1`] = `
                                             aria-hidden="true"
                                             class="ring-border inline-block size-5 rounded-full ring-2"
                                             style="background-color: oklch(0.2 0.02 175);"
+                                          />
+                                        </div>
+                                      </button>
+                                      <button
+                                        aria-pressed="false"
+                                        class="cursor-pointer items-center whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 text-foreground h-auto bg-background-secondary border-border shadow-shadow hover:translate-x-shadow-x hover:translate-y-shadow-y flex flex-col justify-between gap-2 rounded-md border-(length:--border-width) px-4 py-2 transition hover:shadow-none"
+                                        data-headlessui-state=""
+                                        type="button"
+                                      >
+                                        <span
+                                          class="text-foreground text-left text-base font-bold"
+                                        >
+                                          Tahti
+                                        </span>
+                                        <div
+                                          class="block"
+                                        >
+                                          <span
+                                            aria-hidden="true"
+                                            class="ring-border inline-block size-5 rounded-full ring-2"
+                                            style="background-color: oklch(0.8131 0.165 75.04);"
+                                          />
+                                          <span
+                                            aria-hidden="true"
+                                            class="ring-border inline-block size-5 rounded-full ring-2"
+                                            style="background-color: oklch(0.2747 0.0497 269.93);"
+                                          />
+                                          <span
+                                            aria-hidden="true"
+                                            class="ring-border inline-block size-5 rounded-full ring-2"
+                                            style="background-color: oklch(0.7159 0.035 268.54);"
+                                          />
+                                          <span
+                                            aria-hidden="true"
+                                            class="ring-border inline-block size-5 rounded-full ring-2"
+                                            style="background-color: oklch(0.1663 0.0262 269.37);"
                                           />
                                         </div>
                                       </button>
