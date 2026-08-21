@@ -9,12 +9,42 @@ mkdirSync(outDir, { recursive: true });
 
 const BASE = process.env.REDESIGN_BASE_URL || 'http://localhost:5180';
 
+const layoutClosed = {
+  state: {
+    leftCollapsed: false,
+    rightCollapsed: true,
+    bottomQueueOpen: false,
+    leftWidth: 220,
+    rightWidth: 340,
+    chatSlug: null,
+    chatEnabled: false,
+    chatDisabledReason: null,
+    chatAutoOpenedFor: null,
+  },
+  version: 3,
+};
+
 let browser = await chromium.launch({
   channel: 'chromium',
   args: ['--disable-dev-shm-usage', '--disable-gpu'],
 });
 let page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 let authed = false;
+
+async function ensureChatClosed() {
+  await page.evaluate((layout) => {
+    localStorage.setItem('tahti-web-layout', JSON.stringify(layout));
+  }, layoutClosed);
+  const collapse = page.getByRole('button', { name: 'Collapse panel' });
+  const count = await collapse.count();
+  for (let i = count - 1; i >= 0; i -= 1) {
+    const btn = collapse.nth(i);
+    if (await btn.isVisible().catch(() => false)) {
+      await btn.click().catch(() => {});
+      break;
+    }
+  }
+}
 
 async function relaunch() {
   try {
@@ -43,35 +73,7 @@ async function authAs() {
   }
   authed = true;
   await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
-  await page.evaluate(() => {
-    localStorage.setItem(
-      'tahti-web-auth',
-      JSON.stringify({
-        state: {
-          user: {
-            id: 'mock-1',
-            email: 'demo@tahti.live',
-            username: 'demo',
-            displayName: 'Demo Artist',
-            isBoard: false,
-            membershipStatus: 'ACTIVE',
-            channel: { slug: 'demo', state: 'OFFLINE' },
-          },
-        },
-        version: 0,
-      }),
-    );
-    localStorage.setItem('tahti-web-onboarded:mock-1', '1');
-  });
-}
-
-let boardAuthed = false;
-
-async function boardAuthAs() {
-  boardAuthed = true;
-  authed = true; // AdminGate re-derives from the same tahti-web-auth key.
-  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
-  await page.evaluate(() => {
+  await page.evaluate((layout) => {
     localStorage.setItem(
       'tahti-web-auth',
       JSON.stringify({
@@ -83,14 +85,44 @@ async function boardAuthAs() {
             displayName: 'Board Member',
             isBoard: true,
             membershipStatus: 'ACTIVE',
-            channel: null,
+            channel: { slug: 'demo', state: 'OFFLINE' },
           },
         },
         version: 0,
       }),
     );
     localStorage.setItem('tahti-web-onboarded:mock-board-1', '1');
-  });
+    localStorage.setItem('tahti-web-layout', JSON.stringify(layout));
+  }, layoutClosed);
+}
+
+let boardAuthed = false;
+
+async function boardAuthAs() {
+  boardAuthed = true;
+  authed = true; // AdminGate re-derives from the same tahti-web-auth key.
+  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  await page.evaluate((layout) => {
+    localStorage.setItem(
+      'tahti-web-auth',
+      JSON.stringify({
+        state: {
+          user: {
+            id: 'mock-board-1',
+            email: 'board@tahti.live',
+            username: 'board',
+            displayName: 'Board Member',
+            isBoard: true,
+            membershipStatus: 'ACTIVE',
+            channel: { slug: 'demo', state: 'OFFLINE' },
+          },
+        },
+        version: 0,
+      }),
+    );
+    localStorage.setItem('tahti-web-onboarded:mock-board-1', '1');
+    localStorage.setItem('tahti-web-layout', JSON.stringify(layout));
+  }, layoutClosed);
 }
 
 // [path, output filename] pairs — authenticated as the mock demo artist.
@@ -183,7 +215,9 @@ async function captureOnce(path, out) {
     waitUntil: 'networkidle',
     timeout: 20000,
   });
+  await ensureChatClosed();
   await page.waitForTimeout(1200);
+  await ensureChatClosed();
   const text = await page.locator('body').innerText();
   const outPath = join(outDir, out);
   await page.screenshot({ path: outPath, fullPage: true });
