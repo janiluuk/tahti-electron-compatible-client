@@ -122,6 +122,7 @@ async function setAuth(on) {
   if (on) {
     await page.evaluate((state) => {
       localStorage.setItem('tahti-web-auth', JSON.stringify(state));
+      localStorage.setItem('tahti-web-onboarded:mock-1', '1');
     }, authState);
   } else {
     await page.evaluate(() => {

@@ -61,6 +61,7 @@ async function authAs() {
         version: 0,
       }),
     );
+    localStorage.setItem('tahti-web-onboarded:mock-1', '1');
   });
 }
 
@@ -88,6 +89,7 @@ async function boardAuthAs() {
         version: 0,
       }),
     );
+    localStorage.setItem('tahti-web-onboarded:mock-board-1', '1');
   });
 }
 
