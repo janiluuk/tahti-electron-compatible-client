@@ -13,19 +13,36 @@ mkdirSync(outDir, { recursive: true });
 
 const BASE = process.env.REDESIGN_BASE_URL || 'http://127.0.0.1:5190';
 
+/** Board admin with a channel so studio + /more (board-only) both render. */
 const authState = {
   state: {
     user: {
-      id: 'mock-1',
-      email: 'demo@tahti.live',
-      username: 'demo',
-      displayName: 'Demo Artist',
-      isBoard: false,
+      id: 'mock-board-1',
+      email: 'board@tahti.live',
+      username: 'board',
+      displayName: 'Board Member',
+      isBoard: true,
       membershipStatus: 'ACTIVE',
       channel: { slug: 'demo', state: 'OFFLINE' },
     },
   },
   version: 0,
+};
+
+/** Keep the right chat/queue rail collapsed in every capture. */
+const layoutStateClosedChat = {
+  state: {
+    leftCollapsed: false,
+    rightCollapsed: true,
+    bottomQueueOpen: false,
+    leftWidth: 220,
+    rightWidth: 340,
+    chatSlug: null,
+    chatEnabled: false,
+    chatDisabledReason: null,
+    chatAutoOpenedFor: null,
+  },
+  version: 3,
 };
 
 /** @type {{ path: string, out: string, auth?: boolean }[]} */
@@ -120,13 +137,36 @@ async function ensureAlive() {
 async function setAuth(on) {
   await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
   if (on) {
-    await page.evaluate((state) => {
-      localStorage.setItem('tahti-web-auth', JSON.stringify(state));
-    }, authState);
+    await page.evaluate(
+      ({ auth, layout }) => {
+        localStorage.setItem('tahti-web-auth', JSON.stringify(auth));
+        localStorage.setItem('tahti-web-onboarded:mock-board-1', '1');
+        localStorage.setItem('tahti-web-layout', JSON.stringify(layout));
+      },
+      { auth: authState, layout: layoutStateClosedChat },
+    );
   } else {
-    await page.evaluate(() => {
+    await page.evaluate((layout) => {
       localStorage.removeItem('tahti-web-auth');
-    });
+      localStorage.setItem('tahti-web-layout', JSON.stringify(layout));
+    }, layoutStateClosedChat);
+  }
+}
+
+/** Collapse the right chat rail if a page (e.g. Channel) re-opened it. */
+async function ensureChatClosed() {
+  await page.evaluate((layout) => {
+    localStorage.setItem('tahti-web-layout', JSON.stringify(layout));
+  }, layoutStateClosedChat);
+  const collapse = page.getByRole('button', { name: 'Collapse panel' });
+  const count = await collapse.count();
+  // Left + right sidebars both use this label; collapse the rightmost open one.
+  for (let i = count - 1; i >= 0; i -= 1) {
+    const btn = collapse.nth(i);
+    if (await btn.isVisible().catch(() => false)) {
+      await btn.click().catch(() => {});
+      break;
+    }
   }
 }
 
@@ -175,7 +215,9 @@ for (const s of shots) {
       });
       await page.reload({ waitUntil: 'networkidle' });
     }
+    await ensureChatClosed();
     await page.waitForTimeout(1800);
+    await ensureChatClosed();
     const out = join(outDir, s.out);
     await page.screenshot({ path: out, fullPage: true });
     let text = (

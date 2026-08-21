@@ -72,11 +72,13 @@ function SidebarNavItems({ compact }: { compact: boolean }) {
             label="Admin"
           />
         )}
-        <SidebarNavigationItem
-          to="/more"
-          icon={<MapIcon size={16} />}
-          label="More"
-        />
+        {isBoard && (
+          <SidebarNavigationItem
+            to="/more"
+            icon={<MapIcon size={16} />}
+            label="More"
+          />
+        )}
       </div>
     </SidebarNavigation>
   );
@@ -188,11 +190,13 @@ export function AppShell() {
                       label="Admin"
                     />
                   )}
-                  <SidebarNavigationItem
-                    to="/more"
-                    icon={<MapIcon size={16} />}
-                    label="More"
-                  />
+                  {isBoard && (
+                    <SidebarNavigationItem
+                      to="/more"
+                      icon={<MapIcon size={16} />}
+                      label="More"
+                    />
+                  )}
                 </div>
                 <div className="mt-auto flex flex-col gap-1 p-1">
                   <SidebarNavigationItem

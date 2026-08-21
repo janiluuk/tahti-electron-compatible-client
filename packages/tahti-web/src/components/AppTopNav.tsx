@@ -8,7 +8,6 @@ import {
   MessageSquareIcon,
   RadioIcon,
   SettingsIcon,
-  SparklesIcon,
   UploadIcon,
   UserIcon,
 } from 'lucide-react';
@@ -125,15 +124,6 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
           </Link>
         ) : null}
 
-        <Link
-          to="/whats-new"
-          className={iconBtnClass}
-          aria-label="What's new"
-          title="What's new"
-        >
-          <SparklesIcon size={16} />
-        </Link>
-
         {user ? (
           <div className="relative" ref={menuRef}>
             <button
@@ -220,15 +210,6 @@ export function AppTopNav({ showMenuButton, onOpenMenu }: AppTopNavProps) {
                   <SettingsIcon size={14} />
                   Settings
                 </button>
-                <Link
-                  to="/whats-new"
-                  className="hover:bg-background-secondary flex items-center gap-2 rounded-md px-2.5 py-2 text-xs"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                >
-                  <SparklesIcon size={14} />
-                  What&apos;s new
-                </Link>
                 <a
                   href="https://tahti.live"
                   className="hover:bg-background-secondary flex items-center gap-2 rounded-md px-2.5 py-2 text-xs"

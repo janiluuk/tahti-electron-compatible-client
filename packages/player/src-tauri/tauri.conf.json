@@ -27,32 +27,17 @@
     }
   },
   "bundle": {
-    "active": true,
+    "active": false,
     "category": "Music",
     "shortDescription": "Music streaming app for your desktop",
     "longDescription": "Nuclear is a free, open-source music player without ads or tracking. Search for any song or artist, build playlists, and start listening.",
     "copyright": "Copyright 2025-2026 nukeop",
-    "homepage": "https://nuclearplayer.com",
     "createUpdaterArtifacts": true,
-    "targets": "all",
     "icon": [
       "icons/icon.png",
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "linux": {
-      "deb": {
-        "depends": []
-      },
-      "appimage": {
-        "bundleMediaFramework": true
-      },
-      "rpm": {
-        "epoch": 0,
-        "files": {},
-        "release": "1"
-      }
-    },
     "macOS": {
       "signingIdentity": "-",
       "dmg": {
