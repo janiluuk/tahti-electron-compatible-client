@@ -54,7 +54,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 - [ ] Full Three.js visualizer preset set — confirmed still canvas/WebGL only, no `three` dependency (`ChannelVisualizer.tsx`)
 - [x] Stash upload / delete
 - [x] Stats detail page (beyond summary) — `/studio/stats/detail` (`StudioStatsDetailView.tsx`) shipped, worklog row 14 approved
-- [ ] Sources OAuth silent-mock demock polish — start URLs are real (`oauthStartPath` → `/api/me/*/oauth/start`) and mock-connect is hard-gated behind `VITE_FORCE_MOCK` (`api/sources.ts`); **unverified**: whether the OAuth callback lands back on the SPA or still link-outs to the prod dashboard (CUTOVER.md blocker #1)
+- [ ] Sources OAuth silent-mock demock polish — start URLs are real (`oauthStartUrl()` → `/api/me/*/oauth/start`, `api/sources.ts:189`) and mock-connect is hard-gated behind `VITE_FORCE_MOCK`; the callback path is also already built — `router.tsx`'s `/dashboard/$` route has provider-specific branches (`OAUTH_IMPORT_STATUS_KEYS` for SoundCloud/Bandcamp/Google Drive at `router.tsx:932`, a bare-`/dashboard?mixcloud=...` branch) that catch the API's real prod-shaped redirect and land on `/sources/$id?status=...`, which `SourcesView.tsx` reads into a connect toast. No `tahti.live` link-out found in `sources.ts`/`SourcesView.tsx` (grep clean). **Still unverified**: a real click-through (Connect → provider OAuth → callback) against `beta.tahti.live` to confirm the toast actually fires — needs live provider creds (e.g. SoundCloud sandbox), not a code change, unless a real redirect shape turns out to differ from what's coded (CUTOVER.md blocker #1)
 - [x] Venue register
 - [x] Membership purchase (`/signup/payment`) — Stripe checkout + mock activate
 - [x] TOTP at login (manage/settings depth still thin)
@@ -63,8 +63,9 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 - [x] Channel moderators (`/studio/moderation`)
 - [x] Listener-only dashboard (`/dashboard` routes non-artists to `/library`)
 - [x] Board admin — all 22 pages ported, gated on `user.isBoard` (see UI-REDESIGN-WORKLOG.md admin table); several sub-pages deliberately scope-trimmed, see §6 note
-- [ ] Radio slots depth
-- [ ] Multitrack timeline editing, press-kit / invites polish
+- [x] Radio slots depth — series and episodes are now **live-API**, matching bookings. Added `LiveShowEpisode` model + `intervalHours`/`scheduleNote` on the existing `LiveShowSeries` table in `tahti-org` (`packages/db/prisma/schema.prisma`, migration `20260822140000_live_show_episodes`), plus `PATCH /api/me/channel/show-series/:seriesId`, `GET/POST /api/me/channel/show-series/:seriesId/live-show-episodes`, `GET/PATCH /api/me/channel/live-show-episodes/:id` on the existing `channel-schedule.ts` route plugin (17 passing tests). `api/shows.ts` in this repo now calls those endpoints with the standard mock-fallback pattern (`forceMock()`/`allowMockFallback()`, mirroring `fetchShowBookings`); verified against a real local instance of the `tahti-org` API (create series, create episode with a custom title, list — all round-trip correctly). `SERIES_KEY`/`EPISODES_KEY` localStorage remain only as the `VITE_FORCE_MOCK` fixture path.
+- [ ] Multitrack timeline editing — confirmed greenfield (no track array/timeline model anywhere), a multi-day build needing a rendering-architecture decision first, not a slice. Press-kit gallery is done (see above); member invites checked and mostly already covered — adding a moderator by existing username is live-API at `/studio/moderation`. A true email-invite-for-non-account-holders flow is a separate, larger feature with no backing API; deferred, not clearly needed.
+- [x] Settings modal mobile responsiveness — was broken two ways: (1) a horizontal-scroll tab strip with no scroll affordance made most sections undiscoverable, and (2) the section list and content panes visually overlapped (root cause: `sm:flex` was silently losing to a later plain `hidden` rule in this codebase's compiled Tailwind output — same class of bug already worked around once in `SettingsPanelNav.tsx`'s `sm:w-56!`). Redesigned `SettingsPanel`/`SettingsPanelNav`/`SettingsPanelContent` (`@nuclearplayer/ui`) to a native list-then-detail mobile pattern: below `sm`, tapping a section swaps a full vertical section list for that section's content plus a back button; `sm:` and up shows both panes side by side as before (now with `sm:flex!` to make the override reliable). Verified in-browser at both a narrow and a desktop viewport; 237 `@nuclearplayer/ui` tests pass.
 - [ ] Production cutover for `apps/web`
 
 ---
@@ -135,7 +136,7 @@ Track what has been ported from `apps/web` into the Nuclear listen/studio POC.
 | Revenue / Connect | revenue | `/studio/revenue` | `live-api` | demock wave 4; onboard/portal redirect to Stripe |
 | Stash | `/dashboard/stash` | `/studio/stash` | `live-api` | upload/delete + mock |
 | Distribution | `/dashboard/distribution` | `/studio/distribution` | `live-api` | catalog, Revelator pay+submit, Spotify profile, royalties |
-| Radio slots / Shows | `/dashboard/tahti-radio-slots` | `/studio/shows` | `partial` | bookings live; series localStorage |
+| Radio slots / Shows | `/dashboard/tahti-radio-slots` | `/studio/shows` | `live-api` | bookings, series, and episodes all live-API |
 | Channel moderators | `/dashboard/moderate/:slug` | `/studio/moderation` | `live-api` | |
 
 ## 5. Settings / sources

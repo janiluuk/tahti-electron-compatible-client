@@ -2,8 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button, Input, Select, Tabs, Toggle } from '@nuclearplayer/ui';
-import type { SelectOption } from '@nuclearplayer/ui';
+import { Button, Input, Tabs, Toggle } from '@nuclearplayer/ui';
 
 import {
   fetchDiscoveryPrefs,
@@ -42,14 +41,6 @@ export function hasSeenOnboarding(userId: string): boolean {
 
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
-const PRONOUN_OPTIONS: SelectOption[] = [
-  { id: 'she/her', label: 'she/her' },
-  { id: 'he/him', label: 'he/him' },
-  { id: 'they/them', label: 'they/them' },
-  { id: 'she/they', label: 'she/they' },
-  { id: 'he/they', label: 'he/they' },
-];
-
 export function OnboardingView() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
@@ -59,7 +50,6 @@ export function OnboardingView() {
   const [saving, setSaving] = useState(false);
 
   const [displayName, setDisplayName] = useState('');
-  const [pronouns, setPronouns] = useState('');
   const [bio, setBio] = useState('');
   const [artistKind, setArtistKind] = useState<'SINGLE' | 'COLLECTIVE'>(
     'SINGLE',
@@ -84,7 +74,6 @@ export function OnboardingView() {
     void Promise.all([fetchMeProfile(), fetchDiscoveryPrefs()]).then(
       ([profile, discovery]) => {
         setDisplayName(profile.data.displayName || user.displayName || '');
-        setPronouns(profile.data.pronouns ?? '');
         setBio(profile.data.bio ?? '');
         setArtistKind(profile.data.artistKind ?? 'SINGLE');
         setCountryCode(profile.data.countryCode ?? '');
@@ -153,7 +142,6 @@ export function OnboardingView() {
       }
       const profileResult = await patchMeProfile({
         displayName: displayName.trim() || undefined,
-        pronouns: pronouns.trim() || null,
         bio: bio.trim() || undefined,
         artistKind,
         countryCode: countryCode || null,
@@ -254,14 +242,6 @@ export function OnboardingView() {
                           label="Display name"
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
-                        />
-                        <Select
-                          label="Pronouns"
-                          value={pronouns}
-                          onValueChange={setPronouns}
-                          placeholder="Prefer not to say"
-                          options={PRONOUN_OPTIONS}
-                          className="max-w-[9.5rem] px-2 py-1 text-xs"
                         />
                       </div>
                       <label className="flex flex-col gap-1.5 text-sm">

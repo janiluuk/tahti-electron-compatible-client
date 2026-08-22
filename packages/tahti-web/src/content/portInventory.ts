@@ -102,11 +102,12 @@ export const PORT_BACKLOG: PortInventoryItem[] = [
     section: 'backlog',
   },
   {
-    id: 'press-invites',
-    surface: 'Press-kit gallery + member invites',
-    route: '/settings/artist',
-    status: 'link-out',
-    detail: 'Bio save works; gallery upload + invites stay on production.',
+    id: 'member-invites',
+    surface: 'Channel member invites',
+    route: '/studio/moderation',
+    status: 'missing',
+    detail:
+      'Adding a moderator by existing username is live-API and done (`/studio/moderation`). A genuine email invite — for someone without a Tahti account yet, with an accept-token flow — is a separate, larger feature with no backing API; not clearly needed given the username flow already covers the common case.',
     section: 'backlog',
   },
   {
@@ -190,7 +191,8 @@ export const PORT_MOCK_INVENTORY: PortInventoryItem[] = [
     surface: 'Studio home / Settings extras',
     route: '/settings',
     status: 'link-out',
-    detail: 'Press-kit gallery / invites / deep security extras → tahti.live.',
+    detail:
+      'Member invites / deep security extras → tahti.live. (Press-kit gallery is live in-app — see the gallery tab on the artist profile.)',
     section: 'mock',
   },
   {
@@ -289,6 +291,15 @@ export const PORT_GAP_HIGHLIGHTS: PortInventoryItem[] = [
     route: '/studio/stash',
     status: 'done',
     detail: 'prepare → PUT → register + delete; shares still missing.',
+    section: 'gap',
+  },
+  {
+    id: 'gap-press-kit-gallery',
+    surface: 'Press-kit gallery',
+    route: '/settings/artist',
+    status: 'done',
+    detail:
+      '/api/me/press-kit/images/* upload/delete; ArtistGalleryPanel wired into the gallery tab.',
     section: 'gap',
   },
 ];

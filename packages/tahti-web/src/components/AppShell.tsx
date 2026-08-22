@@ -91,6 +91,7 @@ export function AppShell() {
     rightCollapsed,
     leftWidth,
     rightWidth,
+    chatEnabled,
     toggleLeft,
     toggleRight,
     setLeftWidth,
@@ -221,14 +222,16 @@ export function AppShell() {
             </div>
           </PlayerWorkspace.Main>
 
-          <PlayerWorkspace.RightSidebar
-            width={rightWidth}
-            isCollapsed={rightCollapsed}
-            onWidthChange={setRightWidth}
-            onToggle={toggleRight}
-          >
-            <RightRailPanel isCollapsed={rightCollapsed} />
-          </PlayerWorkspace.RightSidebar>
+          {chatEnabled && (
+            <PlayerWorkspace.RightSidebar
+              width={rightWidth}
+              isCollapsed={rightCollapsed}
+              onWidthChange={setRightWidth}
+              onToggle={toggleRight}
+            >
+              <RightRailPanel isCollapsed={rightCollapsed} />
+            </PlayerWorkspace.RightSidebar>
+          )}
         </PlayerWorkspace>
       )}
 

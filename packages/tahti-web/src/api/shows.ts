@@ -341,17 +341,85 @@ let mockBookings: StudioShowBooking[] = [
   },
 ];
 
+type WireLiveShowSeries = {
+  id: string;
+  name: string;
+  description: string | null;
+  artworkUrl: string | null;
+  showType: ShowType;
+  nextEpisodeNumber: number;
+  intervalHours: 1 | 2;
+  scheduleNote: string | null;
+  createdAt: string;
+};
+
+type WireLiveShowEpisode = {
+  id: string;
+  seriesId: string;
+  episodeNumber: number | null;
+  title: string;
+  description: string | null;
+  artworkUrl: string | null;
+  status: EpisodeStatus;
+  source: 'UPLOAD' | 'BROADCAST';
+  archiveItemId: string | null;
+  radioSlotBookingId: string | null;
+  createdAt: string;
+};
+
+function seriesFromWire(w: WireLiveShowSeries): StudioShowSeries {
+  return {
+    id: w.id,
+    title: w.name,
+    description: w.description ?? '',
+    coverUrl: w.artworkUrl,
+    showType: w.showType,
+    nextEpisodeNumber: w.nextEpisodeNumber,
+    intervalHours: w.intervalHours,
+    scheduleNote: w.scheduleNote,
+    createdAt: w.createdAt,
+  };
+}
+
+function episodeFromWire(w: WireLiveShowEpisode): StudioEpisode {
+  return {
+    id: w.id,
+    showId: w.seriesId,
+    episodeNumber: w.episodeNumber ?? 0,
+    title: w.title,
+    description: w.description ?? '',
+    coverUrl: w.artworkUrl,
+    status: w.status,
+    source: w.source === 'BROADCAST' ? 'broadcast' : 'upload',
+    archiveItemId: w.archiveItemId,
+    slotStartAt: null,
+    slotEndAt: null,
+    bookingId: w.radioSlotBookingId,
+    createdAt: w.createdAt,
+  };
+}
+
 export async function fetchShowSeries(): Promise<{
   data: StudioShowSeries[];
   meta: FetchMeta;
 }> {
-  return {
-    data: seedSeries(),
-    meta: {
-      source: 'mock',
-      reason: 'Show series stored locally until a dedicated API exists',
-    },
-  };
+  if (forceMock()) {
+    return {
+      data: seedSeries(),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{ series: WireLiveShowSeries[] }>(
+      '/api/me/channel/show-series',
+    );
+    return { data: data.series.map(seriesFromWire), meta: { source: 'api' } };
+  } catch (err) {
+    if (allowMockFallback()) {
+      return { data: seedSeries(), meta: failMeta(err) };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
+  }
 }
 
 export async function createShowSeries(input: {
@@ -368,20 +436,44 @@ export async function createShowSeries(input: {
   if (!title) {
     return { ok: false, error: 'Title is required' };
   }
-  const list = seedSeries();
-  const series: StudioShowSeries = {
-    id: `show-${Date.now()}`,
-    title,
-    description: input.description?.trim() || '',
-    coverUrl: input.coverUrl ?? null,
-    showType: input.showType ?? 'LIVE_SET',
-    nextEpisodeNumber: 1,
-    intervalHours: input.intervalHours ?? 1,
-    scheduleNote: input.scheduleNote?.trim() || null,
-    createdAt: new Date().toISOString(),
-  };
-  writeJson(SERIES_KEY, [series, ...list]);
-  return { ok: true, data: series };
+  if (forceMock()) {
+    const list = seedSeries();
+    const series: StudioShowSeries = {
+      id: `show-${Date.now()}`,
+      title,
+      description: input.description?.trim() || '',
+      coverUrl: input.coverUrl ?? null,
+      showType: input.showType ?? 'LIVE_SET',
+      nextEpisodeNumber: 1,
+      intervalHours: input.intervalHours ?? 1,
+      scheduleNote: input.scheduleNote?.trim() || null,
+      createdAt: new Date().toISOString(),
+    };
+    writeJson(SERIES_KEY, [series, ...list]);
+    return { ok: true, data: series };
+  }
+  try {
+    const { data } = await requestJson<WireLiveShowSeries>(
+      '/api/me/channel/show-series',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          name: title,
+          description: input.description,
+          artworkUrl: input.coverUrl,
+          showType: input.showType,
+          intervalHours: input.intervalHours,
+          scheduleNote: input.scheduleNote,
+        }),
+      },
+    );
+    return { ok: true, data: seriesFromWire(data) };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Failed to create show',
+    };
+  }
 }
 
 export async function patchShowSeries(
@@ -401,14 +493,50 @@ export async function patchShowSeries(
 ): Promise<
   { ok: true; data: StudioShowSeries } | { ok: false; error: string }
 > {
-  const list = seedSeries();
-  const idx = list.findIndex((s) => s.id === id);
-  if (idx < 0) {
-    return { ok: false, error: 'Show not found' };
+  if (forceMock()) {
+    const list = seedSeries();
+    const idx = list.findIndex((s) => s.id === id);
+    if (idx < 0) {
+      return { ok: false, error: 'Show not found' };
+    }
+    list[idx] = { ...list[idx]!, ...patch };
+    writeJson(SERIES_KEY, list);
+    return { ok: true, data: list[idx]! };
   }
-  list[idx] = { ...list[idx]!, ...patch };
-  writeJson(SERIES_KEY, list);
-  return { ok: true, data: list[idx]! };
+  try {
+    const body: Record<string, unknown> = {};
+    if ('title' in patch) {
+      body.name = patch.title;
+    }
+    if ('description' in patch) {
+      body.description = patch.description;
+    }
+    if ('coverUrl' in patch) {
+      body.artworkUrl = patch.coverUrl;
+    }
+    if ('showType' in patch) {
+      body.showType = patch.showType;
+    }
+    if ('intervalHours' in patch) {
+      body.intervalHours = patch.intervalHours;
+    }
+    if ('scheduleNote' in patch) {
+      body.scheduleNote = patch.scheduleNote;
+    }
+    if ('nextEpisodeNumber' in patch) {
+      body.nextEpisodeNumber = patch.nextEpisodeNumber;
+    }
+    const { data } = await requestJson<WireLiveShowSeries>(
+      `/api/me/channel/show-series/${encodeURIComponent(id)}`,
+      { method: 'PATCH', body: JSON.stringify(body) },
+    );
+    return { ok: true, data: seriesFromWire(data) };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Failed to update show',
+    };
+  }
 }
 
 export async function fetchShowSeriesById(
@@ -421,23 +549,62 @@ export async function fetchShowSeriesById(
 export async function fetchEpisodesForShow(
   showId: string,
 ): Promise<{ data: StudioEpisode[]; meta: FetchMeta }> {
-  const all = seedEpisodes();
-  return {
-    data: all
-      .filter((e) => e.showId === showId)
-      .sort((a, b) => b.episodeNumber - a.episodeNumber),
-    meta: { source: 'mock', reason: 'Episodes stored locally' },
-  };
+  if (forceMock()) {
+    const all = seedEpisodes();
+    return {
+      data: all
+        .filter((e) => e.showId === showId)
+        .sort((a, b) => b.episodeNumber - a.episodeNumber),
+      meta: { source: 'mock', reason: 'VITE_FORCE_MOCK' },
+    };
+  }
+  try {
+    const { data } = await requestJson<{ episodes: WireLiveShowEpisode[] }>(
+      `/api/me/channel/show-series/${encodeURIComponent(showId)}/live-show-episodes`,
+    );
+    return {
+      data: data.episodes.map(episodeFromWire),
+      meta: { source: 'api' },
+    };
+  } catch (err) {
+    if (allowMockFallback()) {
+      const all = seedEpisodes();
+      return {
+        data: all
+          .filter((e) => e.showId === showId)
+          .sort((a, b) => b.episodeNumber - a.episodeNumber),
+        meta: failMeta(err),
+      };
+    }
+    return { data: [], meta: apiErrorMeta(err) };
+  }
 }
 
 export async function fetchEpisode(
   id: string,
 ): Promise<{ data: StudioEpisode | null; meta: FetchMeta }> {
-  const all = seedEpisodes();
-  return {
-    data: all.find((e) => e.id === id) ?? null,
-    meta: { source: 'mock' },
-  };
+  if (forceMock()) {
+    const all = seedEpisodes();
+    return {
+      data: all.find((e) => e.id === id) ?? null,
+      meta: { source: 'mock' },
+    };
+  }
+  try {
+    const { data } = await requestJson<WireLiveShowEpisode>(
+      `/api/me/channel/live-show-episodes/${encodeURIComponent(id)}`,
+    );
+    return { data: episodeFromWire(data), meta: { source: 'api' } };
+  } catch (err) {
+    if (allowMockFallback()) {
+      const all = seedEpisodes();
+      return {
+        data: all.find((e) => e.id === id) ?? null,
+        meta: failMeta(err),
+      };
+    }
+    return { data: null, meta: apiErrorMeta(err) };
+  }
 }
 
 /** Create episode with parent defaults — sequential episode number is assigned here. */
@@ -451,35 +618,57 @@ export async function createEpisode(input: {
   /** Override title; defaults to "{show} — Episode {n}". */
   title?: string;
 }): Promise<{ ok: true; data: StudioEpisode } | { ok: false; error: string }> {
-  const seriesList = seedSeries();
-  const show = seriesList.find((s) => s.id === input.showId);
-  if (!show) {
-    return { ok: false, error: 'Show not found' };
+  if (forceMock()) {
+    const seriesList = seedSeries();
+    const show = seriesList.find((s) => s.id === input.showId);
+    if (!show) {
+      return { ok: false, error: 'Show not found' };
+    }
+
+    const episodeNumber = show.nextEpisodeNumber;
+    const episode: StudioEpisode = {
+      id: `ep-${Date.now()}`,
+      showId: show.id,
+      episodeNumber,
+      title: input.title?.trim() || `${show.title} — Episode ${episodeNumber}`,
+      description: show.description,
+      coverUrl: show.coverUrl,
+      status: input.source === 'broadcast' ? 'PENDING_APPROVAL' : 'DRAFT',
+      source: input.source,
+      archiveItemId: input.archiveItemId ?? null,
+      slotStartAt: input.slotStartAt ?? null,
+      slotEndAt: input.slotEndAt ?? null,
+      bookingId: input.bookingId ?? null,
+      createdAt: new Date().toISOString(),
+    };
+
+    const episodes = seedEpisodes();
+    writeJson(EPISODES_KEY, [episode, ...episodes]);
+    show.nextEpisodeNumber = episodeNumber + 1;
+    writeJson(SERIES_KEY, seriesList);
+
+    return { ok: true, data: episode };
   }
-
-  const episodeNumber = show.nextEpisodeNumber;
-  const episode: StudioEpisode = {
-    id: `ep-${Date.now()}`,
-    showId: show.id,
-    episodeNumber,
-    title: input.title?.trim() || `${show.title} — Episode ${episodeNumber}`,
-    description: show.description,
-    coverUrl: show.coverUrl,
-    status: input.source === 'broadcast' ? 'PENDING_APPROVAL' : 'DRAFT',
-    source: input.source,
-    archiveItemId: input.archiveItemId ?? null,
-    slotStartAt: input.slotStartAt ?? null,
-    slotEndAt: input.slotEndAt ?? null,
-    bookingId: input.bookingId ?? null,
-    createdAt: new Date().toISOString(),
-  };
-
-  const episodes = seedEpisodes();
-  writeJson(EPISODES_KEY, [episode, ...episodes]);
-  show.nextEpisodeNumber = episodeNumber + 1;
-  writeJson(SERIES_KEY, seriesList);
-
-  return { ok: true, data: episode };
+  try {
+    const { data } = await requestJson<WireLiveShowEpisode>(
+      `/api/me/channel/show-series/${encodeURIComponent(input.showId)}/live-show-episodes`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          source: input.source === 'broadcast' ? 'BROADCAST' : 'UPLOAD',
+          title: input.title,
+          archiveItemId: input.archiveItemId,
+          radioSlotBookingId: input.bookingId,
+        }),
+      },
+    );
+    return { ok: true, data: episodeFromWire(data) };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Failed to create episode',
+    };
+  }
 }
 
 export async function patchEpisode(
@@ -498,14 +687,47 @@ export async function patchEpisode(
     >
   >,
 ): Promise<{ ok: true; data: StudioEpisode } | { ok: false; error: string }> {
-  const list = seedEpisodes();
-  const idx = list.findIndex((e) => e.id === id);
-  if (idx < 0) {
-    return { ok: false, error: 'Episode not found' };
+  if (forceMock()) {
+    const list = seedEpisodes();
+    const idx = list.findIndex((e) => e.id === id);
+    if (idx < 0) {
+      return { ok: false, error: 'Episode not found' };
+    }
+    list[idx] = { ...list[idx]!, ...patch };
+    writeJson(EPISODES_KEY, list);
+    return { ok: true, data: list[idx]! };
   }
-  list[idx] = { ...list[idx]!, ...patch };
-  writeJson(EPISODES_KEY, list);
-  return { ok: true, data: list[idx]! };
+  try {
+    const body: Record<string, unknown> = {};
+    if ('title' in patch) {
+      body.title = patch.title;
+    }
+    if ('description' in patch) {
+      body.description = patch.description;
+    }
+    if ('coverUrl' in patch) {
+      body.artworkUrl = patch.coverUrl;
+    }
+    if ('status' in patch) {
+      body.status = patch.status;
+    }
+    if ('archiveItemId' in patch) {
+      body.archiveItemId = patch.archiveItemId;
+    }
+    if ('bookingId' in patch) {
+      body.radioSlotBookingId = patch.bookingId;
+    }
+    const { data } = await requestJson<WireLiveShowEpisode>(
+      `/api/me/channel/live-show-episodes/${encodeURIComponent(id)}`,
+      { method: 'PATCH', body: JSON.stringify(body) },
+    );
+    return { ok: true, data: episodeFromWire(data) };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Failed to update episode',
+    };
+  }
 }
 
 /** Approve a recorded episode so it can go live / be scheduled. */

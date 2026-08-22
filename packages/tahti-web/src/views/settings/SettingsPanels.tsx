@@ -25,7 +25,15 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
-import { Button, Input, PluginItem, Tabs, Toggle } from '@nuclearplayer/ui';
+import {
+  Button,
+  Input,
+  PluginItem,
+  Select,
+  Tabs,
+  Toggle,
+  type SelectOption,
+} from '@nuclearplayer/ui';
 
 import {
   fetchChannelMembers,
@@ -103,6 +111,18 @@ import { useThemeStore } from '../../stores/themeStore';
 import { WhatsNewPanel } from '../WhatsNewView';
 import { SettingsHint, SettingsInfo, SettingsToggle } from './SettingsFields';
 import { SETTINGS_NAV, type SettingsSectionId } from './settingsNav';
+
+const PRONOUN_OPTIONS: SelectOption[] = [
+  { id: 'she/her', label: 'she/her' },
+  { id: 'he/him', label: 'he/him' },
+  { id: 'they/them', label: 'they/them' },
+  { id: 'she/they', label: 'she/they' },
+  { id: 'he/they', label: 'he/they' },
+  { id: 'other', label: 'Other' },
+];
+const PRONOUN_PRESET_IDS = new Set(
+  PRONOUN_OPTIONS.map((o) => o.id).filter((id) => id !== 'other'),
+);
 
 function euros(cents: number | string): string {
   const n = typeof cents === 'string' ? Number(cents) : cents;
@@ -532,6 +552,45 @@ function AccountPanel() {
   );
 }
 
+/** Optional pronouns dropdown — common options plus a free-text "Other". */
+function PronounsField({
+  profile,
+  setProfile,
+}: {
+  profile: ProfileFields;
+  setProfile: (p: ProfileFields) => void;
+}) {
+  const current = profile.pronouns ?? '';
+  const isCustom = current !== '' && !PRONOUN_PRESET_IDS.has(current);
+  const [showCustomInput, setShowCustomInput] = useState(isCustom);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Select
+        label="Pronouns"
+        value={showCustomInput ? 'other' : current}
+        onValueChange={(id) => {
+          if (id === 'other') {
+            setShowCustomInput(true);
+            return;
+          }
+          setShowCustomInput(false);
+          setProfile({ ...profile, pronouns: id });
+        }}
+        placeholder="Not set"
+        options={PRONOUN_OPTIONS}
+      />
+      {showCustomInput && (
+        <Input
+          label="Custom pronouns"
+          value={isCustom ? current : ''}
+          onChange={(e) => setProfile({ ...profile, pronouns: e.target.value })}
+        />
+      )}
+    </div>
+  );
+}
+
 function ArtistPanel() {
   const user = useAuthStore((s) => s.user);
   const [profile, setProfile] = useState<ProfileFields | null>(null);
@@ -601,13 +660,7 @@ function ArtistPanel() {
                   }
                 />
               </label>
-              <Input
-                label="Pronouns"
-                value={profile.pronouns ?? ''}
-                onChange={(e) =>
-                  setProfile({ ...profile, pronouns: e.target.value })
-                }
-              />
+              <PronounsField profile={profile} setProfile={setProfile} />
               <label className="flex flex-col gap-1.5 text-sm">
                 <span className="text-foreground text-sm font-semibold">
                   I am a…

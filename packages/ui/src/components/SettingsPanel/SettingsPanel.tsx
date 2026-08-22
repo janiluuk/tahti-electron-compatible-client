@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useEffect, useState } from 'react';
 
 import { DialogRoot } from '../Dialog/DialogRoot';
 import { SettingsPanelContent } from './SettingsPanelContent';
@@ -28,7 +28,18 @@ export const SettingsPanel: FC<SettingsPanelProps> = ({
   onTabChange,
   navFooter,
 }) => {
-  const activeTabContent = tabs.find((tab) => tab.id === activeTab)?.content;
+  const activeTabMeta = tabs.find((tab) => tab.id === activeTab);
+  // Below `sm`, nav and content share one screen's worth of space and can't
+  // sit side by side — show the section list first, then swap to the
+  // section's content on selection (native "settings app" pattern). Desktop
+  // always shows both; this state only ever matters below the sm breakpoint.
+  const [mobileShowList, setMobileShowList] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMobileShowList(true);
+    }
+  }, [isOpen]);
 
   return (
     <DialogRoot
@@ -39,11 +50,19 @@ export const SettingsPanel: FC<SettingsPanelProps> = ({
       <SettingsPanelNav
         tabs={tabs}
         activeTab={activeTab}
-        onTabChange={onTabChange}
+        onTabChange={(tabId) => {
+          onTabChange(tabId);
+          setMobileShowList(false);
+        }}
         footer={navFooter}
+        className={mobileShowList ? 'flex' : 'hidden'}
       />
-      <SettingsPanelContent>
-        {activeTabContent && activeTabContent()}
+      <SettingsPanelContent
+        className={mobileShowList ? 'hidden' : 'flex'}
+        title={activeTabMeta?.label}
+        onBack={() => setMobileShowList(true)}
+      >
+        {activeTabMeta?.content()}
       </SettingsPanelContent>
     </DialogRoot>
   );

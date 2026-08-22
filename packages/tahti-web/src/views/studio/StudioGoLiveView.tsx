@@ -1,10 +1,14 @@
 import { Link } from '@tanstack/react-router';
 import {
+  ArrowLeftIcon,
+  CheckCircle2Icon,
   CheckIcon,
   CopyIcon,
+  HeadphonesIcon,
   KeyRoundIcon,
   PlusIcon,
   RadioIcon,
+  VideoIcon,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -22,20 +26,20 @@ import {
   liveChannelPlayable,
   mockSimulateSignal,
   patchRtmpTarget,
-  postEndBroadcast,
   postGoLive,
   type BroadcastUsage,
   type RtmpTarget,
   type SignalStatus,
   type StreamSettings,
 } from '../../api/broadcast';
+import { StreamManagerPanel } from '../../components/StreamManagerPanel';
 import { StudioGate } from '../../components/StudioGate';
 import { StudioNav } from '../../components/StudioNav';
 import { OnAirBadge } from '../../components/tahti/OnAirBadge';
 import { useAuthStore } from '../../stores/authStore';
 import { usePlayerStore } from '../../stores/playerStore';
 
-type Ingest = 'obs' | 'icecast';
+type Ingest = 'obs' | 'icecast' | 'traktor';
 type Panel = 'connect' | 'live' | 'multistream';
 
 async function copyText(value: string): Promise<boolean> {
@@ -219,15 +223,9 @@ export function StudioGoLiveView() {
     }
   };
 
-  const onEnd = async () => {
-    setBusy(true);
-    setMsg(null);
-    const result = await postEndBroadcast();
-    setBusy(false);
-    if (!result.ok) {
-      setMsg(result.error);
-      return;
-    }
+  // StreamManagerPanel calls postEndBroadcast itself — this just syncs the
+  // local view once that succeeds.
+  const handleStreamEnded = () => {
     patchLocalChannel('OFFLINE');
     setMsg('Broadcast ended.');
     setPanel('connect');
@@ -296,14 +294,22 @@ export function StudioGoLiveView() {
                     }
                     setPanel(t.id);
                   }}
-                  className={`rounded-full border px-3 py-1.5 text-sm ${
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm ${
                     active
                       ? 'border-primary bg-primary/15 font-semibold'
                       : 'border-border text-foreground-secondary hover:border-primary/40'
                   }`}
                 >
-                  <span className="opacity-60">{t.step}</span> {t.label}
-                  {done ? ' ✓' : ''}
+                  {done ? (
+                    <CheckCircle2Icon
+                      size={14}
+                      className="text-primary"
+                      aria-hidden
+                    />
+                  ) : (
+                    <span className="opacity-60">{t.step}</span>
+                  )}
+                  {t.label}
                 </button>
               </li>
             );
@@ -331,14 +337,24 @@ export function StudioGoLiveView() {
                 variant={ingest === 'obs' ? 'default' : 'secondary'}
                 onClick={() => setIngest('obs')}
               >
-                OBS / RTMP
+                <VideoIcon size={14} aria-hidden className="mr-1.5" />
+                OBS
+              </Button>
+              <Button
+                size="sm"
+                variant={ingest === 'traktor' ? 'default' : 'secondary'}
+                onClick={() => setIngest('traktor')}
+              >
+                <HeadphonesIcon size={14} aria-hidden className="mr-1.5" />
+                Traktor
               </Button>
               <Button
                 size="sm"
                 variant={ingest === 'icecast' ? 'default' : 'secondary'}
                 onClick={() => setIngest('icecast')}
               >
-                Icecast (Mixxx / butt)
+                <RadioIcon size={14} aria-hidden className="mr-1.5" />
+                Icecast
               </Button>
             </div>
 
@@ -368,13 +384,41 @@ export function StudioGoLiveView() {
                   </ol>
                 </div>
               </section>
+            ) : ingest === 'traktor' ? (
+              <section className="border-border rounded-xl border p-4">
+                <h2 className="font-display text-lg font-bold">
+                  Traktor credentials
+                </h2>
+                <p className="text-foreground-secondary text-xs">
+                  Preferences → Broadcasting
+                </p>
+                <div className="mt-3 flex flex-col gap-2">
+                  <CopyField label="Address" value={settings.icecast.server} />
+                  <CopyField
+                    label="Mount point"
+                    value={settings.icecast.mount}
+                  />
+                  <CopyField
+                    label="Password"
+                    value={settings.icecast.password}
+                  />
+                  <ol className="text-foreground-secondary mt-2 list-decimal space-y-1 pl-5 text-sm">
+                    <li>Traktor Preferences → Broadcasting.</li>
+                    <li>
+                      Paste Address, Mount point, and Password into the Icecast
+                      fields.
+                    </li>
+                    <li>Click On Air in the Broadcast panel.</li>
+                  </ol>
+                </div>
+              </section>
             ) : (
               <section className="border-border rounded-xl border p-4">
                 <h2 className="font-display text-lg font-bold">
                   Icecast credentials
                 </h2>
                 <p className="text-foreground-secondary text-xs">
-                  Mixxx, Traktor, butt
+                  Mixxx, butt, or any other Icecast-compatible source
                 </p>
                 <div className="mt-3 flex flex-col gap-2">
                   <CopyField label="Server" value={settings.icecast.server} />
@@ -391,24 +435,6 @@ export function StudioGoLiveView() {
                 </div>
               </section>
             )}
-
-            <div className="text-foreground-secondary flex flex-wrap gap-2 text-xs">
-              <span
-                className={`rounded-full border px-2 py-0.5 ${settings ? 'border-primary/40' : 'border-border'}`}
-              >
-                {settings ? '✓' : '○'} Settings
-              </span>
-              <span
-                className={`rounded-full border px-2 py-0.5 ${signalOk ? 'border-primary/40' : 'border-border'}`}
-              >
-                {signalOk ? '✓' : '○'} Signal
-              </span>
-              <span
-                className={`rounded-full border px-2 py-0.5 ${!usage?.blocked ? 'border-primary/40' : 'border-border'}`}
-              >
-                {!usage?.blocked ? '✓' : '○'} Quota
-              </span>
-            </div>
 
             <div className="border-border flex flex-wrap items-center gap-3 rounded-lg border p-4">
               <div className="flex-1">
@@ -462,76 +488,49 @@ export function StudioGoLiveView() {
 
         {panel === 'live' && (
           <div className="flex flex-col gap-4">
-            <div
-              className={`rounded-xl border p-6 ${
-                isLive
-                  ? 'border-primary bg-primary/10'
-                  : 'border-border bg-background-secondary'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <RadioIcon
-                  size={28}
-                  className={isLive ? 'text-primary' : undefined}
-                />
-                <div>
-                  <div className="font-display text-xl font-bold">
-                    {isLive
-                      ? 'You’re on air'
-                      : isPreview
+            {isLive ? (
+              <>
+                <StreamManagerPanel slug={slug} onEnded={handleStreamEnded} />
+                <Button variant="secondary" onClick={onPlayLive}>
+                  Play in this app
+                </Button>
+              </>
+            ) : (
+              <div className="border-border bg-background-secondary rounded-xl border p-6">
+                <div className="flex items-center gap-3">
+                  <RadioIcon size={28} aria-hidden />
+                  <div>
+                    <div className="font-display text-xl font-bold">
+                      {isPreview
                         ? 'Preview — hear yourself, then go public'
                         : signalOk
                           ? 'Ready when you are'
                           : 'No signal yet'}
-                  </div>
-                  <p className="text-foreground-secondary text-sm">
-                    Channel <code>/{slug}</code>
-                  </p>
-                  {isLive && signal?.connected && (
-                    <p className="text-foreground-secondary mt-1 text-xs">
-                      {signal.codec ?? 'audio'} · {signal.bitrateKbps ?? '—'}{' '}
-                      kbps
-                      {typeof signal.listeners === 'number'
-                        ? ` · ${signal.listeners} listening`
-                        : ''}
+                    </div>
+                    <p className="text-foreground-secondary text-sm">
+                      Channel <code>/{slug}</code>
                     </p>
-                  )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
-                {!isLive && (
+                <div className="mt-5 flex flex-wrap gap-2">
                   <Button
                     disabled={
                       busy || (!signalOk && !isPreview) || usage?.blocked
                     }
                     onClick={() => void onGoLive()}
                   >
+                    <RadioIcon size={16} aria-hidden className="mr-1.5" />
                     {busy ? 'Going live…' : 'Go Live'}
                   </Button>
-                )}
-                {isLive && (
-                  <>
-                    <Button onClick={onPlayLive}>Play in this app</Button>
-                    <Link to="/channel/$slug" params={{ slug }}>
-                      <Button variant="secondary">Open public channel</Button>
-                    </Link>
-                    <Button
-                      variant="text"
-                      disabled={busy}
-                      onClick={() => void onEnd()}
-                    >
-                      End broadcast
+                  {signalOk && (
+                    <Button variant="secondary" onClick={onPlayLive}>
+                      Preview audio
                     </Button>
-                  </>
-                )}
-                {!isLive && signalOk && (
-                  <Button variant="secondary" onClick={onPlayLive}>
-                    Preview audio
-                  </Button>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             <p className="text-foreground-secondary text-xs">
               After the show, promote captures from{' '}
@@ -550,7 +549,8 @@ export function StudioGoLiveView() {
                 variant="secondary"
                 onClick={() => setPanel('connect')}
               >
-                ← Connect
+                <ArrowLeftIcon size={14} aria-hidden className="mr-1.5" />
+                Connect
               </Button>
               <Button
                 size="sm"
@@ -720,7 +720,8 @@ export function StudioGoLiveView() {
                 variant="secondary"
                 onClick={() => setPanel('live')}
               >
-                ← Live
+                <ArrowLeftIcon size={14} aria-hidden className="mr-1.5" />
+                Live
               </Button>
             </div>
           </div>

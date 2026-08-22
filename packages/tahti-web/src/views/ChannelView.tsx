@@ -1,5 +1,13 @@
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
-import { GripVerticalIcon, MessageCircle, PencilIcon } from 'lucide-react';
+import {
+  GripVerticalIcon,
+  HeartIcon,
+  ListPlusIcon,
+  MessageCircle,
+  PencilIcon,
+  PlayIcon,
+  WifiOffIcon,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@nuclearplayer/ui';
@@ -19,6 +27,7 @@ import {
   playQueueFavoriteActions,
 } from '../components/MediaIconActions';
 import { PlayableTrackTable } from '../components/PlayableTrackTable';
+import { StreamManagerPanel } from '../components/StreamManagerPanel';
 import { Eyebrow } from '../components/tahti/Eyebrow';
 import { OnAirBadge } from '../components/tahti/OnAirBadge';
 import {
@@ -70,7 +79,10 @@ export function ChannelView({ slug }: { slug: string }) {
     s.favoriteChannels.some((c) => c.slug === slug),
   );
   const setChatContext = useLayoutStore((s) => s.setChatContext);
+  const clearChatContext = useLayoutStore((s) => s.clearChatContext);
   const openChatRail = useLayoutStore((s) => s.openChatRail);
+
+  useEffect(() => clearChatContext, [clearChatContext]);
 
   const isOwner = Boolean(
     me && channel && me.username === channel.user.username,
@@ -151,6 +163,29 @@ export function ChannelView({ slug }: { slug: string }) {
     }
     openChatRail(slug);
   };
+
+  const handlePlayChannel = () => {
+    void fetchChannel(slug).then(({ playable }) => {
+      if (playable) {
+        play(playable);
+      }
+    });
+  };
+
+  const handleQueueChannel = () => {
+    void fetchChannel(slug).then(({ playable }) => {
+      if (playable) {
+        enqueue(playable);
+      }
+    });
+  };
+
+  const handleToggleFavoriteChannel = () =>
+    toggleFavoriteChannel({
+      slug,
+      displayName: channel.user.displayName,
+      avatarUrl: channel.user.avatarUrl,
+    });
 
   const updateLayout = (
     next: ChannelPageItem[],
@@ -236,49 +271,97 @@ export function ChannelView({ slug }: { slug: string }) {
                 channel.nowPlaying?.artworkUrl ?? channel.user.avatarUrl
               }
             />
-            <div
-              className={`absolute inset-x-0 bottom-0 z-[1] p-4 ${
-                subtle
-                  ? 'bg-gradient-to-t from-black/80 via-black/35 to-transparent'
-                  : 'bg-gradient-to-t from-black/70 to-transparent'
-              }`}
-            >
-              {channel.nowPlaying ? (
-                <>
-                  <div
-                    className={`tracking-wide text-white/70 uppercase ${
-                      subtle ? 'text-[9px] font-medium' : 'text-[10px]'
-                    }`}
-                  >
-                    Now playing
-                  </div>
-                  <div
-                    className={`mt-0.5 text-white ${
-                      subtle
-                        ? 'text-base font-medium tracking-tight'
-                        : 'font-bold'
-                    }`}
-                  >
-                    {channel.nowPlaying.title}
-                  </div>
-                  <div className="text-sm text-white/80">
-                    {channel.nowPlaying.artistName}
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-white/80">
-                  {live
-                    ? 'Stream is live — hit Play live to drive the visualizer.'
-                    : 'Offline — visualizer idles until you play archive or live.'}
-                </p>
-              )}
-              {!subtle && (
-                <p className="mt-1 font-mono text-[10px] tracking-wide text-white/50 uppercase">
-                  Preset:{' '}
-                  {(channel.visualPreset ?? 'AURORA').replace(/_/g, ' ')}
-                </p>
-              )}
-            </div>
+            {!live && !channel.nowPlaying ? (
+              <div className="absolute inset-0 z-[1] flex items-center justify-center">
+                <WifiOffIcon
+                  size={56}
+                  strokeWidth={1.5}
+                  className="text-white/25"
+                  aria-hidden
+                />
+              </div>
+            ) : (
+              <div
+                className={`absolute inset-x-0 bottom-0 z-[1] p-4 ${
+                  subtle
+                    ? 'bg-gradient-to-t from-black/80 via-black/35 to-transparent'
+                    : 'bg-gradient-to-t from-black/70 to-transparent'
+                }`}
+              >
+                {channel.nowPlaying ? (
+                  <>
+                    <div
+                      className={`tracking-wide text-white/70 uppercase ${
+                        subtle ? 'text-[9px] font-medium' : 'text-[10px]'
+                      }`}
+                    >
+                      Now playing
+                    </div>
+                    <div
+                      className={`mt-0.5 text-white ${
+                        subtle
+                          ? 'text-base font-medium tracking-tight'
+                          : 'font-bold'
+                      }`}
+                    >
+                      {channel.nowPlaying.title}
+                    </div>
+                    <div className="text-sm text-white/80">
+                      {channel.nowPlaying.artistName}
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-white/80">
+                    Stream is live — hit Play live to drive the visualizer.
+                  </p>
+                )}
+                {!subtle && (
+                  <p className="mt-1 font-mono text-[10px] tracking-wide text-white/50 uppercase">
+                    Preset:{' '}
+                    {(channel.visualPreset ?? 'AURORA').replace(/_/g, ' ')}
+                  </p>
+                )}
+              </div>
+            )}
+            {(live || channel.hlsUrl) && (
+              <div className="absolute right-3 bottom-3 z-[2] flex items-center gap-2">
+                <Button
+                  size="icon"
+                  variant="text"
+                  className="bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
+                  onClick={handleToggleFavoriteChannel}
+                  aria-pressed={favorited}
+                  aria-label={favorited ? 'Favorited' : 'Favorite'}
+                  title={favorited ? 'Favorited' : 'Favorite'}
+                >
+                  <HeartIcon
+                    size={18}
+                    className={
+                      favorited ? 'text-accent-red fill-current' : undefined
+                    }
+                  />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="text"
+                  className="bg-black/45 text-white backdrop-blur-sm hover:bg-black/65"
+                  onClick={handleQueueChannel}
+                  aria-label="Queue"
+                  title="Queue"
+                >
+                  <ListPlusIcon size={18} />
+                </Button>
+                <Button
+                  size="icon"
+                  className="bg-primary text-primary-foreground h-14 w-14 rounded-full shadow-lg"
+                  onClick={handlePlayChannel}
+                  aria-label={live ? 'Play live' : 'Play stream'}
+                  title={live ? 'Play live' : 'Play stream'}
+                >
+                  <PlayIcon size={24} className="fill-current" />
+                </Button>
+              </div>
+            )}
           </div>
         );
       case 'textOverlay':
@@ -299,26 +382,9 @@ export function ChannelView({ slug }: { slug: string }) {
             <MediaIconActions
               actions={[
                 ...playQueueFavoriteActions({
-                  onPlay: () => {
-                    void fetchChannel(slug).then(({ playable }) => {
-                      if (playable) {
-                        play(playable);
-                      }
-                    });
-                  },
-                  onQueue: () => {
-                    void fetchChannel(slug).then(({ playable }) => {
-                      if (playable) {
-                        enqueue(playable);
-                      }
-                    });
-                  },
-                  onFavorite: () =>
-                    toggleFavoriteChannel({
-                      slug,
-                      displayName: channel.user.displayName,
-                      avatarUrl: channel.user.avatarUrl,
-                    }),
+                  onPlay: handlePlayChannel,
+                  onQueue: handleQueueChannel,
+                  onFavorite: handleToggleFavoriteChannel,
                   favorited,
                   playDisabled: !channel.hlsUrl,
                   queueDisabled: !channel.hlsUrl,
@@ -491,6 +557,15 @@ export function ChannelView({ slug }: { slug: string }) {
           </Link>
         </p>
       </div>
+
+      {live && (isOwner || me?.isBoard) && !editing && (
+        <StreamManagerPanel
+          slug={slug}
+          onEnded={() => {
+            setChannel({ ...channel, state: 'OFFLINE', hlsUrl: null });
+          }}
+        />
+      )}
 
       {visibleItems.map((item) => {
         if (!editing && !item.visible) {
